@@ -1,19 +1,20 @@
-# ATHOS V54.1 — Codex Render + Mobile Interativo
+# ATHOS V54.3 — Interatividade + Profundidade Mobile
 
-Base: ZIP do Codex com render V54 preservado.
+Base: V54.2.
 
 Correções:
-- remove pasta wrapper; arquivos na raiz do GitHub;
-- mantém assets/render-v54 do Codex;
-- mundos/cenários saem da tela de jogo e vão para Configurações;
-- botão Configurações abre painel com mundos e ações extras;
-- botão + Cristal passa a funcionar;
-- botões de ação ficam mais espaçados e só mostram o essencial no gameplay;
-- responsividade por CSS/resize para retrato e paisagem;
-- AR/model-viewer/athos.glb/B Poder/Quiz/Falar preservados.
+- remove completamente a faixa de mundos do DOM do gameplay;
+- o stage 3D ocupa 100dvh, sem dock/faixa azul reservando metade da tela;
+- Ação pega espada/escudo/estrela quando perto;
+- itens também são coletados automaticamente com raio maior;
+- B Poder tem auto-mira no inimigo mais próximo à frente;
+- inimigos, cristais e powerups lógicos ficam visíveis sobre o render V54;
+- controles principais espaçados;
+- Configurações e + Cristal preservados;
+- AR/model-viewer/athos.glb/Quiz/Falar preservados.
 
 Abrir:
-?v=541-codex-render-mobile-interativo
+?v=543-interatividade-profundidade-mobile
 
 Teste:
-F12_TESTE_ATHOS_V541_CODEX_RENDER_MOBILE_INTERATIVO.js
+F12_TESTE_ATHOS_V543_INTERATIVIDADE_PROFUNDIDADE_MOBILE.js

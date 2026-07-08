@@ -922,3 +922,8 @@ body.v53-codex-obedecido #exitBtn::before{content:"■";font-size:20px!important
 }
 
 /* V54.1: configurações e mundos no modal; render-v54.css contém a regra forte. */
+
+
+/* V54.3 fallback: se algum CSS velho tentar reservar dock, o render-v54.css vence; isto é reforço. */
+.game.active .game-controls > .world-strip{display:none!important;visibility:hidden!important}
+.game.active .three-stage{inset:0!important;bottom:0!important;height:100dvh!important}

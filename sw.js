@@ -1,6 +1,6 @@
 // Athos V53 — Service Worker leve para GitHub Pages.
 // Network-first para impedir cache fantasma durante correções e testes.
-const CACHE_VERSION = 'athos-v541-codex-render-mobile-interativo';
+const CACHE_VERSION = 'athos-v543-interatividade-profundidade-mobile';
 
 self.addEventListener('install', () => {
   self.skipWaiting();

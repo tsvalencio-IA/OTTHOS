@@ -382,7 +382,8 @@
     els.hudTime.textContent = runtime.timer ? Math.max(0, Math.ceil(runtime.timer)) : '∞';
     els.worldName.textContent = `${WORLD[currentLevel.world]?.name || 'Mundo'} • ${DIFFICULTY[progress.difficulty].name}`;
     const portalReady = objectivesDone();
-    els.objectiveText.textContent = portalReady ? 'Portal liberado! Vá até o portal.' : 'Pegue cristais, vença monstros e abra o portal.';
+    const nearItem = nearestPowerup(5.2);
+    els.objectiveText.textContent = nearItem ? `Ação: pegar ${itemLabel(nearItem.type)}.` : (portalReady ? 'Portal liberado! Vá até o portal.' : 'Pegue cristais, vença monstros e abra o portal.');
     if (portalReady && runtime && !runtime.portalAnnounced) {
       runtime.portalAnnounced = true;
       toast('Portal liberado!', 'good');
@@ -1310,18 +1311,64 @@
     const mesh = type==='sword'?v53SwordModel(x,y,z):type==='shield'?v53ShieldModel(x,y,z):v53StarModel(x,y,z);
     powerups.push({type,x,y,z,mesh,got:false});
   }
+  function setTreeVisible(obj, visible=true){
+    if(!obj) return;
+    obj.visible = !!visible;
+    if (obj.traverse) obj.traverse(o => { o.visible = !!visible; });
+  }
+  function itemLabel(type){
+    return type==='sword' ? 'espada' : type==='shield' ? 'escudo' : 'estrela';
+  }
+  function collectPowerup(it, manual=false){
+    if(!it || it.got) return false;
+    it.got=true;
+    if(it.mesh) setTreeVisible(it.mesh,false);
+    if(it.type==='sword'){ p.weapon='sword'; p.weaponUntil=now()+22000; toast(manual?'Espada equipada!':'Espada de luz!', 'good'); addXP(18); }
+    else if(it.type==='shield'){ p.shield=(p.shield||0)+1; toast(manual?'Escudo equipado!':'Escudo ativado!', 'good'); addXP(12); }
+    else { p.starUntil=now()+9500; toast(manual?'Estrela ativada!':'Estrela invencível!', 'good'); addXP(25); }
+    addParticles(it.x,it.y,it.z,it.type==='star'?0xffe259:it.type==='sword'?0x38bdf8:0x22c55e,28);
+    vibrate(manual?70:50); beep(980,120);
+    return true;
+  }
+  function nearestPowerup(maxDist=4.4){
+    if(!powerups || !powerups.length || !p) return null;
+    let best=null, bestD=Infinity;
+    for(const it of powerups){
+      if(it.got) continue;
+      const d=dist3(p.x,p.y+1,p.z,it.x,it.y,it.z);
+      if(d<maxDist && d<bestD){ best=it; bestD=d; }
+    }
+    return best;
+  }
+  function tryPickupNearestPowerup(maxDist=4.8){
+    const it = nearestPowerup(maxDist);
+    if(!it) return false;
+    return collectPowerup(it,true);
+  }
   function checkPowerups(){
     if(!powerups || !powerups.length) return;
     for(const it of powerups){
       if(it.got) continue;
-      if(dist3(p.x,p.y+1,p.z,it.x,it.y,it.z)<1.35){
-        it.got=true; if(it.mesh) it.mesh.visible=false;
-        if(it.type==='sword'){ p.weapon='sword'; p.weaponUntil=now()+18000; toast('Espada de luz!', 'good'); addXP(18); }
-        else if(it.type==='shield'){ p.shield=(p.shield||0)+1; toast('Escudo ativado!', 'good'); addXP(12); }
-        else { p.starUntil=now()+9000; toast('Estrela invencível!', 'good'); addXP(25); }
-        addParticles(it.x,it.y,it.z,it.type==='star'?0xffe259:it.type==='sword'?0x38bdf8:0x22c55e,24);
-        vibrate(50); beep(980,120);
+      if(it.mesh) setTreeVisible(it.mesh,true);
+      if(dist3(p.x,p.y+1,p.z,it.x,it.y,it.z)<2.15){
+        collectPowerup(it,false);
       }
+    }
+  }
+  function syncGameplayVisibility(){
+    if(!playing || !levelGroup) return;
+    for(const e of enemies){
+      if(!e || !e.mesh) continue;
+      setTreeVisible(e.mesh, !e.dead);
+      if(e.mesh.userData && e.mesh.userData.dangerRing) e.mesh.userData.dangerRing.visible = !e.dead;
+    }
+    for(const it of powerups){
+      if(it && it.mesh) setTreeVisible(it.mesh, !it.got);
+    }
+    for(const c of crystals){
+      if(c && c.mesh) setTreeVisible(c.mesh, !c.got);
+      if(c && c.glow) setTreeVisible(c.glow, !c.got);
+      if(c && c.light) c.light.visible = !c.got;
     }
   }
   function swordAttack(){
@@ -1622,11 +1669,12 @@
     if (mixer) mixer.update(dt);
     if (playing && !paused) update(dt);
     updateV54Render(dt);
+    syncGameplayVisibility();
     if (renderer && scene && camera) renderer.render(scene,camera);
   }
 
   function update(dt){
-    updateInput(dt); updateTimer(dt); updatePlayer(dt); updateEnemies(dt); updateV44EnemyProjectiles(dt); updateFireballs(dt); updateParticles(dt); updatePremiumVisuals(dt); checkCrystals(); checkHazards(); checkCheckpoints(); checkGates(); checkPortal(); updateCamera(dt); updateHud();
+    updateInput(dt); updateTimer(dt); updatePlayer(dt); updateEnemies(dt); updateV44EnemyProjectiles(dt); updateFireballs(dt); updateParticles(dt); updatePremiumVisuals(dt); syncGameplayVisibility(); checkPowerups(); checkCrystals(); checkHazards(); checkCheckpoints(); checkGates(); checkPortal(); updateCamera(dt); updateHud();
   }
   function updateTimer(dt){ if (runtime && runtime.timer) { runtime.timer -= dt; if (runtime.timer <= 0) damagePlayer(999,'Tempo esgotado!'); } }
   function updateInput(dt=1/60){
@@ -1905,10 +1953,20 @@
     }
     const m=box(.42,.42,.42,0xff7a00,{ emissive:0xff4d00, emissiveIntensity:.75, outline:true, outlineColor:0xfff7ad, outlineOpacity:.24 });
     m.position.set(p.x,p.y+1.25,p.z-.9); levelGroup.add(m);
-    const aimX = Math.abs(input.x) > .08 ? input.x * .42 : Math.sin(p.facing) * .18;
-    const aimZ = input.z < -.45 ? .35 : -1;
+    let targetEnemy = null, targetScore = Infinity;
+    for (const e of enemies) {
+      if (e.dead) continue;
+      const dz = p.z - e.z;
+      const dx = Math.abs(p.x - e.x);
+      if (dz > 0 && dz < 46 && dx < 8.5) {
+        const score = dz + dx * 2.2;
+        if (score < targetScore) { targetScore = score; targetEnemy = e; }
+      }
+    }
+    const aimX = targetEnemy ? (targetEnemy.x - p.x) : (Math.abs(input.x) > .08 ? input.x * .42 : Math.sin(p.facing) * .18);
+    const aimZ = targetEnemy ? (targetEnemy.z - p.z) : (input.z < -.45 ? .35 : -1);
     const dir = new THREE.Vector3(aimX,0,aimZ).normalize();
-    fireballs.push({mesh:m,x:m.position.x,y:m.position.y,z:m.position.z,vx:dir.x*7.5 + p.vx*.08,vz:dir.z*23,life:1.65});
+    fireballs.push({mesh:m,x:m.position.x,y:m.position.y,z:m.position.z,vx:dir.x*18 + p.vx*.05,vz:dir.z*25,life:1.9,autoAim:!!targetEnemy});
     addParticles(p.x,p.y+1.3,p.z,0xffa000,12); vibrate(35); beep(210,100,'sawtooth');
   }
   function updateFireballs(dt){
@@ -2078,10 +2136,11 @@
   function spin(){ p.spinUntil = now()+850; addXP(1); toast('Giro!', 'good'); }
   function cycleSize(){ p.scaleMode = p.scaleMode==='normal' ? 'mini' : p.scaleMode==='mini' ? 'giant' : 'normal'; toast(p.scaleMode==='mini'?'Mini!':p.scaleMode==='giant'?'Gigante!':'Normal!', 'good'); if(p.scaleMode==='giant'){ addMedal('Athos Gigante'); checkGates(); } }
   function interact(){
+    if (tryPickupNearestPowerup(5.2)) return;
     if (swordAttack()) return;
     for (const g of gates) if (g.altar && Math.abs(p.z-g.z)<5 && Math.abs(p.x-g.x)<4) { openQuiz(true); return; }
     if (mode==='hub') { const nearest = LEVELS.find(l => Math.abs(p.z + (40 + LEVELS.indexOf(l)*12)) < 8); if (nearest) { currentLevelIndex = LEVELS.indexOf(nearest); buildLevel(nearest); } }
-    else toast('Nada para interagir aqui.', 'warn');
+    else toast('Chegue perto de item/inimigo e toque Ação.', 'warn');
   }
   function togglePause(){ paused=!paused; resetAllInputs(paused?'pause':'resume'); els.pauseBtn.innerHTML = paused ? '▶<span>Voltar</span>' : '⏸<span>Pausa</span>'; toast(paused?'Pausado':'Voltando', 'warn'); }
   function toggleCrouch(v){ input.crouch = v; }
@@ -2213,7 +2272,7 @@
   function stopCamera(){ if(cameraStream){ cameraStream.getTracks().forEach(t=>t.stop()); cameraStream=null; } els.cameraFeed.srcObject=null; }
   function requestFullscreenLandscape(){ /* V37: não força fullscreen nem trava orientação. O fullscreen quebrava layout/inputs em alguns Androids. */ }
 
-  function updateWorldButtons(world){ $$('.world-chip').forEach(b=>{ const active = b.dataset.world===world; b.classList.toggle('active', active); if(active && b.scrollIntoView) setTimeout(()=>b.scrollIntoView({block:'nearest',inline:'nearest'}),50); }); }
+  function updateWorldButtons(world){ $$('.world-chip,.settings-world-btn').forEach(b=>{ const bw=b.dataset.world||b.dataset.settingsWorld; const active = bw===world; b.classList.toggle('active', active); if(active && b.closest('.settings-game-panel') && b.scrollIntoView) setTimeout(()=>b.scrollIntoView({block:'nearest',inline:'nearest'}),50); }); }
   function setupJoystick(){
     const ring = els.joystick.querySelector('.joy-ring');
     if (!ring) return;
@@ -2669,7 +2728,7 @@
     if(els.arAnchorViewer){ els.arAnchorViewer.addEventListener('ar-status',(e)=>{ if(e.detail && e.detail.status==='not-presenting') hardStopAllInput('ar-closed'); }); }
   }
   function refreshServiceWorker(){
-    if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js?v=541-codex-render-mobile-interativo').then(reg => reg.update()).catch(()=>{});
+    if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js?v=543-interatividade-profundidade-mobile').then(reg => reg.update()).catch(()=>{});
     if('caches' in window) caches.keys().then(keys=>keys.filter(k=>/athos|otto/i.test(k)).forEach(k=>caches.delete(k).catch(()=>{}))).catch(()=>{});
   }
 
@@ -2718,7 +2777,8 @@
     getV533: () => ({label:'V53_3_CONTROLES_100_DENTRO_DA_TELA', fix:'right-zone fixed; no overflow in landscape/portrait'}),
     getV532: () => ({label:'V53_2_MOBILE_GAMEPLAY_HOTFIX', camera:{follow:GAMEPLAY_CAMERA.cameraFollowDistance,height:GAMEPLAY_CAMERA.cameraHeight,lookAhead:GAMEPLAY_CAMERA.cameraLookAhead}, feel:{deadzone:GAME_FEEL.joystickDeadzone,release:GAME_FEEL.inputRelease,decel:GAME_FEEL.groundDeceleration}, viewport:{w:innerWidth,h:innerHeight,landscape:innerWidth>innerHeight}}),
     getV53: () => ({...V53_CODEX_VISUAL_GAMEPLAY, powerups: powerups.length, gotPowerups: powerups.filter(p=>p.got).length, playerWeapon:p.weapon||null, shield:p.shield||0, star: now() < (p.starUntil||0)}),
-    getV541: () => ({label:'V54_1_CODEX_RENDER_MOBILE_INTERATIVO', settings:true, crystalPlus:true, worldsInSettings:true, orientation:'auto-css-resize'}),
+    getV542: () => ({label:'V54_3_INTERATIVIDADE_PROFUNDIDADE_MOBILE', worldsHidden:true, settingsWorlds:true, fix:'world-strip hidden in markup and css'}),
+    getV541: () => ({label:'V54_3_INTERATIVIDADE_PROFUNDIDADE_MOBILE', settings:true, crystalPlus:true, worldsInSettings:true, orientation:'auto-css-resize'}),
     getV54Render: () => (window.ATHOS_V54_RENDER_PREMIUM && window.ATHOS_V54_RENDER_PREMIUM.getStatus ? window.ATHOS_V54_RENDER_PREMIUM.getStatus() : null),
     getV48Render: () => (window.ATHOS_V48_RENDER_TARGET && window.ATHOS_V48_RENDER_TARGET.getStatus ? window.ATHOS_V48_RENDER_TARGET.getStatus() : null),
     getV47Render: () => (window.ATHOS_V48_RENDER_TARGET && window.ATHOS_V48_RENDER_TARGET.getStatus ? window.ATHOS_V48_RENDER_TARGET.getStatus() : null),

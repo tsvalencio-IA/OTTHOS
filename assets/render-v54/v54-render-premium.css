@@ -23,7 +23,7 @@ body.v54-render-premium .game.active .objective-card strong {
 }
 
 
-/* ===== V54.1 — Mobile/interatividade real ===== */
+/* ===== V54.3 — Mobile/interatividade real ===== */
 body, #app { overscroll-behavior:none!important; }
 .screen.game.active, .game.active{
   position:fixed!important;
@@ -263,4 +263,274 @@ body, #app { overscroll-behavior:none!important; }
 .settings-world-btn.active{
   background:linear-gradient(180deg,#ffe66b,#d59d08)!important;
   color:#111827!important;
+}
+
+
+/* ===== V54.3 — HOTFIX CIRÚRGICO: MUNDOS NUNCA APARECEM NO GAMEPLAY ===== */
+.game.active .game-controls > .world-strip,
+.screen.game.active .game-controls > .world-strip,
+#game.active .game-controls > .world-strip,
+#app .screen.game.active .game-controls > .world-strip{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+  width:0!important;
+  height:0!important;
+  max-width:0!important;
+  max-height:0!important;
+  overflow:hidden!important;
+  position:absolute!important;
+  left:-99999px!important;
+  top:-99999px!important;
+}
+
+/* Os mundos existem somente dentro do modal de Configurações */
+.settings-game-panel .settings-worlds,
+.settings-game-panel .settings-world-btn{
+  display:grid;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+.settings-game-panel .settings-world-btn{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+
+/* Um pouco mais de distância nos 3 botões essenciais */
+@media (orientation: portrait){
+  .game.active .right-zone{width:174px!important}
+  .game.active .action-grid{
+    grid-template-columns:repeat(3,50px)!important;
+    gap:12px!important;
+    width:174px!important;
+  }
+}
+@media (orientation: landscape){
+  .game.active .right-zone{right:20px!important;width:158px!important}
+  .game.active .action-grid{
+    grid-template-columns:repeat(3,44px)!important;
+    gap:13px!important;
+    width:158px!important;
+  }
+}
+
+
+/* ===== V54.3 — profundidade + mobile sem dock azul + mundos removidos ===== */
+
+/* A área 3D ocupa a tela inteira; controles ficam por cima sem reservar metade da tela */
+.game.active .three-stage,
+.screen.game.active .three-stage,
+#game.active .three-stage{
+  position:fixed!important;
+  inset:0!important;
+  left:0!important;
+  right:0!important;
+  top:0!important;
+  bottom:0!important;
+  width:100vw!important;
+  height:100dvh!important;
+  min-height:100dvh!important;
+  max-height:100dvh!important;
+  overflow:hidden!important;
+  z-index:1!important;
+}
+.game.active #three-canvas,
+.screen.game.active #three-canvas{
+  width:100vw!important;
+  height:100dvh!important;
+  min-height:100dvh!important;
+  display:block!important;
+}
+
+/* Remove de vez a barra de mundos do gameplay; a seleção está só em Configurações */
+.game.active .game-controls > .world-strip,
+.game.active .world-strip,
+.world-strip[hidden]{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+  width:0!important;
+  height:0!important;
+  max-width:0!important;
+  max-height:0!important;
+  overflow:hidden!important;
+}
+
+/* Cancela fundos/docks antigos que viravam faixa azul enorme */
+.game.active .game-controls{
+  position:fixed!important;
+  inset:auto 0 0 0!important;
+  left:0!important;
+  right:0!important;
+  bottom:0!important;
+  top:auto!important;
+  height:0!important;
+  min-height:0!important;
+  max-height:0!important;
+  padding:0!important;
+  margin:0!important;
+  background:transparent!important;
+  border:0!important;
+  overflow:visible!important;
+  pointer-events:none!important;
+  z-index:110!important;
+}
+
+/* Toast não pode virar bolha/oval gigante */
+.game.active .toast{
+  position:fixed!important;
+  top:calc(88px + env(safe-area-inset-top))!important;
+  left:50%!important;
+  transform:translateX(-50%)!important;
+  width:auto!important;
+  min-width:0!important;
+  max-width:min(380px,76vw)!important;
+  min-height:0!important;
+  border-radius:14px!important;
+  padding:8px 12px!important;
+  font-size:13px!important;
+  line-height:1.15!important;
+  background:rgba(5,12,25,.72)!important;
+  border:1px solid rgba(255,255,255,.28)!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.25)!important;
+}
+
+/* HUD compacto e com área de jogo livre */
+.game.active .top-hud{
+  left:7px!important;
+  top:calc(5px + env(safe-area-inset-top))!important;
+  right:104px!important;
+  width:auto!important;
+  height:38px!important;
+  pointer-events:none!important;
+}
+.game.active .hud-right-cluster{
+  top:calc(5px + env(safe-area-inset-top))!important;
+  right:8px!important;
+  z-index:130!important;
+}
+.game.active .objective-card{
+  top:calc(48px + env(safe-area-inset-top))!important;
+  max-height:36px!important;
+  min-height:30px!important;
+  width:min(390px,68vw)!important;
+  opacity:.62!important;
+}
+
+/* 3 botões principais espaçados */
+.game.active .action-grid{
+  pointer-events:auto!important;
+}
+.game.active #jumpBtn,
+.game.active #powerBtn,
+.game.active [data-action="interact"]{
+  display:flex!important;
+}
+.game.active #crouchBtn,
+.game.active #sizeBtn,
+.game.active #normalBtn,
+.game.active [data-action="spin"],
+.game.active #pauseBtn,
+.game.active #exitBtn{
+  display:none!important;
+}
+
+@media (orientation: portrait){
+  .game.active .left-zone{
+    position:fixed!important;
+    left:12px!important;
+    bottom:calc(14px + env(safe-area-inset-bottom))!important;
+    z-index:120!important;
+  }
+  .game.active .right-zone{
+    position:fixed!important;
+    right:12px!important;
+    bottom:calc(18px + env(safe-area-inset-bottom))!important;
+    width:186px!important;
+    height:58px!important;
+    z-index:120!important;
+  }
+  .game.active .joy-ring{width:92px!important;height:92px!important}
+  .game.active .joy-knob{width:38px!important;height:38px!important;margin:-19px 0 0 -19px!important}
+  .game.active .action-grid{
+    display:grid!important;
+    grid-template-columns:repeat(3,52px)!important;
+    grid-template-rows:52px!important;
+    gap:15px!important;
+    width:186px!important;
+    height:54px!important;
+  }
+  .game.active #jumpBtn,
+  .game.active #powerBtn,
+  .game.active [data-action="interact"]{
+    width:52px!important;
+    height:52px!important;
+    min-height:52px!important;
+    position:static!important;
+    inset:auto!important;
+    transform:none!important;
+    border-radius:50%!important;
+  }
+}
+
+@media (orientation: landscape){
+  .game.active .top-hud{
+    width:min(360px,32vw)!important;
+    right:auto!important;
+  }
+  .game.active .objective-card{
+    top:calc(42px + env(safe-area-inset-top))!important;
+    width:min(360px,32vw)!important;
+    opacity:.55!important;
+  }
+  .game.active .left-zone{
+    position:fixed!important;
+    left:12px!important;
+    bottom:calc(12px + env(safe-area-inset-bottom))!important;
+    z-index:120!important;
+  }
+  .game.active .right-zone{
+    position:fixed!important;
+    right:22px!important;
+    bottom:calc(14px + env(safe-area-inset-bottom))!important;
+    width:168px!important;
+    height:48px!important;
+    z-index:120!important;
+  }
+  .game.active .joy-ring{width:72px!important;height:72px!important}
+  .game.active .joy-knob{width:30px!important;height:30px!important;margin:-15px 0 0 -15px!important}
+  .game.active .action-grid{
+    display:grid!important;
+    grid-template-columns:repeat(3,46px)!important;
+    grid-template-rows:46px!important;
+    gap:15px!important;
+    width:168px!important;
+    height:48px!important;
+  }
+  .game.active #jumpBtn,
+  .game.active #powerBtn,
+  .game.active [data-action="interact"]{
+    width:46px!important;
+    height:46px!important;
+    min-height:46px!important;
+    position:static!important;
+    inset:auto!important;
+    transform:none!important;
+    border-radius:50%!important;
+  }
+}
+
+/* Configurações continuam com todos os mundos */
+.settings-game-panel .settings-worlds{
+  display:grid!important;
+  grid-template-columns:repeat(auto-fit,minmax(118px,1fr))!important;
+  gap:8px!important;
+}
+.settings-game-panel .settings-world-btn{
+  display:flex!important;
+  min-height:46px!important;
 }
