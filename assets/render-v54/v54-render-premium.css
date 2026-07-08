@@ -603,3 +603,23 @@ body, #app { overscroll-behavior:none!important; }
 .game.active canvas{
   filter:saturate(1.28) contrast(1.08) brightness(.98)!important;
 }
+
+
+/* V54.6 — clareza real: cenário limpo e marcadores legíveis */
+.game.active .objective-card{
+  opacity:.86!important;
+  background:rgba(5,12,25,.70)!important;
+}
+.game.active .toast{
+  max-width:min(340px,68vw)!important;
+  font-size:12px!important;
+  padding:7px 10px!important;
+}
+.game.active canvas{
+  filter:saturate(1.18) contrast(1.10) brightness(1.04)!important;
+}
+/* Remove mensagem técnica AR seguro da frente do jogo; AR continua seguro por lógica. */
+.game.ar-safe-mode::after{
+  display:none!important;
+  content:''!important;
+}

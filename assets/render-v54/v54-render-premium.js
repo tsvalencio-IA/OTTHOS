@@ -2,7 +2,7 @@
 (function(){
   'use strict';
 
-  const VERSION = 'V54_5_RENDER_LIMPO_SEM_FALSOS_INTERATIVOS';
+  const VERSION = 'V54_6_RENDER_CLAREZA_REAL_SEM_FALSOS_INTERATIVOS';
   let installed = false;
   let group = null;
   let playerAddon = null;
@@ -315,66 +315,73 @@
   }
 
   function makeTerrain(THREE, pal, world, len){
+    // V54.6: cenário bonito, mas sem confundir com item/inimigo.
+    // Caminho central limpo + bordas claras + decoração longe da pista.
     for (let z=12; z>-len; z-=2) {
-      block(THREE,mats.path,0,.02,z,4.7,.24,2.04);
-      if (Math.abs(z)%8===0) block(THREE,mats.stone,(rnd()-.5)*2.8,.22,z-.35,.50,.12,.68);
+      block(THREE,mats.path,0,.02,z,5.25,.24,2.04);
+      // bordas permanentes do caminho, para dar profundidade e direção
+      block(THREE,mats.stone,-2.95,.20,z,.20,.20,2.02);
+      block(THREE,mats.stone, 2.95,.20,z,.20,.20,2.02);
+      if (Math.abs(z)%16===0) {
+        block(THREE,mats.stone,-1.45,.24,z-.35,.38,.12,.56);
+        block(THREE,mats.stone, 1.45,.24,z-.35,.38,.12,.56);
+      }
       [-1,1].forEach(side => {
-        const x = side*5.35;
-        const h = .55 + (Math.sin(z*.16 + side) > 0 ? .34 : 0);
-        block(THREE,mats.dirt,x,h/2-.12,z,3.55,h,2.06);
-        block(THREE,rnd()>.28?mats.grass:mats.grass2,x,h+.04,z,3.65,.2,2.08);
-        if (Math.abs(z)%10===0) grassTuft(THREE,side*(4.8+rnd()*4.2),z+rnd()*.9,pal);
-        if (Math.abs(z)%32===0) flower(THREE,side*(5.4+rnd()*3.8),z+.4);
-        if (Math.abs(z)%44===0) mushroom(THREE,side*(5.8+rnd()*3.2),z-1.1);
-        if (Math.abs(z)%52===0) tree(THREE,side*(9.2+rnd()*3.8),z-1.6,Math.abs(z)%104===0);
-        if (Math.abs(z)%90===0) signPost(THREE,side*5.4,z+.6);
+        const x = side*6.25;
+        const h = .48 + (Math.sin(z*.14 + side) > 0 ? .25 : 0);
+        block(THREE,mats.dirt,x,h/2-.12,z,3.10,h,2.06);
+        block(THREE,rnd()>.32?mats.grass:mats.grass2,x,h+.04,z,3.18,.20,2.08);
+        // decoração só longe da área jogável
+        if (Math.abs(z)%24===0) grassTuft(THREE,side*(6.2+rnd()*3.4),z+rnd()*.9,pal);
+        if (Math.abs(z)%58===0) flower(THREE,side*(7.0+rnd()*2.8),z+.4);
+        if (Math.abs(z)%76===0) mushroom(THREE,side*(7.4+rnd()*2.5),z-1.1);
+        if (Math.abs(z)%92===0) tree(THREE,side*(10.2+rnd()*3.8),z-1.6,Math.abs(z)%184===0);
       });
     }
-    for (let i=0;i<22;i++) {
+    // Poucas ilhas ao fundo, fora da pista.
+    for (let i=0;i<10;i++) {
       const side = sign();
-      const z = 10 - rnd()*105;
-      const x = side*(7 + rnd()*14);
-      const h = .7 + rnd()*3.0;
-      block(THREE,mats.dirt,x,h/2,z,2+rnd()*3.4,h,2+rnd()*3.2);
-      block(THREE,mats.grass,x,h+.12,z,2.2+rnd()*3.5,.22,2.2+rnd()*3.3,'floatingIslands');
+      const z = 10 - rnd()*125;
+      const x = side*(17 + rnd()*18);
+      const h = .7 + rnd()*2.2;
+      block(THREE,mats.dirt,x,h/2,z,2+rnd()*3.0,h,2+rnd()*2.8,'floatingIslands');
+      block(THREE,mats.grass,x,h+.12,z,2.2+rnd()*3.0,.22,2.2+rnd()*2.8);
     }
   }
 
-  function waterLavaPit(THREE, world){
-    for (let z=-20; z>-118; z-=26) {
-      block(THREE,mats.water,-12.4,2.4,z,2.5,4.8,.28,'waterfall');
-      block(THREE,mats.water,-12.4,.06,z+2.2,5.1,.14,2.8,'water');
-    }
-    block(THREE,mats.water,0,.07,-52,4.4,.16,7.0,'water');
-    block(THREE,mats.dark,-3.3,-.03,-112,3.8,.16,5.8,'pit');
-    block(THREE,mats.lava,4.4,.08,-166,4.2,.18,8.2,'lava');
+    function waterLavaPit(THREE, world){
+    // V54.6: nada de falso obstáculo atravessando a pista.
+    // Obstáculos interativos reais são os do app.js. Aqui só cenário lateral.
     if (world === 'fire' || world === 'arena') {
-      block(THREE,mats.lava,-5.7,.08,-34,5.4,.18,13);
-      block(THREE,mats.lava,12.0,.08,-82,7.2,.18,18);
+      block(THREE,mats.lava,-8.8,.06,-48,2.8,.14,18,'lava');
+      block(THREE,mats.lava, 8.8,.06,-112,2.8,.14,22,'lava');
       feature('lava',2);
+    } else {
+      block(THREE,mats.water,-8.8,.06,-54,2.4,.14,14,'water');
+      block(THREE,mats.water, 8.8,.06,-118,2.4,.14,18,'water');
+      feature('water',2);
     }
     updatables.push(() => {
       if (!group) return;
       group.traverse(obj => {
-        if (obj.material === mats.water || obj.material === mats.lava) obj.rotation.y += .002;
+        if (obj.material === mats.water || obj.material === mats.lava) obj.rotation.y += .001;
       });
     });
   }
 
-  function floatingIslands(THREE){
-    for (let i=0;i<9;i++) {
-      const x = sign()*(14 + rnd()*34);
-      const z = -36 - rnd()*150;
-      const y = 5 + rnd()*14;
-      const sx = 3 + rnd()*8;
-      const sz = 3 + rnd()*8;
-      block(THREE,mats.dirt,x,y,z,sx,1.1+rnd()*2.2,sz,'floatingIslands');
+    function floatingIslands(THREE){
+    for (let i=0;i<5;i++) {
+      const x = sign()*(26 + rnd()*28);
+      const z = -50 - rnd()*150;
+      const y = 8 + rnd()*12;
+      const sx = 3 + rnd()*6;
+      const sz = 3 + rnd()*6;
+      block(THREE,mats.dirt,x,y,z,sx,1.0+rnd()*1.8,sz,'floatingIslands');
       block(THREE,mats.grass,x,y+1,z,sx,.22,sz);
-      if (rnd()>.50) crystal(THREE,x,y+2.25,z,rnd()>.5);
     }
   }
 
-  function collectible(THREE,type,x,z){
+    function collectible(THREE,type,x,z){
     const g = new THREE.Group();
     g.position.set(x,1.12,z);
     if (type === 'sword') {
@@ -512,7 +519,7 @@
     makeTerrain(THREE,pal,currentWorld,len);
     waterLavaPit(THREE,currentWorld);
     floatingIslands(THREE);
-    // V54.5: sem itens/inimigos falsos no render. Apenas os objetos lógicos do app.js interagem.
+    // V54.6: sem itens/inimigos falsos no render. Apenas os objetos lógicos do app.js interagem.
     portal(THREE,pal,-len+20,!!ctx.portalReady);
   }
 
@@ -557,6 +564,8 @@
         shaderSafe:true,
       fakeInteractiveRemoved:true,
       gameplayClarity:true,
+      v546ClutterReduced:true,
+      fakeDecorativeCrystals:false,
         textureSamplers:0,
         target:'whatsapp_2026_07_07_voxel_mobile_premium',
         features:Object.assign({},stats.features)
