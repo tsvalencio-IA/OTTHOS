@@ -2,7 +2,7 @@
 (function(){
   'use strict';
 
-  const VERSION = 'V54_RENDER_PREMIUM_VERDADEIRO';
+  const VERSION = 'V54_5_RENDER_LIMPO_SEM_FALSOS_INTERATIVOS';
   let installed = false;
   let group = null;
   let playerAddon = null;
@@ -318,20 +318,19 @@
     for (let z=12; z>-len; z-=2) {
       block(THREE,mats.path,0,.02,z,4.7,.24,2.04);
       if (Math.abs(z)%8===0) block(THREE,mats.stone,(rnd()-.5)*2.8,.22,z-.35,.50,.12,.68);
-      if (Math.abs(z)%14===0) crystal(THREE,(rnd()-.5)*2.8,1.1,z-.6,false);
       [-1,1].forEach(side => {
         const x = side*5.35;
         const h = .55 + (Math.sin(z*.16 + side) > 0 ? .34 : 0);
         block(THREE,mats.dirt,x,h/2-.12,z,3.55,h,2.06);
         block(THREE,rnd()>.28?mats.grass:mats.grass2,x,h+.04,z,3.65,.2,2.08);
-        if (Math.abs(z)%4===0) grassTuft(THREE,side*(3.5+rnd()*4.8),z+rnd()*.9,pal);
-        if (Math.abs(z)%18===0) flower(THREE,side*(4.2+rnd()*4.2),z+.4);
-        if (Math.abs(z)%26===0) mushroom(THREE,side*(4.7+rnd()*3.2),z-1.1);
-        if (Math.abs(z)%34===0) tree(THREE,side*(8.0+rnd()*3.8),z-1.6,Math.abs(z)%68===0);
-        if (Math.abs(z)%62===0) signPost(THREE,side*4.25,z+.6);
+        if (Math.abs(z)%10===0) grassTuft(THREE,side*(4.8+rnd()*4.2),z+rnd()*.9,pal);
+        if (Math.abs(z)%32===0) flower(THREE,side*(5.4+rnd()*3.8),z+.4);
+        if (Math.abs(z)%44===0) mushroom(THREE,side*(5.8+rnd()*3.2),z-1.1);
+        if (Math.abs(z)%52===0) tree(THREE,side*(9.2+rnd()*3.8),z-1.6,Math.abs(z)%104===0);
+        if (Math.abs(z)%90===0) signPost(THREE,side*5.4,z+.6);
       });
     }
-    for (let i=0;i<48;i++) {
+    for (let i=0;i<22;i++) {
       const side = sign();
       const z = 10 - rnd()*105;
       const x = side*(7 + rnd()*14);
@@ -363,7 +362,7 @@
   }
 
   function floatingIslands(THREE){
-    for (let i=0;i<20;i++) {
+    for (let i=0;i<9;i++) {
       const x = sign()*(14 + rnd()*34);
       const z = -36 - rnd()*150;
       const y = 5 + rnd()*14;
@@ -513,10 +512,7 @@
     makeTerrain(THREE,pal,currentWorld,len);
     waterLavaPit(THREE,currentWorld);
     floatingIslands(THREE);
-    collectible(THREE,'sword',-2.0,-28);
-    collectible(THREE,'shield',2.2,-48);
-    collectible(THREE,'star',0,-72);
-    enemies(THREE,currentWorld,len);
+    // V54.5: sem itens/inimigos falsos no render. Apenas os objetos lógicos do app.js interagem.
     portal(THREE,pal,-len+20,!!ctx.portalReady);
   }
 
@@ -559,6 +555,8 @@
         premium:true,
         deterministic:true,
         shaderSafe:true,
+      fakeInteractiveRemoved:true,
+      gameplayClarity:true,
         textureSamplers:0,
         target:'whatsapp_2026_07_07_voxel_mobile_premium',
         features:Object.assign({},stats.features)
