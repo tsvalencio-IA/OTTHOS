@@ -1,7 +1,7 @@
 {
   "name": "Athos Adventure 3D+",
   "short_name": "Athos",
-  "start_url": "./index.html?v=543-interatividade-profundidade-mobile",
+  "start_url": "./index.html?v=544-refino-jogabilidade-objetiva",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",

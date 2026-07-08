@@ -382,8 +382,7 @@
     els.hudTime.textContent = runtime.timer ? Math.max(0, Math.ceil(runtime.timer)) : '∞';
     els.worldName.textContent = `${WORLD[currentLevel.world]?.name || 'Mundo'} • ${DIFFICULTY[progress.difficulty].name}`;
     const portalReady = objectivesDone();
-    const nearItem = nearestPowerup(5.2);
-    els.objectiveText.textContent = nearItem ? `Ação: pegar ${itemLabel(nearItem.type)}.` : (portalReady ? 'Portal liberado! Vá até o portal.' : 'Pegue cristais, vença monstros e abra o portal.');
+    els.objectiveText.textContent = currentMissionHint();
     if (portalReady && runtime && !runtime.portalAnnounced) {
       runtime.portalAnnounced = true;
       toast('Portal liberado!', 'good');
@@ -1319,6 +1318,142 @@
   function itemLabel(type){
     return type==='sword' ? 'espada' : type==='shield' ? 'escudo' : 'estrela';
   }
+  function itemEmoji(type){
+    return type==='sword' ? '⚔' : type==='shield' ? '🛡' : '⭐';
+  }
+  function enemyLabel(e){
+    if(!e) return 'MONSTRO';
+    if(e.shield>0 || e.type==='golem' || e.type==='boss') return 'ESCUDO';
+    if(e.type==='spiky') return 'FOGO';
+    if(e.type==='flyer') return 'BAIXO';
+    if(e.type==='jumper') return 'PULAR';
+    return 'PULAR';
+  }
+  function enemyHint(e){
+    const label = enemyLabel(e);
+    if(label==='ESCUDO') return 'Quebre o escudo com 🔥 ou ⚔';
+    if(label==='FOGO') return 'Use 🔥, não pule nele';
+    if(label==='BAIXO') return 'Passe por baixo ou use 🔥';
+    return 'Pule em cima ou use ⚔';
+  }
+  function makeTextSprite(text, bg=0x111827, fg='#ffffff'){
+    if(!window.THREE) return null;
+    const c=document.createElement('canvas');
+    c.width=256; c.height=96;
+    const ctx=c.getContext('2d');
+    ctx.clearRect(0,0,c.width,c.height);
+    ctx.fillStyle='rgba(0,0,0,.28)';
+    ctx.roundRect?.(10,12,236,66,20); ctx.fill();
+    ctx.fillStyle='#'+Number(bg).toString(16).padStart(6,'0');
+    if(ctx.roundRect){ ctx.beginPath(); ctx.roundRect(16,8,224,64,18); ctx.fill(); }
+    else ctx.fillRect(16,8,224,64);
+    ctx.strokeStyle='rgba(255,255,255,.85)'; ctx.lineWidth=5; ctx.strokeRect(20,12,216,56);
+    ctx.font='900 30px system-ui,Arial';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillStyle=fg; ctx.fillText(String(text||''),128,40);
+    const tex=new THREE.CanvasTexture(c); tex.needsUpdate=true;
+    const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false,depthWrite:false}));
+    sp.scale.set(3.3,1.08,1);
+    sp.renderOrder=999;
+    return sp;
+  }
+  function clearHeldItemVisual(){
+    if(!player || !player.userData) return;
+    for(const key of ['heldSword','heldShield','starHalo']){
+      const obj=player.userData[key];
+      if(obj && obj.parent) obj.parent.remove(obj);
+      player.userData[key]=null;
+    }
+  }
+  function ensureHeldItemVisual(){
+    if(!player || !window.THREE) return;
+    if(!player.userData) player.userData={};
+    const swordActive = p.weapon==='sword' && now() < (p.weaponUntil||0);
+    if(swordActive && !player.userData.heldSword){
+      const g=new THREE.Group();
+      const blade=box(.16,1.25,.12,0xe0f7ff,{ emissive:0x38bdf8, emissiveIntensity:.75, outline:true, outlineColor:0xffffff, outlineOpacity:.22 });
+      const hilt=box(.72,.18,.16,0xfacc15,{ emissive:0xf59e0b, emissiveIntensity:.25, outline:true, outlineOpacity:.12 });
+      blade.position.set(0,.62,0); hilt.position.set(0,-.06,0);
+      g.add(blade,hilt);
+      g.position.set(.92,1.22,-.45);
+      g.rotation.z=-.42; g.rotation.x=.12;
+      player.add(g); player.userData.heldSword=g;
+    } else if(!swordActive && player.userData.heldSword){
+      player.remove(player.userData.heldSword); player.userData.heldSword=null; p.weapon=null;
+    }
+    if((p.shield||0)>0 && !player.userData.heldShield){
+      const g=new THREE.Group();
+      const sh=box(.78,1.0,.14,0x38bdf8,{ emissive:0x0ea5e9, emissiveIntensity:.45, transparent:true, opacity:.86, outline:true, outlineColor:0xffffff, outlineOpacity:.25 });
+      const cross=box(.18,.82,.16,0xffffff,{ emissive:0xffffff, emissiveIntensity:.18 });
+      sh.position.set(0,.48,0); cross.position.copy(sh.position);
+      g.add(sh,cross);
+      g.position.set(-.86,1.0,-.42);
+      g.rotation.z=.16;
+      player.add(g); player.userData.heldShield=g;
+    } else if((p.shield||0)<=0 && player.userData.heldShield){
+      player.remove(player.userData.heldShield); player.userData.heldShield=null;
+    }
+    const starActive = now() < (p.starUntil||0);
+    if(starActive && !player.userData.starHalo){
+      const g=new THREE.Group();
+      const halo=box(1.65,.10,1.65,0xffe259,{ emissive:0xffd000, emissiveIntensity:.85, transparent:true, opacity:.52, outline:true, outlineColor:0xffffff, outlineOpacity:.18 });
+      halo.position.set(0,3.45,0); g.add(halo);
+      player.add(g); player.userData.starHalo=g;
+    } else if(!starActive && player.userData.starHalo){
+      player.remove(player.userData.starHalo); player.userData.starHalo=null;
+    }
+  }
+  function ensureEnemyBadge(e){
+    if(!e || !e.mesh || e.dead || !window.THREE) return;
+    if(!e.mesh.userData) e.mesh.userData={};
+    const label=enemyLabel(e);
+    if(e.mesh.userData.badgeLabel===label && e.mesh.userData.enemyBadge) return;
+    if(e.mesh.userData.enemyBadge && e.mesh.userData.enemyBadge.parent) e.mesh.userData.enemyBadge.parent.remove(e.mesh.userData.enemyBadge);
+    const color = label==='ESCUDO'?0x0ea5e9:label==='FOGO'?0xef4444:label==='BAIXO'?0x8b5cf6:0x22c55e;
+    const sp=makeTextSprite(label,color,'#ffffff');
+    if(!sp) return;
+    sp.position.set(0,(e.size||1.2)+1.55,0);
+    e.mesh.add(sp);
+    e.mesh.userData.enemyBadge=sp;
+    e.mesh.userData.badgeLabel=label;
+  }
+  function hazardLabel(h){
+    if(!h) return 'PERIGO';
+    return h.type==='water'?'ÁGUA':h.type==='pit'?'BURACO':h.type==='lava'?'LAVA':'PERIGO';
+  }
+  function ensureHazardBadge(h){
+    if(!h || !h.mesh || !window.THREE) return;
+    if(h.mesh.userData && h.mesh.userData.hazardBadge) return;
+    if(!h.mesh.userData) h.mesh.userData={};
+    const label=hazardLabel(h);
+    const color=h.type==='water'?0x0ea5e9:h.type==='pit'?0x111827:0xef4444;
+    const sp=makeTextSprite(label,color,'#ffffff');
+    if(!sp) return;
+    sp.position.set(0,1.15,0);
+    sp.scale.set(2.7,.82,1);
+    h.mesh.add(sp);
+    h.mesh.userData.hazardBadge=sp;
+  }
+  function ensurePowerupBadge(it){
+    if(!it || !it.mesh || it.got || !window.THREE) return;
+    if(it.mesh.userData && it.mesh.userData.powerupBadge) return;
+    if(!it.mesh.userData) it.mesh.userData={};
+    const sp=makeTextSprite('AÇÃO '+itemEmoji(it.type), it.type==='sword'?0x38bdf8:it.type==='shield'?0x22c55e:0xfacc15, it.type==='star'?'#111827':'#ffffff');
+    if(!sp) return;
+    sp.position.set(0,1.9,0);
+    sp.scale.set(2.45,.78,1);
+    it.mesh.add(sp);
+    it.mesh.userData.powerupBadge=sp;
+  }
+  function currentMissionHint(){
+    const near = nearestPowerup(5.2);
+    if(near) return `Ação: pegar ${itemLabel(near.type)} ${itemEmoji(near.type)}.`;
+    const sword = powerups.find(x=>x.type==='sword'&&!x.got);
+    if(sword && (!p.weapon || now()>(p.weaponUntil||0))) return 'Objetivo: pegue a espada e siga.';
+    if(runtime && runtime.requiredCrystals && runtime.crystals < runtime.requiredCrystals) return `Cristais ${runtime.crystals}/${runtime.requiredCrystals}: siga os cristais.`;
+    if(runtime && runtime.requiredEnemies && runtime.defeated < runtime.requiredEnemies) return `Monstros ${runtime.defeated}/${runtime.requiredEnemies}: use 🔥 ou ⚔.`;
+    return 'Portal liberado! Vá até o portal.';
+  }
   function collectPowerup(it, manual=false){
     if(!it || it.got) return false;
     it.got=true;
@@ -1327,6 +1462,8 @@
     else if(it.type==='shield'){ p.shield=(p.shield||0)+1; toast(manual?'Escudo equipado!':'Escudo ativado!', 'good'); addXP(12); }
     else { p.starUntil=now()+9500; toast(manual?'Estrela ativada!':'Estrela invencível!', 'good'); addXP(25); }
     addParticles(it.x,it.y,it.z,it.type==='star'?0xffe259:it.type==='sword'?0x38bdf8:0x22c55e,28);
+    ensureHeldItemVisual();
+    updateHud();
     vibrate(manual?70:50); beep(980,120);
     return true;
   }
@@ -1360,16 +1497,22 @@
     for(const e of enemies){
       if(!e || !e.mesh) continue;
       setTreeVisible(e.mesh, !e.dead);
+      ensureEnemyBadge(e);
       if(e.mesh.userData && e.mesh.userData.dangerRing) e.mesh.userData.dangerRing.visible = !e.dead;
+      if(e.mesh.userData && e.mesh.userData.enemyBadge) e.mesh.userData.enemyBadge.visible = !e.dead;
+    }
+    for(const h of hazards){
+      if(h && h.mesh){ setTreeVisible(h.mesh,true); ensureHazardBadge(h); }
     }
     for(const it of powerups){
-      if(it && it.mesh) setTreeVisible(it.mesh, !it.got);
+      if(it && it.mesh){ setTreeVisible(it.mesh, !it.got); ensurePowerupBadge(it); }
     }
     for(const c of crystals){
       if(c && c.mesh) setTreeVisible(c.mesh, !c.got);
       if(c && c.glow) setTreeVisible(c.glow, !c.got);
       if(c && c.light) c.light.visible = !c.got;
     }
+    ensureHeldItemVisual();
   }
   function swordAttack(){
     if(!playing || paused) return false;
@@ -1732,6 +1875,12 @@
     if (!p.grounded) p.vy -= currentGravity(diff) * dt;
     p.y += p.vy * dt;
     const ground = findGround(p.x,p.z);
+    if (p.y < ground.height - .16 && p.vy <= 0) {
+      p.y = ground.height;
+      p.vy = 0;
+      p.grounded = true;
+      lastGroundedAt = now();
+    }
     const snapWindow = ground.platform ? GAME_FEEL.platformSnap : GAME_FEEL.groundSnap;
     if (p.vy <= 0 && p.y <= ground.height + snapWindow && prevY >= ground.height - .10) {
       p.y = ground.height;
@@ -1780,7 +1929,7 @@
   function jump(){ if (!playing || paused) return; jumpBufferedUntil = now() + GAME_FEEL.jumpBufferMs; if (canJump()) { doJump(); jumpBufferedUntil = 0; } }
 
   function findGround(x,z){
-    let best = { height:0, platform:null };
+    let best = { height:.14, platform:null };
     for (const pl of platforms) {
       if (pl.breakable && pl.hp <= 0) continue;
       if (Math.abs(x-pl.x) <= pl.w/2 + .45 && Math.abs(z-pl.z) <= pl.d/2 + .45) {
@@ -2140,7 +2289,7 @@
     if (swordAttack()) return;
     for (const g of gates) if (g.altar && Math.abs(p.z-g.z)<5 && Math.abs(p.x-g.x)<4) { openQuiz(true); return; }
     if (mode==='hub') { const nearest = LEVELS.find(l => Math.abs(p.z + (40 + LEVELS.indexOf(l)*12)) < 8); if (nearest) { currentLevelIndex = LEVELS.indexOf(nearest); buildLevel(nearest); } }
-    else toast('Chegue perto de item/inimigo e toque Ação.', 'warn');
+    else toast('Ação: pegue item perto ou ataque com espada.', 'warn');
   }
   function togglePause(){ paused=!paused; resetAllInputs(paused?'pause':'resume'); els.pauseBtn.innerHTML = paused ? '▶<span>Voltar</span>' : '⏸<span>Pausa</span>'; toast(paused?'Pausado':'Voltando', 'warn'); }
   function toggleCrouch(v){ input.crouch = v; }
@@ -2728,7 +2877,7 @@
     if(els.arAnchorViewer){ els.arAnchorViewer.addEventListener('ar-status',(e)=>{ if(e.detail && e.detail.status==='not-presenting') hardStopAllInput('ar-closed'); }); }
   }
   function refreshServiceWorker(){
-    if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js?v=543-interatividade-profundidade-mobile').then(reg => reg.update()).catch(()=>{});
+    if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js?v=544-refino-jogabilidade-objetiva').then(reg => reg.update()).catch(()=>{});
     if('caches' in window) caches.keys().then(keys=>keys.filter(k=>/athos|otto/i.test(k)).forEach(k=>caches.delete(k).catch(()=>{}))).catch(()=>{});
   }
 
@@ -2777,8 +2926,8 @@
     getV533: () => ({label:'V53_3_CONTROLES_100_DENTRO_DA_TELA', fix:'right-zone fixed; no overflow in landscape/portrait'}),
     getV532: () => ({label:'V53_2_MOBILE_GAMEPLAY_HOTFIX', camera:{follow:GAMEPLAY_CAMERA.cameraFollowDistance,height:GAMEPLAY_CAMERA.cameraHeight,lookAhead:GAMEPLAY_CAMERA.cameraLookAhead}, feel:{deadzone:GAME_FEEL.joystickDeadzone,release:GAME_FEEL.inputRelease,decel:GAME_FEEL.groundDeceleration}, viewport:{w:innerWidth,h:innerHeight,landscape:innerWidth>innerHeight}}),
     getV53: () => ({...V53_CODEX_VISUAL_GAMEPLAY, powerups: powerups.length, gotPowerups: powerups.filter(p=>p.got).length, playerWeapon:p.weapon||null, shield:p.shield||0, star: now() < (p.starUntil||0)}),
-    getV542: () => ({label:'V54_3_INTERATIVIDADE_PROFUNDIDADE_MOBILE', worldsHidden:true, settingsWorlds:true, fix:'world-strip hidden in markup and css'}),
-    getV541: () => ({label:'V54_3_INTERATIVIDADE_PROFUNDIDADE_MOBILE', settings:true, crystalPlus:true, worldsInSettings:true, orientation:'auto-css-resize'}),
+    getV542: () => ({label:'V54_4_REFINO_JOGABILIDADE_OBJETIVA', worldsHidden:true, settingsWorlds:true, fix:'world-strip hidden in markup and css'}),
+    getV541: () => ({label:'V54_4_REFINO_JOGABILIDADE_OBJETIVA', settings:true, crystalPlus:true, worldsInSettings:true, orientation:'auto-css-resize'}),
     getV54Render: () => (window.ATHOS_V54_RENDER_PREMIUM && window.ATHOS_V54_RENDER_PREMIUM.getStatus ? window.ATHOS_V54_RENDER_PREMIUM.getStatus() : null),
     getV48Render: () => (window.ATHOS_V48_RENDER_TARGET && window.ATHOS_V48_RENDER_TARGET.getStatus ? window.ATHOS_V48_RENDER_TARGET.getStatus() : null),
     getV47Render: () => (window.ATHOS_V48_RENDER_TARGET && window.ATHOS_V48_RENDER_TARGET.getStatus ? window.ATHOS_V48_RENDER_TARGET.getStatus() : null),

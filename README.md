@@ -1,20 +1,20 @@
-# ATHOS V54.3 — Interatividade + Profundidade Mobile
+# ATHOS V54.4 — Refino de Jogabilidade Objetiva
 
-Base: V54.2.
+Base: V54.3.
 
 Correções:
-- remove completamente a faixa de mundos do DOM do gameplay;
-- o stage 3D ocupa 100dvh, sem dock/faixa azul reservando metade da tela;
+- inimigos agora recebem etiqueta clara de ação: PULAR, FOGO, BAIXO ou ESCUDO;
+- obstáculos recebem indicação: ÁGUA, BURACO ou LAVA;
+- objetivo muda conforme a situação: pegar espada, coletar cristais, vencer monstros ou ir ao portal;
 - Ação pega espada/escudo/estrela quando perto;
-- itens também são coletados automaticamente com raio maior;
-- B Poder tem auto-mira no inimigo mais próximo à frente;
-- inimigos, cristais e powerups lógicos ficam visíveis sobre o render V54;
-- controles principais espaçados;
-- Configurações e + Cristal preservados;
-- AR/model-viewer/athos.glb/Quiz/Falar preservados.
+- quando pega espada, Athos passa a segurá-la visualmente e segue com ela;
+- escudo também fica preso no Athos;
+- B Poder mantém auto-mira;
+- ajuste de chão/snap para reduzir o personagem afundando;
+- stage 3D segue em tela cheia e mundos seguem fora do gameplay.
 
 Abrir:
-?v=543-interatividade-profundidade-mobile
+?v=544-refino-jogabilidade-objetiva
 
 Teste:
-F12_TESTE_ATHOS_V543_INTERATIVIDADE_PROFUNDIDADE_MOBILE.js
+F12_TESTE_ATHOS_V544_REFINO_JOGABILIDADE_OBJETIVA.js
