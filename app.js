@@ -40,40 +40,40 @@
   };
 
   const DIFFICULTY = {
-    easy: { name:'Fácil', hearts:6, speed:8.3, jump:12.8, gravity:22, timer:0, damage:1, bonus:1, forgiveness:1.35 },
-    medium: { name:'Médio', hearts:5, speed:9.0, jump:12.2, gravity:24, timer:210, damage:1, bonus:1.25, forgiveness:1.0 },
-    hard: { name:'Difícil', hearts:4, speed:9.7, jump:11.8, gravity:26, timer:165, damage:1, bonus:1.55, forgiveness:.78 }
+    easy: { name:'Fácil', hearts:6, speed:7.45, jump:12.6, gravity:22.5, timer:0, damage:1, bonus:1, forgiveness:1.35 },
+    medium: { name:'Médio', hearts:5, speed:8.2, jump:12.1, gravity:24, timer:210, damage:1, bonus:1.25, forgiveness:1.0 },
+    hard: { name:'Difícil', hearts:4, speed:9.0, jump:11.8, gravity:26, timer:165, damage:1, bonus:1.55, forgiveness:.78 }
   };
 
   // V44.1: base V43.1 + V44 inimigos preservadas. Hotfix visual: menu Minecraft limpo, HUD menos poluído e leitura de jogo sem excesso de texto.
   const GAME_FEEL = {
-    joystickDeadzone: .17,
-    joystickCurve: 1.34,
-    inputSmoothing: 22,
-    inputRelease: 44,
-    groundAcceleration: 23,
-    groundDeceleration: 48,
-    airAcceleration: 10.5,
-    airDeceleration: 14,
-    stopThreshold: .06,
+    joystickDeadzone: .14,
+    joystickCurve: 1.18,
+    inputSmoothing: 30,
+    inputRelease: 78,
+    groundAcceleration: 20,
+    groundDeceleration: 82,
+    airAcceleration: 9.0,
+    airDeceleration: 18,
+    stopThreshold: .10,
     platformSnap: .38,
     groundSnap: .22,
     coyoteMs: 140,
     jumpBufferMs: 160,
     jumpCooldownMs: 110,
-    jumpForwardBoost: 4.0,
-    jumpSideBoost: 1.55,
-    landingHorizontalDamp: .80,
+    jumpForwardBoost: 3.25,
+    jumpSideBoost: 1.25,
+    landingHorizontalDamp: .62,
     fallGravityBoost: 1.15,
     spaceGravityScale: .84
   };
 
   const GAMEPLAY_CAMERA = {
-    cameraFollowDistance: 8.8,
-    cameraHeight: 5.6,
-    cameraLookAhead: 8.8,
-    cameraSmoothing: 5.6,
-    cameraJumpOffset: .72
+    cameraFollowDistance: 12.8,
+    cameraHeight: 6.55,
+    cameraLookAhead: 13.2,
+    cameraSmoothing: 6.4,
+    cameraJumpOffset: .55
   };
 
   const INPUT_DEBOUNCE_MS = {
@@ -2038,25 +2038,26 @@
   }
 
   function updateCamera(dt){
-    const landscape = innerWidth > innerHeight && innerHeight < 740;
-    const speedForward = clamp(Math.abs(p.vz) / 10, 0, 1);
-    const lateral = clamp(p.x / 6.5, -1, 1);
+    // V53.2: câmera mobile de jogo: Athos menor, centralizado e caminho visível.
+    const landscape = innerWidth > innerHeight && innerHeight < 760;
+    const portrait = !landscape;
+    const speedForward = clamp(Math.abs(p.vz) / 8, 0, 1);
     const jumpLift = p.grounded ? 0 : GAMEPLAY_CAMERA.cameraJumpOffset;
-    const followDistance = GAMEPLAY_CAMERA.cameraFollowDistance + (landscape ? -1.4 : 0) + speedForward * 2.0;
-    const cameraHeight = GAMEPLAY_CAMERA.cameraHeight + (landscape ? -.45 : .18) + speedForward * .36 + jumpLift;
-    const lookAhead = GAMEPLAY_CAMERA.cameraLookAhead + (landscape ? -2.0 : 0) + speedForward * 2.2;
-    const desiredFov = (landscape ? 54 : 49) + speedForward * 1.4;
-    camera.fov += (desiredFov - camera.fov) * Math.min(1, dt * 3.0);
+    const followDistance = GAMEPLAY_CAMERA.cameraFollowDistance + (landscape ? -1.4 : 1.6) + speedForward * 1.1;
+    const cameraHeight = GAMEPLAY_CAMERA.cameraHeight + (landscape ? -.85 : .35) + speedForward * .20 + jumpLift;
+    const lookAhead = GAMEPLAY_CAMERA.cameraLookAhead + (landscape ? -1.8 : 1.0) + speedForward * 1.1;
+    const desiredFov = (landscape ? 61 : 58) + speedForward * 1.0;
+    camera.fov += (desiredFov - camera.fov) * Math.min(1, dt * 3.4);
     camera.updateProjectionMatrix();
 
     const desiredPos = new THREE.Vector3(
-      p.x * .34 + (landscape ? 1.1 : 0),
+      p.x * (portrait ? .14 : .20),
       p.y + cameraHeight,
       p.z + followDistance
     );
     const desiredLook = new THREE.Vector3(
-      p.x * .58 + lateral * .18,
-      p.y + 1.25,
+      p.x * (portrait ? .24 : .32),
+      p.y + 1.35,
       p.z - lookAhead
     );
     if (!cameraRig.initialized || !cameraRig.pos || !cameraRig.look) {
@@ -2065,7 +2066,7 @@
       cameraRig.look = desiredLook.clone();
     }
     cameraRig.pos.lerp(desiredPos, Math.min(1, dt * GAMEPLAY_CAMERA.cameraSmoothing));
-    cameraRig.look.lerp(desiredLook, Math.min(1, dt * (GAMEPLAY_CAMERA.cameraSmoothing + .5)));
+    cameraRig.look.lerp(desiredLook, Math.min(1, dt * (GAMEPLAY_CAMERA.cameraSmoothing + .7)));
     camera.position.copy(cameraRig.pos);
     camera.lookAt(cameraRig.look);
     sunLight.position.set(p.x + (currentLevel?.world === 'space' ? -14 : 8), 24, p.z + 7);
@@ -2621,6 +2622,7 @@
     getV42Design: () => ({ markers:v42Markers.length, guides:v42Markers.filter(m=>m.type==='guide').map(m=>m.text), currentLevel: currentLevel ? currentLevel.id : null }),
     getARSafety: () => ({ realBg, arSafeUntil, locked: now() < arSafeUntil, label: 'V53_1_AR_OK', nativeAR:true, fakeCamera:false }),
     getV442Render: () => ({ label: V442_RENDER.label, target: V442_RENDER.target, enabled: V442_RENDER.enabled, sideIslands: V442_RENDER.maxSideIslands, clouds: V442_RENDER.clouds, v45:V45_PLATFORM_RENDER.label }),
+    getV532: () => ({label:'V53_2_MOBILE_GAMEPLAY_HOTFIX', camera:{follow:GAMEPLAY_CAMERA.cameraFollowDistance,height:GAMEPLAY_CAMERA.cameraHeight,lookAhead:GAMEPLAY_CAMERA.cameraLookAhead}, feel:{deadzone:GAME_FEEL.joystickDeadzone,release:GAME_FEEL.inputRelease,decel:GAME_FEEL.groundDeceleration}, viewport:{w:innerWidth,h:innerHeight,landscape:innerWidth>innerHeight}}),
     getV53: () => ({...V53_CODEX_VISUAL_GAMEPLAY, powerups: powerups.length, gotPowerups: powerups.filter(p=>p.got).length, playerWeapon:p.weapon||null, shield:p.shield||0, star: now() < (p.starUntil||0)}),
     getV48Render: () => (window.ATHOS_V48_RENDER_TARGET && window.ATHOS_V48_RENDER_TARGET.getStatus ? window.ATHOS_V48_RENDER_TARGET.getStatus() : null),
     getV47Render: () => (window.ATHOS_V48_RENDER_TARGET && window.ATHOS_V48_RENDER_TARGET.getStatus ? window.ATHOS_V48_RENDER_TARGET.getStatus() : null),

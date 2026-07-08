@@ -598,3 +598,218 @@ body.v48-target-active .game.active #normalBtn::before{content:"N";font-size:20p
 body.v48-target-active .game.active [data-action="spin"]::before{content:"↻";font-size:22px!important}
 body.v48-target-active .game.active #pauseBtn::before{content:"Ⅱ";font-size:22px!important}
 body.v48-target-active .game.active #exitBtn::before{content:"■";font-size:20px!important}
+
+
+/* ===== V53.2 — HOTFIX FINAL MOBILE + JOGABILIDADE VISUAL ===== */
+/* Menos HUD em cima, controles realmente no rodapé, câmera não briga com layout. */
+body.v48-target-active .game.active{
+  touch-action:none!important;
+}
+body.v48-target-active .game.active .objective-card{
+  opacity:.70!important;
+}
+body.v48-target-active .game.active .top-hud{
+  opacity:.96!important;
+}
+
+/* RETRATO: mais área útil de jogo, controles menores, personagem não fica coberto */
+@media (orientation: portrait){
+  body.v48-target-active .game.active .top-hud{
+    top:calc(5px + env(safe-area-inset-top))!important;
+    left:6px!important;
+    right:6px!important;
+    height:40px!important;
+    gap:5px!important;
+  }
+  body.v48-target-active .game.active .hud-box{
+    height:36px!important;
+    min-height:36px!important;
+    border-radius:12px!important;
+    padding:2px 4px!important;
+  }
+  body.v48-target-active .game.active .hud-box small{
+    font-size:8px!important;
+  }
+  body.v48-target-active .game.active .hud-box b{
+    font-size:15px!important;
+  }
+  body.v48-target-active .game.active .objective-card{
+    top:calc(48px + env(safe-area-inset-top))!important;
+    width:min(440px,84vw)!important;
+    min-height:34px!important;
+    max-height:46px!important;
+    padding:5px 10px!important;
+    border-radius:15px!important;
+  }
+  body.v48-target-active .game.active .objective-card strong{
+    font-size:12px!important;
+    line-height:1.05!important;
+    max-height:26px!important;
+  }
+  body.v48-target-active .game.active .objective-progress{
+    height:3px!important;
+    margin-top:4px!important;
+  }
+  body.v48-target-active .game.active .game-controls{
+    grid-template-columns:minmax(92px,1fr) 146px!important;
+    grid-template-areas:"world world" "left right"!important;
+    gap:4px!important;
+    padding:0 5px calc(5px + env(safe-area-inset-bottom)) 5px!important;
+    background:linear-gradient(180deg,rgba(2,6,23,0),rgba(2,6,23,.22) 28%,rgba(2,6,23,.62))!important;
+  }
+  body.v48-target-active .game.active .world-strip{
+    height:29px!important;
+    gap:4px!important;
+    padding:1px!important;
+    margin:0!important;
+  }
+  body.v48-target-active .game.active .world-chip{
+    height:26px!important;
+    min-width:66px!important;
+    max-width:82px!important;
+    padding:1px 6px!important;
+    font-size:11px!important;
+    border-radius:12px!important;
+  }
+  body.v48-target-active .game.active .joy-ring{
+    width:82px!important;
+    height:82px!important;
+    border-width:2px!important;
+  }
+  body.v48-target-active .game.active .joy-knob{
+    width:36px!important;
+    height:36px!important;
+    margin:-18px 0 0 -18px!important;
+  }
+  body.v48-target-active .game.active .direction-buttons{
+    grid-template-columns:repeat(2,25px)!important;
+    gap:3px!important;
+    opacity:.58!important;
+  }
+  body.v48-target-active .game.active .move-btn{
+    width:25px!important;
+    height:20px!important;
+    min-height:20px!important;
+    border-radius:7px!important;
+    font-size:9px!important;
+  }
+  body.v48-target-active .game.active .action-grid{
+    grid-template-columns:repeat(3,44px)!important;
+    grid-template-rows:repeat(3,44px)!important;
+    gap:5px!important;
+  }
+  body.v48-target-active .game.active .action-btn,
+  body.v48-target-active .game.active #powerBtn,
+  body.v48-target-active .game.active #jumpBtn,
+  body.v48-target-active .game.active [data-action="interact"]{
+    width:44px!important;
+    height:44px!important;
+    min-height:44px!important;
+    border-width:2px!important;
+  }
+  body.v48-target-active .game.active #powerBtn::before,
+  body.v48-target-active .game.active #jumpBtn::before,
+  body.v48-target-active .game.active [data-action="interact"]::before{
+    font-size:22px!important;
+  }
+  body.v48-target-active .game.active #sizeBtn::before,
+  body.v48-target-active .game.active #normalBtn::before,
+  body.v48-target-active .game.active [data-action="spin"]::before,
+  body.v48-target-active .game.active #pauseBtn::before,
+  body.v48-target-active .game.active #exitBtn::before{
+    font-size:18px!important;
+  }
+}
+
+/* PAISAGEM: barra de mundos menor e ações mais baixas; nada fica no topo/direita invadindo HUD */
+@media (orientation: landscape){
+  body.v48-target-active .game.active .top-hud{
+    width:min(390px,36vw)!important;
+    height:34px!important;
+    left:8px!important;
+    top:calc(4px + env(safe-area-inset-top))!important;
+  }
+  body.v48-target-active .game.active .hud-box{
+    height:31px!important;
+    min-height:31px!important;
+    padding:1px 4px!important;
+  }
+  body.v48-target-active .game.active .hud-box small{font-size:7px!important}
+  body.v48-target-active .game.active .hud-box b{font-size:13px!important}
+  body.v48-target-active .game.active .objective-card{
+    top:calc(40px + env(safe-area-inset-top))!important;
+    width:min(390px,36vw)!important;
+    min-height:30px!important;
+    max-height:38px!important;
+    padding:4px 8px!important;
+    opacity:.62!important;
+  }
+  body.v48-target-active .game.active .objective-card strong{
+    font-size:11px!important;
+    max-height:22px!important;
+  }
+  body.v48-target-active .game.active .game-controls{
+    grid-template-columns:105px minmax(250px,1fr) 154px!important;
+    grid-template-areas:"left world right"!important;
+    gap:6px!important;
+    padding:0 8px calc(5px + env(safe-area-inset-bottom)) 8px!important;
+    background:linear-gradient(180deg,rgba(2,6,23,0),rgba(2,6,23,.32))!important;
+  }
+  body.v48-target-active .game.active .world-strip{
+    height:27px!important;
+    gap:4px!important;
+    align-self:end!important;
+  }
+  body.v48-target-active .game.active .world-chip{
+    height:24px!important;
+    min-width:72px!important;
+    max-width:88px!important;
+    padding:1px 6px!important;
+    font-size:10.5px!important;
+    border-radius:12px!important;
+  }
+  body.v48-target-active .game.active .joy-ring{
+    width:66px!important;
+    height:66px!important;
+    border-width:2px!important;
+  }
+  body.v48-target-active .game.active .joy-knob{
+    width:28px!important;
+    height:28px!important;
+    margin:-14px 0 0 -14px!important;
+  }
+  body.v48-target-active .game.active .direction-buttons{
+    grid-template-columns:repeat(2,21px)!important;
+    gap:2px!important;
+    opacity:.50!important;
+  }
+  body.v48-target-active .game.active .move-btn{
+    width:21px!important;
+    height:18px!important;
+    min-height:18px!important;
+    font-size:8px!important;
+    border-radius:6px!important;
+  }
+  body.v48-target-active .game.active .action-grid{
+    grid-template-columns:repeat(3,40px)!important;
+    grid-template-rows:repeat(3,40px)!important;
+    gap:4px!important;
+  }
+  body.v48-target-active .game.active .action-btn,
+  body.v48-target-active .game.active #powerBtn,
+  body.v48-target-active .game.active #jumpBtn,
+  body.v48-target-active .game.active [data-action="interact"]{
+    width:40px!important;
+    height:40px!important;
+    min-height:40px!important;
+    border-width:2px!important;
+  }
+  body.v48-target-active .game.active #powerBtn::before,
+  body.v48-target-active .game.active #jumpBtn::before,
+  body.v48-target-active .game.active [data-action="interact"]::before{font-size:20px!important}
+  body.v48-target-active .game.active #sizeBtn::before,
+  body.v48-target-active .game.active #normalBtn::before,
+  body.v48-target-active .game.active [data-action="spin"]::before,
+  body.v48-target-active .game.active #pauseBtn::before,
+  body.v48-target-active .game.active #exitBtn::before{font-size:16px!important}
+}
