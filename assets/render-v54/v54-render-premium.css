@@ -1,0 +1,266 @@
+/* V54 visual layer only. It does not move controls, HUD, AR, model-viewer or gameplay IDs. */
+body.v54-render-premium .game.active {
+  background:#72cfff!important;
+}
+
+body.v54-render-premium .three-stage canvas {
+  image-rendering:auto!important;
+  filter:saturate(1.58) contrast(1.24) brightness(.90);
+}
+
+body.v54-render-premium .game.active .objective-card strong {
+  text-wrap:balance;
+}
+
+@media (orientation:landscape) and (max-height:740px) {
+  body.v54-render-premium .game.active .game-controls {
+    top:auto!important;
+    bottom:0!important;
+    height:210px!important;
+    align-content:end!important;
+    overflow:visible!important;
+  }
+}
+
+
+/* ===== V54.1 — Mobile/interatividade real ===== */
+body, #app { overscroll-behavior:none!important; }
+.screen.game.active, .game.active{
+  position:fixed!important;
+  inset:0!important;
+  width:100vw!important;
+  height:100dvh!important;
+  min-height:100dvh!important;
+  overflow:hidden!important;
+  touch-action:none!important;
+}
+
+/* CENÁRIOS/MUNDOS SAEM DA TELA DE JOGO: agora ficam em Configurações */
+.game.active .world-strip{
+  display:none!important;
+}
+
+/* Config e cristal funcionais no HUD */
+.game.active .hud-right-cluster{
+  position:fixed!important;
+  top:calc(7px + env(safe-area-inset-top))!important;
+  right:8px!important;
+  z-index:120!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  pointer-events:auto!important;
+}
+.game.active .hud-gems-box{
+  height:34px!important;
+  min-width:74px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:5px!important;
+  padding:0 6px!important;
+  border-radius:14px!important;
+  background:rgba(3,10,24,.72)!important;
+  border:2px solid rgba(255,255,255,.30)!important;
+}
+.game.active .hud-gem-plus,
+.game.active .hud-settings-btn{
+  width:34px!important;
+  height:34px!important;
+  min-height:34px!important;
+  border-radius:50%!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  pointer-events:auto!important;
+  border:2px solid rgba(255,255,255,.75)!important;
+  box-shadow:0 5px 12px rgba(0,0,0,.34)!important;
+  font-weight:1000!important;
+}
+.game.active .hud-settings-btn{background:linear-gradient(180deg,#ffffff,#a9b7c6)!important;color:#071225!important}
+.game.active .hud-gem-plus{background:linear-gradient(180deg,#67e8f9,#0284c7)!important;color:#04111f!important}
+
+/* HUD mais limpo para criança */
+.game.active .top-hud{
+  top:calc(6px + env(safe-area-inset-top))!important;
+  left:7px!important;
+  right:96px!important;
+  height:40px!important;
+  gap:5px!important;
+}
+.game.active .hud-box{
+  height:36px!important;
+  min-height:36px!important;
+  padding:2px 5px!important;
+  border-radius:12px!important;
+}
+.game.active .hud-box small{font-size:8px!important}
+.game.active .hud-box b{font-size:15px!important}
+.game.active .objective-card{
+  top:calc(51px + env(safe-area-inset-top))!important;
+  left:50%!important;
+  right:auto!important;
+  transform:translateX(-50%)!important;
+  width:min(420px,76vw)!important;
+  min-height:32px!important;
+  max-height:42px!important;
+  padding:5px 9px!important;
+  border-radius:15px!important;
+  opacity:.70!important;
+}
+.game.active .objective-card small{display:none!important}
+.game.active .objective-card strong{
+  font-size:12px!important;
+  line-height:1.06!important;
+  max-height:24px!important;
+  overflow:hidden!important;
+}
+.game.active .objective-progress{height:3px!important;margin-top:4px!important}
+
+/* Controles: só o essencial, espaçado */
+.game.active .game-controls{
+  position:fixed!important;
+  left:0!important;
+  right:0!important;
+  bottom:0!important;
+  width:100vw!important;
+  height:0!important;
+  display:block!important;
+  padding:0!important;
+  pointer-events:none!important;
+  z-index:100!important;
+  overflow:visible!important;
+  background:none!important;
+}
+.game.active .left-zone,
+.game.active .right-zone{
+  pointer-events:auto!important;
+  z-index:110!important;
+}
+.game.active #sizeBtn,
+.game.active #normalBtn,
+.game.active [data-action="spin"],
+.game.active #pauseBtn,
+.game.active #exitBtn{
+  display:none!important;
+}
+.game.active .direction-buttons{display:none!important;}
+.game.active .joystick small{display:none!important;}
+
+@media (orientation: portrait){
+  .game.active .left-zone{
+    position:fixed!important;
+    left:10px!important;
+    bottom:calc(12px + env(safe-area-inset-bottom))!important;
+    width:auto!important;
+    transform:none!important;
+  }
+  .game.active .right-zone{
+    position:fixed!important;
+    right:10px!important;
+    bottom:calc(12px + env(safe-area-inset-bottom))!important;
+    width:164px!important;
+    height:76px!important;
+    transform:none!important;
+  }
+  .game.active .joy-ring{width:88px!important;height:88px!important;border-width:2px!important}
+  .game.active .joy-knob{width:38px!important;height:38px!important;margin:-19px 0 0 -19px!important}
+  .game.active .action-grid{
+    position:static!important;
+    display:grid!important;
+    grid-template-columns:repeat(3,50px)!important;
+    grid-template-rows:50px!important;
+    gap:8px!important;
+    width:166px!important;
+    height:54px!important;
+    transform:none!important;
+  }
+  .game.active #jumpBtn,
+  .game.active #powerBtn,
+  .game.active [data-action="interact"]{
+    display:flex!important;
+    position:static!important;
+    width:50px!important;
+    height:50px!important;
+    min-height:50px!important;
+    border-radius:50%!important;
+    transform:none!important;
+    inset:auto!important;
+  }
+  .game.active #crouchBtn{
+    display:none!important;
+  }
+}
+
+@media (orientation: landscape){
+  .game.active .top-hud{
+    width:min(370px,34vw)!important;
+    right:auto!important;
+  }
+  .game.active .hud-right-cluster{
+    top:calc(5px + env(safe-area-inset-top))!important;
+    right:8px!important;
+  }
+  .game.active .objective-card{
+    top:calc(43px + env(safe-area-inset-top))!important;
+    width:min(390px,36vw)!important;
+    max-height:36px!important;
+    opacity:.58!important;
+  }
+  .game.active .left-zone{
+    position:fixed!important;
+    left:10px!important;
+    bottom:calc(10px + env(safe-area-inset-bottom))!important;
+    width:auto!important;
+    transform:none!important;
+  }
+  .game.active .right-zone{
+    position:fixed!important;
+    right:18px!important;
+    bottom:calc(10px + env(safe-area-inset-bottom))!important;
+    width:150px!important;
+    height:48px!important;
+    transform:none!important;
+  }
+  .game.active .joy-ring{width:70px!important;height:70px!important;border-width:2px!important}
+  .game.active .joy-knob{width:30px!important;height:30px!important;margin:-15px 0 0 -15px!important}
+  .game.active .action-grid{
+    position:static!important;
+    display:grid!important;
+    grid-template-columns:repeat(3,44px)!important;
+    grid-template-rows:44px!important;
+    gap:9px!important;
+    width:150px!important;
+    height:46px!important;
+    transform:none!important;
+  }
+  .game.active #jumpBtn,
+  .game.active #powerBtn,
+  .game.active [data-action="interact"]{
+    display:flex!important;
+    position:static!important;
+    width:44px!important;
+    height:44px!important;
+    min-height:44px!important;
+    border-radius:50%!important;
+    transform:none!important;
+    inset:auto!important;
+  }
+  .game.active #crouchBtn{
+    display:none!important;
+  }
+}
+
+/* Modal Configurações */
+.settings-game-panel{display:grid;gap:16px}
+.settings-section{display:grid;gap:10px}
+.settings-section strong{font-size:18px;color:#0f172a}
+.settings-worlds,.settings-actions{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(118px,1fr));
+  gap:8px;
+}
+.settings-world-btn.active{
+  background:linear-gradient(180deg,#ffe66b,#d59d08)!important;
+  color:#111827!important;
+}

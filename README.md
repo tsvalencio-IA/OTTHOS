@@ -1,15 +1,19 @@
-# ATHOS V53.3 — Controles Dentro da Tela
+# ATHOS V54.1 — Codex Render + Mobile Interativo
 
-Base: V53.2.
+Base: ZIP do Codex com render V54 preservado.
 
-Correção:
-- corrige a falha do teste V53.2 em que o action-grid ficava com right:-12 em paisagem;
-- controles agora são fixados por zona, não dependem do grid antigo;
-- botões, joystick, mundos, HUD e objetivo ficam dentro da viewport;
-- render Codex e motor V53 preservados.
+Correções:
+- remove pasta wrapper; arquivos na raiz do GitHub;
+- mantém assets/render-v54 do Codex;
+- mundos/cenários saem da tela de jogo e vão para Configurações;
+- botão Configurações abre painel com mundos e ações extras;
+- botão + Cristal passa a funcionar;
+- botões de ação ficam mais espaçados e só mostram o essencial no gameplay;
+- responsividade por CSS/resize para retrato e paisagem;
+- AR/model-viewer/athos.glb/B Poder/Quiz/Falar preservados.
 
 Abrir:
-?v=533-mobile-controls-inside
+?v=541-codex-render-mobile-interativo
 
 Teste:
-F12_TESTE_ATHOS_V533_CONTROLES_DENTRO_TELA.js
+F12_TESTE_ATHOS_V541_CODEX_RENDER_MOBILE_INTERATIVO.js

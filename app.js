@@ -382,7 +382,7 @@
     els.hudTime.textContent = runtime.timer ? Math.max(0, Math.ceil(runtime.timer)) : '∞';
     els.worldName.textContent = `${WORLD[currentLevel.world]?.name || 'Mundo'} • ${DIFFICULTY[progress.difficulty].name}`;
     const portalReady = objectivesDone();
-    els.objectiveText.textContent = portalReady ? 'Portal liberado! Vá até o brilho verde no fim da fase.' : `${currentLevel.objective} Portal: bloqueado.`;
+    els.objectiveText.textContent = portalReady ? 'Portal liberado! Vá até o portal.' : 'Pegue cristais, vença monstros e abra o portal.';
     if (portalReady && runtime && !runtime.portalAnnounced) {
       runtime.portalAnnounced = true;
       toast('Portal liberado!', 'good');
@@ -500,8 +500,9 @@
     player = new THREE.Group(); root.add(player);
     buildFallbackAthos(); loadAthosGLB();
     window.addEventListener('resize', resize, { passive:true });
-    window.addEventListener('orientationchange', () => setTimeout(resize, 140), { passive:true });
-    installV48Render(currentLevel?.world || 'field');
+    window.addEventListener('orientationchange', () => { setTimeout(resize, 80); setTimeout(forceMobileReflow, 240); }, { passive:true });
+    window.addEventListener('resize', () => setTimeout(forceMobileReflow, 120), { passive:true });
+    installV54Render(currentLevel?.world || 'field');
     animate();
     return true;
   }
@@ -515,9 +516,8 @@
   }
 
 
-  // V48: integração segura da camada de render premium fiel enviada em assets/render-v48.
-  // Esta camada é visual e defensiva: não altera joystick, botões, B Poder, Quiz/Falar, localStorage, AR nativo ou model-viewer.
-  function v48Ctx(worldOverride){
+  // V54: camada visual premium defensiva; nao altera controles, B Poder, Quiz/Falar, AR nativo ou model-viewer.
+  function v54Ctx(worldOverride){
     return {
       THREE: window.THREE,
       scene,
@@ -527,33 +527,36 @@
       currentWorld: worldOverride || currentLevel?.world || 'field',
       level: currentLevel,
       levelGroup,
-      // V48: passa os arrays reais do motor, não campos inexistentes em runtime.
       objects: platforms.map(o => o.mesh).filter(Boolean),
       enemies,
       portal: portalMesh,
-      crystals: crystals.map(c => c.mesh).filter(Boolean)
+      crystals: crystals.map(c => c.mesh).filter(Boolean),
+      portalReady: !!(runtime && objectivesDone())
     };
   }
-  function installV48Render(worldOverride){
-    const mod = window.ATHOS_V48_RENDER_TARGET;
+  function v54RenderModule(){
+    return window.ATHOS_V54_RENDER_PREMIUM || window.ATHOS_V48_RENDER_TARGET;
+  }
+  function installV54Render(worldOverride){
+    const mod = v54RenderModule();
     if (!mod || !window.THREE || !scene || !camera || !renderer) return false;
     const st = typeof mod.getStatus === 'function' ? mod.getStatus() : null;
     if (!st || !st.installed) {
-      try { mod.install(v48Ctx(worldOverride)); } catch (e) { console.warn('V48 install ignorado com segurança', e); return false; }
+      try { mod.install(v54Ctx(worldOverride)); } catch (e) { console.warn('V54 install ignorado com seguranca', e); return false; }
     }
     return true;
   }
-  function rebuildV48Render(worldOverride){
-    const mod = window.ATHOS_V48_RENDER_TARGET;
+  function rebuildV54Render(worldOverride){
+    const mod = v54RenderModule();
     if (!mod || !window.THREE || !scene || !camera || !renderer) return;
     const w = worldOverride || currentLevel?.world || 'field';
-    if (!installV48Render(w)) return;
-    try { mod.rebuildWorld(v48Ctx(w), w); } catch (e) { console.warn('V48 rebuild ignorado com segurança', e); }
+    if (!installV54Render(w)) return;
+    try { mod.rebuildWorld(v54Ctx(w), w); } catch (e) { console.warn('V54 rebuild ignorado com seguranca', e); }
   }
-  function updateV48Render(dt){
-    const mod = window.ATHOS_V48_RENDER_TARGET;
+  function updateV54Render(dt){
+    const mod = v54RenderModule();
     if (!mod || !window.THREE || !scene) return;
-    try { mod.update(v48Ctx(currentLevel?.world || 'field'), dt); } catch (e) { console.warn('V48 update ignorado com segurança', e); }
+    try { mod.update(v54Ctx(currentLevel?.world || 'field'), dt); } catch (e) { console.warn('V54 update ignorado com seguranca', e); }
   }
 
   function buildFallbackAthos(){
@@ -756,7 +759,7 @@
     createPortal(currentLevel.length || 220);
     applyV442MinecraftAdventureRender(currentLevel, currentLevel.length || 220);
     applyV45TrueGamePlatformRender(currentLevel, currentLevel.length || 220);
-    rebuildV48Render(currentLevel.world);
+    rebuildV54Render(currentLevel.world);
     applyV40RenderPass(currentLevel.world, currentLevel.length || 220);
     document.body.dataset.world = currentLevel.world;
     if (els.game) els.game.dataset.world = currentLevel.world;
@@ -1618,7 +1621,7 @@
     const dt = Math.min(.045, clock.getDelta());
     if (mixer) mixer.update(dt);
     if (playing && !paused) update(dt);
-    updateV48Render(dt);
+    updateV54Render(dt);
     if (renderer && scene && camera) renderer.render(scene,camera);
   }
 
@@ -2411,7 +2414,7 @@
       els.game.classList.remove('real-bg');
     }
     arSafeUntil = now() + AR_SAFE.lockMs;
-    rebuildV48Render('real');
+    rebuildV54Render('real');
     const viewer = getARViewer();
     prepareARViewer(viewer);
     // Não abrimos câmera fake. Em computador, não chamamos activateAR para evitar erro interno do model-viewer.
@@ -2556,7 +2559,97 @@
   }
 
   function handleAction(a){ if(a==='jump') jump(); else if(a==='power') power(); else if(['forward','back','left','right'].includes(a)) return; else if(a==='crouch') { toggleCrouch(true); setTimeout(()=>toggleCrouch(false), 420); } else if(a==='spin') spin(); else if(a==='size') cycleSize(); else if(a==='normal') { p.scaleMode='normal'; toast('Normal!', 'good'); } else if(a==='interact') interact(); else if(a==='quiz' || a==='ask') return; else if(a==='pause') togglePause(); else if(a==='exit') exitGame(); }
+
+  function giveCrystalBonus(){
+    if (!runtime) { toast('Entre no jogo para ganhar cristal.', 'warn'); return false; }
+    runtime.crystals = Math.min((runtime.requiredCrystals || 0) + 9, (runtime.crystals || 0) + 1);
+    progress.totalCrystals = (progress.totalCrystals || 0) + 1;
+    addXP(6);
+    saveProgress();
+    updateHud();
+    addParticles(p.x, p.y + 1.4, p.z - 1.4, 0x38bdf8, 16);
+    toast('+1 cristal!', 'good');
+    beep(880, 70);
+    vibrate(25);
+    return true;
+  }
+
+  function switchWorldFromSettings(world){
+    if (!world) return false;
+    resetAllInputs('settings-world');
+    closeModal();
+    if (world === 'real') { updateWorldButtons('real'); openNativeAR('settings-real'); return true; }
+    if (!currentLevel) currentLevel = LEVELS[0];
+    buildLevel(currentLevel, world);
+    toast(WORLD[world]?.name || 'Mundo', 'good');
+    setTimeout(forceMobileReflow, 70);
+    return true;
+  }
+
+  function forceMobileReflow(){
+    try {
+      document.body.classList.toggle('athos-reflow-tick');
+      requestAnimationFrame(() => {
+        resize();
+        if (renderer && camera) {
+          const rect = stageSize();
+          camera.aspect = rect.width / Math.max(1, rect.height);
+          camera.updateProjectionMatrix();
+          renderer.setSize(rect.width, rect.height);
+        }
+      });
+    } catch {}
+  }
+
+  function openGameSettings(){
+    hardStopAllInput('settings-open');
+    const worlds = [
+      ['field','🌱 Campo'], ['fire','🔥 Vulcão'], ['forest','🌳 Floresta'],
+      ['castle','🏰 Castelo'], ['space','🚀 Espaço'], ['arena','🌀 Arena'], ['real','📷 Real']
+    ];
+    els.modalTitle.textContent = 'Configurações';
+    els.modalBody.innerHTML = `
+      <div class="settings-game-panel">
+        <div class="settings-section">
+          <strong>Escolher mundo</strong>
+          <div class="settings-worlds">
+            ${worlds.map(([id,label]) => `<button class="pixel-btn settings-world-btn ${currentLevel?.world===id?'active':''}" data-settings-world="${id}" type="button">${label}</button>`).join('')}
+          </div>
+        </div>
+        <div class="settings-section">
+          <strong>Ações extras</strong>
+          <div class="settings-actions">
+            <button class="pixel-btn" data-settings-action="mini" type="button">Mini</button>
+            <button class="pixel-btn" data-settings-action="normal" type="button">Normal</button>
+            <button class="pixel-btn" data-settings-action="giant" type="button">Gigante</button>
+            <button class="pixel-btn" data-settings-action="pause" type="button">Pausar</button>
+            <button class="pixel-btn danger" data-settings-action="exit" type="button">Sair</button>
+          </div>
+        </div>
+      </div>`;
+    els.modal.hidden = false;
+    els.app && els.app.classList.add('modal-active');
+    $$('.settings-world-btn', els.modalBody).forEach(btn => {
+      btn.onclick = () => switchWorldFromSettings(btn.dataset.settingsWorld);
+    });
+    $$('[data-settings-action]', els.modalBody).forEach(btn => {
+      btn.onclick = () => {
+        const a = btn.dataset.settingsAction;
+        if (a === 'mini') { p.scaleMode = 'mini'; toast('Mini!', 'good'); closeModal(); }
+        else if (a === 'normal') { p.scaleMode = 'normal'; toast('Normal!', 'good'); closeModal(); }
+        else if (a === 'giant') { p.scaleMode = 'giant'; toast('Gigante!', 'good'); closeModal(); }
+        else if (a === 'pause') { closeModal(); togglePause(); }
+        else if (a === 'exit') { closeModal(); exitGame(); }
+      };
+    });
+    return true;
+  }
+
   function setupUI(){
+    const hudSettingsBtn = document.getElementById('hudSettingsBtn');
+    const hudGemPlusBtn = document.getElementById('hudGemPlusBtn') || document.querySelector('.hud-gem-plus');
+    if (hudSettingsBtn) hudSettingsBtn.onclick = openGameSettings;
+    if (hudGemPlusBtn) hudGemPlusBtn.onclick = (e) => { e.preventDefault(); e.stopPropagation(); giveCrystalBonus(); };
     const bindStart = (el, target) => { if (!el) return; el.onclick = () => { closeModal(); start(target || el.dataset.play || 'missions'); }; };
     [els.playBtn, els.heroPlayBtn].forEach(el => bindStart(el, 'missions'));
     [els.freeBtn, els.heroFreeBtn].forEach(el => bindStart(el, 'free'));
@@ -2576,7 +2669,7 @@
     if(els.arAnchorViewer){ els.arAnchorViewer.addEventListener('ar-status',(e)=>{ if(e.detail && e.detail.status==='not-presenting') hardStopAllInput('ar-closed'); }); }
   }
   function refreshServiceWorker(){
-    if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js?v=45-plataforma-10-render-ar').then(reg => reg.update()).catch(()=>{});
+    if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js?v=541-codex-render-mobile-interativo').then(reg => reg.update()).catch(()=>{});
     if('caches' in window) caches.keys().then(keys=>keys.filter(k=>/athos|otto/i.test(k)).forEach(k=>caches.delete(k).catch(()=>{}))).catch(()=>{});
   }
 
@@ -2620,11 +2713,13 @@
       powerCooldownMs: Math.max(0, Math.round(powerReadyAt - now()))
     }),
     getV42Design: () => ({ markers:v42Markers.length, guides:v42Markers.filter(m=>m.type==='guide').map(m=>m.text), currentLevel: currentLevel ? currentLevel.id : null }),
-    getARSafety: () => ({ realBg, arSafeUntil, locked: now() < arSafeUntil, label: 'V53_1_AR_OK', nativeAR:true, fakeCamera:false }),
+    getARSafety: () => ({ realBg, arSafeUntil, locked: now() < arSafeUntil, label: 'V54_1_AR_OK', nativeAR:true, fakeCamera:false }),
     getV442Render: () => ({ label: V442_RENDER.label, target: V442_RENDER.target, enabled: V442_RENDER.enabled, sideIslands: V442_RENDER.maxSideIslands, clouds: V442_RENDER.clouds, v45:V45_PLATFORM_RENDER.label }),
     getV533: () => ({label:'V53_3_CONTROLES_100_DENTRO_DA_TELA', fix:'right-zone fixed; no overflow in landscape/portrait'}),
     getV532: () => ({label:'V53_2_MOBILE_GAMEPLAY_HOTFIX', camera:{follow:GAMEPLAY_CAMERA.cameraFollowDistance,height:GAMEPLAY_CAMERA.cameraHeight,lookAhead:GAMEPLAY_CAMERA.cameraLookAhead}, feel:{deadzone:GAME_FEEL.joystickDeadzone,release:GAME_FEEL.inputRelease,decel:GAME_FEEL.groundDeceleration}, viewport:{w:innerWidth,h:innerHeight,landscape:innerWidth>innerHeight}}),
     getV53: () => ({...V53_CODEX_VISUAL_GAMEPLAY, powerups: powerups.length, gotPowerups: powerups.filter(p=>p.got).length, playerWeapon:p.weapon||null, shield:p.shield||0, star: now() < (p.starUntil||0)}),
+    getV541: () => ({label:'V54_1_CODEX_RENDER_MOBILE_INTERATIVO', settings:true, crystalPlus:true, worldsInSettings:true, orientation:'auto-css-resize'}),
+    getV54Render: () => (window.ATHOS_V54_RENDER_PREMIUM && window.ATHOS_V54_RENDER_PREMIUM.getStatus ? window.ATHOS_V54_RENDER_PREMIUM.getStatus() : null),
     getV48Render: () => (window.ATHOS_V48_RENDER_TARGET && window.ATHOS_V48_RENDER_TARGET.getStatus ? window.ATHOS_V48_RENDER_TARGET.getStatus() : null),
     getV47Render: () => (window.ATHOS_V48_RENDER_TARGET && window.ATHOS_V48_RENDER_TARGET.getStatus ? window.ATHOS_V48_RENDER_TARGET.getStatus() : null),
     getV46Render: () => (window.ATHOS_V48_RENDER_TARGET && window.ATHOS_V48_RENDER_TARGET.getStatus ? window.ATHOS_V48_RENDER_TARGET.getStatus() : null),

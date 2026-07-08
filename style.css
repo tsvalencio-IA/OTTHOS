@@ -920,3 +920,5 @@ body.v53-codex-obedecido #exitBtn::before{content:"■";font-size:20px!important
   .lobby-grid{grid-template-columns:1fr!important}
   .panel{max-width:100%!important}
 }
+
+/* V54.1: configurações e mundos no modal; render-v54.css contém a regra forte. */

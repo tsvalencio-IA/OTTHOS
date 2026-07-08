@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
   <meta name="theme-color" content="#0b1020" />
   <meta name="description" content="Athos: Guardião dos Portais — jogo 3D voxel/AR para celular." />
-  <title>Athos: Guardião dos Portais V53.3</title>
+  <title>Athos: Guardião dos Portais V54.1</title>
 
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" type="image/png" href="./icons/favicon.png" />
   <link rel="apple-touch-icon" href="./icons/icon-192.png" />
-  <link rel="stylesheet" href="./style.css?v=533-mobile-controls-inside" />
-  <link rel="stylesheet" href="./assets/render-v48/v48-render-target.css?v=533-mobile-controls-inside" />
+  <link rel="stylesheet" href="./style.css?v=541-codex-render-mobile-interativo" />
+  <link rel="stylesheet" href="./assets/render-v54/v54-render-premium.css?v=541-codex-render-mobile-interativo" />
 
 </head>
 <body>
@@ -23,12 +23,12 @@
             <i class="eye l"></i><i class="eye r"></i><i class="flame f1"></i><i class="flame f2"></i>
           </div>
           <div>
-            <p class="eyebrow">GUARDIÃO DOS PORTAIS</p>
+            <p class="eyebrow">AVENTURA DOS PORTAIS</p>
             <h1>Athos Adventure 3D+</h1>
             <p class="subtitle">Jogue, colete cristais e vença os monstros.</p>
             <div class="hero-actions">
-              <button id="heroPlayBtn" class="pixel-btn primary huge play-alias" data-play="missions" data-test="play-missions" aria-label="Jogar Fases 3D iniciar missões" type="button">🎮 JOGAR</button>
-              <button id="heroFreeBtn" class="pixel-btn huge" data-play="free" data-test="play-free" aria-label="Brincar Livre AR por câmera" type="button">📷 LIVRE</button>
+              <button id="heroPlayBtn" class="pixel-btn primary huge play-alias" data-play="missions" data-test="play-missions" aria-label="Jogar Fases 3D iniciar missões" type="button">JOGAR</button>
+              <button id="heroFreeBtn" class="pixel-btn huge" data-play="free" data-test="play-free" aria-label="Brincar Livre AR por câmera" type="button">LIVRE</button>
             </div>
           </div>
         </header>
@@ -94,7 +94,7 @@
             </select>
 
             <div class="main-actions">
-              <button id="playBtn" class="pixel-btn primary big play-alias" data-play="missions" data-test="play-missions" aria-label="Jogar Fases 3D iniciar missões" type="button">🎮 JOGAR — INICIAR</button>
+              <button id="playBtn" class="pixel-btn primary big play-alias" data-play="missions" data-test="play-missions" aria-label="Jogar Fases 3D iniciar missões" type="button">JOGAR</button>
               <button id="hubBtn" class="pixel-btn big play-alias" data-play="hub" data-test="play-hub" aria-label="Hub dos Portais explorar mundos" type="button">🌀 Hub</button>
               <button id="freeBtn" class="pixel-btn big play-alias" data-play="free" data-test="play-free" aria-label="Brincar Livre AR por câmera" type="button">📷 Livre / AR</button>
               <button id="quizBtn" class="pixel-btn big" data-test="quiz-open" aria-label="Quiz do Athos abrir desafio" type="button">🧠 Quiz</button>
@@ -104,12 +104,12 @@
             </div>
 
             <div class="hint-box">
-              <b>Como jogar:</b> use o joystick para ir para o fundo, voltar e mudar de lado. A pula, B lança poder, Y abaixa, X muda tamanho. Caixas e plataformas são sólidas: pule em cima delas.
+              Pegue cristais, vença monstros e abra o portal.
             </div>
           </aside>
         </div>
       </div>
-      <footer class="footer">Powered by thIAguinho Soluções Digitais — Athos Guardião dos Portais</footer>
+      <footer class="footer">Jogue, colete cristais e vença os monstros.</footer>
     </section>
 
     <section id="game" class="screen game" aria-label="Jogo 3D">
@@ -144,7 +144,7 @@
           <div class="hud-gems-box">
             <span class="hud-gem-icon">💎</span>
             <b id="hudCrystals" class="hud-gem-count">0</b>
-            <button class="hud-gem-plus" aria-label="Mais cristais" type="button">+</button>
+            <button id="hudGemPlusBtn" class="hud-gem-plus" aria-label="Mais cristais" type="button">+</button>
           </div>
           <button class="hud-settings-btn" id="hudSettingsBtn" type="button" aria-label="Configurações">⚙</button>
         </div>
@@ -238,7 +238,7 @@
     </div>
   </div>
 
-  <script src="./assets/render-v48/v48-render-target.js?v=533-mobile-controls-inside"></script>
-  <script src="./app.js?v=533-mobile-controls-inside"></script>
+  <script src="./assets/render-v54/v54-render-premium.js?v=541-codex-render-mobile-interativo"></script>
+  <script src="./app.js?v=541-codex-render-mobile-interativo"></script>
 </body>
 </html>
