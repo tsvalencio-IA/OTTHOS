@@ -243,3 +243,358 @@ body.v48-target-active .game.active .objective-progress{
   body.v48-target-active .game.active .hud-gem-count{font-size:17px!important}
   body.v48-target-active .game.active .hud-xp-block{min-width:65px!important}
 }
+
+
+/* ===== V53.1 — HOTFIX RESPONSIVIDADE REAL: nada fora da tela ===== */
+/* Regra: HUD no topo, objetivo curto, mundo no rodapé, joystick embaixo esquerda, ações embaixo direita. */
+body.v48-target-active{
+  margin:0!important;
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+}
+body.v48-target-active .screen.game.active,
+body.v48-target-active .game.active{
+  position:fixed!important;
+  inset:0!important;
+  width:100vw!important;
+  height:100dvh!important;
+  min-height:100dvh!important;
+  max-height:100dvh!important;
+  overflow:hidden!important;
+  transform:none!important;
+}
+
+/* Impede o bloco .game-controls inset:0 antigo de empurrar itens para topo/fora da tela */
+body.v48-target-active .game.active .game-controls{
+  position:fixed!important;
+  inset:auto 0 0 0!important;
+  left:0!important;
+  right:0!important;
+  bottom:0!important;
+  width:100vw!important;
+  height:auto!important;
+  display:grid!important;
+  z-index:90!important;
+  pointer-events:none!important;
+  padding:0!important;
+  background:linear-gradient(180deg,rgba(2,6,23,0),rgba(2,6,23,.36) 40%,rgba(2,6,23,.68))!important;
+}
+
+/* HUD sempre dentro da viewport */
+body.v48-target-active .game.active .top-hud{
+  position:fixed!important;
+  top:calc(6px + env(safe-area-inset-top))!important;
+  left:8px!important;
+  right:8px!important;
+  width:auto!important;
+  max-width:none!important;
+  height:46px!important;
+  z-index:80!important;
+  display:flex!important;
+  gap:6px!important;
+  pointer-events:none!important;
+}
+body.v48-target-active .game.active .hud-box{
+  flex:1 1 0!important;
+  min-width:0!important;
+  height:42px!important;
+  padding:3px 5px!important;
+  border-radius:13px!important;
+}
+body.v48-target-active .game.active .hud-box small{
+  font-size:9px!important;
+  line-height:1!important;
+}
+body.v48-target-active .game.active .hud-box b{
+  font-size:18px!important;
+  line-height:1!important;
+}
+
+/* Objetivo curto, sem textão gigante */
+body.v48-target-active .game.active .objective-card{
+  position:fixed!important;
+  top:calc(58px + env(safe-area-inset-top))!important;
+  left:50%!important;
+  right:auto!important;
+  transform:translateX(-50%)!important;
+  width:min(520px,88vw)!important;
+  min-height:42px!important;
+  max-height:58px!important;
+  padding:7px 12px!important;
+  z-index:79!important;
+  overflow:hidden!important;
+  text-align:center!important;
+  border-radius:17px!important;
+}
+body.v48-target-active .game.active .objective-card small{
+  display:none!important;
+}
+body.v48-target-active .game.active .objective-card strong{
+  display:block!important;
+  font-size:14px!important;
+  line-height:1.10!important;
+  max-height:32px!important;
+  overflow:hidden!important;
+}
+body.v48-target-active .game.active .objective-progress{
+  height:4px!important;
+  margin-top:6px!important;
+}
+
+/* RETRATO: controles embaixo, 3 colunas de ação, nada sobre HUD */
+@media (orientation: portrait){
+  body.v48-target-active .game.active .game-controls{
+    grid-template-columns:minmax(104px,1fr) 170px!important;
+    grid-template-areas:"world world" "left right"!important;
+    gap:6px!important;
+    padding:0 7px calc(7px + env(safe-area-inset-bottom)) 7px!important;
+    align-items:end!important;
+  }
+  body.v48-target-active .game.active .world-strip{
+    position:static!important;
+    grid-area:world!important;
+    left:auto!important;
+    right:auto!important;
+    bottom:auto!important;
+    width:100%!important;
+    height:32px!important;
+    max-width:100%!important;
+    padding:2px!important;
+    display:flex!important;
+    gap:5px!important;
+    overflow-x:auto!important;
+    pointer-events:auto!important;
+    z-index:1!important;
+  }
+  body.v48-target-active .game.active .world-chip{
+    height:28px!important;
+    min-width:74px!important;
+    max-width:92px!important;
+    padding:2px 7px!important;
+    font-size:12px!important;
+    border-radius:13px!important;
+  }
+  body.v48-target-active .game.active .left-zone{
+    position:static!important;
+    grid-area:left!important;
+    left:auto!important;
+    bottom:auto!important;
+    display:flex!important;
+    align-items:flex-end!important;
+    gap:6px!important;
+    pointer-events:auto!important;
+    z-index:1!important;
+    min-width:0!important;
+  }
+  body.v48-target-active .game.active .right-zone{
+    position:static!important;
+    grid-area:right!important;
+    right:auto!important;
+    bottom:auto!important;
+    width:170px!important;
+    display:flex!important;
+    justify-content:flex-end!important;
+    align-items:flex-end!important;
+    pointer-events:auto!important;
+    z-index:1!important;
+  }
+  body.v48-target-active .game.active .joy-ring{
+    width:96px!important;
+    height:96px!important;
+  }
+  body.v48-target-active .game.active .joy-knob{
+    width:42px!important;
+    height:42px!important;
+    margin:-21px 0 0 -21px!important;
+  }
+  body.v48-target-active .game.active .direction-buttons{
+    position:static!important;
+    left:auto!important;
+    bottom:auto!important;
+    transform:none!important;
+    display:grid!important;
+    grid-template-columns:repeat(2,30px)!important;
+    grid-template-areas:"f f" "l r" "b b"!important;
+    gap:3px!important;
+    opacity:.66!important;
+    pointer-events:auto!important;
+  }
+  body.v48-target-active .game.active #moveForwardBtn{grid-area:f!important}
+  body.v48-target-active .game.active #moveLeftBtn{grid-area:l!important}
+  body.v48-target-active .game.active #moveRightBtn{grid-area:r!important}
+  body.v48-target-active .game.active #moveBackBtn{grid-area:b!important}
+  body.v48-target-active .game.active .move-btn{
+    width:30px!important;
+    height:24px!important;
+    min-height:24px!important;
+    padding:0!important;
+    font-size:10px!important;
+  }
+  body.v48-target-active .game.active .move-btn span{display:none!important}
+  body.v48-target-active .game.active .action-grid{
+    position:static!important;
+    display:grid!important;
+    grid-template-columns:repeat(3,50px)!important;
+    grid-template-rows:repeat(3,50px)!important;
+    gap:5px!important;
+    width:auto!important;
+    height:auto!important;
+  }
+  body.v48-target-active .game.active .action-btn,
+  body.v48-target-active .game.active #powerBtn,
+  body.v48-target-active .game.active #jumpBtn,
+  body.v48-target-active .game.active [data-action="interact"]{
+    position:static!important;
+    width:50px!important;
+    height:50px!important;
+    min-height:50px!important;
+    border-radius:50%!important;
+    inset:auto!important;
+    transform:none!important;
+    font-size:0!important;
+  }
+}
+
+/* PAISAGEM: controles no rodapé, nunca no topo */
+@media (orientation: landscape){
+  body.v48-target-active .game.active .top-hud{
+    top:calc(5px + env(safe-area-inset-top))!important;
+    left:8px!important;
+    right:auto!important;
+    width:min(440px,42vw)!important;
+    height:38px!important;
+    gap:5px!important;
+  }
+  body.v48-target-active .game.active .hud-box{
+    height:34px!important;
+    padding:2px 5px!important;
+    border-radius:11px!important;
+  }
+  body.v48-target-active .game.active .hud-box small{font-size:8px!important}
+  body.v48-target-active .game.active .hud-box b{font-size:15px!important}
+  body.v48-target-active .game.active .objective-card{
+    top:calc(48px + env(safe-area-inset-top))!important;
+    width:min(460px,42vw)!important;
+    min-height:34px!important;
+    max-height:46px!important;
+    padding:5px 9px!important;
+  }
+  body.v48-target-active .game.active .objective-card strong{
+    font-size:12px!important;
+    line-height:1.05!important;
+  }
+  body.v48-target-active .game.active .game-controls{
+    grid-template-columns:122px minmax(280px,1fr) 174px!important;
+    grid-template-areas:"left world right"!important;
+    gap:8px!important;
+    align-items:end!important;
+    padding:0 8px calc(7px + env(safe-area-inset-bottom)) 8px!important;
+  }
+  body.v48-target-active .game.active .world-strip{
+    position:static!important;
+    grid-area:world!important;
+    left:auto!important;
+    right:auto!important;
+    bottom:auto!important;
+    width:100%!important;
+    height:30px!important;
+    max-width:100%!important;
+    padding:1px!important;
+    pointer-events:auto!important;
+    z-index:1!important;
+  }
+  body.v48-target-active .game.active .world-chip{
+    height:27px!important;
+    min-width:78px!important;
+    max-width:100px!important;
+    padding:1px 7px!important;
+    font-size:12px!important;
+  }
+  body.v48-target-active .game.active .left-zone{
+    position:static!important;
+    grid-area:left!important;
+    left:auto!important;
+    bottom:auto!important;
+    display:flex!important;
+    align-items:flex-end!important;
+    gap:4px!important;
+    min-width:0!important;
+    pointer-events:auto!important;
+  }
+  body.v48-target-active .game.active .right-zone{
+    position:static!important;
+    grid-area:right!important;
+    right:auto!important;
+    bottom:auto!important;
+    display:flex!important;
+    align-items:flex-end!important;
+    justify-content:flex-end!important;
+    width:174px!important;
+    pointer-events:auto!important;
+  }
+  body.v48-target-active .game.active .joy-ring{
+    width:78px!important;
+    height:78px!important;
+  }
+  body.v48-target-active .game.active .joy-knob{
+    width:34px!important;
+    height:34px!important;
+    margin:-17px 0 0 -17px!important;
+  }
+  body.v48-target-active .game.active .direction-buttons{
+    position:static!important;
+    left:auto!important;
+    bottom:auto!important;
+    transform:none!important;
+    display:grid!important;
+    grid-template-columns:repeat(2,24px)!important;
+    grid-template-areas:"f f" "l r" "b b"!important;
+    gap:3px!important;
+    opacity:.60!important;
+    pointer-events:auto!important;
+  }
+  body.v48-target-active .game.active #moveForwardBtn{grid-area:f!important}
+  body.v48-target-active .game.active #moveLeftBtn{grid-area:l!important}
+  body.v48-target-active .game.active #moveRightBtn{grid-area:r!important}
+  body.v48-target-active .game.active #moveBackBtn{grid-area:b!important}
+  body.v48-target-active .game.active .move-btn{
+    width:24px!important;
+    height:20px!important;
+    min-height:20px!important;
+    padding:0!important;
+    font-size:9px!important;
+  }
+  body.v48-target-active .game.active .move-btn span{display:none!important}
+  body.v48-target-active .game.active .action-grid{
+    position:static!important;
+    display:grid!important;
+    grid-template-columns:repeat(3,46px)!important;
+    grid-template-rows:repeat(3,46px)!important;
+    width:auto!important;
+    height:auto!important;
+    gap:5px!important;
+  }
+  body.v48-target-active .game.active .action-btn,
+  body.v48-target-active .game.active #powerBtn,
+  body.v48-target-active .game.active #jumpBtn,
+  body.v48-target-active .game.active [data-action="interact"]{
+    position:static!important;
+    width:46px!important;
+    height:46px!important;
+    min-height:46px!important;
+    border-radius:50%!important;
+    inset:auto!important;
+    transform:none!important;
+    font-size:0!important;
+  }
+}
+
+body.v48-target-active .game.active .action-btn span{display:none!important}
+body.v48-target-active .game.active #powerBtn::before{content:"🔥";font-size:26px!important}
+body.v48-target-active .game.active #jumpBtn::before{content:"⬆";font-size:26px!important}
+body.v48-target-active .game.active [data-action="interact"]::before{content:"⚔";font-size:26px!important}
+body.v48-target-active .game.active #sizeBtn::before{content:"⬡";font-size:20px!important}
+body.v48-target-active .game.active #normalBtn::before{content:"N";font-size:20px!important}
+body.v48-target-active .game.active [data-action="spin"]::before{content:"↻";font-size:22px!important}
+body.v48-target-active .game.active #pauseBtn::before{content:"Ⅱ";font-size:22px!important}
+body.v48-target-active .game.active #exitBtn::before{content:"■";font-size:20px!important}

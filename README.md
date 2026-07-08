@@ -1,15 +1,10 @@
-# ATHOS V53 — CODEX VISUAL OBEDECIDO
+# ATHOS V53.1 — Mobile Layout Corrigido
 
-Base: OTTHOS/Codex visual porque ficou mais próximo do render exigido.
-
-Correções desta versão:
-- preserva camada visual Codex/render-v48;
-- corrige responsividade retrato e paisagem;
-- mantém Athos, engine, joystick, B Poder, Real/AR, model-viewer, Quiz/Falar e data-*;
-- adiciona espada, escudo, estrela, inimigo com escudo, água, buraco e lava viva.
+Base: V53 Codex visual preservado.
+Correção: responsividade real em retrato e paisagem, removendo texto V49 do lobby.
 
 Abrir:
-?v=53-codex-visual
+?v=531-mobile-layout-corrigido
 
 Teste:
-F12_TESTE_ATHOS_V53_CODEX_VISUAL.js
+F12_TESTE_ATHOS_V531_MOBILE_LAYOUT.js
