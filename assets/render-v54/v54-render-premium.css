@@ -608,3 +608,12 @@ body, #app { overscroll-behavior:none!important; }
   display:none!important;
   content:''!important;
 }
+
+
+/* V54.8 — alvos reais fora do levelGroup oculto */
+.game.active canvas{
+  filter:saturate(1.34) contrast(1.13) brightness(1.04)!important;
+}
+.game.active .objective-card{
+  opacity:.88!important;
+}
