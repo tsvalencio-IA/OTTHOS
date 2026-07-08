@@ -590,35 +590,20 @@ body, #app { overscroll-behavior:none!important; }
 }
 
 
-/* V54.5 — clareza: sem cenário confundir inimigo/obstáculo */
+/* V54.7 — sem simplificar render; só clareza dos objetos reais */
+.game.active canvas{
+  filter:saturate(1.38) contrast(1.12) brightness(1.03)!important;
+}
 .game.active .objective-card{
   opacity:.82!important;
-  background:rgba(5,12,25,.62)!important;
-}
-.game.active .toast{
-  max-width:min(360px,70vw)!important;
-  font-size:13px!important;
-}
-/* Inimigos, obstáculos e itens lógicos ficam na frente do render, não perdidos no cenário. */
-.game.active canvas{
-  filter:saturate(1.28) contrast(1.08) brightness(.98)!important;
-}
-
-
-/* V54.6 — clareza real: cenário limpo e marcadores legíveis */
-.game.active .objective-card{
-  opacity:.86!important;
-  background:rgba(5,12,25,.70)!important;
+  background:rgba(5,12,25,.68)!important;
 }
 .game.active .toast{
   max-width:min(340px,68vw)!important;
   font-size:12px!important;
   padding:7px 10px!important;
 }
-.game.active canvas{
-  filter:saturate(1.18) contrast(1.10) brightness(1.04)!important;
-}
-/* Remove mensagem técnica AR seguro da frente do jogo; AR continua seguro por lógica. */
+/* Esconde só mensagem técnica, sem mexer na lógica AR */
 .game.ar-safe-mode::after{
   display:none!important;
   content:''!important;
