@@ -1,6 +1,6 @@
 // Athos V53 — Service Worker leve para GitHub Pages.
 // Network-first para impedir cache fantasma durante correções e testes.
-const CACHE_VERSION = 'athos-v547-sem-simplificar-alvos-visiveis';
+const CACHE_VERSION = 'athos-v548-overlay-real-visivel';
 
 self.addEventListener('install', () => {
   self.skipWaiting();

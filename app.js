@@ -746,7 +746,7 @@
   function clearLevel(){
     if (!levelGroup) return;
     while(levelGroup.children.length) levelGroup.remove(levelGroup.children[0]);
-    platforms=[]; hazards=[]; crystals=[]; enemies=[]; fireballs=[]; enemyProjectiles=[]; particles=[]; solids=[]; gates=[]; checkpoints=[]; premiumVisuals=[]; v42Markers=[]; v44EnemyMarkers=[]; powerups=[]; portalMesh=null;
+    clearV548Overlay(); platforms=[]; hazards=[]; crystals=[]; enemies=[]; fireballs=[]; enemyProjectiles=[]; particles=[]; solids=[]; gates=[]; checkpoints=[]; premiumVisuals=[]; v42Markers=[]; v44EnemyMarkers=[]; powerups=[]; portalMesh=null;
   }
 
   function buildLevel(level, worldOverride){
@@ -1242,8 +1242,9 @@
     // Inimigos com comportamento variado
     const enemyTypes = enemyPlanFor(level);
     for (let i=0;i<(level.enemies||4);i++) {
-      const z = -34 - i * ((len-70) / Math.max(1,(level.enemies||4)-1));
-      addEnemy(enemyTypes[i % enemyTypes.length], lanes[(i+2)%3], z);
+      const z = -22 - i * ((len-72) / Math.max(1,(level.enemies||4)-1));
+      const lane = i===0 ? 0 : lanes[(i+2)%3];
+      addEnemy(enemyTypes[i % enemyTypes.length], lane, z);
     }
     // Plataformas bônus e cristais secretos para deixar a fase menos beta/demo
     [-42,-132,-222,-312].filter(z => Math.abs(z)<len-24).forEach((z,i)=>{ addPlatform(i%2?-7:7,2.6,z-6,2.4,.8,2.4,0x0ea5e9); addCrystal(i%2?-7:7,3.7,z-6); });
@@ -1580,7 +1581,138 @@
       }
     }
   }
-  function syncGameplayVisibility(){
+  
+  function ensureV548Overlay(){
+    if(!scene || !window.THREE) return null;
+    if(!scene.userData) scene.userData={};
+    let g = scene.userData.v548Overlay;
+    if(!g){
+      g = new THREE.Group();
+      g.name = 'V548_ALVOS_REAIS_VISIVEIS_FORA_LEVELGROUP';
+      g.renderOrder = 2200;
+      scene.add(g);
+      scene.userData.v548Overlay = g;
+    }
+    return g;
+  }
+  function clearV548Overlay(){
+    if(!scene || !scene.userData || !scene.userData.v548Overlay) return;
+    const g = scene.userData.v548Overlay;
+    while(g.children.length){
+      const obj = g.children.pop();
+      if(obj.parent) obj.parent.remove(obj);
+    }
+  }
+  function v548Material(color, opacity=1){
+    return new THREE.MeshBasicMaterial({color,transparent:opacity<1,opacity,depthTest:false,depthWrite:false,side:THREE.DoubleSide});
+  }
+  function v548Box(w,h,d,color,opacity=1){
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), v548Material(color,opacity));
+    m.renderOrder = 2300;
+    return m;
+  }
+  function v548Ring(radius,color){
+    const r = new THREE.Mesh(new THREE.RingGeometry(radius*.78,radius,44), v548Material(color,.82));
+    r.rotation.x = -Math.PI/2;
+    r.renderOrder = 2310;
+    return r;
+  }
+  function v548Label(text,color,fg='#ffffff'){
+    const sp = makeTextSprite(text,color,fg);
+    if(sp){
+      sp.scale.set(9.5,2.2,1);
+      sp.renderOrder=2400;
+      if(sp.material){sp.material.depthTest=false;sp.material.depthWrite=false;}
+    }
+    return sp;
+  }
+  function v548EnemyOverlay(g,e){
+    if(!e || e.dead) return;
+    const label = enemyLabel(e);
+    const color = label==='ESCUDO'?0x00d9ff:label==='FOGO'?0xff2b1f:label==='BAIXO'?0xa855f7:0x24ff72;
+    const s = e.type==='boss'?2.8:e.type==='golem'?2.35:e.type==='flyer'?2.0:1.85;
+    const marker = new THREE.Group();
+    marker.name = 'V548_INIMIGO_REAL_' + label;
+    marker.position.set(e.x, Math.max(.15,e.y||0), e.z);
+
+    const base = v548Ring(s*1.15,color); base.position.y=.08;
+    const body = v548Box(s,s,s,color,.95); body.position.y=s*.68;
+    const head = v548Box(s*.82,s*.58,s*.82,0x050505,.98); head.position.set(0,s*1.36,0);
+    const eye1 = v548Box(s*.16,s*.11,.10,0xff003b,1); eye1.position.set(-s*.22,s*1.42,s*.46);
+    const eye2 = v548Box(s*.16,s*.11,.10,0xff003b,1); eye2.position.set(s*.22,s*1.42,s*.46);
+    const pole = v548Box(.18,s*2.05,.18,color,.85); pole.position.y=s*1.90;
+    const flag = v548Box(s*1.45,.45,.16,color,.85); flag.position.y=s*3.02;
+
+    const txt = v548Label('ALVO '+label,color,'#ffffff');
+    if(txt) txt.position.y=s*3.55;
+
+    marker.add(base,body,head,eye1,eye2,pole,flag);
+    if(txt) marker.add(txt);
+    const pulse = 1 + Math.sin(now()*.006 + (e.t||0))*.05;
+    marker.scale.setScalar(pulse);
+    g.add(marker);
+  }
+  function v548PowerupOverlay(g,it){
+    if(!it || it.got) return;
+    const color = it.type==='sword'?0x38bdf8:it.type==='shield'?0x22c55e:0xfacc15;
+    const marker = new THREE.Group();
+    marker.name = 'V548_ITEM_REAL_' + it.type;
+    marker.position.set(it.x, .05, it.z);
+    const pad = v548Ring(1.6,color); pad.position.y=.08;
+    const beam = v548Box(.28,4.2,.28,color,.90); beam.position.y=2.10;
+    const icon = v548Box(1.15,1.15,1.15,color,.95); icon.position.y=1.28;
+    const txt = v548Label('PEGAR '+itemLabel(it.type).toUpperCase(),color,it.type==='star'?'#111827':'#ffffff');
+    if(txt) txt.position.y=4.25;
+    marker.add(pad,beam,icon);
+    if(txt) marker.add(txt);
+    g.add(marker);
+  }
+  function v548HazardOverlay(g,h){
+    if(!h) return;
+    const label = hazardLabel(h);
+    const color = h.type==='water'?0x00c8ff:h.type==='pit'?0xffdd33:0xff2b1f;
+    const marker = new THREE.Group();
+    marker.name = 'V548_OBSTACULO_REAL_' + label;
+    marker.position.set(h.x,.08,h.z);
+    const w=Math.max(2,h.w||3), d=Math.max(2,h.d||3);
+    const a=v548Box(w+.8,.20,.26,color,.92); a.position.set(0,.75,-d/2-.18);
+    const b=v548Box(w+.8,.20,.26,color,.92); b.position.set(0,.75,d/2+.18);
+    const c=v548Box(.26,.20,d+.8,color,.92); c.position.set(-w/2-.18,.75,0);
+    const d2=v548Box(.26,.20,d+.8,color,.92); d2.position.set(w/2+.18,.75,0);
+    const txt = v548Label(label==='BURACO'?'BURACO':'CUIDADO '+label,color,h.type==='pit'?'#111827':'#ffffff');
+    if(txt) txt.position.y=2.75;
+    marker.add(a,b,c,d2);
+    if(txt) marker.add(txt);
+    g.add(marker);
+  }
+  function syncV548Overlay(){
+    if(!playing || !scene || !window.THREE || !p) return;
+    const g = ensureV548Overlay();
+    if(!g) return;
+    // Atualiza algumas vezes por segundo: suficiente para ficar visível e sem criar peso demais.
+    const t = now();
+    if(g.userData && g.userData.lastBuild && t - g.userData.lastBuild < 120) return;
+    if(!g.userData) g.userData={};
+    g.userData.lastBuild = t;
+    clearV548Overlay();
+
+    // Não depende do levelGroup, porque o render V54 esconde o levelGroup original.
+    for(const e of enemies){
+      if(!e || e.dead) continue;
+      // Mostra todos, mas prioriza os próximos no campo de visão.
+      if((p.z - e.z) > -18 && (p.z - e.z) < 170) v548EnemyOverlay(g,e);
+    }
+    for(const it of powerups){
+      if(!it || it.got) continue;
+      if((p.z - it.z) > -16 && (p.z - it.z) < 150) v548PowerupOverlay(g,it);
+    }
+    for(const h of hazards){
+      if(!h) continue;
+      if((p.z - h.z) > -16 && (p.z - h.z) < 150) v548HazardOverlay(g,h);
+    }
+  }
+
+function syncGameplayVisibility(){
     if(!playing || !levelGroup) return;
     for(const e of enemies){
       if(!e || !e.mesh) continue;
@@ -1902,11 +2034,12 @@
     if (playing && !paused) update(dt);
     updateV54Render(dt);
     syncGameplayVisibility();
+    syncV548Overlay();
     if (renderer && scene && camera) renderer.render(scene,camera);
   }
 
   function update(dt){
-    updateInput(dt); updateTimer(dt); updatePlayer(dt); updateEnemies(dt); updateV44EnemyProjectiles(dt); updateFireballs(dt); updateParticles(dt); updatePremiumVisuals(dt); syncGameplayVisibility(); checkPowerups(); checkCrystals(); checkHazards(); checkCheckpoints(); checkGates(); checkPortal(); updateCamera(dt); updateHud();
+    updateInput(dt); updateTimer(dt); updatePlayer(dt); updateEnemies(dt); updateV44EnemyProjectiles(dt); updateFireballs(dt); updateParticles(dt); updatePremiumVisuals(dt); syncGameplayVisibility(); syncV548Overlay(); checkPowerups(); checkCrystals(); checkHazards(); checkCheckpoints(); checkGates(); checkPortal(); updateCamera(dt); updateHud();
   }
   function updateTimer(dt){ if (runtime && runtime.timer) { runtime.timer -= dt; if (runtime.timer <= 0) damagePlayer(999,'Tempo esgotado!'); } }
   function updateInput(dt=1/60){
@@ -2966,7 +3099,7 @@
     if(els.arAnchorViewer){ els.arAnchorViewer.addEventListener('ar-status',(e)=>{ if(e.detail && e.detail.status==='not-presenting') hardStopAllInput('ar-closed'); }); }
   }
   function refreshServiceWorker(){
-    if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js?v=547-sem-simplificar-alvos-visiveis').then(reg => reg.update()).catch(()=>{});
+    if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js?v=548-overlay-real-visivel').then(reg => reg.update()).catch(()=>{});
     if('caches' in window) caches.keys().then(keys=>keys.filter(k=>/athos|otto/i.test(k)).forEach(k=>caches.delete(k).catch(()=>{}))).catch(()=>{});
   }
 
@@ -3015,9 +3148,10 @@
     getV533: () => ({label:'V53_3_CONTROLES_100_DENTRO_DA_TELA', fix:'right-zone fixed; no overflow in landscape/portrait'}),
     getV532: () => ({label:'V53_2_MOBILE_GAMEPLAY_HOTFIX', camera:{follow:GAMEPLAY_CAMERA.cameraFollowDistance,height:GAMEPLAY_CAMERA.cameraHeight,lookAhead:GAMEPLAY_CAMERA.cameraLookAhead}, feel:{deadzone:GAME_FEEL.joystickDeadzone,release:GAME_FEEL.inputRelease,decel:GAME_FEEL.groundDeceleration}, viewport:{w:innerWidth,h:innerHeight,landscape:innerWidth>innerHeight}}),
     getV53: () => ({...V53_CODEX_VISUAL_GAMEPLAY, powerups: powerups.length, gotPowerups: powerups.filter(p=>p.got).length, playerWeapon:p.weapon||null, shield:p.shield||0, star: now() < (p.starUntil||0)}),
-    getV542: () => ({label:'V54_7_SEM_SIMPLIFICAR_ALVOS_VISIVEIS', worldsHidden:true, settingsWorlds:true, fix:'world-strip hidden in markup and css'}),
-    getV541: () => ({label:'V54_7_SEM_SIMPLIFICAR_ALVOS_VISIVEIS', settings:true, crystalPlus:true, worldsInSettings:true, orientation:'auto-css-resize'}),
-    getV547: () => ({label:'V54_7_SEM_SIMPLIFICAR_ALVOS_VISIVEIS', renderRich:true, fakeInteractive:false, enemyShell:'big-real-target', hazardFrame:true, pickupBeam:true}),
+    getV542: () => ({label:'V54_8_OVERLAY_REAL_VISIVEL', worldsHidden:true, settingsWorlds:true, fix:'world-strip hidden in markup and css'}),
+    getV541: () => ({label:'V54_8_OVERLAY_REAL_VISIVEL', settings:true, crystalPlus:true, worldsInSettings:true, orientation:'auto-css-resize'}),
+    getV548: () => ({label:'V54_8_OVERLAY_REAL_VISIVEL', independentOverlay:true, levelGroupHiddenSafe:true, visibleTargets:true, enemies:enemies.length, hazards:hazards.length, powerups:powerups.length}),
+    getV547: () => ({label:'V54_8_OVERLAY_REAL_VISIVEL', renderRich:true, fakeInteractive:false, enemyShell:'big-real-target', hazardFrame:true, pickupBeam:true}),
     getV54Render: () => (window.ATHOS_V54_RENDER_PREMIUM && window.ATHOS_V54_RENDER_PREMIUM.getStatus ? window.ATHOS_V54_RENDER_PREMIUM.getStatus() : null),
     getV48Render: () => (window.ATHOS_V48_RENDER_TARGET && window.ATHOS_V48_RENDER_TARGET.getStatus ? window.ATHOS_V48_RENDER_TARGET.getStatus() : null),
     getV47Render: () => (window.ATHOS_V48_RENDER_TARGET && window.ATHOS_V48_RENDER_TARGET.getStatus ? window.ATHOS_V48_RENDER_TARGET.getStatus() : null),

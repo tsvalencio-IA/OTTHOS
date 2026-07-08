@@ -1,19 +1,15 @@
-# ATHOS V54.7 — Somente arquivos alterados
+# ATHOS V54.8 — Somente arquivos alterados
 
-Correção sem simplificar:
-- render rico V54 preservado;
-- só removidos itens/inimigos falsos do render;
-- cristais decorativos foram movidos para fora da pista central;
-- inimigo real ganha corpo/halo/etiqueta grande ALVO;
-- obstáculo real ganha moldura/etiqueta;
-- item real ganha feixe/etiqueta PEGAR;
-- raio de coleta aumentado;
-- espada dura mais tempo na mão;
-- sem faixa de mundos no gameplay;
-- sem mensagem técnica AR na frente do jogo.
+Correção real do problema de inimigos invisíveis:
+- o render V54 escondia o levelGroup original;
+- por isso inimigos/itens/obstáculos lógicos podiam existir, mas não aparecer;
+- agora existe uma camada independente na scene, fora do levelGroup;
+- essa camada mostra ALVO, PEGAR e CUIDADO/BURACO mesmo quando o render esconde os objetos antigos;
+- primeiro inimigo vem mais cedo e no centro da pista;
+- render rico preservado, sem simplificar o cenário.
 
 Abrir:
-?v=547-sem-simplificar-alvos-visiveis
+?v=548-overlay-real-visivel
 
 Teste:
-F12_TESTE_ATHOS_V547_SEM_SIMPLIFICAR_ALVOS_VISIVEIS.js
+F12_TESTE_ATHOS_V548_OVERLAY_REAL_VISIVEL.js
