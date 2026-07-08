@@ -1,17 +1,15 @@
-# ATHOS V53.2 — Mobile + Jogabilidade Hotfix
+# ATHOS V53.3 — Controles Dentro da Tela
 
-Base: V53.1 com render Codex preservado.
+Base: V53.2.
 
-Correções:
-- reduz controles em retrato e paisagem;
-- joystick, botões, mundo, HUD e objetivo ficam dentro da tela;
-- câmera mais distante e centralizada;
-- Athos menor e caminho mais visível;
-- game feel menos escorregadio;
-- sem texto V49 no lobby.
+Correção:
+- corrige a falha do teste V53.2 em que o action-grid ficava com right:-12 em paisagem;
+- controles agora são fixados por zona, não dependem do grid antigo;
+- botões, joystick, mundos, HUD e objetivo ficam dentro da viewport;
+- render Codex e motor V53 preservados.
 
 Abrir:
-?v=532-mobile-gameplay-hotfix
+?v=533-mobile-controls-inside
 
 Teste:
-F12_TESTE_ATHOS_V532_MOBILE_GAMEPLAY.js
+F12_TESTE_ATHOS_V533_CONTROLES_DENTRO_TELA.js
