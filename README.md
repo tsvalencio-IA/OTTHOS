@@ -1,19 +1,19 @@
-# ATHOS V54.6 — Somente arquivos alterados
+# ATHOS V54.7 — Somente arquivos alterados
 
-Refino de clareza real:
-- cenário V54 mais limpo, sem falsos itens/inimigos;
-- removidos cristais decorativos falsos da pista;
-- menos decoração perto da pista;
-- inimigos lógicos ganham marcador grande ALVO;
-- obstáculos lógicos ganham marcador grande CUIDADO;
-- itens reais ganham PEGAR;
-- raio de coleta ampliado;
+Correção sem simplificar:
+- render rico V54 preservado;
+- só removidos itens/inimigos falsos do render;
+- cristais decorativos foram movidos para fora da pista central;
+- inimigo real ganha corpo/halo/etiqueta grande ALVO;
+- obstáculo real ganha moldura/etiqueta;
+- item real ganha feixe/etiqueta PEGAR;
+- raio de coleta aumentado;
 - espada dura mais tempo na mão;
-- personagem sobe visualmente para reduzir sensação de afundar;
-- mensagem técnica AR seguro escondida da tela.
+- sem faixa de mundos no gameplay;
+- sem mensagem técnica AR na frente do jogo.
 
 Abrir:
-?v=546-clareza-real-inimigos
+?v=547-sem-simplificar-alvos-visiveis
 
 Teste:
-F12_TESTE_ATHOS_V546_CLAREZA_REAL_INIMIGOS.js
+F12_TESTE_ATHOS_V547_SEM_SIMPLIFICAR_ALVOS_VISIVEIS.js
