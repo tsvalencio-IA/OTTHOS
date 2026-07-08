@@ -1,16 +1,15 @@
-# ATHOS V52 PROFISSIONAL
+# ATHOS V53 — CODEX VISUAL OBEDECIDO
 
-Base: V50 recuperado funcionando.
+Base: OTTHOS/Codex visual porque ficou mais próximo do render exigido.
 
-Escopo:
-- não usa OTTHOS/Codex como base;
-- mantém V50 estável;
-- adiciona mecânicas: espada, escudo, estrela, inimigo com escudo, água, buraco, lava viva, passar por baixo/mini;
-- melhora responsividade em retrato e paisagem;
-- preserva athos.glb, model-viewer, AR nativo, joystick, B Poder, Quiz/Falar no lobby e data-*.
+Correções desta versão:
+- preserva camada visual Codex/render-v48;
+- corrige responsividade retrato e paisagem;
+- mantém Athos, engine, joystick, B Poder, Real/AR, model-viewer, Quiz/Falar e data-*;
+- adiciona espada, escudo, estrela, inimigo com escudo, água, buraco e lava viva.
 
 Abrir:
-?v=52-profissional
+?v=53-codex-visual
 
 Teste:
-F12_TESTE_ATHOS_V52_PROFISSIONAL.js
+F12_TESTE_ATHOS_V53_CODEX_VISUAL.js
