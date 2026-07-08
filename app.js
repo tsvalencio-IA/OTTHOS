@@ -742,7 +742,7 @@
     return { hearts:diff.hearts, crystals:0, defeated:0, requiredCrystals:currentLevel.crystals||0, requiredEnemies:currentLevel.enemies||0, timer:(mode==='missions'?diff.timer:0), checkpoint:4, quizSolved:!currentLevel.quizGate, completed:false, tutorialStep:0, startedAt:now(), portalAnnounced:false };
   }
 
-  function resetPlayer(){ p = defaultPlayer(); p.z = (runtime && runtime.checkpoint) || 4; player.position.set(p.x,p.y+.10,p.z); player.rotation.y = Math.PI; lastGroundedAt = now(); lastJumpAt = 0; lastLandAt = now(); jumpBufferedUntil = 0; clearMovementState(); }
+  function resetPlayer(){ p = defaultPlayer(); p.z = (runtime && runtime.checkpoint) || 4; player.position.set(p.x,p.y+.28,p.z); player.rotation.y = Math.PI; lastGroundedAt = now(); lastJumpAt = 0; lastLandAt = now(); jumpBufferedUntil = 0; clearMovementState(); }
   function clearLevel(){
     if (!levelGroup) return;
     while(levelGroup.children.length) levelGroup.remove(levelGroup.children[0]);
@@ -1410,39 +1410,51 @@
     const label=enemyLabel(e);
     const color = label==='ESCUDO'?0x00d9ff:label==='FOGO'?0xff2b1f:label==='BAIXO'?0xa855f7:0x22ff66;
 
-    // V54.5: inimigo precisa ser visto de longe. Aumenta só uma vez, sem mexer na lógica.
-    if(!e.mesh.userData.v545Scaled){
-      const scaleBoost = e.type==='boss'?1.22:e.type==='golem'?1.28:1.42;
+    // V54.6: inimigo precisa ser entendido como ALVO, não como decoração.
+    if(!e.mesh.userData.v546Scaled){
+      const scaleBoost = e.type==='boss'?1.45:e.type==='golem'?1.55:e.type==='flyer'?1.55:1.70;
       e.mesh.scale.multiplyScalar(scaleBoost);
-      e.mesh.userData.v545Scaled=true;
+      e.mesh.userData.v546Scaled=true;
     }
 
     if(e.mesh.userData.badgeLabel!==label || !e.mesh.userData.enemyBadge){
       if(e.mesh.userData.enemyBadge && e.mesh.userData.enemyBadge.parent) e.mesh.userData.enemyBadge.parent.remove(e.mesh.userData.enemyBadge);
-      const sp=makeTextSprite('INIMIGO: '+label,color,'#ffffff');
+      const sp=makeTextSprite('ALVO: '+label,color,'#ffffff');
       if(sp){
-        sp.position.set(0,(e.size||1.2)+2.45,0);
-        sp.scale.set(6.8,1.85,1);
+        sp.position.set(0,(e.size||1.2)+3.15,0);
+        sp.scale.set(8.2,2.10,1);
+        sp.renderOrder=1600;
+        if(sp.material){sp.material.depthTest=false;sp.material.depthWrite=false;}
         e.mesh.add(sp);
         e.mesh.userData.enemyBadge=sp;
         e.mesh.userData.badgeLabel=label;
       }
     }
 
-    if(!e.mesh.userData.v545Beacon){
-      const beacon=new THREE.Group();
-      const poleMat=new THREE.MeshBasicMaterial({color,transparent:true,opacity:.92,depthTest:false,depthWrite:false});
-      const pole=new THREE.Mesh(new THREE.BoxGeometry(.12,2.25,.12),poleMat);
-      pole.position.set(0,(e.size||1.2)+1.10,0);
-      const top=new THREE.Mesh(new THREE.BoxGeometry(1.05,.32,1.05),poleMat);
-      top.position.set(0,(e.size||1.2)+2.25,0);
-      beacon.add(pole,top);
-      beacon.renderOrder=1190;
-      e.mesh.add(beacon);
-      e.mesh.userData.v545Beacon=beacon;
+    if(!e.mesh.userData.v546Halo){
+      const mat=new THREE.MeshBasicMaterial({color,transparent:true,opacity:.70,depthTest:false,depthWrite:false,side:THREE.DoubleSide});
+      const ring=new THREE.Mesh(new THREE.RingGeometry(1.00,1.25,36),mat);
+      ring.rotation.x=-Math.PI/2;
+      ring.position.set(0,.08,0);
+      ring.renderOrder=1550;
+      const pole=new THREE.Mesh(new THREE.BoxGeometry(.16,3.2,.16),mat);
+      pole.position.set(0,(e.size||1.2)+1.40,0);
+      pole.renderOrder=1550;
+      const flag=new THREE.Mesh(new THREE.BoxGeometry(1.35,.42,.12),mat);
+      flag.position.set(0,(e.size||1.2)+3.05,0);
+      flag.renderOrder=1550;
+      const g=new THREE.Group();
+      g.add(ring,pole,flag);
+      e.mesh.add(g);
+      e.mesh.userData.v546Halo=g;
     }
+
+    // Deixa o inimigo mais "vivo" e menos camuflado.
+    if(!e.mesh.userData.v546PulseBase) e.mesh.userData.v546PulseBase = {t:Math.random()*10};
+    const pulse = 1 + Math.sin(now()*.006 + e.mesh.userData.v546PulseBase.t)*.06;
+    e.mesh.scale.y = Math.max(e.mesh.scale.y, pulse);
     if(e.mesh.userData.enemyBadge) e.mesh.userData.enemyBadge.visible=true;
-    if(e.mesh.userData.v545Beacon) e.mesh.userData.v545Beacon.visible=true;
+    if(e.mesh.userData.v546Halo) e.mesh.userData.v546Halo.visible=true;
   }
     function hazardLabel(h){
     if(!h) return 'PERIGO';
@@ -1455,69 +1467,80 @@
     const color=h.type==='water'?0x0ea5e9:h.type==='pit'?0xfacc15:0xff2b1f;
 
     if(!h.mesh.userData.hazardBadge){
-      const sp=makeTextSprite('OBSTÁCULO: '+label,color,h.type==='pit'?'#111827':'#ffffff');
+      const sp=makeTextSprite('CUIDADO: '+label,color,h.type==='pit'?'#111827':'#ffffff');
       if(sp){
-        sp.position.set(0,1.65,0);
-        sp.scale.set(5.8,1.50,1);
+        sp.position.set(0,2.10,0);
+        sp.scale.set(7.2,1.80,1);
+        sp.renderOrder=1500;
+        if(sp.material){sp.material.depthTest=false;sp.material.depthWrite=false;}
         h.mesh.add(sp);
         h.mesh.userData.hazardBadge=sp;
       }
     }
-    if(!h.mesh.userData.v545HazardFrame){
+    if(!h.mesh.userData.v546HazardFrame){
       const frame=new THREE.Group();
-      const mat=new THREE.MeshBasicMaterial({color,transparent:true,opacity:.78,depthTest:false,depthWrite:false});
-      const w=Math.max(1, h.w||3), d=Math.max(1, h.d||3);
-      const a=new THREE.Mesh(new THREE.BoxGeometry(w,.12,.18),mat); a.position.set(0,.42,-d/2);
-      const b=new THREE.Mesh(new THREE.BoxGeometry(w,.12,.18),mat); b.position.set(0,.42,d/2);
-      const c=new THREE.Mesh(new THREE.BoxGeometry(.18,.12,d),mat); c.position.set(-w/2,.42,0);
-      const d2=new THREE.Mesh(new THREE.BoxGeometry(.18,.12,d),mat); d2.position.set(w/2,.42,0);
-      frame.add(a,b,c,d2);
+      const mat=new THREE.MeshBasicMaterial({color,transparent:true,opacity:.90,depthTest:false,depthWrite:false});
+      const w=Math.max(1, h.w||3), dd=Math.max(1, h.d||3);
+      const a=new THREE.Mesh(new THREE.BoxGeometry(w+.8,.16,.22),mat); a.position.set(0,.56,-dd/2-.12);
+      const b=new THREE.Mesh(new THREE.BoxGeometry(w+.8,.16,.22),mat); b.position.set(0,.56,dd/2+.12);
+      const c=new THREE.Mesh(new THREE.BoxGeometry(.22,.16,dd+.8),mat); c.position.set(-w/2-.12,.56,0);
+      const d2=new THREE.Mesh(new THREE.BoxGeometry(.22,.16,dd+.8),mat); d2.position.set(w/2+.12,.56,0);
+      const center=new THREE.Mesh(new THREE.BoxGeometry(.45,.22,.45),mat); center.position.set(0,.72,0);
+      frame.add(a,b,c,d2,center);
+      frame.renderOrder=1490;
       h.mesh.add(frame);
-      h.mesh.userData.v545HazardFrame=frame;
+      h.mesh.userData.v546HazardFrame=frame;
     }
     if(h.mesh.userData.hazardBadge) h.mesh.userData.hazardBadge.visible=true;
-    if(h.mesh.userData.v545HazardFrame) h.mesh.userData.v545HazardFrame.visible=true;
+    if(h.mesh.userData.v546HazardFrame) h.mesh.userData.v546HazardFrame.visible=true;
   }
     function ensurePowerupBadge(it){
     if(!it || !it.mesh || it.got || !window.THREE) return;
     if(!it.mesh.userData) it.mesh.userData={};
+    const color = it.type==='sword'?0x38bdf8:it.type==='shield'?0x22c55e:0xfacc15;
     if(!it.mesh.userData.powerupBadge){
-      const sp=makeTextSprite('AÇÃO: PEGAR '+itemLabel(it.type).toUpperCase(), it.type==='sword'?0x38bdf8:it.type==='shield'?0x22c55e:0xfacc15, it.type==='star'?'#111827':'#ffffff');
+      const sp=makeTextSprite('PEGAR '+itemLabel(it.type).toUpperCase(), color, it.type==='star'?'#111827':'#ffffff');
       if(sp){
-        sp.position.set(0,2.25,0);
-        sp.scale.set(6.4,1.55,1);
+        sp.position.set(0,2.65,0);
+        sp.scale.set(7.4,1.85,1);
+        sp.renderOrder=1650;
+        if(sp.material){sp.material.depthTest=false;sp.material.depthWrite=false;}
         it.mesh.add(sp);
         it.mesh.userData.powerupBadge=sp;
       }
     }
-    if(!it.mesh.userData.v545PickupBeam){
-      const mat=new THREE.MeshBasicMaterial({color:it.type==='sword'?0x38bdf8:it.type==='shield'?0x22c55e:0xfacc15,transparent:true,opacity:.72,depthTest:false,depthWrite:false});
-      const beam=new THREE.Mesh(new THREE.BoxGeometry(.22,2.6,.22),mat);
-      beam.position.set(0,1.25,0);
-      it.mesh.add(beam);
-      it.mesh.userData.v545PickupBeam=beam;
+    if(!it.mesh.userData.v546PickupBeam){
+      const mat=new THREE.MeshBasicMaterial({color,transparent:true,opacity:.90,depthTest:false,depthWrite:false});
+      const beam=new THREE.Mesh(new THREE.BoxGeometry(.28,3.4,.28),mat);
+      beam.position.set(0,1.7,0);
+      beam.renderOrder=1640;
+      const pad=new THREE.Mesh(new THREE.RingGeometry(1.0,1.22,36),mat);
+      pad.rotation.x=-Math.PI/2; pad.position.set(0,.06,0); pad.renderOrder=1640;
+      const g=new THREE.Group(); g.add(beam,pad);
+      it.mesh.add(g);
+      it.mesh.userData.v546PickupBeam=g;
     }
     it.mesh.userData.powerupBadge.visible=true;
-    it.mesh.userData.v545PickupBeam.visible=true;
+    it.mesh.userData.v546PickupBeam.visible=true;
   }
     function currentMissionHint(){
-    const near = nearestPowerup(5.8);
-    if(near) return `Aperte ⚔ Ação para pegar ${itemLabel(near.type)} ${itemEmoji(near.type)}.`;
-    const nextEnemy = enemies.find(e=>!e.dead && Math.abs(e.z-p.z)<52 && (p.z-e.z)>-4);
-    if(nextEnemy) return `Inimigo à frente: ${enemyLabel(nextEnemy)}.`;
-    const nextHazard = hazards.find(h=>Math.abs(h.z-p.z)<42 && (p.z-h.z)>-6);
-    if(nextHazard) return `Obstáculo à frente: ${hazardLabel(nextHazard)}.`;
+    const near = nearestPowerup(7.0);
+    if(near) return `Aperte ⚔ para pegar ${itemLabel(near.type)}.`;
+    const nextEnemy = enemies.find(e=>!e.dead && (p.z-e.z)>-5 && (p.z-e.z)<58);
+    if(nextEnemy) return `Alvo à frente: ${enemyLabel(nextEnemy)}.`;
+    const nextHazard = hazards.find(h=>(p.z-h.z)>-6 && (p.z-h.z)<48);
+    if(nextHazard) return `Cuidado: ${hazardLabel(nextHazard)}.`;
     const sword = powerups.find(x=>x.type==='sword'&&!x.got);
-    if(sword && (!p.weapon || now()>(p.weaponUntil||0))) return 'Objetivo: pegue a espada e siga.';
-    if(runtime && runtime.requiredCrystals && runtime.crystals < runtime.requiredCrystals) return `Cristais ${runtime.crystals}/${runtime.requiredCrystals}: siga os cristais reais.`;
-    if(runtime && runtime.requiredEnemies && runtime.defeated < runtime.requiredEnemies) return `Monstros ${runtime.defeated}/${runtime.requiredEnemies}: use 🔥 ou ⚔.`;
+    if(sword && (!p.weapon || now()>(p.weaponUntil||0))) return 'Pegue a espada para atacar.';
+    if(runtime && runtime.requiredCrystals && runtime.crystals < runtime.requiredCrystals) return `Pegue cristais: ${runtime.crystals}/${runtime.requiredCrystals}.`;
+    if(runtime && runtime.requiredEnemies && runtime.defeated < runtime.requiredEnemies) return `Vença monstros: ${runtime.defeated}/${runtime.requiredEnemies}.`;
     return 'Portal liberado! Vá até o portal.';
   }
     function collectPowerup(it, manual=false){
     if(!it || it.got) return false;
     it.got=true;
     if(it.mesh) setTreeVisible(it.mesh,false);
-    if(it.type==='sword'){ p.weapon='sword'; p.weaponUntil=now()+22000; toast(manual?'Espada equipada!':'Espada de luz!', 'good'); addXP(18); }
+    if(it.type==='sword'){ p.weapon='sword'; p.weaponUntil=now()+60000; toast(manual?'Espada equipada!':'Espada de luz!', 'good'); addXP(18); }
     else if(it.type==='shield'){ p.shield=(p.shield||0)+1; toast(manual?'Escudo equipado!':'Escudo ativado!', 'good'); addXP(12); }
     else { p.starUntil=now()+9500; toast(manual?'Estrela ativada!':'Estrela invencível!', 'good'); addXP(25); }
     addParticles(it.x,it.y,it.z,it.type==='star'?0xffe259:it.type==='sword'?0x38bdf8:0x22c55e,28);
@@ -1526,7 +1549,7 @@
     vibrate(manual?70:50); beep(980,120);
     return true;
   }
-  function nearestPowerup(maxDist=4.4){
+  function nearestPowerup(maxDist=6.2){
     if(!powerups || !powerups.length || !p) return null;
     let best=null, bestD=Infinity;
     for(const it of powerups){
@@ -1546,7 +1569,7 @@
     for(const it of powerups){
       if(it.got) continue;
       if(it.mesh) setTreeVisible(it.mesh,true);
-      if(dist3(p.x,p.y+1,p.z,it.x,it.y,it.z)<2.85){
+      if(dist3(p.x,p.y+1,p.z,it.x,it.y,it.z)<3.25){
         collectPowerup(it,false);
       }
     }
@@ -1560,9 +1583,10 @@
       if(e.mesh.userData && e.mesh.userData.dangerRing) e.mesh.userData.dangerRing.visible = !e.dead;
       if(e.mesh.userData && e.mesh.userData.enemyBadge) e.mesh.userData.enemyBadge.visible = !e.dead;
       if(e.mesh.userData && e.mesh.userData.v545Beacon) e.mesh.userData.v545Beacon.visible = !e.dead;
+      if(e.mesh.userData && e.mesh.userData.v546Halo) e.mesh.userData.v546Halo.visible = !e.dead;
     }
     for(const h of hazards){
-      if(h && h.mesh){ setTreeVisible(h.mesh,true); ensureHazardBadge(h); if(h.mesh.userData){ if(h.mesh.userData.hazardBadge) h.mesh.userData.hazardBadge.visible=true; if(h.mesh.userData.v545HazardFrame) h.mesh.userData.v545HazardFrame.visible=true; } }
+      if(h && h.mesh){ setTreeVisible(h.mesh,true); ensureHazardBadge(h); if(h.mesh.userData){ if(h.mesh.userData.hazardBadge) h.mesh.userData.hazardBadge.visible=true; if(h.mesh.userData.v545HazardFrame) h.mesh.userData.v545HazardFrame.visible=true; if(h.mesh.userData.v546HazardFrame) h.mesh.userData.v546HazardFrame.visible=true; } }
     }
     for(const it of powerups){
       if(it && it.mesh){ setTreeVisible(it.mesh, !it.got); ensurePowerupBadge(it); }
@@ -1962,7 +1986,7 @@
     p.targetScale = p.scaleMode==='mini' ? .55 : p.scaleMode==='giant' ? 1.65 : 1;
     p.scale += (p.targetScale - p.scale) * Math.min(1, dt*8);
     const squash = input.crouch ? .62 : 1;
-    player.position.set(p.x,p.y+.10,p.z); player.scale.set(p.scale, p.scale*squash, p.scale);
+    player.position.set(p.x,p.y+.28,p.z); player.scale.set(p.scale, p.scale*squash, p.scale);
     if (Math.hypot(p.vx,p.vz) > .1) { const rot = Math.atan2(p.vx,p.vz); p.facing = rot; player.rotation.y += angleDelta(player.rotation.y, rot) * Math.min(1, dt*10); }
     if (now() < p.spinUntil) player.rotation.y += dt*14;
     if (playerModel) playerModel.visible = !(now() < p.invUntil && Math.floor(now()/90)%2===0);
@@ -2345,7 +2369,7 @@
   function spin(){ p.spinUntil = now()+850; addXP(1); toast('Giro!', 'good'); }
   function cycleSize(){ p.scaleMode = p.scaleMode==='normal' ? 'mini' : p.scaleMode==='mini' ? 'giant' : 'normal'; toast(p.scaleMode==='mini'?'Mini!':p.scaleMode==='giant'?'Gigante!':'Normal!', 'good'); if(p.scaleMode==='giant'){ addMedal('Athos Gigante'); checkGates(); } }
   function interact(){
-    if (tryPickupNearestPowerup(6.4)) return;
+    if (tryPickupNearestPowerup(7.2)) return;
     if (swordAttack()) return;
     for (const g of gates) if (g.altar && Math.abs(p.z-g.z)<5 && Math.abs(p.x-g.x)<4) { openQuiz(true); return; }
     if (mode==='hub') { const nearest = LEVELS.find(l => Math.abs(p.z + (40 + LEVELS.indexOf(l)*12)) < 8); if (nearest) { currentLevelIndex = LEVELS.indexOf(nearest); buildLevel(nearest); } }
@@ -2937,7 +2961,7 @@
     if(els.arAnchorViewer){ els.arAnchorViewer.addEventListener('ar-status',(e)=>{ if(e.detail && e.detail.status==='not-presenting') hardStopAllInput('ar-closed'); }); }
   }
   function refreshServiceWorker(){
-    if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js?v=545-clareza-inimigos-obstaculos').then(reg => reg.update()).catch(()=>{});
+    if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js?v=546-clareza-real-inimigos').then(reg => reg.update()).catch(()=>{});
     if('caches' in window) caches.keys().then(keys=>keys.filter(k=>/athos|otto/i.test(k)).forEach(k=>caches.delete(k).catch(()=>{}))).catch(()=>{});
   }
 
@@ -2986,8 +3010,9 @@
     getV533: () => ({label:'V53_3_CONTROLES_100_DENTRO_DA_TELA', fix:'right-zone fixed; no overflow in landscape/portrait'}),
     getV532: () => ({label:'V53_2_MOBILE_GAMEPLAY_HOTFIX', camera:{follow:GAMEPLAY_CAMERA.cameraFollowDistance,height:GAMEPLAY_CAMERA.cameraHeight,lookAhead:GAMEPLAY_CAMERA.cameraLookAhead}, feel:{deadzone:GAME_FEEL.joystickDeadzone,release:GAME_FEEL.inputRelease,decel:GAME_FEEL.groundDeceleration}, viewport:{w:innerWidth,h:innerHeight,landscape:innerWidth>innerHeight}}),
     getV53: () => ({...V53_CODEX_VISUAL_GAMEPLAY, powerups: powerups.length, gotPowerups: powerups.filter(p=>p.got).length, playerWeapon:p.weapon||null, shield:p.shield||0, star: now() < (p.starUntil||0)}),
-    getV542: () => ({label:'V54_5_CLAREZA_INIMIGOS_OBSTACULOS', worldsHidden:true, settingsWorlds:true, fix:'world-strip hidden in markup and css'}),
-    getV541: () => ({label:'V54_5_CLAREZA_INIMIGOS_OBSTACULOS', settings:true, crystalPlus:true, worldsInSettings:true, orientation:'auto-css-resize'}),
+    getV546: () => ({label:'V54_6_CLAREZA_REAL_INIMIGOS', enemyMarkers:'ALVO', hazardMarkers:'CUIDADO', fakeRenderEnemies:false, pickupRadius:7.2, swordMs:60000}),
+    getV542: () => ({label:'V54_6_CLAREZA_REAL_INIMIGOS', worldsHidden:true, settingsWorlds:true, fix:'world-strip hidden in markup and css'}),
+    getV541: () => ({label:'V54_6_CLAREZA_REAL_INIMIGOS', settings:true, crystalPlus:true, worldsInSettings:true, orientation:'auto-css-resize'}),
     getV54Render: () => (window.ATHOS_V54_RENDER_PREMIUM && window.ATHOS_V54_RENDER_PREMIUM.getStatus ? window.ATHOS_V54_RENDER_PREMIUM.getStatus() : null),
     getV48Render: () => (window.ATHOS_V48_RENDER_TARGET && window.ATHOS_V48_RENDER_TARGET.getStatus ? window.ATHOS_V48_RENDER_TARGET.getStatus() : null),
     getV47Render: () => (window.ATHOS_V48_RENDER_TARGET && window.ATHOS_V48_RENDER_TARGET.getStatus ? window.ATHOS_V48_RENDER_TARGET.getStatus() : null),
