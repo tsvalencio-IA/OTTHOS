@@ -1153,3 +1153,14 @@ body[data-world], .game.active{--ui-shadow:0 10px 22px rgba(0,0,0,.28);}
     padding-right:6px!important;
   }
 }
+
+
+/* V57.2 — FIX FINAL: o JS installV572ControlsFix aplica inline !important.
+   Este bloco é só fallback visual. */
+body.athos-v572-controls .game.active .game-controls{z-index:9000!important;pointer-events:none!important;overflow:visible!important}
+body.athos-v572-controls .game.active .left-zone,
+body.athos-v572-controls .game.active .right-zone{z-index:9100!important;pointer-events:auto!important;overflow:visible!important}
+body.athos-v572-controls .game.active .action-grid .action-btn{opacity:1!important;visibility:visible!important;pointer-events:auto!important}
+body.athos-v572-controls .game.active .world-strip,
+body.athos-v572-controls .game.active .direction-buttons,
+body.athos-v572-controls .game.active .minimap{display:none!important}

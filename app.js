@@ -1511,7 +1511,7 @@
     let g = scene.userData.v55VisualLayer;
     if(!g){
       g = new THREE.Group();
-      g.name = 'V57_1_CONTROLES_RESPONSIVOS_VISUAL';
+      g.name = 'V57_2_CONTROLES_FIX_FINAL';
       g.renderOrder = 3000;
       scene.add(g);
       scene.userData.v55VisualLayer = g;
@@ -3154,7 +3154,7 @@ function syncGameplayVisibility(){
     if(els.arAnchorViewer){ els.arAnchorViewer.addEventListener('ar-status',(e)=>{ if(e.detail && e.detail.status==='not-presenting') hardStopAllInput('ar-closed'); }); }
   }
   function refreshServiceWorker(){
-    if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js?v=571-controles-responsivos-visual').then(reg => reg.update()).catch(()=>{});
+    if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js?v=572-controles-fix-final').then(reg => reg.update()).catch(()=>{});
     if('caches' in window) caches.keys().then(keys=>keys.filter(k=>/athos|otto/i.test(k)).forEach(k=>caches.delete(k).catch(()=>{}))).catch(()=>{});
   }
 
@@ -3203,12 +3203,13 @@ function syncGameplayVisibility(){
     getV533: () => ({label:'V53_3_CONTROLES_100_DENTRO_DA_TELA', fix:'right-zone fixed; no overflow in landscape/portrait'}),
     getV532: () => ({label:'V53_2_MOBILE_GAMEPLAY_HOTFIX', camera:{follow:GAMEPLAY_CAMERA.cameraFollowDistance,height:GAMEPLAY_CAMERA.cameraHeight,lookAhead:GAMEPLAY_CAMERA.cameraLookAhead}, feel:{deadzone:GAME_FEEL.joystickDeadzone,release:GAME_FEEL.inputRelease,decel:GAME_FEEL.groundDeceleration}, viewport:{w:innerWidth,h:innerHeight,landscape:innerWidth>innerHeight}}),
     getV53: () => ({...V53_CODEX_VISUAL_GAMEPLAY, powerups: powerups.length, gotPowerups: powerups.filter(p=>p.got).length, playerWeapon:p.weapon||null, shield:p.shield||0, star: now() < (p.starUntil||0)}),
-    getV542: () => ({label:'V57_1_CONTROLES_RESPONSIVOS_VISUAL', worldsHidden:true, settingsWorlds:true, fix:'world-strip hidden in markup and css'}),
-    getV541: () => ({label:'V57_1_CONTROLES_RESPONSIVOS_VISUAL', settings:true, crystalPlus:true, worldsInSettings:true, orientation:'auto-css-resize'}),
-    getV571Controls: () => ({label:'V57_1_CONTROLES_RESPONSIVOS_VISUAL', base:'OTTHOS-main-v57-controles-responsivos', controlsSafe:true, noButtonOverlap:true, renderPreserved:true, visualLanguage:true, noTextWorld:true}),
-    getV55VisualLanguage: () => ({label:'V57_1_CONTROLES_RESPONSIVOS_VISUAL', noWorldText:true, visualEnemies:true, visualItems:true, visualHazards:true, truePitVisual:true, renderPreserved:true, enemies:enemies.length, hazards:hazards.length, powerups:powerups.length}),
-    getV548: () => ({label:'V57_1_CONTROLES_RESPONSIVOS_VISUAL', independentOverlay:true, levelGroupHiddenSafe:true, visibleTargets:true, enemies:enemies.length, hazards:hazards.length, powerups:powerups.length}),
-    getV547: () => ({label:'V57_1_CONTROLES_RESPONSIVOS_VISUAL', renderRich:true, fakeInteractive:false, enemyShell:'big-real-target', hazardFrame:true, pickupBeam:true}),
+    getV542: () => ({label:'V57_2_CONTROLES_FIX_FINAL', worldsHidden:true, settingsWorlds:true, fix:'world-strip hidden in markup and css'}),
+    getV541: () => ({label:'V57_2_CONTROLES_FIX_FINAL', settings:true, crystalPlus:true, worldsInSettings:true, orientation:'auto-css-resize'}),
+    getV572Controls: () => ({label:'V57_2_CONTROLES_FIX_FINAL', inlineImportant:true, fixedJoystick:true, fixedActionGrid:true, noOverlapTarget:true, base:'V57'}),
+    getV571Controls: () => ({label:'V57_2_CONTROLES_FIX_FINAL', base:'OTTHOS-main-v57-controles-responsivos', controlsSafe:true, noButtonOverlap:true, renderPreserved:true, visualLanguage:true, noTextWorld:true}),
+    getV55VisualLanguage: () => ({label:'V57_2_CONTROLES_FIX_FINAL', noWorldText:true, visualEnemies:true, visualItems:true, visualHazards:true, truePitVisual:true, renderPreserved:true, enemies:enemies.length, hazards:hazards.length, powerups:powerups.length}),
+    getV548: () => ({label:'V57_2_CONTROLES_FIX_FINAL', independentOverlay:true, levelGroupHiddenSafe:true, visibleTargets:true, enemies:enemies.length, hazards:hazards.length, powerups:powerups.length}),
+    getV547: () => ({label:'V57_2_CONTROLES_FIX_FINAL', renderRich:true, fakeInteractive:false, enemyShell:'big-real-target', hazardFrame:true, pickupBeam:true}),
     getV54Render: () => (window.ATHOS_V54_RENDER_PREMIUM && window.ATHOS_V54_RENDER_PREMIUM.getStatus ? window.ATHOS_V54_RENDER_PREMIUM.getStatus() : null),
     getV48Render: () => (window.ATHOS_V48_RENDER_TARGET && window.ATHOS_V48_RENDER_TARGET.getStatus ? window.ATHOS_V48_RENDER_TARGET.getStatus() : null),
     getV47Render: () => (window.ATHOS_V48_RENDER_TARGET && window.ATHOS_V48_RENDER_TARGET.getStatus ? window.ATHOS_V48_RENDER_TARGET.getStatus() : null),
@@ -3225,7 +3226,251 @@ function syncGameplayVisibility(){
     forcePortalReady: () => { if (!runtime) return false; runtime.crystals = runtime.requiredCrystals; runtime.defeated = runtime.requiredEnemies; runtime.quizSolved = true; runtime.portalAnnounced = false; updateHud(); return objectivesDone(); }
   };
 
-  setupInputs(); setupUI(); updateLobbyStats(); refreshServiceWorker();
+
+  function installV572ControlsFix(){
+    if (window.__ATHOS_V572_CONTROLS_FIX__) return;
+    window.__ATHOS_V572_CONTROLS_FIX__ = true;
+
+    const clampV = (min, val, max) => Math.max(min, Math.min(max, val));
+    const important = (el, prop, value) => { if (el && el.style) el.style.setProperty(prop, value, 'important'); };
+    const px = n => `${Math.round(n)}px`;
+
+    function ensureStyle(){
+      if (document.getElementById('athos-v572-controls-style')) return;
+      const st = document.createElement('style');
+      st.id = 'athos-v572-controls-style';
+      st.textContent = `
+        body.athos-v572-controls .game.active .world-strip,
+        body.athos-v572-controls .game.active .direction-buttons,
+        body.athos-v572-controls .game.active .minimap{
+          display:none!important;visibility:hidden!important;pointer-events:none!important;
+        }
+        body.athos-v572-controls .game.active .game-controls,
+        body.athos-v572-controls .game.active .left-zone,
+        body.athos-v572-controls .game.active .right-zone,
+        body.athos-v572-controls .game.active .action-grid,
+        body.athos-v572-controls .game.active .action-grid .action-btn{
+          transform:none!important;float:none!important;opacity:1!important;visibility:visible!important;
+        }
+      `;
+      document.head.appendChild(st);
+    }
+
+    function actionButtons(game){
+      return [
+        game.querySelector('#pauseBtn'),
+        game.querySelector('[data-action="spin"]'),
+        game.querySelector('#exitBtn'),
+        game.querySelector('#sizeBtn'),
+        game.querySelector('#crouchBtn'),
+        game.querySelector('#powerBtn'),
+        game.querySelector('#normalBtn'),
+        game.querySelector('[data-action="interact"]'),
+        game.querySelector('#jumpBtn')
+      ].filter(Boolean);
+    }
+
+    function apply(){
+      ensureStyle();
+      document.body.classList.add('athos-v572-controls');
+
+      const game = document.querySelector('.game.active') || document.querySelector('.game');
+      if(!game) return;
+
+      const vv = window.visualViewport;
+      const vw = Math.max(320, vv ? vv.width : innerWidth);
+      const vh = Math.max(260, vv ? vv.height : innerHeight);
+      const landscape = vw > vh;
+      const safeBottom = 'env(safe-area-inset-bottom)';
+
+      const btn = landscape
+        ? clampV(42, vh * 0.135, 56)
+        : clampV(48, vw * 0.135, 62);
+
+      const joy = landscape
+        ? clampV(86, vh * 0.255, 116)
+        : clampV(104, vw * 0.285, 136);
+
+      const gap = landscape ? clampV(5, vh * 0.018, 8) : clampV(6, vw * 0.018, 10);
+      const side = landscape ? 10 : 8;
+      const bottom = landscape ? 8 : 10;
+
+      const controls = game.querySelector('.game-controls');
+      const left = game.querySelector('.left-zone');
+      const right = game.querySelector('.right-zone');
+      const joystick = game.querySelector('.joystick');
+      const joyRing = game.querySelector('.joy-ring');
+      const joyKnob = game.querySelector('.joy-knob');
+      const actionGrid = game.querySelector('.action-grid');
+
+      // Área geral não manda mais no posicionamento; as zonas ficam fixed independentes.
+      important(controls,'position','fixed');
+      important(controls,'left','0');
+      important(controls,'right','0');
+      important(controls,'top','auto');
+      important(controls,'bottom','0');
+      important(controls,'width','100vw');
+      important(controls,'height','0');
+      important(controls,'min-height','0');
+      important(controls,'padding','0');
+      important(controls,'margin','0');
+      important(controls,'display','block');
+      important(controls,'background','none');
+      important(controls,'border','0');
+      important(controls,'z-index','9000');
+      important(controls,'pointer-events','none');
+      important(controls,'overflow','visible');
+
+      // Joystick sempre no canto inferior esquerdo, nunca no topo/HUD.
+      important(left,'position','fixed');
+      important(left,'left',px(side));
+      important(left,'right','auto');
+      important(left,'top','auto');
+      important(left,'bottom',`calc(${px(bottom)} + ${safeBottom})`);
+      important(left,'width',px(joy));
+      important(left,'height','auto');
+      important(left,'min-width',px(joy));
+      important(left,'max-width',px(joy));
+      important(left,'display','flex');
+      important(left,'align-items','flex-end');
+      important(left,'justify-content','flex-start');
+      important(left,'z-index','9100');
+      important(left,'pointer-events','auto');
+      important(left,'transform','none');
+      important(left,'overflow','visible');
+
+      important(joystick,'display','flex');
+      important(joystick,'flex-direction','column');
+      important(joystick,'align-items','center');
+      important(joystick,'justify-content','flex-end');
+      important(joystick,'width',px(joy));
+      important(joystick,'height','auto');
+      important(joystick,'gap','4px');
+      important(joystick,'pointer-events','auto');
+
+      important(joyRing,'width',px(joy));
+      important(joyRing,'height',px(joy));
+      important(joyRing,'min-width',px(joy));
+      important(joyRing,'min-height',px(joy));
+      important(joyRing,'max-width',px(joy));
+      important(joyRing,'max-height',px(joy));
+      important(joyRing,'border-radius','50%');
+      important(joyRing,'pointer-events','auto');
+
+      const knob = joy * .45;
+      important(joyKnob,'width',px(knob));
+      important(joyKnob,'height',px(knob));
+      important(joyKnob,'margin',`${px(-knob/2)} 0 0 ${px(-knob/2)}`);
+      important(joyKnob,'border-radius','50%');
+
+      // Botões sempre no canto inferior direito em grade 3x3 fixa.
+      const gridW = btn * 3 + gap * 2;
+      important(right,'position','fixed');
+      important(right,'left','auto');
+      important(right,'right',px(side));
+      important(right,'top','auto');
+      important(right,'bottom',`calc(${px(bottom)} + ${safeBottom})`);
+      important(right,'width',px(gridW));
+      important(right,'min-width',px(gridW));
+      important(right,'max-width',px(gridW));
+      important(right,'height','auto');
+      important(right,'display','flex');
+      important(right,'align-items','flex-end');
+      important(right,'justify-content','flex-end');
+      important(right,'z-index','9100');
+      important(right,'pointer-events','auto');
+      important(right,'transform','none');
+      important(right,'overflow','visible');
+
+      important(actionGrid,'display','grid');
+      important(actionGrid,'grid-template-columns',`repeat(3, ${px(btn)})`);
+      important(actionGrid,'grid-template-rows',`repeat(3, ${px(btn)})`);
+      important(actionGrid,'grid-auto-rows',px(btn));
+      important(actionGrid,'gap',px(gap));
+      important(actionGrid,'width',px(gridW));
+      important(actionGrid,'height','auto');
+      important(actionGrid,'min-width',px(gridW));
+      important(actionGrid,'max-width',px(gridW));
+      important(actionGrid,'align-items','center');
+      important(actionGrid,'justify-items','center');
+      important(actionGrid,'pointer-events','auto');
+      important(actionGrid,'overflow','visible');
+      important(actionGrid,'position','relative');
+      important(actionGrid,'transform','none');
+
+      const positions = [
+        ['#pauseBtn',1,1],
+        ['[data-action="spin"]',2,1],
+        ['#exitBtn',3,1],
+        ['#sizeBtn',1,2],
+        ['#crouchBtn',2,2],
+        ['#powerBtn',3,2],
+        ['#normalBtn',1,3],
+        ['[data-action="interact"]',2,3],
+        ['#jumpBtn',3,3],
+      ];
+
+      for(const [sel,col,row] of positions){
+        const b = game.querySelector(sel);
+        if(!b) continue;
+        important(b,'display','flex');
+        important(b,'visibility','visible');
+        important(b,'opacity','1');
+        important(b,'position','relative');
+        important(b,'left','auto');
+        important(b,'right','auto');
+        important(b,'top','auto');
+        important(b,'bottom','auto');
+        important(b,'grid-column',String(col));
+        important(b,'grid-row',String(row));
+        important(b,'width',px(btn));
+        important(b,'height',px(btn));
+        important(b,'min-width',px(btn));
+        important(b,'min-height',px(btn));
+        important(b,'max-width',px(btn));
+        important(b,'max-height',px(btn));
+        important(b,'margin','0');
+        important(b,'padding','0');
+        important(b,'transform','none');
+        important(b,'float','none');
+        important(b,'pointer-events','auto');
+        important(b,'align-items','center');
+        important(b,'justify-content','center');
+        important(b,'overflow','hidden');
+        important(b,'z-index','9200');
+      }
+
+      // HUD não pode ficar por cima do joystick.
+      const objective = game.querySelector('.objective-card');
+      if(objective){
+        important(objective,'z-index','70');
+        important(objective,'pointer-events','none');
+        if(landscape){
+          important(objective,'top','calc(54px + env(safe-area-inset-top))');
+          important(objective,'width','min(46vw,420px)');
+          important(objective,'min-height','52px');
+          important(objective,'max-height','64px');
+        } else {
+          important(objective,'top','calc(72px + env(safe-area-inset-top))');
+          important(objective,'width','min(86vw,500px)');
+          important(objective,'min-height','64px');
+        }
+      }
+    }
+
+    const schedule = () => requestAnimationFrame(() => requestAnimationFrame(apply));
+    ['resize','orientationchange'].forEach(ev => window.addEventListener(ev, schedule, {passive:true}));
+    if(window.visualViewport) window.visualViewport.addEventListener('resize', schedule, {passive:true});
+    const mo = new MutationObserver(schedule);
+    mo.observe(document.documentElement, {subtree:true, attributes:true, attributeFilter:['class','style','hidden']});
+    setInterval(apply, 900);
+    schedule();
+    setTimeout(apply, 500);
+    setTimeout(apply, 1500);
+  }
+
+
+  setupInputs(); setupUI(); installV572ControlsFix(); updateLobbyStats(); refreshServiceWorker();
   if (document.readyState === 'complete') setTimeout(ensureModelViewer, 0);
   else window.addEventListener('load', ensureModelViewer, { once:true });
 })();
