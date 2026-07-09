@@ -2,7 +2,7 @@
 (function(){
   'use strict';
 
-  const VERSION = 'V57_1_CONTROLES_RESPONSIVOS_VISUAL';
+  const VERSION = 'V57_2_CONTROLES_FIX_FINAL';
   let installed = false;
   let group = null;
   let playerAddon = null;
@@ -585,6 +585,7 @@
         premium:true,
         deterministic:true,
         shaderSafe:true,
+      v572ControlsFixFinal:true,
       v571ControlsResponsive:true,
       visualLanguageV57_1:true,
       renderRichPreserved:true,
