@@ -746,7 +746,7 @@
   function clearLevel(){
     if (!levelGroup) return;
     while(levelGroup.children.length) levelGroup.remove(levelGroup.children[0]);
-    clearV548Overlay(); platforms=[]; hazards=[]; crystals=[]; enemies=[]; fireballs=[]; enemyProjectiles=[]; particles=[]; solids=[]; gates=[]; checkpoints=[]; premiumVisuals=[]; v42Markers=[]; v44EnemyMarkers=[]; powerups=[]; portalMesh=null;
+    clearV55VisualLayer(); platforms=[]; hazards=[]; crystals=[]; enemies=[]; fireballs=[]; enemyProjectiles=[]; particles=[]; solids=[]; gates=[]; checkpoints=[]; premiumVisuals=[]; v42Markers=[]; v44EnemyMarkers=[]; powerups=[]; portalMesh=null;
   }
 
   function buildLevel(level, worldOverride){
@@ -1242,7 +1242,7 @@
     // Inimigos com comportamento variado
     const enemyTypes = enemyPlanFor(level);
     for (let i=0;i<(level.enemies||4);i++) {
-      const z = -22 - i * ((len-72) / Math.max(1,(level.enemies||4)-1));
+      const z = -18 - i * ((len-72) / Math.max(1,(level.enemies||4)-1));
       const lane = i===0 ? 0 : lanes[(i+2)%3];
       addEnemy(enemyTypes[i % enemyTypes.length], lane, z);
     }
@@ -1408,65 +1408,9 @@
   function ensureEnemyBadge(e){
     if(!e || !e.mesh || e.dead || !window.THREE) return;
     if(!e.mesh.userData) e.mesh.userData={};
-    const label=enemyLabel(e);
-    const color = label==='ESCUDO'?0x00d9ff:label==='FOGO'?0xff2b1f:label==='BAIXO'?0xa855f7:0x24ff72;
-
-    // V54.7: NÃO simplifica cenário; cria uma casca visual grande no inimigo REAL.
-    if(!e.mesh.userData.v547Shell){
-      const shell=new THREE.Group();
-      shell.name='V547_INIMIGO_REAL_VISIVEL';
-
-      const bodyMat=new THREE.MeshBasicMaterial({color,transparent:false,depthTest:false,depthWrite:false});
-      const darkMat=new THREE.MeshBasicMaterial({color:0x050505,transparent:false,depthTest:false,depthWrite:false});
-      const eyeMat=new THREE.MeshBasicMaterial({color:0xff003b,transparent:false,depthTest:false,depthWrite:false});
-      const glowMat=new THREE.MeshBasicMaterial({color,transparent:true,opacity:.72,depthTest:false,depthWrite:false,side:THREE.DoubleSide});
-
-      const s = e.type==='boss'?2.5:e.type==='golem'?2.1:e.type==='flyer'?1.85:1.7;
-      const core=new THREE.Mesh(new THREE.BoxGeometry(s,s,s), bodyMat);
-      core.position.set(0,s*.55,0);
-      const head=new THREE.Mesh(new THREE.BoxGeometry(s*.86,s*.66,s*.86), darkMat);
-      head.position.set(0,s*1.25,.04);
-      const eye1=new THREE.Mesh(new THREE.BoxGeometry(s*.18,s*.12,.08), eyeMat);
-      const eye2=eye1.clone();
-      eye1.position.set(-s*.22,s*1.31,s*.48);
-      eye2.position.set(s*.22,s*1.31,s*.48);
-
-      const ring=new THREE.Mesh(new THREE.RingGeometry(s*.78,s*.98,40), glowMat);
-      ring.rotation.x=-Math.PI/2;
-      ring.position.set(0,.08,0);
-
-      const flagPole=new THREE.Mesh(new THREE.BoxGeometry(.16,s*1.85,.16), glowMat);
-      flagPole.position.set(0,s*1.65,0);
-      const flag=new THREE.Mesh(new THREE.BoxGeometry(s*1.25,.42,.16), glowMat);
-      flag.position.set(0,s*2.58,0);
-
-      shell.add(ring,core,head,eye1,eye2,flagPole,flag);
-      shell.renderOrder=1700;
-      e.mesh.add(shell);
-      e.mesh.userData.v547Shell=shell;
-    }
-
-    if(e.mesh.userData.badgeLabel!==label || !e.mesh.userData.enemyBadge){
-      if(e.mesh.userData.enemyBadge && e.mesh.userData.enemyBadge.parent) e.mesh.userData.enemyBadge.parent.remove(e.mesh.userData.enemyBadge);
-      const sp=makeTextSprite('ALVO '+label,color,'#ffffff');
-      if(sp){
-        sp.position.set(0,(e.size||1.2)+4.6,0);
-        sp.scale.set(9.6,2.25,1);
-        sp.renderOrder=1900;
-        if(sp.material){sp.material.depthTest=false;sp.material.depthWrite=false;}
-        e.mesh.add(sp);
-        e.mesh.userData.enemyBadge=sp;
-        e.mesh.userData.badgeLabel=label;
-      }
-    }
-
-    if(!e.mesh.userData.v547PulseBase) e.mesh.userData.v547PulseBase = Math.random()*10;
-    const pulse = 1 + Math.sin(now()*.007 + e.mesh.userData.v547PulseBase)*.055;
-    if(e.mesh.userData.v547Shell) {
-      e.mesh.userData.v547Shell.visible=true;
-      e.mesh.userData.v547Shell.scale.setScalar(pulse);
-    }
-    if(e.mesh.userData.enemyBadge) e.mesh.userData.enemyBadge.visible=true;
+    // V55: sem textos/placas no mundo. A camada visual independente desenha o inimigo real.
+    if(e.mesh.userData.enemyBadge){ e.mesh.userData.enemyBadge.visible=false; }
+    if(e.mesh.userData.v547Shell){ e.mesh.userData.v547Shell.visible=false; }
   }
     function hazardLabel(h){
     if(!h) return 'PERIGO';
@@ -1475,70 +1419,20 @@
   function ensureHazardBadge(h){
     if(!h || !h.mesh || !window.THREE) return;
     if(!h.mesh.userData) h.mesh.userData={};
-    const label=hazardLabel(h);
-    const color=h.type==='water'?0x00c8ff:h.type==='pit'?0xffdd33:0xff2b1f;
-
-    if(!h.mesh.userData.hazardBadge){
-      const sp=makeTextSprite(label==='BURACO'?'BURACO':('CUIDADO '+label),color,h.type==='pit'?'#111827':'#ffffff');
-      if(sp){
-        sp.position.set(0,2.35,0);
-        sp.scale.set(7.8,1.95,1);
-        sp.renderOrder=1850;
-        if(sp.material){sp.material.depthTest=false;sp.material.depthWrite=false;}
-        h.mesh.add(sp);
-        h.mesh.userData.hazardBadge=sp;
-      }
-    }
-    if(!h.mesh.userData.v547Frame){
-      const frame=new THREE.Group();
-      const mat=new THREE.MeshBasicMaterial({color,transparent:true,opacity:.92,depthTest:false,depthWrite:false});
-      const w=Math.max(1,h.w||3), d=Math.max(1,h.d||3);
-      const a=new THREE.Mesh(new THREE.BoxGeometry(w+.9,.18,.24),mat); a.position.set(0,.72,-d/2-.18);
-      const b=new THREE.Mesh(new THREE.BoxGeometry(w+.9,.18,.24),mat); b.position.set(0,.72,d/2+.18);
-      const c=new THREE.Mesh(new THREE.BoxGeometry(.24,.18,d+.9),mat); c.position.set(-w/2-.18,.72,0);
-      const d2=new THREE.Mesh(new THREE.BoxGeometry(.24,.18,d+.9),mat); d2.position.set(w/2+.18,.72,0);
-      frame.add(a,b,c,d2);
-      frame.renderOrder=1840;
-      h.mesh.add(frame);
-      h.mesh.userData.v547Frame=frame;
-    }
-    if(h.mesh.userData.hazardBadge) h.mesh.userData.hazardBadge.visible=true;
-    if(h.mesh.userData.v547Frame) h.mesh.userData.v547Frame.visible=true;
+    // V55: sem texto; buraco/lava/água são desenhados como modelo visual pela camada V55.
+    if(h.mesh.userData.hazardBadge){ h.mesh.userData.hazardBadge.visible=false; }
+    if(h.mesh.userData.v547Frame){ h.mesh.userData.v547Frame.visible=false; }
   }
     function ensurePowerupBadge(it){
     if(!it || !it.mesh || it.got || !window.THREE) return;
     if(!it.mesh.userData) it.mesh.userData={};
-    const color = it.type==='sword'?0x38bdf8:it.type==='shield'?0x22c55e:0xfacc15;
-    if(!it.mesh.userData.powerupBadge){
-      const sp=makeTextSprite('PEGAR '+itemLabel(it.type).toUpperCase(), color, it.type==='star'?'#111827':'#ffffff');
-      if(sp){
-        sp.position.set(0,3.0,0);
-        sp.scale.set(8.4,2.05,1);
-        sp.renderOrder=1950;
-        if(sp.material){sp.material.depthTest=false;sp.material.depthWrite=false;}
-        it.mesh.add(sp);
-        it.mesh.userData.powerupBadge=sp;
-      }
-    }
-    if(!it.mesh.userData.v547Beam){
-      const mat=new THREE.MeshBasicMaterial({color,transparent:true,opacity:.92,depthTest:false,depthWrite:false});
-      const beam=new THREE.Mesh(new THREE.BoxGeometry(.30,3.9,.30),mat);
-      beam.position.set(0,1.95,0);
-      const pad=new THREE.Mesh(new THREE.RingGeometry(1.05,1.32,40),mat);
-      pad.rotation.x=-Math.PI/2; pad.position.set(0,.06,0);
-      const g=new THREE.Group(); g.add(beam,pad); g.renderOrder=1940;
-      it.mesh.add(g); it.mesh.userData.v547Beam=g;
-    }
-    if(it.mesh.userData.powerupBadge) it.mesh.userData.powerupBadge.visible=true;
-    if(it.mesh.userData.v547Beam) it.mesh.userData.v547Beam.visible=true;
+    // V55: sem texto; espada/escudo/estrela são modelos visuais.
+    if(it.mesh.userData.powerupBadge){ it.mesh.userData.powerupBadge.visible=false; }
+    if(it.mesh.userData.v547Beam){ it.mesh.userData.v547Beam.visible=false; }
   }
     function currentMissionHint(){
     const near = nearestPowerup(7.5);
-    if(near) return `Aperte ⚔ para pegar ${itemLabel(near.type)}.`;
-    const nextEnemy = enemies.find(e=>!e.dead && (p.z-e.z)>-7 && (p.z-e.z)<62);
-    if(nextEnemy) return `Alvo à frente: ${enemyLabel(nextEnemy)}.`;
-    const nextHazard = hazards.find(h=>(p.z-h.z)>-7 && (p.z-h.z)<52);
-    if(nextHazard) return `Obstáculo: ${hazardLabel(nextHazard)}.`;
+    if(near) return 'Aperte ⚔ para pegar o item.';
     if(runtime && runtime.requiredCrystals && runtime.crystals < runtime.requiredCrystals) return `Pegue cristais ${runtime.crystals}/${runtime.requiredCrystals}.`;
     if(runtime && runtime.requiredEnemies && runtime.defeated < runtime.requiredEnemies) return `Vença monstros ${runtime.defeated}/${runtime.requiredEnemies}.`;
     return 'Portal liberado! Vá até o portal.';
@@ -1582,133 +1476,224 @@
     }
   }
   
-  function ensureV548Overlay(){
+  function ensureV55VisualLayer(){
     if(!scene || !window.THREE) return null;
     if(!scene.userData) scene.userData={};
-    let g = scene.userData.v548Overlay;
+    let g = scene.userData.v55VisualLayer;
     if(!g){
       g = new THREE.Group();
-      g.name = 'V548_ALVOS_REAIS_VISIVEIS_FORA_LEVELGROUP';
-      g.renderOrder = 2200;
+      g.name = 'V55_VISUAL_LANGUAGE_NINTENDO_SEGA';
+      g.renderOrder = 3000;
       scene.add(g);
-      scene.userData.v548Overlay = g;
+      scene.userData.v55VisualLayer = g;
     }
     return g;
   }
-  function clearV548Overlay(){
-    if(!scene || !scene.userData || !scene.userData.v548Overlay) return;
-    const g = scene.userData.v548Overlay;
+  function clearV55VisualLayer(){
+    if(!scene || !scene.userData || !scene.userData.v55VisualLayer) return;
+    const g = scene.userData.v55VisualLayer;
     while(g.children.length){
       const obj = g.children.pop();
       if(obj.parent) obj.parent.remove(obj);
     }
   }
-  function v548Material(color, opacity=1){
-    return new THREE.MeshBasicMaterial({color,transparent:opacity<1,opacity,depthTest:false,depthWrite:false,side:THREE.DoubleSide});
+  function v55Mat(color, opacity=1){
+    return new THREE.MeshBasicMaterial({
+      color,
+      transparent: opacity < 1,
+      opacity,
+      depthTest:false,
+      depthWrite:false,
+      side:THREE.DoubleSide
+    });
   }
-  function v548Box(w,h,d,color,opacity=1){
-    const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), v548Material(color,opacity));
-    m.renderOrder = 2300;
+  function v55Box(w,h,d,color,opacity=1){
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), v55Mat(color,opacity));
+    m.renderOrder = 3050;
     return m;
   }
-  function v548Ring(radius,color){
-    const r = new THREE.Mesh(new THREE.RingGeometry(radius*.78,radius,44), v548Material(color,.82));
-    r.rotation.x = -Math.PI/2;
-    r.renderOrder = 2310;
-    return r;
+  function v55Cylinder(r,h,color,opacity=1,segments=28){
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,segments), v55Mat(color,opacity));
+    m.renderOrder = 3050;
+    return m;
   }
-  function v548Label(text,color,fg='#ffffff'){
-    const sp = makeTextSprite(text,color,fg);
-    if(sp){
-      sp.scale.set(9.5,2.2,1);
-      sp.renderOrder=2400;
-      if(sp.material){sp.material.depthTest=false;sp.material.depthWrite=false;}
+  function v55Ring(r1,r2,color,opacity=.72){
+    const m = new THREE.Mesh(new THREE.RingGeometry(r1,r2,56), v55Mat(color,opacity));
+    m.rotation.x = -Math.PI/2;
+    m.renderOrder = 3050;
+    return m;
+  }
+  function v55Octa(color, scale=1, opacity=1){
+    const m = new THREE.Mesh(new THREE.OctahedronGeometry(scale,1), v55Mat(color,opacity));
+    m.renderOrder = 3060;
+    return m;
+  }
+  function v55Star3D(color=0xfacc15){
+    const g = new THREE.Group();
+    for(let i=0;i<5;i++){
+      const p=v55Box(.34,1.35,.18,color,.96);
+      p.position.y=1.05;
+      p.rotation.z=(Math.PI*2*i)/5;
+      g.add(p);
     }
-    return sp;
+    const c=v55Octa(0xffffff,.45,.95); c.position.y=1.05; g.add(c);
+    return g;
   }
-  function v548EnemyOverlay(g,e){
+  function v55EnemyModel(e){
+    const type = enemyLabel(e);
+    const g = new THREE.Group();
+    g.name = 'V55_ENEMY_VISUAL_' + type;
+    const pulse = 1 + Math.sin(now()*.006 + (e.t||0))*0.035;
+
+    if(type === 'PULAR'){
+      // Verde vertical, molas e olhos grandes: leitura imediata de "pular".
+      const shadow = v55Ring(1.25,1.55,0x101820,.30); shadow.position.y=.06;
+      const spring1 = v55Cylinder(.18,.80,0xffffff,.80,14); spring1.position.set(-.55,.42,.35); spring1.rotation.z=.25;
+      const spring2 = v55Cylinder(.18,.80,0xffffff,.80,14); spring2.position.set(.55,.42,.35); spring2.rotation.z=-.25;
+      const body = v55Box(2.05,1.95,2.05,0x39ff6a,.98); body.position.y=1.32;
+      const top = v55Box(1.55,.72,1.55,0x23c761,.98); top.position.y=2.62;
+      const eye1 = v55Box(.34,.24,.12,0xff0055,1); eye1.position.set(-.42,2.72,1.02);
+      const eye2 = v55Box(.34,.24,.12,0xff0055,1); eye2.position.set(.42,2.72,1.02);
+      g.add(shadow,spring1,spring2,body,top,eye1,eye2);
+    } else if(type === 'FOGO'){
+      // Fogo vivo: núcleo escuro, chamas e brasas.
+      const aura = v55Ring(1.45,1.82,0xff3b00,.52); aura.position.y=.08;
+      const core = v55Box(1.65,1.65,1.65,0x2b0a05,.96); core.position.y=1.25; core.rotation.y=.35;
+      const flameA = v55Box(.96,2.25,.96,0xff4a12,.94); flameA.position.y=2.22; flameA.rotation.z=.45;
+      const flameB = v55Box(.70,1.65,.70,0xffd21a,.94); flameB.position.set(.42,2.02,.06); flameB.rotation.z=-.34;
+      const flameC = v55Box(.62,1.45,.62,0xff7a00,.90); flameC.position.set(-.46,1.92,.05); flameC.rotation.z=.25;
+      const eye1 = v55Box(.24,.16,.10,0xfff7b3,1); eye1.position.set(-.34,1.62,.88);
+      const eye2 = v55Box(.24,.16,.10,0xfff7b3,1); eye2.position.set(.34,1.62,.88);
+      g.add(aura,core,flameA,flameB,flameC,eye1,eye2);
+    } else if(type === 'BAIXO'){
+      // Rasteiro: corpo horizontal, baixo e largo, visualmente indica passar por cima/baixo conforme regra.
+      const shadow = v55Ring(1.70,2.05,0x4c1d95,.44); shadow.position.y=.05;
+      const body = v55Box(3.15,.78,1.42,0x7c3aed,.98); body.position.y=.72;
+      const back = v55Box(2.35,.42,1.20,0xc084fc,.85); back.position.y=1.20;
+      const eye1 = v55Box(.24,.16,.12,0xff0055,1); eye1.position.set(-.55,.84,.74);
+      const eye2 = v55Box(.24,.16,.12,0xff0055,1); eye2.position.set(.55,.84,.74);
+      const tail = v55Box(.80,.34,1.00,0x3b0764,.96); tail.position.set(1.85,.62,0);
+      g.add(shadow,body,back,eye1,eye2,tail);
+    } else if(type === 'ESCUDO'){
+      // Escudo de verdade na frente.
+      const base = v55Ring(1.35,1.68,0x00d9ff,.55); base.position.y=.08;
+      const body = v55Box(1.55,1.85,1.55,0x475569,.98); body.position.y=1.25;
+      const head = v55Box(1.25,.85,1.25,0x1e293b,.98); head.position.y=2.45;
+      const shield = v55Box(2.08,2.35,.30,0x00d9ff,.78); shield.position.set(0,1.58,1.05);
+      const shine = v55Box(.24,1.75,.34,0xffffff,.88); shine.position.set(-.42,1.60,1.25);
+      const cross = v55Box(1.55,.24,.34,0xffffff,.88); cross.position.set(0,1.58,1.26);
+      const eye1 = v55Box(.22,.14,.12,0xff0055,1); eye1.position.set(-.28,2.52,.68);
+      const eye2 = v55Box(.22,.14,.12,0xff0055,1); eye2.position.set(.28,2.52,.68);
+      g.add(base,body,head,shield,shine,cross,eye1,eye2);
+    } else {
+      const base = v55Ring(1.70,2.05,0xff003b,.54); base.position.y=.08;
+      const body = v55Box(2.25,2.25,2.25,0xef4444,.96); body.position.y=1.45;
+      const horn1 = v55Box(.38,.95,.38,0xfacc15,.95); horn1.position.set(-.80,3.05,0); horn1.rotation.z=.25;
+      const horn2 = v55Box(.38,.95,.38,0xfacc15,.95); horn2.position.set(.80,3.05,0); horn2.rotation.z=-.25;
+      const eye1 = v55Box(.34,.22,.12,0xff0055,1); eye1.position.set(-.43,2.10,1.12);
+      const eye2 = v55Box(.34,.22,.12,0xff0055,1); eye2.position.set(.43,2.10,1.12);
+      g.add(base,body,horn1,horn2,eye1,eye2);
+    }
+
+    g.scale.setScalar(pulse);
+    return g;
+  }
+  function v55EnemyOverlay(layer,e){
     if(!e || e.dead) return;
-    const label = enemyLabel(e);
-    const color = label==='ESCUDO'?0x00d9ff:label==='FOGO'?0xff2b1f:label==='BAIXO'?0xa855f7:0x24ff72;
-    const s = e.type==='boss'?2.8:e.type==='golem'?2.35:e.type==='flyer'?2.0:1.85;
-    const marker = new THREE.Group();
-    marker.name = 'V548_INIMIGO_REAL_' + label;
-    marker.position.set(e.x, Math.max(.15,e.y||0), e.z);
-
-    const base = v548Ring(s*1.15,color); base.position.y=.08;
-    const body = v548Box(s,s,s,color,.95); body.position.y=s*.68;
-    const head = v548Box(s*.82,s*.58,s*.82,0x050505,.98); head.position.set(0,s*1.36,0);
-    const eye1 = v548Box(s*.16,s*.11,.10,0xff003b,1); eye1.position.set(-s*.22,s*1.42,s*.46);
-    const eye2 = v548Box(s*.16,s*.11,.10,0xff003b,1); eye2.position.set(s*.22,s*1.42,s*.46);
-    const pole = v548Box(.18,s*2.05,.18,color,.85); pole.position.y=s*1.90;
-    const flag = v548Box(s*1.45,.45,.16,color,.85); flag.position.y=s*3.02;
-
-    const txt = v548Label('ALVO '+label,color,'#ffffff');
-    if(txt) txt.position.y=s*3.55;
-
-    marker.add(base,body,head,eye1,eye2,pole,flag);
-    if(txt) marker.add(txt);
-    const pulse = 1 + Math.sin(now()*.006 + (e.t||0))*.05;
-    marker.scale.setScalar(pulse);
-    g.add(marker);
+    const marker = v55EnemyModel(e);
+    marker.position.set(e.x, Math.max(.08,e.y||0), e.z);
+    layer.add(marker);
   }
-  function v548PowerupOverlay(g,it){
+  function v55PowerupOverlay(layer,it){
     if(!it || it.got) return;
+    const marker = new THREE.Group();
+    marker.name = 'V55_ITEM_VISUAL_' + it.type;
+    marker.position.set(it.x,.08,it.z);
     const color = it.type==='sword'?0x38bdf8:it.type==='shield'?0x22c55e:0xfacc15;
-    const marker = new THREE.Group();
-    marker.name = 'V548_ITEM_REAL_' + it.type;
-    marker.position.set(it.x, .05, it.z);
-    const pad = v548Ring(1.6,color); pad.position.y=.08;
-    const beam = v548Box(.28,4.2,.28,color,.90); beam.position.y=2.10;
-    const icon = v548Box(1.15,1.15,1.15,color,.95); icon.position.y=1.28;
-    const txt = v548Label('PEGAR '+itemLabel(it.type).toUpperCase(),color,it.type==='star'?'#111827':'#ffffff');
-    if(txt) txt.position.y=4.25;
-    marker.add(pad,beam,icon);
-    if(txt) marker.add(txt);
-    g.add(marker);
-  }
-  function v548HazardOverlay(g,h){
-    if(!h) return;
-    const label = hazardLabel(h);
-    const color = h.type==='water'?0x00c8ff:h.type==='pit'?0xffdd33:0xff2b1f;
-    const marker = new THREE.Group();
-    marker.name = 'V548_OBSTACULO_REAL_' + label;
-    marker.position.set(h.x,.08,h.z);
-    const w=Math.max(2,h.w||3), d=Math.max(2,h.d||3);
-    const a=v548Box(w+.8,.20,.26,color,.92); a.position.set(0,.75,-d/2-.18);
-    const b=v548Box(w+.8,.20,.26,color,.92); b.position.set(0,.75,d/2+.18);
-    const c=v548Box(.26,.20,d+.8,color,.92); c.position.set(-w/2-.18,.75,0);
-    const d2=v548Box(.26,.20,d+.8,color,.92); d2.position.set(w/2+.18,.75,0);
-    const txt = v548Label(label==='BURACO'?'BURACO':'CUIDADO '+label,color,h.type==='pit'?'#111827':'#ffffff');
-    if(txt) txt.position.y=2.75;
-    marker.add(a,b,c,d2);
-    if(txt) marker.add(txt);
-    g.add(marker);
-  }
-  function syncV548Overlay(){
-    if(!playing || !scene || !window.THREE || !p) return;
-    const g = ensureV548Overlay();
-    if(!g) return;
-    // Atualiza algumas vezes por segundo: suficiente para ficar visível e sem criar peso demais.
-    const t = now();
-    if(g.userData && g.userData.lastBuild && t - g.userData.lastBuild < 120) return;
-    if(!g.userData) g.userData={};
-    g.userData.lastBuild = t;
-    clearV548Overlay();
+    const pad = v55Ring(1.12,1.45,color,.48); pad.position.y=.08;
+    const beam = v55Box(.22,2.65,.22,color,.45); beam.position.y=1.45;
+    marker.add(pad,beam);
 
-    // Não depende do levelGroup, porque o render V54 esconde o levelGroup original.
+    if(it.type==='sword'){
+      const blade = v55Box(.24,2.70,.18,0xe0f7ff,.98); blade.position.y=1.70; blade.rotation.z=-.48;
+      const edge = v55Box(.08,2.38,.20,0x38bdf8,.85); edge.position.set(.14,1.74,.02); edge.rotation.z=-.48;
+      const guard = v55Box(1.25,.26,.22,0xfacc15,.98); guard.position.set(.48,.70,0); guard.rotation.z=-.48;
+      const grip = v55Box(.30,.85,.24,0x5b3a29,.98); grip.position.set(.72,.22,0); grip.rotation.z=-.48;
+      marker.add(blade,edge,guard,grip);
+    } else if(it.type==='shield'){
+      const shield = v55Box(1.50,1.88,.26,0x22c55e,.88); shield.position.y=1.45;
+      const rim = v55Box(1.76,2.12,.18,0xffffff,.25); rim.position.y=1.45;
+      const cross1 = v55Box(.24,1.45,.30,0xffffff,.96); cross1.position.y=1.45;
+      const cross2 = v55Box(1.10,.24,.30,0xffffff,.96); cross2.position.y=1.45;
+      marker.add(shield,rim,cross1,cross2);
+    } else {
+      const star = v55Star3D(0xfacc15); star.position.y=.46;
+      const glow = v55Ring(1.15,1.55,0xfacc15,.36); glow.position.y=.12;
+      marker.add(glow,star);
+    }
+    const bob = 1 + Math.sin(now()*.006 + (it.x||0))*0.035;
+    marker.scale.setScalar(bob);
+    layer.add(marker);
+  }
+  function v55HazardOverlay(layer,h){
+    if(!h) return;
+    const marker = new THREE.Group();
+    marker.name = 'V55_HAZARD_VISUAL_' + h.type;
+    marker.position.set(h.x,.06,h.z);
+    const w=Math.max(2.6,h.w||3), d=Math.max(3,h.d||3);
+
+    if(h.type==='pit'){
+      // Buraco estilo jogo: bordas quebradas + paredes internas + fundo escuro profundo.
+      const hole = v55Box(w,.20,d,0x050505,.90); hole.position.y=.10;
+      const inner = v55Box(w*.72,.18,d*.72,0x000000,.92); inner.position.y=.22;
+      const front = v55Box(w+.90,.42,.42,0xb07a3b,.98); front.position.set(0,.45,-d/2-.18);
+      const back = v55Box(w+.90,.42,.42,0x8a5726,.98); back.position.set(0,.45,d/2+.18);
+      const left = v55Box(.42,.42,d+.90,0x9b6730,.98); left.position.set(-w/2-.18,.45,0);
+      const right = v55Box(.42,.42,d+.90,0x9b6730,.98); right.position.set(w/2+.18,.45,0);
+      const crack1 = v55Box(.18,.12,1.35,0x1f1308,.98); crack1.position.set(-w*.22,.72,-d*.22); crack1.rotation.y=.62;
+      const crack2 = v55Box(.16,.12,1.20,0x1f1308,.98); crack2.position.set(w*.18,.72,d*.20); crack2.rotation.y=-.56;
+      const depth1 = v55Box(w*.82,.40,.22,0x281604,.55); depth1.position.set(0,-.12,-d*.38);
+      const depth2 = v55Box(w*.82,.40,.22,0x1a0e03,.55); depth2.position.set(0,-.26,d*.36);
+      const warningGlow = v55Ring(Math.max(w,d)*.42,Math.max(w,d)*.54,0xfacc15,.28); warningGlow.position.y=.16;
+      marker.add(hole,inner,depth1,depth2,front,back,left,right,crack1,crack2,warningGlow);
+    } else if(h.type==='lava'){
+      const lava = v55Box(w,.24,d,0xff2b00,.92); lava.position.y=.18;
+      const hot1 = v55Box(w*.72,.12,d*.18,0xfff000,.90); hot1.position.set(0,.42,-d*.16);
+      const hot2 = v55Box(w*.38,.12,d*.16,0xffa000,.90); hot2.position.set(w*.14,.46,d*.22);
+      const bubble1 = v55Cylinder(.28,.14,0xfff000,.86,18); bubble1.position.set(-w*.25,.52,-d*.15);
+      const bubble2 = v55Cylinder(.22,.14,0xffd000,.86,18); bubble2.position.set(w*.28,.54,d*.20);
+      const rim = v55Ring(Math.max(w,d)*.44,Math.max(w,d)*.58,0xff3b00,.36); rim.position.y=.16;
+      marker.add(lava,hot1,hot2,bubble1,bubble2,rim);
+    } else {
+      const water = v55Box(w,.18,d,0x00c8ff,.58); water.position.y=.13;
+      const shine = v55Box(w*.70,.10,d*.14,0xffffff,.48); shine.position.set(0,.30,-d*.12);
+      const ripple1 = v55Ring(Math.max(w,d)*.24,Math.max(w,d)*.30,0xffffff,.36); ripple1.position.y=.28;
+      const ripple2 = v55Ring(Math.max(w,d)*.38,Math.max(w,d)*.45,0x7dd3fc,.34); ripple2.position.y=.30;
+      marker.add(water,shine,ripple1,ripple2);
+    }
+    layer.add(marker);
+  }
+  function syncV55VisualLanguage(){
+    if(!playing || !scene || !window.THREE || !p) return;
+    const layer = ensureV55VisualLayer();
+    if(!layer) return;
+    const t = now();
+    if(layer.userData && layer.userData.lastBuild && t - layer.userData.lastBuild < 80) return;
+    if(!layer.userData) layer.userData={};
+    layer.userData.lastBuild = t;
+    clearV55VisualLayer();
+
     for(const e of enemies){
       if(!e || e.dead) continue;
-      // Mostra todos, mas prioriza os próximos no campo de visão.
-      if((p.z - e.z) > -18 && (p.z - e.z) < 170) v548EnemyOverlay(g,e);
+      if((p.z - e.z) > -28 && (p.z - e.z) < 185) v55EnemyOverlay(layer,e);
     }
     for(const it of powerups){
       if(!it || it.got) continue;
-      if((p.z - it.z) > -16 && (p.z - it.z) < 150) v548PowerupOverlay(g,it);
+      if((p.z - it.z) > -24 && (p.z - it.z) < 170) v55PowerupOverlay(layer,it);
     }
     for(const h of hazards){
       if(!h) continue;
-      if((p.z - h.z) > -16 && (p.z - h.z) < 150) v548HazardOverlay(g,h);
+      if((p.z - h.z) > -24 && (p.z - h.z) < 170) v55HazardOverlay(layer,h);
     }
   }
 
@@ -2034,12 +2019,12 @@ function syncGameplayVisibility(){
     if (playing && !paused) update(dt);
     updateV54Render(dt);
     syncGameplayVisibility();
-    syncV548Overlay();
+    syncV55VisualLanguage();
     if (renderer && scene && camera) renderer.render(scene,camera);
   }
 
   function update(dt){
-    updateInput(dt); updateTimer(dt); updatePlayer(dt); updateEnemies(dt); updateV44EnemyProjectiles(dt); updateFireballs(dt); updateParticles(dt); updatePremiumVisuals(dt); syncGameplayVisibility(); syncV548Overlay(); checkPowerups(); checkCrystals(); checkHazards(); checkCheckpoints(); checkGates(); checkPortal(); updateCamera(dt); updateHud();
+    updateInput(dt); updateTimer(dt); updatePlayer(dt); updateEnemies(dt); updateV44EnemyProjectiles(dt); updateFireballs(dt); updateParticles(dt); updatePremiumVisuals(dt); syncGameplayVisibility(); syncV55VisualLanguage(); checkPowerups(); checkCrystals(); checkHazards(); checkCheckpoints(); checkGates(); checkPortal(); updateCamera(dt); updateHud();
   }
   function updateTimer(dt){ if (runtime && runtime.timer) { runtime.timer -= dt; if (runtime.timer <= 0) damagePlayer(999,'Tempo esgotado!'); } }
   function updateInput(dt=1/60){
@@ -3099,7 +3084,7 @@ function syncGameplayVisibility(){
     if(els.arAnchorViewer){ els.arAnchorViewer.addEventListener('ar-status',(e)=>{ if(e.detail && e.detail.status==='not-presenting') hardStopAllInput('ar-closed'); }); }
   }
   function refreshServiceWorker(){
-    if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js?v=548-overlay-real-visivel').then(reg => reg.update()).catch(()=>{});
+    if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js?v=550-visual-language-nintendo-sega').then(reg => reg.update()).catch(()=>{});
     if('caches' in window) caches.keys().then(keys=>keys.filter(k=>/athos|otto/i.test(k)).forEach(k=>caches.delete(k).catch(()=>{}))).catch(()=>{});
   }
 
@@ -3148,10 +3133,11 @@ function syncGameplayVisibility(){
     getV533: () => ({label:'V53_3_CONTROLES_100_DENTRO_DA_TELA', fix:'right-zone fixed; no overflow in landscape/portrait'}),
     getV532: () => ({label:'V53_2_MOBILE_GAMEPLAY_HOTFIX', camera:{follow:GAMEPLAY_CAMERA.cameraFollowDistance,height:GAMEPLAY_CAMERA.cameraHeight,lookAhead:GAMEPLAY_CAMERA.cameraLookAhead}, feel:{deadzone:GAME_FEEL.joystickDeadzone,release:GAME_FEEL.inputRelease,decel:GAME_FEEL.groundDeceleration}, viewport:{w:innerWidth,h:innerHeight,landscape:innerWidth>innerHeight}}),
     getV53: () => ({...V53_CODEX_VISUAL_GAMEPLAY, powerups: powerups.length, gotPowerups: powerups.filter(p=>p.got).length, playerWeapon:p.weapon||null, shield:p.shield||0, star: now() < (p.starUntil||0)}),
-    getV542: () => ({label:'V54_8_OVERLAY_REAL_VISIVEL', worldsHidden:true, settingsWorlds:true, fix:'world-strip hidden in markup and css'}),
-    getV541: () => ({label:'V54_8_OVERLAY_REAL_VISIVEL', settings:true, crystalPlus:true, worldsInSettings:true, orientation:'auto-css-resize'}),
-    getV548: () => ({label:'V54_8_OVERLAY_REAL_VISIVEL', independentOverlay:true, levelGroupHiddenSafe:true, visibleTargets:true, enemies:enemies.length, hazards:hazards.length, powerups:powerups.length}),
-    getV547: () => ({label:'V54_8_OVERLAY_REAL_VISIVEL', renderRich:true, fakeInteractive:false, enemyShell:'big-real-target', hazardFrame:true, pickupBeam:true}),
+    getV542: () => ({label:'V55_VISUAL_LANGUAGE_NINTENDO_SEGA', worldsHidden:true, settingsWorlds:true, fix:'world-strip hidden in markup and css'}),
+    getV541: () => ({label:'V55_VISUAL_LANGUAGE_NINTENDO_SEGA', settings:true, crystalPlus:true, worldsInSettings:true, orientation:'auto-css-resize'}),
+    getV55VisualLanguage: () => ({label:'V55_VISUAL_LANGUAGE_NINTENDO_SEGA', noWorldText:true, visualEnemies:true, visualItems:true, visualHazards:true, truePitVisual:true, renderPreserved:true, enemies:enemies.length, hazards:hazards.length, powerups:powerups.length}),
+    getV548: () => ({label:'V55_VISUAL_LANGUAGE_NINTENDO_SEGA', independentOverlay:true, levelGroupHiddenSafe:true, visibleTargets:true, enemies:enemies.length, hazards:hazards.length, powerups:powerups.length}),
+    getV547: () => ({label:'V55_VISUAL_LANGUAGE_NINTENDO_SEGA', renderRich:true, fakeInteractive:false, enemyShell:'big-real-target', hazardFrame:true, pickupBeam:true}),
     getV54Render: () => (window.ATHOS_V54_RENDER_PREMIUM && window.ATHOS_V54_RENDER_PREMIUM.getStatus ? window.ATHOS_V54_RENDER_PREMIUM.getStatus() : null),
     getV48Render: () => (window.ATHOS_V48_RENDER_TARGET && window.ATHOS_V48_RENDER_TARGET.getStatus ? window.ATHOS_V48_RENDER_TARGET.getStatus() : null),
     getV47Render: () => (window.ATHOS_V48_RENDER_TARGET && window.ATHOS_V48_RENDER_TARGET.getStatus ? window.ATHOS_V48_RENDER_TARGET.getStatus() : null),

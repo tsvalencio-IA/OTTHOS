@@ -927,3 +927,12 @@ body.v53-codex-obedecido #exitBtn::before{content:"■";font-size:20px!important
 /* V54.3 fallback: se algum CSS velho tentar reservar dock, o render-v54.css vence; isto é reforço. */
 .game.active .game-controls > .world-strip{display:none!important;visibility:hidden!important}
 .game.active .three-stage{inset:0!important;bottom:0!important;height:100dvh!important}
+
+
+/* V55 fallback responsivo */
+.screen.game.active, .game.active{
+  min-height:100vh!important;
+  min-height:100dvh!important;
+  overflow:hidden!important;
+}
+.game.active .world-strip{display:none!important}

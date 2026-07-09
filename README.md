@@ -1,15 +1,28 @@
-# ATHOS V54.8 — Somente arquivos alterados
+# ATHOS V55.0 — Visual Language Nintendo/Sega
 
-Correção real do problema de inimigos invisíveis:
-- o render V54 escondia o levelGroup original;
-- por isso inimigos/itens/obstáculos lógicos podiam existir, mas não aparecer;
-- agora existe uma camada independente na scene, fora do levelGroup;
-- essa camada mostra ALVO, PEGAR e CUIDADO/BURACO mesmo quando o render esconde os objetos antigos;
-- primeiro inimigo vem mais cedo e no centro da pista;
-- render rico preservado, sem simplificar o cenário.
+Base: OTTHOS-main (3).zip enviado como referência.
+
+Objetivo:
+- manter o render rico V54;
+- parar de depender de placas/textos flutuantes;
+- fazer inimigos, itens e obstáculos serem entendidos visualmente.
+
+Principais correções:
+- camada visual independente fora do levelGroup;
+- inimigos reais viram modelos visuais distintos;
+- espada/escudo/estrela viram modelos visuais claros;
+- buraco vira buraco com bordas quebradas, profundidade e rachaduras;
+- lava vira área viva com brilho e bolhas;
+- água vira poça com reflexo/ripples;
+- sem etiquetas escritas ALVO/PEGAR/BURACO no mundo;
+- botão Ação mantém coleta de itens;
+- espada dura mais tempo na mão;
+- primeiro inimigo aparece cedo e no centro;
+- render rico preservado, sem simplificar cenário;
+- responsividade retrato/paisagem preservada.
 
 Abrir:
-?v=548-overlay-real-visivel
+?v=550-visual-language-nintendo-sega
 
 Teste:
-F12_TESTE_ATHOS_V548_OVERLAY_REAL_VISIVEL.js
+F12_TESTE_ATHOS_V550_VISUAL_LANGUAGE_NINTENDO_SEGA.js
