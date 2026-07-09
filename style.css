@@ -1003,164 +1003,17 @@ body[data-world], .game.active{--ui-shadow:0 10px 22px rgba(0,0,0,.28);}
 @media (max-width:390px){.game.active .top-hud{grid-template-columns:minmax(120px,auto) 1fr auto!important}.game.active .hud-avatar{width:54px!important;height:54px!important}.game.active .hud-hearts-row{max-width:120px!important;overflow:hidden!important}.game.active .hud-heart{font-size:22px!important}.game.active .hud-xp-block{min-width:0!important}.game.active .hud-xp-bar-wrap{height:22px!important}.game.active .hud-xp-label{font-size:12px!important}.game.active .hud-gems-box{min-width:114px!important;height:42px!important;padding:0 8px!important}.game.active .hud-settings-btn{width:42px!important;height:42px!important;font-size:22px!important}}
 
 
-/* V57.1 FINAL — controles sempre por cima e sem sobrescrever/empilhar botões
-   Esta regra fica NO FINAL do arquivo de propósito: vence V56/V55 antigas. */
-:root{
-  --athos-v571-btn:clamp(50px,10.8vw,64px);
-  --athos-v571-joy:clamp(104px,24vw,132px);
-  --athos-v571-gap:clamp(6px,1.8vw,10px);
-}
-.game.active .world-strip,
-.game.active .tutorial-box,
-.game.active .minimap{
-  display:none!important;
-  visibility:hidden!important;
-  pointer-events:none!important;
-}
-.game.active .game-controls{
-  position:absolute!important;
-  left:0!important;
-  right:0!important;
-  top:auto!important;
-  bottom:0!important;
-  width:auto!important;
-  height:auto!important;
-  min-height:0!important;
-  padding:8px 10px calc(10px + var(--safe-bottom))!important;
-  display:flex!important;
-  flex-direction:row!important;
-  justify-content:space-between!important;
-  align-items:flex-end!important;
-  gap:var(--athos-v571-gap)!important;
-  background:none!important;
-  border:0!important;
-  z-index:80!important;
-  pointer-events:none!important;
-  overflow:visible!important;
-}
-.game.active .left-zone,
-.game.active .right-zone{
-  position:relative!important;
-  left:auto!important;
-  right:auto!important;
-  top:auto!important;
-  bottom:auto!important;
-  transform:none!important;
-  display:flex!important;
-  align-items:flex-end!important;
-  pointer-events:auto!important;
-  overflow:visible!important;
-}
-.game.active .left-zone{
-  flex:0 0 var(--athos-v571-joy)!important;
-  min-width:var(--athos-v571-joy)!important;
-  max-width:var(--athos-v571-joy)!important;
-  justify-content:flex-start!important;
-}
-.game.active .right-zone{
-  flex:0 0 calc(var(--athos-v571-btn) * 3 + var(--athos-v571-gap) * 2)!important;
-  min-width:calc(var(--athos-v571-btn) * 3 + var(--athos-v571-gap) * 2)!important;
-  justify-content:flex-end!important;
-}
-.game.active .joystick{
-  display:flex!important;
-  flex-direction:column!important;
-  align-items:center!important;
-  justify-content:flex-end!important;
-  gap:4px!important;
-}
-.game.active .joy-ring{
-  width:var(--athos-v571-joy)!important;
-  height:var(--athos-v571-joy)!important;
-  max-width:var(--athos-v571-joy)!important;
-  max-height:var(--athos-v571-joy)!important;
-}
-.game.active .joy-knob{
-  width:calc(var(--athos-v571-joy) * .45)!important;
-  height:calc(var(--athos-v571-joy) * .45)!important;
-  margin:calc(var(--athos-v571-joy) * -.225) 0 0 calc(var(--athos-v571-joy) * -.225)!important;
-}
-.game.active .direction-buttons{display:none!important}
-.game.active .action-grid{
-  display:grid!important;
-  grid-template-columns:repeat(3,var(--athos-v571-btn))!important;
-  grid-template-rows:repeat(3,var(--athos-v571-btn))!important;
-  grid-auto-rows:var(--athos-v571-btn)!important;
-  gap:var(--athos-v571-gap)!important;
-  align-items:center!important;
-  justify-items:center!important;
-  width:auto!important;
-  height:auto!important;
-  min-width:0!important;
-  max-width:none!important;
-  overflow:visible!important;
-  pointer-events:auto!important;
-}
-.game.active .action-grid .action-btn{
-  display:flex!important;
-  position:relative!important;
-  width:var(--athos-v571-btn)!important;
-  height:var(--athos-v571-btn)!important;
-  min-width:var(--athos-v571-btn)!important;
-  min-height:var(--athos-v571-btn)!important;
-  max-width:var(--athos-v571-btn)!important;
-  max-height:var(--athos-v571-btn)!important;
-  margin:0!important;
-  padding:0!important;
-  transform:none!important;
-  float:none!important;
-  border-radius:16px!important;
-  overflow:hidden!important;
-  align-items:center!important;
-  justify-content:center!important;
-  pointer-events:auto!important;
-}
-.game.active #pauseBtn{grid-column:1!important;grid-row:1!important}
-.game.active [data-action="spin"]{grid-column:2!important;grid-row:1!important}
-.game.active #exitBtn{grid-column:3!important;grid-row:1!important}
-.game.active #sizeBtn{grid-column:1!important;grid-row:2!important}
-.game.active #crouchBtn{grid-column:2!important;grid-row:2!important}
-.game.active #powerBtn{grid-column:3!important;grid-row:2!important}
-.game.active #normalBtn{grid-column:1!important;grid-row:3!important}
-.game.active [data-action="interact"]{grid-column:2!important;grid-row:3!important}
-.game.active #jumpBtn{grid-column:3!important;grid-row:3!important}
-
-@media (orientation:landscape){
-  :root{
-    --athos-v571-btn:clamp(44px,9.2vh,56px);
-    --athos-v571-joy:clamp(86px,22vh,112px);
-    --athos-v571-gap:clamp(5px,1.4vh,8px);
-  }
-  .game.active .game-controls{
-    padding:5px 8px calc(6px + var(--safe-bottom))!important;
-  }
-  .game.active .joystick small{display:none!important}
-  .game.active .objective-card{
-    top:calc(54px + var(--safe-top))!important;
-    width:min(48vw,430px)!important;
-    min-height:54px!important;
-    max-height:64px!important;
-  }
-}
-@media (max-width:390px){
-  :root{
-    --athos-v571-btn:clamp(46px,12.5vw,54px);
-    --athos-v571-joy:clamp(92px,27vw,112px);
-    --athos-v571-gap:6px;
-  }
-  .game.active .game-controls{
-    padding-left:6px!important;
-    padding-right:6px!important;
-  }
-}
-
-
-/* V57.2 — FIX FINAL: o JS installV572ControlsFix aplica inline !important.
-   Este bloco é só fallback visual. */
-body.athos-v572-controls .game.active .game-controls{z-index:9000!important;pointer-events:none!important;overflow:visible!important}
-body.athos-v572-controls .game.active .left-zone,
-body.athos-v572-controls .game.active .right-zone{z-index:9100!important;pointer-events:auto!important;overflow:visible!important}
-body.athos-v572-controls .game.active .action-grid .action-btn{opacity:1!important;visibility:visible!important;pointer-events:auto!important}
-body.athos-v572-controls .game.active .world-strip,
-body.athos-v572-controls .game.active .direction-buttons,
-body.athos-v572-controls .game.active .minimap{display:none!important}
+/* V58.0 — GAMEPAD REAL: só 3 botões no gameplay, igual referência de jogo mobile */
+body.athos-v58-gamepad .game.active #pauseBtn,
+body.athos-v58-gamepad .game.active #exitBtn,
+body.athos-v58-gamepad .game.active #sizeBtn,
+body.athos-v58-gamepad .game.active #crouchBtn,
+body.athos-v58-gamepad .game.active #normalBtn,
+body.athos-v58-gamepad .game.active [data-action="spin"]{display:none!important;visibility:hidden!important;pointer-events:none!important;}
+body.athos-v58-gamepad .game.active #powerBtn::before{content:'🔥';font-size:42px;color:#fff}
+body.athos-v58-gamepad .game.active [data-action="interact"]::before{content:'⚔';font-size:40px;color:#fff}
+body.athos-v58-gamepad .game.active #jumpBtn::before{content:'⬆';font-size:44px;color:#fff}
+body.athos-v58-gamepad .game.active #powerBtn,body.athos-v58-gamepad .game.active [data-action="interact"],body.athos-v58-gamepad .game.active #jumpBtn{border:4px solid rgba(255,255,255,.92)!important;box-shadow:0 10px 0 rgba(0,0,0,.35),0 16px 28px rgba(0,0,0,.24)!important;}
+body.athos-v58-gamepad .game.active #powerBtn{background:radial-gradient(circle at 35% 28%,#ffd473,#f97316 45%,#b91c1c 82%)!important}
+body.athos-v58-gamepad .game.active [data-action="interact"]{background:radial-gradient(circle at 35% 28%,#bde8ff,#0ea5e9 48%,#075985 82%)!important}
+body.athos-v58-gamepad .game.active #jumpBtn{background:radial-gradient(circle at 35% 28%,#d9ffce,#84cc16 50%,#3f8f10 82%)!important}
