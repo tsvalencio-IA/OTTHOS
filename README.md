@@ -1,22 +1,28 @@
-# ATHOS V56.1 — Somente arquivos alterados
+# ATHOS V55.0 — Visual Language Nintendo/Sega
 
-Base: OTTHOS-main-v56-render-fiel(1).zip
+Base: OTTHOS-main (3).zip enviado como referência.
 
-Melhorias aplicadas:
-- mantém a V56 como base visual;
-- padroniza título/cache/teste para V56.1;
-- mantém render rico/fiel, sem simplificar cenário;
-- remove badges escritos antigos do mundo;
-- fortalece a linguagem visual Nintendo/Sega sem texto;
-- inimigos, itens e obstáculos ficam maiores e mais legíveis;
-- primeiro inimigo aparece mais cedo;
-- espada aparece mais centralizada no percurso;
-- raio de coleta ampliado;
-- espada dura mais tempo;
-- reforço mobile retrato/paisagem preservando HUD e AR.
+Objetivo:
+- manter o render rico V54;
+- parar de depender de placas/textos flutuantes;
+- fazer inimigos, itens e obstáculos serem entendidos visualmente.
+
+Principais correções:
+- camada visual independente fora do levelGroup;
+- inimigos reais viram modelos visuais distintos;
+- espada/escudo/estrela viram modelos visuais claros;
+- buraco vira buraco com bordas quebradas, profundidade e rachaduras;
+- lava vira área viva com brilho e bolhas;
+- água vira poça com reflexo/ripples;
+- sem etiquetas escritas ALVO/PEGAR/BURACO no mundo;
+- botão Ação mantém coleta de itens;
+- espada dura mais tempo na mão;
+- primeiro inimigo aparece cedo e no centro;
+- render rico preservado, sem simplificar cenário;
+- responsividade retrato/paisagem preservada.
 
 Abrir:
-?v=561-render-fiel-visual-polido
+?v=550-visual-language-nintendo-sega
 
 Teste:
-F12_TESTE_ATHOS_V561_RENDER_FIEL_VISUAL_POLIDO.js
+F12_TESTE_ATHOS_V550_VISUAL_LANGUAGE_NINTENDO_SEGA.js

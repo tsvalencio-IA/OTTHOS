@@ -308,6 +308,7 @@
   let scene, camera, renderer, clock, root, levelGroup, player, playerModel, mixer, ambientLight, sunLight, portalMesh, skyMesh;
   let cameraRig = { initialized:false, pos:null, look:null }; // V40: câmera cinematográfica suave sem mexer nos controles
   let initialized = false, animReq = 0, playing = false, paused = false, mode = 'lobby', currentLevelIndex = 0, currentLevel = null;
+  const PLAYER_VISUAL_Y_OFFSET = .34;
   let runtime = null, realBg = false, cameraStream = null, viewerCameraStream = null, arSafeUntil = 0;
   let platforms = [], hazards = [], crystals = [], enemies = [], fireballs = [], enemyProjectiles = [], particles = [], solids = [], gates = [], checkpoints = [], premiumVisuals = [], v42Markers = [], v44EnemyMarkers = [], powerups = [];
   let input = { x:0, z:0, crouch:false };
@@ -478,6 +479,23 @@
     };
   }
 
+  function applyAdaptiveMobileLayout(){
+    try {
+      const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+      const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+      const portrait = vh >= vw;
+      const btn = portrait ? Math.max(48, Math.min(68, Math.round(vw * 0.105))) : Math.max(42, Math.min(58, Math.round(vh * 0.115)));
+      const joy = portrait ? Math.max(110, Math.min(142, Math.round(vw * 0.24))) : Math.max(96, Math.min(124, Math.round(vh * 0.28)));
+      const hudCompact = portrait ? 0 : (vh < 470 ? 1 : 0);
+      document.documentElement.style.setProperty('--athos-btn-size', `${btn}px`);
+      document.documentElement.style.setProperty('--athos-joy-size', `${joy}px`);
+      document.documentElement.style.setProperty('--athos-ui-gap', portrait ? '8px' : '6px');
+      document.body.classList.toggle('athos-portrait', portrait);
+      document.body.classList.toggle('athos-landscape', !portrait);
+      if (els && els.game) els.game.classList.toggle('compact-hud', !!hudCompact);
+    } catch {}
+  }
+
   async function initThree(){
     if (initialized) return true;
     toast('Carregando 3D...', 'warn');
@@ -505,6 +523,7 @@
     levelGroup = new THREE.Group(); root.add(levelGroup);
     player = new THREE.Group(); root.add(player);
     buildFallbackAthos(); loadAthosGLB();
+    applyAdaptiveMobileLayout();
     window.addEventListener('resize', resize, { passive:true });
     window.addEventListener('orientationchange', () => { setTimeout(resize, 80); setTimeout(forceMobileReflow, 240); }, { passive:true });
     window.addEventListener('resize', () => setTimeout(forceMobileReflow, 120), { passive:true });
@@ -514,6 +533,7 @@
   }
 
   function resize(){
+    applyAdaptiveMobileLayout();
     if (!renderer || !camera) return;
     const rect = stageSize();
     camera.aspect = rect.width / rect.height;
@@ -748,7 +768,7 @@
     return { hearts:diff.hearts, crystals:0, defeated:0, requiredCrystals:currentLevel.crystals||0, requiredEnemies:currentLevel.enemies||0, timer:(mode==='missions'?diff.timer:0), checkpoint:4, quizSolved:!currentLevel.quizGate, completed:false, tutorialStep:0, startedAt:now(), portalAnnounced:false };
   }
 
-  function resetPlayer(){ p = defaultPlayer(); p.z = (runtime && runtime.checkpoint) || 4; player.position.set(p.x,p.y+.18,p.z); player.rotation.y = Math.PI; lastGroundedAt = now(); lastJumpAt = 0; lastLandAt = now(); jumpBufferedUntil = 0; clearMovementState(); }
+  function resetPlayer(){ p = defaultPlayer(); p.z = (runtime && runtime.checkpoint) || 4; player.position.set(p.x,p.y + PLAYER_VISUAL_Y_OFFSET,p.z); player.rotation.y = Math.PI; lastGroundedAt = now(); lastJumpAt = 0; lastLandAt = now(); jumpBufferedUntil = 0; clearMovementState(); }
   function clearLevel(){
     if (!levelGroup) return;
     while(levelGroup.children.length) levelGroup.remove(levelGroup.children[0]);
@@ -1248,7 +1268,7 @@
     // Inimigos com comportamento variado
     const enemyTypes = enemyPlanFor(level);
     for (let i=0;i<(level.enemies||4);i++) {
-      const z = -14 - i * ((len-72) / Math.max(1,(level.enemies||4)-1));
+      const z = -18 - i * ((len-72) / Math.max(1,(level.enemies||4)-1));
       const lane = i===0 ? 0 : lanes[(i+2)%3];
       addEnemy(enemyTypes[i % enemyTypes.length], lane, z);
     }
@@ -1479,7 +1499,7 @@
     for(const it of powerups){
       if(it.got) continue;
       if(it.mesh) setTreeVisible(it.mesh,true);
-      if(dist3(p.x,p.y+1,p.z,it.x,it.y,it.z)<3.45){
+      if(dist3(p.x,p.y+1,p.z,it.x,it.y,it.z)<3.4){
         collectPowerup(it,false);
       }
     }
@@ -1491,7 +1511,7 @@
     let g = scene.userData.v55VisualLayer;
     if(!g){
       g = new THREE.Group();
-      g.name = 'V56_1_RENDER_FIEL_VISUAL_POLIDO';
+      g.name = 'V55_VISUAL_LANGUAGE_NINTENDO_SEGA';
       g.renderOrder = 3000;
       scene.add(g);
       scene.userData.v55VisualLayer = g;
@@ -1513,29 +1533,28 @@
       opacity,
       depthTest:false,
       depthWrite:false,
-      side:THREE.DoubleSide,
-      fog:false
+      side:THREE.DoubleSide
     });
   }
   function v55Box(w,h,d,color,opacity=1){
     const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), v55Mat(color,opacity));
-    m.renderOrder = 3850;
+    m.renderOrder = 3050;
     return m;
   }
   function v55Cylinder(r,h,color,opacity=1,segments=28){
     const m = new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,segments), v55Mat(color,opacity));
-    m.renderOrder = 3850;
+    m.renderOrder = 3050;
     return m;
   }
   function v55Ring(r1,r2,color,opacity=.72){
     const m = new THREE.Mesh(new THREE.RingGeometry(r1,r2,56), v55Mat(color,opacity));
     m.rotation.x = -Math.PI/2;
-    m.renderOrder = 3850;
+    m.renderOrder = 3050;
     return m;
   }
   function v55Octa(color, scale=1, opacity=1){
     const m = new THREE.Mesh(new THREE.OctahedronGeometry(scale,1), v55Mat(color,opacity));
-    m.renderOrder = 3860;
+    m.renderOrder = 3060;
     return m;
   }
   function v55Star3D(color=0xfacc15){
@@ -1639,82 +1658,73 @@
     if(!e || e.dead) return;
     const marker = v55EnemyModel(e);
     marker.position.set(e.x, Math.max(.08,e.y||0), e.z);
-    const near = p ? Math.max(0, Math.min(1, 1 - Math.abs(p.z - e.z) / 95)) : 0;
-    marker.scale.multiplyScalar(1.35 + near * .24);
-    const arena = new THREE.Group();
-    arena.name = 'V56_1_ENEMY_ARENA_VISUAL_SEM_TEXTO';
-    arena.position.set(e.x,.055,e.z);
-    const ring = v55Ring(1.85,2.32,0xffe259,.38);
-    const base = v55Ring(2.35,2.58,0xffffff,.24);
-    arena.add(ring,base);
-    layer.add(arena);
     layer.add(marker);
   }
   function v55PowerupOverlay(layer,it){
     if(!it || it.got) return;
     const marker = new THREE.Group();
-    marker.name = 'V56_1_ITEM_VISUAL_' + it.type;
+    marker.name = 'V55_ITEM_VISUAL_' + it.type;
     marker.position.set(it.x,.08,it.z);
     const color = it.type==='sword'?0x38bdf8:it.type==='shield'?0x22c55e:0xfacc15;
-    const pad = v55Ring(1.35,1.78,color,.58); pad.position.y=.08;
-    const pad2 = v55Ring(.62,.86,0xffffff,.32); pad2.position.y=.10;
-    const beam = v55Box(.30,3.45,.30,color,.52); beam.position.y=1.75;
-    marker.add(pad,pad2,beam);
+    const pad = v55Ring(1.12,1.45,color,.48); pad.position.y=.08;
+    const beam = v55Box(.22,2.65,.22,color,.45); beam.position.y=1.45;
+    marker.add(pad,beam);
 
     if(it.type==='sword'){
-      const blade = v55Box(.32,3.12,.22,0xe0f7ff,.99); blade.position.y=1.95; blade.rotation.z=-.48;
-      const edge = v55Box(.11,2.80,.24,0x38bdf8,.92); edge.position.set(.18,1.98,.03); edge.rotation.z=-.48;
-      const guard = v55Box(1.55,.32,.26,0xfacc15,.99); guard.position.set(.56,.75,0); guard.rotation.z=-.48;
-      const grip = v55Box(.36,.98,.30,0x5b3a29,.99); grip.position.set(.84,.25,0); grip.rotation.z=-.48;
+      const blade = v55Box(.24,2.70,.18,0xe0f7ff,.98); blade.position.y=1.70; blade.rotation.z=-.48;
+      const edge = v55Box(.08,2.38,.20,0x38bdf8,.85); edge.position.set(.14,1.74,.02); edge.rotation.z=-.48;
+      const guard = v55Box(1.25,.26,.22,0xfacc15,.98); guard.position.set(.48,.70,0); guard.rotation.z=-.48;
+      const grip = v55Box(.30,.85,.24,0x5b3a29,.98); grip.position.set(.72,.22,0); grip.rotation.z=-.48;
       marker.add(blade,edge,guard,grip);
     } else if(it.type==='shield'){
-      const shield = v55Box(1.82,2.24,.30,0x22c55e,.92); shield.position.y=1.62;
-      const rim = v55Box(2.10,2.52,.20,0xffffff,.28); rim.position.y=1.62;
-      const cross1 = v55Box(.30,1.72,.34,0xffffff,.98); cross1.position.y=1.62;
-      const cross2 = v55Box(1.36,.30,.34,0xffffff,.98); cross2.position.y=1.62;
+      const shield = v55Box(1.50,1.88,.26,0x22c55e,.88); shield.position.y=1.45;
+      const rim = v55Box(1.76,2.12,.18,0xffffff,.25); rim.position.y=1.45;
+      const cross1 = v55Box(.24,1.45,.30,0xffffff,.96); cross1.position.y=1.45;
+      const cross2 = v55Box(1.10,.24,.30,0xffffff,.96); cross2.position.y=1.45;
       marker.add(shield,rim,cross1,cross2);
     } else {
-      const star = v55Star3D(0xfacc15); star.position.y=.62; star.scale.setScalar(1.28);
-      const glow = v55Ring(1.35,1.85,0xfacc15,.42); glow.position.y=.12;
+      const star = v55Star3D(0xfacc15); star.position.y=.46;
+      const glow = v55Ring(1.15,1.55,0xfacc15,.36); glow.position.y=.12;
       marker.add(glow,star);
     }
-    const bob = 1.22 + Math.sin(now()*.006 + (it.x||0))*0.055;
+    const bob = 1 + Math.sin(now()*.006 + (it.x||0))*0.035;
     marker.scale.setScalar(bob);
     layer.add(marker);
   }
   function v55HazardOverlay(layer,h){
     if(!h) return;
     const marker = new THREE.Group();
-    marker.name = 'V56_1_HAZARD_VISUAL_' + h.type;
+    marker.name = 'V55_HAZARD_VISUAL_' + h.type;
     marker.position.set(h.x,.06,h.z);
-    const w=Math.max(2.8,h.w||3), d=Math.max(3.2,h.d||3);
+    const w=Math.max(2.6,h.w||3), d=Math.max(3,h.d||3);
 
     if(h.type==='pit'){
-      const hole = v55Box(w,.22,d,0x050505,.94); hole.position.y=.10;
-      const inner = v55Box(w*.74,.20,d*.74,0x000000,.96); inner.position.y=.24;
-      const front = v55Box(w+.98,.46,.46,0xb07a3b,.99); front.position.set(0,.47,-d/2-.20);
-      const back = v55Box(w+.98,.46,.46,0x8a5726,.99); back.position.set(0,.47,d/2+.20);
-      const left = v55Box(.46,.46,d+.98,0x9b6730,.99); left.position.set(-w/2-.20,.47,0);
-      const right = v55Box(.46,.46,d+.98,0x9b6730,.99); right.position.set(w/2+.20,.47,0);
-      const crack1 = v55Box(.20,.14,1.55,0x1f1308,.99); crack1.position.set(-w*.23,.75,-d*.22); crack1.rotation.y=.62;
-      const crack2 = v55Box(.18,.14,1.35,0x1f1308,.99); crack2.position.set(w*.20,.75,d*.20); crack2.rotation.y=-.56;
-      const depth1 = v55Box(w*.84,.48,.25,0x281604,.60); depth1.position.set(0,-.12,-d*.38);
-      const depth2 = v55Box(w*.84,.48,.25,0x1a0e03,.60); depth2.position.set(0,-.30,d*.36);
-      const rimGlow = v55Ring(Math.max(w,d)*.45,Math.max(w,d)*.58,0xfacc15,.24); rimGlow.position.y=.16;
-      marker.add(hole,inner,depth1,depth2,front,back,left,right,crack1,crack2,rimGlow);
+      // Buraco estilo jogo: bordas quebradas + paredes internas + fundo escuro profundo.
+      const hole = v55Box(w,.20,d,0x050505,.90); hole.position.y=.10;
+      const inner = v55Box(w*.72,.18,d*.72,0x000000,.92); inner.position.y=.22;
+      const front = v55Box(w+.90,.42,.42,0xb07a3b,.98); front.position.set(0,.45,-d/2-.18);
+      const back = v55Box(w+.90,.42,.42,0x8a5726,.98); back.position.set(0,.45,d/2+.18);
+      const left = v55Box(.42,.42,d+.90,0x9b6730,.98); left.position.set(-w/2-.18,.45,0);
+      const right = v55Box(.42,.42,d+.90,0x9b6730,.98); right.position.set(w/2+.18,.45,0);
+      const crack1 = v55Box(.18,.12,1.35,0x1f1308,.98); crack1.position.set(-w*.22,.72,-d*.22); crack1.rotation.y=.62;
+      const crack2 = v55Box(.16,.12,1.20,0x1f1308,.98); crack2.position.set(w*.18,.72,d*.20); crack2.rotation.y=-.56;
+      const depth1 = v55Box(w*.82,.40,.22,0x281604,.55); depth1.position.set(0,-.12,-d*.38);
+      const depth2 = v55Box(w*.82,.40,.22,0x1a0e03,.55); depth2.position.set(0,-.26,d*.36);
+      const warningGlow = v55Ring(Math.max(w,d)*.42,Math.max(w,d)*.54,0xfacc15,.28); warningGlow.position.y=.16;
+      marker.add(hole,inner,depth1,depth2,front,back,left,right,crack1,crack2,warningGlow);
     } else if(h.type==='lava'){
-      const lava = v55Box(w,.26,d,0xff2b00,.94); lava.position.y=.18;
-      const hot1 = v55Box(w*.74,.13,d*.19,0xfff000,.92); hot1.position.set(0,.43,-d*.16);
-      const hot2 = v55Box(w*.40,.13,d*.17,0xffa000,.92); hot2.position.set(w*.14,.47,d*.22);
-      const bubble1 = v55Cylinder(.30,.15,0xfff000,.88,18); bubble1.position.set(-w*.25,.54,-d*.15);
-      const bubble2 = v55Cylinder(.24,.15,0xffd000,.88,18); bubble2.position.set(w*.28,.56,d*.20);
-      const rim = v55Ring(Math.max(w,d)*.45,Math.max(w,d)*.60,0xff3b00,.38); rim.position.y=.16;
+      const lava = v55Box(w,.24,d,0xff2b00,.92); lava.position.y=.18;
+      const hot1 = v55Box(w*.72,.12,d*.18,0xfff000,.90); hot1.position.set(0,.42,-d*.16);
+      const hot2 = v55Box(w*.38,.12,d*.16,0xffa000,.90); hot2.position.set(w*.14,.46,d*.22);
+      const bubble1 = v55Cylinder(.28,.14,0xfff000,.86,18); bubble1.position.set(-w*.25,.52,-d*.15);
+      const bubble2 = v55Cylinder(.22,.14,0xffd000,.86,18); bubble2.position.set(w*.28,.54,d*.20);
+      const rim = v55Ring(Math.max(w,d)*.44,Math.max(w,d)*.58,0xff3b00,.36); rim.position.y=.16;
       marker.add(lava,hot1,hot2,bubble1,bubble2,rim);
     } else {
-      const water = v55Box(w,.18,d,0x00c8ff,.60); water.position.y=.13;
-      const shine = v55Box(w*.72,.11,d*.15,0xffffff,.50); shine.position.set(0,.31,-d*.12);
-      const ripple1 = v55Ring(Math.max(w,d)*.24,Math.max(w,d)*.30,0xffffff,.38); ripple1.position.y=.28;
-      const ripple2 = v55Ring(Math.max(w,d)*.38,Math.max(w,d)*.46,0x7dd3fc,.36); ripple2.position.y=.30;
+      const water = v55Box(w,.18,d,0x00c8ff,.58); water.position.y=.13;
+      const shine = v55Box(w*.70,.10,d*.14,0xffffff,.48); shine.position.set(0,.30,-d*.12);
+      const ripple1 = v55Ring(Math.max(w,d)*.24,Math.max(w,d)*.30,0xffffff,.36); ripple1.position.y=.28;
+      const ripple2 = v55Ring(Math.max(w,d)*.38,Math.max(w,d)*.45,0x7dd3fc,.34); ripple2.position.y=.30;
       marker.add(water,shine,ripple1,ripple2);
     }
     layer.add(marker);
@@ -1724,22 +1734,22 @@
     const layer = ensureV55VisualLayer();
     if(!layer) return;
     const t = now();
-    if(layer.userData && layer.userData.lastBuild && t - layer.userData.lastBuild < 55) return;
+    if(layer.userData && layer.userData.lastBuild && t - layer.userData.lastBuild < 80) return;
     if(!layer.userData) layer.userData={};
     layer.userData.lastBuild = t;
     clearV55VisualLayer();
 
     for(const e of enemies){
       if(!e || e.dead) continue;
-      if((p.z - e.z) > -38 && (p.z - e.z) < 215) v55EnemyOverlay(layer,e);
+      if((p.z - e.z) > -28 && (p.z - e.z) < 185) v55EnemyOverlay(layer,e);
     }
     for(const it of powerups){
       if(!it || it.got) continue;
-      if((p.z - it.z) > -34 && (p.z - it.z) < 205) v55PowerupOverlay(layer,it);
+      if((p.z - it.z) > -24 && (p.z - it.z) < 170) v55PowerupOverlay(layer,it);
     }
     for(const h of hazards){
       if(!h) continue;
-      if((p.z - h.z) > -34 && (p.z - h.z) < 205) v55HazardOverlay(layer,h);
+      if((p.z - h.z) > -24 && (p.z - h.z) < 170) v55HazardOverlay(layer,h);
     }
   }
 
@@ -1748,16 +1758,16 @@ function syncGameplayVisibility(){
     for(const e of enemies){
       if(!e || !e.mesh) continue;
       setTreeVisible(e.mesh, !e.dead);
-      // V56.1: sem badge escrito no mundo; modelos visuais independentes substituem texto.
+      ensureEnemyBadge(e);
       if(e.mesh.userData && e.mesh.userData.dangerRing) e.mesh.userData.dangerRing.visible = !e.dead;
       if(e.mesh.userData && e.mesh.userData.enemyBadge) e.mesh.userData.enemyBadge.visible = !e.dead;
       if(e.mesh.userData && e.mesh.userData.v547Shell) e.mesh.userData.v547Shell.visible = !e.dead;
     }
     for(const h of hazards){
-      if(h && h.mesh){ setTreeVisible(h.mesh,true); }
+      if(h && h.mesh){ setTreeVisible(h.mesh,true); ensureHazardBadge(h); }
     }
     for(const it of powerups){
-      if(it && it.mesh){ setTreeVisible(it.mesh, !it.got); }
+      if(it && it.mesh){ setTreeVisible(it.mesh, !it.got); ensurePowerupBadge(it); }
     }
     for(const c of crystals){
       if(c && c.mesh) setTreeVisible(c.mesh, !c.got);
@@ -1817,7 +1827,7 @@ function syncGameplayVisibility(){
     document.body.classList.add('v53-codex-obedecido');
     if(els.game) els.game.classList.add('v53-codex-obedecido');
     V53_CODEX_VISUAL_GAMEPLAY.active=true;
-    addPowerup('sword',0,1.18,-22);
+    addPowerup('sword',-2.3,1.18,-26);
     addPowerup('shield',2.4,1.18,-78);
     addPowerup('star',0,1.35,-138);
     addV53Water(0,-52,4.8,8.5);
@@ -2168,7 +2178,7 @@ function syncGameplayVisibility(){
     p.targetScale = p.scaleMode==='mini' ? .55 : p.scaleMode==='giant' ? 1.65 : 1;
     p.scale += (p.targetScale - p.scale) * Math.min(1, dt*8);
     const squash = input.crouch ? .62 : 1;
-    player.position.set(p.x,p.y+.18,p.z); player.scale.set(p.scale, p.scale*squash, p.scale);
+    player.position.set(p.x,p.y + PLAYER_VISUAL_Y_OFFSET,p.z); player.scale.set(p.scale, p.scale*squash, p.scale);
     if (Math.hypot(p.vx,p.vz) > .1) { const rot = Math.atan2(p.vx,p.vz); p.facing = rot; player.rotation.y += angleDelta(player.rotation.y, rot) * Math.min(1, dt*10); }
     if (now() < p.spinUntil) player.rotation.y += dt*14;
     if (playerModel) playerModel.visible = !(now() < p.invUntil && Math.floor(now()/90)%2===0);
@@ -3064,6 +3074,7 @@ function syncGameplayVisibility(){
     try {
       document.body.classList.toggle('athos-reflow-tick');
       requestAnimationFrame(() => {
+        applyAdaptiveMobileLayout();
         resize();
         if (renderer && camera) {
           const rect = stageSize();
@@ -3143,7 +3154,7 @@ function syncGameplayVisibility(){
     if(els.arAnchorViewer){ els.arAnchorViewer.addEventListener('ar-status',(e)=>{ if(e.detail && e.detail.status==='not-presenting') hardStopAllInput('ar-closed'); }); }
   }
   function refreshServiceWorker(){
-    if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js?v=561-render-fiel-visual-polido').then(reg => reg.update()).catch(()=>{});
+    if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js?v=550-visual-language-nintendo-sega').then(reg => reg.update()).catch(()=>{});
     if('caches' in window) caches.keys().then(keys=>keys.filter(k=>/athos|otto/i.test(k)).forEach(k=>caches.delete(k).catch(()=>{}))).catch(()=>{});
   }
 
@@ -3192,12 +3203,11 @@ function syncGameplayVisibility(){
     getV533: () => ({label:'V53_3_CONTROLES_100_DENTRO_DA_TELA', fix:'right-zone fixed; no overflow in landscape/portrait'}),
     getV532: () => ({label:'V53_2_MOBILE_GAMEPLAY_HOTFIX', camera:{follow:GAMEPLAY_CAMERA.cameraFollowDistance,height:GAMEPLAY_CAMERA.cameraHeight,lookAhead:GAMEPLAY_CAMERA.cameraLookAhead}, feel:{deadzone:GAME_FEEL.joystickDeadzone,release:GAME_FEEL.inputRelease,decel:GAME_FEEL.groundDeceleration}, viewport:{w:innerWidth,h:innerHeight,landscape:innerWidth>innerHeight}}),
     getV53: () => ({...V53_CODEX_VISUAL_GAMEPLAY, powerups: powerups.length, gotPowerups: powerups.filter(p=>p.got).length, playerWeapon:p.weapon||null, shield:p.shield||0, star: now() < (p.starUntil||0)}),
-    getV542: () => ({label:'V56_1_RENDER_FIEL_VISUAL_POLIDO', worldsHidden:true, settingsWorlds:true, fix:'world-strip hidden in markup and css'}),
-    getV541: () => ({label:'V56_1_RENDER_FIEL_VISUAL_POLIDO', settings:true, crystalPlus:true, worldsInSettings:true, orientation:'auto-css-resize'}),
-    getV561RenderFiel: () => ({label:'V56_1_RENDER_FIEL_VISUAL_POLIDO', base:'OTTHOS-main-v56-render-fiel', noTextWorld:true, renderPreserved:true, biggerModels:true, firstEnemyCloser:true, swordCentered:true, pickupRadius:7.8}),
-    getV55VisualLanguage: () => ({label:'V56_1_RENDER_FIEL_VISUAL_POLIDO', noWorldText:true, visualEnemies:true, visualItems:true, visualHazards:true, truePitVisual:true, renderPreserved:true, enemies:enemies.length, hazards:hazards.length, powerups:powerups.length}),
-    getV548: () => ({label:'V56_1_RENDER_FIEL_VISUAL_POLIDO', independentOverlay:true, levelGroupHiddenSafe:true, visibleTargets:true, enemies:enemies.length, hazards:hazards.length, powerups:powerups.length}),
-    getV547: () => ({label:'V56_1_RENDER_FIEL_VISUAL_POLIDO', renderRich:true, fakeInteractive:false, enemyShell:'big-real-target', hazardFrame:true, pickupBeam:true}),
+    getV542: () => ({label:'V55_VISUAL_LANGUAGE_NINTENDO_SEGA', worldsHidden:true, settingsWorlds:true, fix:'world-strip hidden in markup and css'}),
+    getV541: () => ({label:'V55_VISUAL_LANGUAGE_NINTENDO_SEGA', settings:true, crystalPlus:true, worldsInSettings:true, orientation:'auto-css-resize'}),
+    getV55VisualLanguage: () => ({label:'V55_VISUAL_LANGUAGE_NINTENDO_SEGA', noWorldText:true, visualEnemies:true, visualItems:true, visualHazards:true, truePitVisual:true, renderPreserved:true, enemies:enemies.length, hazards:hazards.length, powerups:powerups.length}),
+    getV548: () => ({label:'V55_VISUAL_LANGUAGE_NINTENDO_SEGA', independentOverlay:true, levelGroupHiddenSafe:true, visibleTargets:true, enemies:enemies.length, hazards:hazards.length, powerups:powerups.length}),
+    getV547: () => ({label:'V55_VISUAL_LANGUAGE_NINTENDO_SEGA', renderRich:true, fakeInteractive:false, enemyShell:'big-real-target', hazardFrame:true, pickupBeam:true}),
     getV54Render: () => (window.ATHOS_V54_RENDER_PREMIUM && window.ATHOS_V54_RENDER_PREMIUM.getStatus ? window.ATHOS_V54_RENDER_PREMIUM.getStatus() : null),
     getV48Render: () => (window.ATHOS_V48_RENDER_TARGET && window.ATHOS_V48_RENDER_TARGET.getStatus ? window.ATHOS_V48_RENDER_TARGET.getStatus() : null),
     getV47Render: () => (window.ATHOS_V48_RENDER_TARGET && window.ATHOS_V48_RENDER_TARGET.getStatus ? window.ATHOS_V48_RENDER_TARGET.getStatus() : null),
