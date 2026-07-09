@@ -1,28 +1,24 @@
-# ATHOS V55.0 — Visual Language Nintendo/Sega
+# ATHOS V57.1 — Somente arquivos alterados
 
-Base: OTTHOS-main (3).zip enviado como referência.
+Base: OTTHOS-main-v57-controles-responsivos.zip
 
-Objetivo:
-- manter o render rico V54;
-- parar de depender de placas/textos flutuantes;
-- fazer inimigos, itens e obstáculos serem entendidos visualmente.
+Por que esta versão:
+- a V56.1 visual deixava regras antigas de controle brigando com o layout;
+- a V57 corrige melhor os controles responsivos;
+- esta V57.1 usa a V57 como base e deixa as regras finais dos botões no fim do CSS.
 
-Principais correções:
-- camada visual independente fora do levelGroup;
-- inimigos reais viram modelos visuais distintos;
-- espada/escudo/estrela viram modelos visuais claros;
-- buraco vira buraco com bordas quebradas, profundidade e rachaduras;
-- lava vira área viva com brilho e bolhas;
-- água vira poça com reflexo/ripples;
-- sem etiquetas escritas ALVO/PEGAR/BURACO no mundo;
-- botão Ação mantém coleta de itens;
-- espada dura mais tempo na mão;
-- primeiro inimigo aparece cedo e no centro;
-- render rico preservado, sem simplificar cenário;
-- responsividade retrato/paisagem preservada.
+Correções:
+- botões não ficam sobrescritos/empilhados;
+- joystick e grade de ações têm áreas separadas;
+- retrato e paisagem ajustados por clamp;
+- mundo/fitas/tutoriais fora do gameplay ficam ocultos;
+- render rico e linguagem visual preservados;
+- inimigo/espada aparecem mais cedo;
+- sem badge escrito antigo no mundo;
+- cache/title/teste padronizados.
 
 Abrir:
-?v=550-visual-language-nintendo-sega
+?v=571-controles-responsivos-visual
 
 Teste:
-F12_TESTE_ATHOS_V550_VISUAL_LANGUAGE_NINTENDO_SEGA.js
+F12_TESTE_ATHOS_V571_CONTROLES_RESPONSIVOS_VISUAL.js

@@ -1001,3 +1001,155 @@ body[data-world], .game.active{--ui-shadow:0 10px 22px rgba(0,0,0,.28);}
 .game.active .top-hud{top:calc(8px + var(--safe-top))!important;left:8px!important;right:8px!important;gap:8px!important;display:grid!important;grid-template-columns:minmax(150px,auto) 1fr auto!important;align-items:start!important;z-index:61!important}.game.active .hud-level-badge{display:flex!important;gap:8px!important}.game.active .hud-avatar{width:60px!important;height:60px!important}.game.active .hud-level-num{font-size:14px!important;min-width:28px!important;height:28px!important}.game.active .hud-hearts-row{gap:2px!important;align-items:flex-start!important;padding-top:2px!important}.game.active .hud-heart{font-size:26px!important}.game.active .hud-xp-block{min-width:min(250px,34vw)!important;padding-top:2px!important}.game.active .hud-xp-bar-wrap{height:26px!important}.game.active .hud-xp-label{font-size:14px!important}.game.active .hud-gems-box{min-width:130px!important;height:48px!important;padding:0 10px!important;gap:8px!important}.game.active .hud-gem-icon{font-size:28px!important}.game.active .hud-gem-count{font-size:18px!important}.game.active .hud-gem-plus{width:36px!important;height:30px!important;font-size:22px!important}.game.active .hud-settings-btn{width:48px!important;height:48px!important;font-size:24px!important}
 @media (orientation:landscape){.game.active .game-controls{padding:6px 8px calc(6px + var(--safe-bottom))!important;align-items:flex-end!important}.game.active .top-hud{grid-template-columns:minmax(132px,auto) 1fr auto!important;gap:6px!important}.game.active .hud-avatar{width:54px!important;height:54px!important}.game.active .hud-hearts-row{padding-top:0!important}.game.active .hud-heart{font-size:22px!important}.game.active .hud-xp-block{min-width:min(180px,26vw)!important}.game.active .hud-xp-bar-wrap{height:22px!important}.game.active .hud-xp-label{font-size:12px!important}.game.active .hud-gems-box{min-width:118px!important;height:42px!important}.game.active .hud-settings-btn{width:42px!important;height:42px!important;font-size:22px!important}.game.active .objective-card{top:calc(58px + var(--safe-top))!important;width:min(54vw,430px)!important;min-height:64px!important;padding:8px 12px!important;grid-template-columns:44px 1fr!important}.game.active .objective-card strong{font-size:14px!important}.game.active .objective-subtitle{font-size:12px!important}.game.active .objective-icon-wrap{width:38px!important;height:38px!important}.game.active .action-grid .action-btn{font-size:13px!important}.game.active .action-grid .action-btn span{font-size:8px!important}.game.active .joystick small{display:none!important}}
 @media (max-width:390px){.game.active .top-hud{grid-template-columns:minmax(120px,auto) 1fr auto!important}.game.active .hud-avatar{width:54px!important;height:54px!important}.game.active .hud-hearts-row{max-width:120px!important;overflow:hidden!important}.game.active .hud-heart{font-size:22px!important}.game.active .hud-xp-block{min-width:0!important}.game.active .hud-xp-bar-wrap{height:22px!important}.game.active .hud-xp-label{font-size:12px!important}.game.active .hud-gems-box{min-width:114px!important;height:42px!important;padding:0 8px!important}.game.active .hud-settings-btn{width:42px!important;height:42px!important;font-size:22px!important}}
+
+
+/* V57.1 FINAL — controles sempre por cima e sem sobrescrever/empilhar botões
+   Esta regra fica NO FINAL do arquivo de propósito: vence V56/V55 antigas. */
+:root{
+  --athos-v571-btn:clamp(50px,10.8vw,64px);
+  --athos-v571-joy:clamp(104px,24vw,132px);
+  --athos-v571-gap:clamp(6px,1.8vw,10px);
+}
+.game.active .world-strip,
+.game.active .tutorial-box,
+.game.active .minimap{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+.game.active .game-controls{
+  position:absolute!important;
+  left:0!important;
+  right:0!important;
+  top:auto!important;
+  bottom:0!important;
+  width:auto!important;
+  height:auto!important;
+  min-height:0!important;
+  padding:8px 10px calc(10px + var(--safe-bottom))!important;
+  display:flex!important;
+  flex-direction:row!important;
+  justify-content:space-between!important;
+  align-items:flex-end!important;
+  gap:var(--athos-v571-gap)!important;
+  background:none!important;
+  border:0!important;
+  z-index:80!important;
+  pointer-events:none!important;
+  overflow:visible!important;
+}
+.game.active .left-zone,
+.game.active .right-zone{
+  position:relative!important;
+  left:auto!important;
+  right:auto!important;
+  top:auto!important;
+  bottom:auto!important;
+  transform:none!important;
+  display:flex!important;
+  align-items:flex-end!important;
+  pointer-events:auto!important;
+  overflow:visible!important;
+}
+.game.active .left-zone{
+  flex:0 0 var(--athos-v571-joy)!important;
+  min-width:var(--athos-v571-joy)!important;
+  max-width:var(--athos-v571-joy)!important;
+  justify-content:flex-start!important;
+}
+.game.active .right-zone{
+  flex:0 0 calc(var(--athos-v571-btn) * 3 + var(--athos-v571-gap) * 2)!important;
+  min-width:calc(var(--athos-v571-btn) * 3 + var(--athos-v571-gap) * 2)!important;
+  justify-content:flex-end!important;
+}
+.game.active .joystick{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:4px!important;
+}
+.game.active .joy-ring{
+  width:var(--athos-v571-joy)!important;
+  height:var(--athos-v571-joy)!important;
+  max-width:var(--athos-v571-joy)!important;
+  max-height:var(--athos-v571-joy)!important;
+}
+.game.active .joy-knob{
+  width:calc(var(--athos-v571-joy) * .45)!important;
+  height:calc(var(--athos-v571-joy) * .45)!important;
+  margin:calc(var(--athos-v571-joy) * -.225) 0 0 calc(var(--athos-v571-joy) * -.225)!important;
+}
+.game.active .direction-buttons{display:none!important}
+.game.active .action-grid{
+  display:grid!important;
+  grid-template-columns:repeat(3,var(--athos-v571-btn))!important;
+  grid-template-rows:repeat(3,var(--athos-v571-btn))!important;
+  grid-auto-rows:var(--athos-v571-btn)!important;
+  gap:var(--athos-v571-gap)!important;
+  align-items:center!important;
+  justify-items:center!important;
+  width:auto!important;
+  height:auto!important;
+  min-width:0!important;
+  max-width:none!important;
+  overflow:visible!important;
+  pointer-events:auto!important;
+}
+.game.active .action-grid .action-btn{
+  display:flex!important;
+  position:relative!important;
+  width:var(--athos-v571-btn)!important;
+  height:var(--athos-v571-btn)!important;
+  min-width:var(--athos-v571-btn)!important;
+  min-height:var(--athos-v571-btn)!important;
+  max-width:var(--athos-v571-btn)!important;
+  max-height:var(--athos-v571-btn)!important;
+  margin:0!important;
+  padding:0!important;
+  transform:none!important;
+  float:none!important;
+  border-radius:16px!important;
+  overflow:hidden!important;
+  align-items:center!important;
+  justify-content:center!important;
+  pointer-events:auto!important;
+}
+.game.active #pauseBtn{grid-column:1!important;grid-row:1!important}
+.game.active [data-action="spin"]{grid-column:2!important;grid-row:1!important}
+.game.active #exitBtn{grid-column:3!important;grid-row:1!important}
+.game.active #sizeBtn{grid-column:1!important;grid-row:2!important}
+.game.active #crouchBtn{grid-column:2!important;grid-row:2!important}
+.game.active #powerBtn{grid-column:3!important;grid-row:2!important}
+.game.active #normalBtn{grid-column:1!important;grid-row:3!important}
+.game.active [data-action="interact"]{grid-column:2!important;grid-row:3!important}
+.game.active #jumpBtn{grid-column:3!important;grid-row:3!important}
+
+@media (orientation:landscape){
+  :root{
+    --athos-v571-btn:clamp(44px,9.2vh,56px);
+    --athos-v571-joy:clamp(86px,22vh,112px);
+    --athos-v571-gap:clamp(5px,1.4vh,8px);
+  }
+  .game.active .game-controls{
+    padding:5px 8px calc(6px + var(--safe-bottom))!important;
+  }
+  .game.active .joystick small{display:none!important}
+  .game.active .objective-card{
+    top:calc(54px + var(--safe-top))!important;
+    width:min(48vw,430px)!important;
+    min-height:54px!important;
+    max-height:64px!important;
+  }
+}
+@media (max-width:390px){
+  :root{
+    --athos-v571-btn:clamp(46px,12.5vw,54px);
+    --athos-v571-joy:clamp(92px,27vw,112px);
+    --athos-v571-gap:6px;
+  }
+  .game.active .game-controls{
+    padding-left:6px!important;
+    padding-right:6px!important;
+  }
+}

@@ -1,6 +1,6 @@
 // Athos V53 — Service Worker leve para GitHub Pages.
 // Network-first para impedir cache fantasma durante correções e testes.
-const CACHE_VERSION = 'athos-v550-visual-language-nintendo-sega';
+const CACHE_VERSION = 'athos-v571-controles-responsivos-visual';
 
 self.addEventListener('install', () => {
   self.skipWaiting();

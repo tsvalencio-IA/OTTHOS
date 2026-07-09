@@ -1268,7 +1268,7 @@
     // Inimigos com comportamento variado
     const enemyTypes = enemyPlanFor(level);
     for (let i=0;i<(level.enemies||4);i++) {
-      const z = -18 - i * ((len-72) / Math.max(1,(level.enemies||4)-1));
+      const z = -14 - i * ((len-72) / Math.max(1,(level.enemies||4)-1));
       const lane = i===0 ? 0 : lanes[(i+2)%3];
       addEnemy(enemyTypes[i % enemyTypes.length], lane, z);
     }
@@ -1499,7 +1499,7 @@
     for(const it of powerups){
       if(it.got) continue;
       if(it.mesh) setTreeVisible(it.mesh,true);
-      if(dist3(p.x,p.y+1,p.z,it.x,it.y,it.z)<3.4){
+      if(dist3(p.x,p.y+1,p.z,it.x,it.y,it.z)<3.45){
         collectPowerup(it,false);
       }
     }
@@ -1511,7 +1511,7 @@
     let g = scene.userData.v55VisualLayer;
     if(!g){
       g = new THREE.Group();
-      g.name = 'V55_VISUAL_LANGUAGE_NINTENDO_SEGA';
+      g.name = 'V57_1_CONTROLES_RESPONSIVOS_VISUAL';
       g.renderOrder = 3000;
       scene.add(g);
       scene.userData.v55VisualLayer = g;
@@ -1758,16 +1758,16 @@ function syncGameplayVisibility(){
     for(const e of enemies){
       if(!e || !e.mesh) continue;
       setTreeVisible(e.mesh, !e.dead);
-      ensureEnemyBadge(e);
+      // V57.1: sem badge escrito; os modelos visuais independentes fazem a leitura.
       if(e.mesh.userData && e.mesh.userData.dangerRing) e.mesh.userData.dangerRing.visible = !e.dead;
       if(e.mesh.userData && e.mesh.userData.enemyBadge) e.mesh.userData.enemyBadge.visible = !e.dead;
       if(e.mesh.userData && e.mesh.userData.v547Shell) e.mesh.userData.v547Shell.visible = !e.dead;
     }
     for(const h of hazards){
-      if(h && h.mesh){ setTreeVisible(h.mesh,true); ensureHazardBadge(h); }
+      if(h && h.mesh){ setTreeVisible(h.mesh,true); }
     }
     for(const it of powerups){
-      if(it && it.mesh){ setTreeVisible(it.mesh, !it.got); ensurePowerupBadge(it); }
+      if(it && it.mesh){ setTreeVisible(it.mesh, !it.got); }
     }
     for(const c of crystals){
       if(c && c.mesh) setTreeVisible(c.mesh, !c.got);
@@ -1827,7 +1827,7 @@ function syncGameplayVisibility(){
     document.body.classList.add('v53-codex-obedecido');
     if(els.game) els.game.classList.add('v53-codex-obedecido');
     V53_CODEX_VISUAL_GAMEPLAY.active=true;
-    addPowerup('sword',-2.3,1.18,-26);
+    addPowerup('sword',0,1.18,-22);
     addPowerup('shield',2.4,1.18,-78);
     addPowerup('star',0,1.35,-138);
     addV53Water(0,-52,4.8,8.5);
@@ -3154,7 +3154,7 @@ function syncGameplayVisibility(){
     if(els.arAnchorViewer){ els.arAnchorViewer.addEventListener('ar-status',(e)=>{ if(e.detail && e.detail.status==='not-presenting') hardStopAllInput('ar-closed'); }); }
   }
   function refreshServiceWorker(){
-    if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js?v=550-visual-language-nintendo-sega').then(reg => reg.update()).catch(()=>{});
+    if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js?v=571-controles-responsivos-visual').then(reg => reg.update()).catch(()=>{});
     if('caches' in window) caches.keys().then(keys=>keys.filter(k=>/athos|otto/i.test(k)).forEach(k=>caches.delete(k).catch(()=>{}))).catch(()=>{});
   }
 
@@ -3203,11 +3203,12 @@ function syncGameplayVisibility(){
     getV533: () => ({label:'V53_3_CONTROLES_100_DENTRO_DA_TELA', fix:'right-zone fixed; no overflow in landscape/portrait'}),
     getV532: () => ({label:'V53_2_MOBILE_GAMEPLAY_HOTFIX', camera:{follow:GAMEPLAY_CAMERA.cameraFollowDistance,height:GAMEPLAY_CAMERA.cameraHeight,lookAhead:GAMEPLAY_CAMERA.cameraLookAhead}, feel:{deadzone:GAME_FEEL.joystickDeadzone,release:GAME_FEEL.inputRelease,decel:GAME_FEEL.groundDeceleration}, viewport:{w:innerWidth,h:innerHeight,landscape:innerWidth>innerHeight}}),
     getV53: () => ({...V53_CODEX_VISUAL_GAMEPLAY, powerups: powerups.length, gotPowerups: powerups.filter(p=>p.got).length, playerWeapon:p.weapon||null, shield:p.shield||0, star: now() < (p.starUntil||0)}),
-    getV542: () => ({label:'V55_VISUAL_LANGUAGE_NINTENDO_SEGA', worldsHidden:true, settingsWorlds:true, fix:'world-strip hidden in markup and css'}),
-    getV541: () => ({label:'V55_VISUAL_LANGUAGE_NINTENDO_SEGA', settings:true, crystalPlus:true, worldsInSettings:true, orientation:'auto-css-resize'}),
-    getV55VisualLanguage: () => ({label:'V55_VISUAL_LANGUAGE_NINTENDO_SEGA', noWorldText:true, visualEnemies:true, visualItems:true, visualHazards:true, truePitVisual:true, renderPreserved:true, enemies:enemies.length, hazards:hazards.length, powerups:powerups.length}),
-    getV548: () => ({label:'V55_VISUAL_LANGUAGE_NINTENDO_SEGA', independentOverlay:true, levelGroupHiddenSafe:true, visibleTargets:true, enemies:enemies.length, hazards:hazards.length, powerups:powerups.length}),
-    getV547: () => ({label:'V55_VISUAL_LANGUAGE_NINTENDO_SEGA', renderRich:true, fakeInteractive:false, enemyShell:'big-real-target', hazardFrame:true, pickupBeam:true}),
+    getV542: () => ({label:'V57_1_CONTROLES_RESPONSIVOS_VISUAL', worldsHidden:true, settingsWorlds:true, fix:'world-strip hidden in markup and css'}),
+    getV541: () => ({label:'V57_1_CONTROLES_RESPONSIVOS_VISUAL', settings:true, crystalPlus:true, worldsInSettings:true, orientation:'auto-css-resize'}),
+    getV571Controls: () => ({label:'V57_1_CONTROLES_RESPONSIVOS_VISUAL', base:'OTTHOS-main-v57-controles-responsivos', controlsSafe:true, noButtonOverlap:true, renderPreserved:true, visualLanguage:true, noTextWorld:true}),
+    getV55VisualLanguage: () => ({label:'V57_1_CONTROLES_RESPONSIVOS_VISUAL', noWorldText:true, visualEnemies:true, visualItems:true, visualHazards:true, truePitVisual:true, renderPreserved:true, enemies:enemies.length, hazards:hazards.length, powerups:powerups.length}),
+    getV548: () => ({label:'V57_1_CONTROLES_RESPONSIVOS_VISUAL', independentOverlay:true, levelGroupHiddenSafe:true, visibleTargets:true, enemies:enemies.length, hazards:hazards.length, powerups:powerups.length}),
+    getV547: () => ({label:'V57_1_CONTROLES_RESPONSIVOS_VISUAL', renderRich:true, fakeInteractive:false, enemyShell:'big-real-target', hazardFrame:true, pickupBeam:true}),
     getV54Render: () => (window.ATHOS_V54_RENDER_PREMIUM && window.ATHOS_V54_RENDER_PREMIUM.getStatus ? window.ATHOS_V54_RENDER_PREMIUM.getStatus() : null),
     getV48Render: () => (window.ATHOS_V48_RENDER_TARGET && window.ATHOS_V48_RENDER_TARGET.getStatus ? window.ATHOS_V48_RENDER_TARGET.getStatus() : null),
     getV47Render: () => (window.ATHOS_V48_RENDER_TARGET && window.ATHOS_V48_RENDER_TARGET.getStatus ? window.ATHOS_V48_RENDER_TARGET.getStatus() : null),
