@@ -2,7 +2,7 @@
 (function(){
   'use strict';
 
-  const VERSION = 'V55_RENDER_RICO_VISUAL_LANGUAGE';
+  const VERSION = 'V57_1_CONTROLES_RESPONSIVOS_VISUAL';
   let installed = false;
   let group = null;
   let playerAddon = null;
@@ -585,7 +585,8 @@
         premium:true,
         deterministic:true,
         shaderSafe:true,
-      visualLanguageV55:true,
+      v571ControlsResponsive:true,
+      visualLanguageV57_1:true,
       renderRichPreserved:true,
       renderRichPreserved:true,
       fakeInteractiveRemoved:true,

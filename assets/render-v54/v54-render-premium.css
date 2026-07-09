@@ -645,3 +645,9 @@ body, #app { overscroll-behavior:none!important; }
   .game.active .right-zone{right:22px!important;bottom:calc(14px + env(safe-area-inset-bottom))!important}
   .game.active .left-zone{left:12px!important;bottom:calc(12px + env(safe-area-inset-bottom))!important}
 }
+
+
+/* V57.1 — render preservado; controles são resolvidos no style.css final */
+.game.active canvas{
+  filter:saturate(1.42) contrast(1.12) brightness(1.04)!important;
+}
