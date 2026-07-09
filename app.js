@@ -382,16 +382,22 @@
     els.hudTime.textContent = runtime.timer ? Math.max(0, Math.ceil(runtime.timer)) : '∞';
     els.worldName.textContent = `${WORLD[currentLevel.world]?.name || 'Mundo'} • ${DIFFICULTY[progress.difficulty].name}`;
     const portalReady = objectivesDone();
-    els.objectiveText.textContent = currentMissionHint();
+    const portalGoals = [
+      (runtime.requiredCrystals || 0) <= 0 || runtime.crystals >= runtime.requiredCrystals,
+      (runtime.requiredEnemies || 0) <= 0 || runtime.defeated >= runtime.requiredEnemies,
+      currentLevel.quizGate ? !!runtime.quizSolved : !!portalReady
+    ];
+    const activatedPortals = portalGoals.filter(Boolean).length;
+    els.objectiveText.textContent = portalReady ? 'Portal liberado! Entre e salve o mundo!' : 'Ative os portais e salve os mundos!';
+    const subtitleEl = document.getElementById('objectiveSubtitle');
+    if (subtitleEl) subtitleEl.textContent = `${activatedPortals} / 3 portais ativados`;
     if (portalReady && runtime && !runtime.portalAnnounced) {
       runtime.portalAnnounced = true;
       toast('Portal liberado!', 'good');
       addParticles(p.x, p.y + 1.2, p.z, 0x22c55e, 18);
       vibrate(35);
     }
-    const done = runtime.requiredCrystals + runtime.requiredEnemies + (currentLevel.quizGate ? 1 : 0);
-    const got = runtime.crystals + runtime.defeated + (runtime.quizSolved ? (currentLevel.quizGate ? 1 : 0) : 0);
-    els.objectiveProgress.style.width = `${clamp(done ? (got / done) * 100 : 100, 0, 100)}%`;
+    els.objectiveProgress.style.width = `${Math.round((activatedPortals / 3) * 100)}%`;
     if (currentLevel.length) {
       const pct = clamp((4 - p.z) / (currentLevel.length + 12), 0, 1);
       els.miniPlayer.style.bottom = `${pct * 154 + 4}px`;
@@ -1256,13 +1262,14 @@
   }
 
   function enemyPlanFor(level){
-    if (level.boss) return ['walker','jumper','flyer','spiky','golem','walker','flyer','spiky','boss'];
-    if (level.id === 'training') return ['walker','walker','jumper'];
+    if (level.boss) return ['flyer','jumper','spiky','golem','walker','flyer','spiky','golem','boss'];
+    if (level.id === 'training') return ['flyer','golem','spiky'];
+    if (level.world === 'field') return ['flyer','golem','walker','spiky','jumper','walker'];
     if (level.world === 'fire') return ['spiky','jumper','spiky','walker','golem','spiky'];
     if (level.world === 'forest') return ['jumper','flyer','walker','jumper','flyer','spiky'];
     if (level.world === 'castle') return ['golem','walker','golem','spiky','golem','flyer'];
     if (level.world === 'space') return ['flyer','jumper','flyer','spiky','flyer','golem'];
-    return ['walker','jumper','walker','spiky','golem','walker','jumper'];
+    return ['flyer','golem','walker','spiky','jumper','walker'];
   }
 
 
@@ -1324,17 +1331,19 @@
   }
   function enemyLabel(e){
     if(!e) return 'MONSTRO';
-    if(e.shield>0 || e.type==='golem' || e.type==='boss') return 'ESCUDO';
-    if(e.type==='spiky') return 'FOGO';
-    if(e.type==='flyer') return 'BAIXO';
+    if(e.type==='golem' || e.type==='boss' || e.shield>0) return 'GOLEM';
+    if(e.type==='spiky') return 'ESPINHO';
+    if(e.type==='flyer') return 'VOADOR';
+    if(e.type==='walker' || e.type==='crawler') return 'BAIXO';
     if(e.type==='jumper') return 'PULAR';
     return 'PULAR';
   }
   function enemyHint(e){
     const label = enemyLabel(e);
-    if(label==='ESCUDO') return 'Quebre o escudo com 🔥 ou ⚔';
-    if(label==='FOGO') return 'Use 🔥, não pule nele';
-    if(label==='BAIXO') return 'Passe por baixo ou use 🔥';
+    if(label==='GOLEM') return 'Golem é pesado: use 🔥 ou ⚔';
+    if(label==='ESPINHO') return 'Espinhos não são para pisar';
+    if(label==='VOADOR') return 'Acerte o voador com 🔥';
+    if(label==='BAIXO') return 'Passe por cima ou use ⚔';
     return 'Pule em cima ou use ⚔';
   }
   function makeTextSprite(text, bg=0x111827, fg='#ffffff'){
@@ -1545,7 +1554,34 @@
     g.name = 'V55_ENEMY_VISUAL_' + type;
     const pulse = 1 + Math.sin(now()*.006 + (e.t||0))*0.035;
 
-    if(type === 'PULAR'){
+    if(type === 'VOADOR'){
+      const shadow = v55Ring(1.10,1.38,0x5b21b6,.34); shadow.position.y=.06;
+      const body = v55Box(1.86,1.86,1.86,0x13091f,.98); body.position.y=1.36;
+      body.rotation.y=.32;
+      const core = v55Box(1.10,1.10,1.10,0x7e22ce,.38); core.position.y=1.36; core.rotation.y=-.32;
+      const eye1 = v55Box(.26,.22,.12,0xff00ff,1); eye1.position.set(-.32,1.42,1.00);
+      const eye2 = v55Box(.26,.22,.12,0xff00ff,1); eye2.position.set(.32,1.42,1.00);
+      const orb1 = v55Octa(0xa855f7,.26,.86); orb1.position.set(-1.15,1.18,0);
+      const orb2 = v55Octa(0xa855f7,.26,.86); orb2.position.set(1.15,1.18,0);
+      g.add(shadow,body,core,eye1,eye2,orb1,orb2);
+    } else if(type === 'ESPINHO'){
+      const shadow = v55Ring(1.25,1.55,0x14532d,.30); shadow.position.y=.06;
+      const body = v55Box(2.05,1.85,2.05,0x2cc95c,.98); body.position.y=1.18;
+      const top = v55Box(1.75,.68,1.75,0x22a84c,.98); top.position.y=2.18;
+      const eye1 = v55Box(.32,.22,.12,0xff003b,1); eye1.position.set(-.42,1.18,1.06);
+      const eye2 = v55Box(.32,.22,.12,0xff003b,1); eye2.position.set(.42,1.18,1.06);
+      [[-.62,2.42,0],[0,2.58,.28],[.62,2.42,0],[-.80,1.96,.56],[.80,1.96,.56]].forEach(p=>{ const sp=v55Box(.20,.56,.20,0xf8fafc,1); sp.position.set(p[0],p[1],p[2]); sp.rotation.z=.28; g.add(sp); });
+      g.add(shadow,body,top,eye1,eye2);
+    } else if(type === 'GOLEM'){
+      const base = v55Ring(1.35,1.68,0x64748b,.28); base.position.y=.08;
+      const body = v55Box(1.86,2.15,1.86,0x8b95a4,.98); body.position.y=1.32;
+      const head = v55Box(1.18,1.00,1.18,0x7c8796,.98); head.position.y=2.66;
+      const arm1 = v55Box(.42,1.25,.42,0x94a3b8,.98); arm1.position.set(-1.10,1.30,0);
+      const arm2 = v55Box(.42,1.25,.42,0x94a3b8,.98); arm2.position.set(1.10,1.30,0);
+      const eye1 = v55Box(.22,.14,.12,0xff003b,1); eye1.position.set(-.24,2.70,.62);
+      const eye2 = v55Box(.22,.14,.12,0xff003b,1); eye2.position.set(.24,2.70,.62);
+      g.add(base,body,head,arm1,arm2,eye1,eye2);
+    } else if(type === 'PULAR'){
       // Verde vertical, molas e olhos grandes: leitura imediata de "pular".
       const shadow = v55Ring(1.25,1.55,0x101820,.30); shadow.position.y=.06;
       const spring1 = v55Cylinder(.18,.80,0xffffff,.80,14); spring1.position.set(-.55,.42,.35); spring1.rotation.z=.25;
@@ -1960,7 +1996,7 @@ function syncGameplayVisibility(){
   function addGate(x,z,need){ const l=box(.75,4,1.0,0x7f1d1d); const r=box(.75,4,1.0,0x7f1d1d); const top=box(5.4,.7,1.0,0x991b1b); l.position.set(x-2.8,2,z); r.position.set(x+2.8,2,z); top.position.set(x,4.2,z); levelGroup.add(l,r,top); gates.push({x,z,w:5.6,d:1.6,need,open:false,parts:[l,r,top]}); }
   function addQuizAltar(x,z){ const base=box(3,1,3,0x4c1d95); base.position.set(x,.5,z); const top=box(1.4,1.4,1.4,0x8b5cf6); top.position.set(x,1.7,z); levelGroup.add(base,top); gates.push({x,z,w:4,d:4,need:'quiz',open:false,parts:[base,top],altar:true}); }
   function addEnemy(type,x,z){
-    const color = { walker:0x84cc16, jumper:0xf97316, flyer:0xa855f7, spiky:0xef4444, golem:0x64748b, boss:0x111827 }[type] || 0x84cc16;
+    const color = { walker:0x84cc16, jumper:0x22c55e, flyer:0x4c1d95, spiky:0x22c55e, golem:0x94a3b8, boss:0x111827 }[type] || 0x84cc16;
     const size = type==='boss'?2.05:type==='golem'?1.55:1.08;
     const m=makeEnemyModel(type,size,color); m.position.set(x,size/2,z); levelGroup.add(m);
     const maxHp = type==='boss'?V44_ENEMY_AI.bossHp:type==='golem'?V44_ENEMY_AI.golemHp:type==='spiky'?V44_ENEMY_AI.spikyHp:type==='flyer'?V44_ENEMY_AI.flyerHp:1;
@@ -1983,13 +2019,26 @@ function syncGameplayVisibility(){
 
   function makeEnemyModel(type,size,color){
     const g=new THREE.Group();
-    const body=box(size,size,size,color,{ outline:true, outlineColor:shadeColor(color,45), outlineOpacity:.30, emissive:type==='boss'?0x3b0764:0x000000, emissiveIntensity:type==='boss'?.32:0 }); body.position.y=0; g.add(body);
+    const bodyColor = type==='flyer' ? 0x12081f : type==='spiky' ? 0x22c55e : type==='golem' ? 0x8b95a4 : color;
+    const body=box(size,size,size,bodyColor,{ outline:true, outlineColor:shadeColor(bodyColor,45), outlineOpacity:.30, emissive:type==='boss'?0x3b0764:(type==='flyer'?0x7e22ce:0x000000), emissiveIntensity:type==='boss'?.32:(type==='flyer'?.22:0) });
+    body.position.y=0; g.add(body);
     const eyeMat=mat(0xffffff,0xffffff,{ emissiveIntensity:.85, roughness:.2 });
-    const pupilMat=mat(type==='spiky'?0xff0000:0x111827,type==='spiky'?0xff0000:0x000000,{ emissiveIntensity:type==='spiky'?.55:0 });
+    const pupilMat=mat((type==='spiky'||type==='flyer')?0xff0000:0x111827,(type==='spiky'||type==='flyer')?0xff0000:0x000000,{ emissiveIntensity:(type==='spiky'||type==='flyer')?.55:0 });
     [-.22,.22].forEach(ex=>{ const eye=new THREE.Mesh(new THREE.BoxGeometry(size*.18,size*.13,.04),eyeMat); eye.position.set(ex*size, size*.18, size*.52); g.add(eye); const pupil=new THREE.Mesh(new THREE.BoxGeometry(size*.08,size*.08,.05),pupilMat); pupil.position.set(ex*size, size*.18, size*.55); g.add(pupil); });
-    if(type==='flyer'){ [-1,1].forEach(s=>{ const wing=box(size*.85,size*.12,size*.42,0xc084fc,{ emissive:0x7e22ce, emissiveIntensity:.25 }); wing.position.set(s*size*.88,.1,0); wing.rotation.z=s*.35; g.add(wing); }); }
-    if(type==='spiky'){ for(let i=0;i<6;i++){ const sp=box(size*.18,size*.55,size*.18,0xfef2f2,{ emissive:0xff0000, emissiveIntensity:.12 }); sp.position.set((i%3-1)*size*.34, size*.72, (i>2?.28:-.28)*size); sp.rotation.set(.7,0,.7); g.add(sp); } }
-    if(type==='golem' || type==='boss'){ [-1,1].forEach(s=>{ const arm=box(size*.34,size*.9,size*.34,shadeColor(color,-18),{outline:true,outlineOpacity:.20}); arm.position.set(s*size*.78,-.05,0); g.add(arm); }); const crown=box(size*.9,size*.22,size*.9,type==='boss'?0xff2e63:0xfacc15,{emissive:type==='boss'?0xff2e63:0xfacc15,emissiveIntensity:.35}); crown.position.y=size*.7; g.add(crown); }
+    if(type==='flyer'){
+      [-1,1].forEach(s=>{ const wing=box(size*.38,size*.38,size*.38,0xa855f7,{ emissive:0x7e22ce, emissiveIntensity:.55, outline:true, outlineOpacity:.18 }); wing.position.set(s*size*.88,.1,0); g.add(wing); });
+      const aura = box(size*1.45,.10,size*1.45,0x8b5cf6,{ emissive:0xa855f7, emissiveIntensity:.35, transparent:true, opacity:.40, outline:false });
+      aura.position.set(0,-size*.42,0); g.add(aura);
+    }
+    if(type==='spiky'){
+      body.material.color.setHex(0x2abf58);
+      for(let i=0;i<6;i++){ const sp=box(size*.18,size*.55,size*.18,0xf8fafc,{ emissive:0xffffff, emissiveIntensity:.12 }); sp.position.set((i%3-1)*size*.34, size*.72, (i>2?.28:-.28)*size); sp.rotation.set(.7,0,.7); g.add(sp); }
+    }
+    if(type==='golem' || type==='boss'){
+      body.material.color.setHex(type==='boss' ? bodyColor : 0x8c96a4);
+      [-1,1].forEach(s=>{ const arm=box(size*.34,size*.9,size*.34,shadeColor(bodyColor,-18),{outline:true,outlineOpacity:.20}); arm.position.set(s*size*.78,-.05,0); g.add(arm); });
+      const crown=box(size*.9,size*.22,size*.9,type==='boss'?0xff2e63:0x94a3b8,{emissive:type==='boss'?0xff2e63:0xe2e8f0,emissiveIntensity:.22}); crown.position.y=size*.7; g.add(crown);
+    }
     g.userData.float = { baseY:0, amp:type==='flyer'?.2:.05, speed:type==='boss'?1.4:2.1 };
     return g;
   }
