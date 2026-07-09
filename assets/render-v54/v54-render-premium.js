@@ -188,7 +188,7 @@
       gradedCanvas = el;
       previousCanvasFilter = el.style.filter || '';
     }
-    el.style.filter = 'saturate(1.58) contrast(1.24) brightness(.90)';
+    el.style.filter = 'saturate(1.82) contrast(1.18) brightness(1.02)';
   }
 
   function restoreCanvasGrade(){
@@ -204,7 +204,7 @@
     }
     if (ctx.renderer) {
       ctx.renderer.setClearColor(pal.sky, 1);
-      ctx.renderer.toneMappingExposure = .84;
+      ctx.renderer.toneMappingExposure = currentWorld==='field' ? 1.06 : .90;
       if (ctx.renderer.shadowMap) ctx.renderer.shadowMap.enabled = true;
       applyCanvasGrade(ctx);
     }
@@ -296,6 +296,31 @@
     block(THREE,mats.wood,x,.75,z,.20,1.5,.20,'vegetation');
     block(THREE,mats.wood,x,.95,z+.08,1.55,.72,.16);
     block(THREE,mats.white,x+.38,.98,z+.19,.55,.32,.08);
+  }
+
+  function hayBale(THREE,x,z){
+    block(THREE,mats.gold,x,.72,z,1.8,1.4,1.8);
+    block(THREE,mats.white,x+.25,.86,z,.10,1.10,.12);
+    block(THREE,mats.white,x-.18,.86,z+.22,.10,1.10,.12);
+  }
+
+  function heroReferenceField(THREE, pal, len){
+    // Set pieces pensados para aproximar a composição da imagem de referência.
+    signPost(THREE,-7.2,-12.5);
+    mushroom(THREE,-5.2,-23.5);
+    hayBale(THREE,-3.8,-44.0);
+    block(THREE,mats.water,-10.8,2.8,-42,2.2,5.6,.30,'waterfall');
+    block(THREE,mats.water,-10.8,.08,-39.6,4.8,.16,2.8,'water');
+    block(THREE,mats.lava,9.8,.10,-49.0,3.8,.22,8.8,'lava');
+    // ilha do golem na esquerda
+    block(THREE,mats.dirt,-6.2,2.0,-76,5.2,4.0,5.0);
+    block(THREE,mats.grass,-6.2,4.12,-76,5.35,.24,5.15);
+    enemy(THREE,'golem',-6.4,4.36,-74.5);
+    // inimigo voador central e espinhoso à direita, como no render alvo
+    enemy(THREE,'flyer',0,1.18,-56.5);
+    enemy(THREE,'shield',6.2,.42,-21.5);
+    for (const pos of [[2.4,1.08,-38],[3.8,1.28,-49],[4.6,1.45,-61],[1.0,1.00,-72]]) crystal(THREE,pos[0],pos[1],pos[2],false);
+    crystal(THREE,8.1,3.9,-83,true);
   }
 
   function crystal(THREE,x,y,z,purple){
@@ -399,7 +424,7 @@
     const g = new THREE.Group();
     g.position.set(x,y,z);
     const big = type === 'golem' || type === 'boss';
-    const matBody = type === 'fire' ? mats.red : type === 'flyer' ? mats.enemyDark : big ? mats.stone : mats.enemy;
+    const matBody = type === 'fire' ? mats.red : type === 'flyer' ? mats.enemyDark : big ? mats.stone : type==='shield' ? mats.grass : mats.enemy;
     const s = type === 'boss' ? 2.1 : big ? 1.65 : type === 'crawler' ? 1.15 : 1.28;
     const body = new THREE.Mesh(geos.box,matBody);
     body.position.y=s/2;
@@ -411,10 +436,13 @@
     e1.position.set(-s*.23,s*.62,s*.52); e2.position.set(s*.23,s*.62,s*.52);
     g.add(e1,e2);
     if (type === 'shield') {
-      const sh = new THREE.Mesh(geos.box,mats.blue);
-      sh.scale.set(1.08,1.18,.16);
-      sh.position.set(0,s*.45,s*.72);
-      g.add(sh);
+      body.material = mats.grass;
+      const sh = new THREE.Mesh(geos.box,mats.white);
+      sh.scale.set(.26,.86,.26); sh.position.set(-.55,s*.88,.34); sh.rotation.z=.7; g.add(sh);
+      const sh2 = new THREE.Mesh(geos.box,mats.white);
+      sh2.scale.set(.26,.86,.26); sh2.position.set(0,s*1.00,0); sh2.rotation.z=.7; g.add(sh2);
+      const sh3 = new THREE.Mesh(geos.box,mats.white);
+      sh3.scale.set(.26,.86,.26); sh3.position.set(.55,s*.88,.34); sh3.rotation.z=.7; g.add(sh3);
       feature('shieldEnemy');
     }
     if (type === 'jump') feature('jumpEnemy');
@@ -513,6 +541,7 @@
     makeTerrain(THREE,pal,currentWorld,len);
     waterLavaPit(THREE,currentWorld);
     floatingIslands(THREE);
+    if (currentWorld === 'field') heroReferenceField(THREE,pal,len);
     // V54.7: cenário rico preservado, mas sem itens/inimigos falsos. Interatividade fica nos objetos reais do app.js.
     portal(THREE,pal,-len+20,!!ctx.portalReady);
   }
