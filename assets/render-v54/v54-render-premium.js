@@ -2,7 +2,7 @@
 (function(){
   'use strict';
 
-  const VERSION = 'V54_7_RENDER_RICO_SEM_FALSOS_INTERATIVOS';
+  const VERSION = 'V55_RENDER_RICO_VISUAL_LANGUAGE';
   let installed = false;
   let group = null;
   let playerAddon = null;
@@ -556,6 +556,8 @@
         premium:true,
         deterministic:true,
         shaderSafe:true,
+      visualLanguageV55:true,
+      renderRichPreserved:true,
       renderRichPreserved:true,
       fakeInteractiveRemoved:true,
       decorativeCrystalsOffTrack:true,
