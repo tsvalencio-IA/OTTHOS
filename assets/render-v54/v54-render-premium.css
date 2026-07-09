@@ -645,3 +645,24 @@ body, #app { overscroll-behavior:none!important; }
   .game.active .right-zone{right:22px!important;bottom:calc(14px + env(safe-area-inset-bottom))!important}
   .game.active .left-zone{left:12px!important;bottom:calc(12px + env(safe-area-inset-bottom))!important}
 }
+
+
+/* V56.1 — polimento sobre render fiel: modelos visuais maiores, sem texto no mundo */
+.game.active canvas{
+  filter:saturate(1.46) contrast(1.13) brightness(1.05)!important;
+}
+.game.active .objective-card{
+  opacity:.76!important;
+  background:rgba(5,12,25,.58)!important;
+}
+@media (orientation:portrait){
+  .game.active .objective-card{
+    width:min(380px,72vw)!important;
+    top:calc(47px + env(safe-area-inset-top))!important;
+  }
+}
+@media (orientation:landscape){
+  .game.active .objective-card{
+    width:min(340px,30vw)!important;
+  }
+}

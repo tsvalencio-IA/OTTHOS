@@ -2,7 +2,7 @@
 (function(){
   'use strict';
 
-  const VERSION = 'V55_RENDER_RICO_VISUAL_LANGUAGE';
+  const VERSION = 'V56_1_RENDER_FIEL_VISUAL_POLIDO';
   let installed = false;
   let group = null;
   let playerAddon = null;
@@ -585,8 +585,8 @@
         premium:true,
         deterministic:true,
         shaderSafe:true,
-      visualLanguageV55:true,
-      renderRichPreserved:true,
+      v561RenderFielPolido:true,
+      visualLanguageV56_1:true,
       renderRichPreserved:true,
       fakeInteractiveRemoved:true,
       decorativeCrystalsOffTrack:true,
