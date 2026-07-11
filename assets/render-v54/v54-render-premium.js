@@ -2,7 +2,7 @@
 (function(){
   'use strict';
 
-  const VERSION = 'V57_2_CONTROLES_FIX_FINAL';
+  const VERSION = 'V58_GAMEPAD_JOGABILIDADE_RENDER';
   let installed = false;
   let group = null;
   let playerAddon = null;
@@ -585,9 +585,8 @@
         premium:true,
         deterministic:true,
         shaderSafe:true,
-      v572ControlsFixFinal:true,
-      v571ControlsResponsive:true,
-      visualLanguageV57_1:true,
+      v580GamepadGameplayRender:true,
+      visualLanguageV55:true,
       renderRichPreserved:true,
       renderRichPreserved:true,
       fakeInteractiveRemoved:true,
