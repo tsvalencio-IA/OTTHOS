@@ -1,13 +1,13 @@
 {
-  "name": "Athos Adventure 3D+",
-  "short_name": "Athos",
-  "start_url": "./index.html?v=580-gamepad-jogabilidade-render",
+  "name": "Athos Open World 3D AR",
+  "short_name": "Athos OW",
+  "start_url": "./index.html?v=590-open-world-foundation-clean",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#080b16",
   "theme_color": "#0b1020",
-  "description": "Athos Adventure 3D+ com render premium, responsividade mobile e AR nativo.",
+  "description": "Athos Open World completo com mundo aberto, AR, quiz, conversa, render premium, controles mobile e gamepad.",
   "icons": [
     {
       "src": "./icons/icon-192.png",
