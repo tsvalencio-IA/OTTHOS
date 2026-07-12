@@ -42,7 +42,7 @@
   const OPEN_WORLD = {
     enabled:true,
     id:'openworld',
-    size:180,
+    size:210,
     chunkSize:36,
     activeRadius:2,
     title:'Athos Open World',
@@ -59,9 +59,9 @@
   ];
 
   const DIFFICULTY = {
-    easy: { name:'Fácil', hearts:6, speed:7.45, jump:12.6, gravity:22.5, timer:0, damage:1, bonus:1, forgiveness:1.35 },
-    medium: { name:'Médio', hearts:5, speed:8.2, jump:12.1, gravity:24, timer:210, damage:1, bonus:1.25, forgiveness:1.0 },
-    hard: { name:'Difícil', hearts:4, speed:9.0, jump:11.8, gravity:26, timer:165, damage:1, bonus:1.55, forgiveness:.78 }
+    easy: { name:'Fácil', hearts:6, speed:7.65, jump:10.9, gravity:31.5, timer:0, damage:1, bonus:1, forgiveness:1.35 },
+    medium: { name:'Médio', hearts:5, speed:8.35, jump:10.7, gravity:33.5, timer:210, damage:1, bonus:1.25, forgiveness:1.0 },
+    hard: { name:'Difícil', hearts:4, speed:9.05, jump:10.45, gravity:35.5, timer:165, damage:1, bonus:1.55, forgiveness:.78 }
   };
 
   // V44.1: base V43.1 + V44 inimigos preservadas. Hotfix visual: menu Minecraft limpo, HUD menos poluído e leitura de jogo sem excesso de texto.
@@ -75,16 +75,16 @@
     airAcceleration: 9.0,
     airDeceleration: 18,
     stopThreshold: .10,
-    platformSnap: .38,
-    groundSnap: .22,
+    platformSnap: .24,
+    groundSnap: .13,
     coyoteMs: 140,
     jumpBufferMs: 160,
     jumpCooldownMs: 110,
-    jumpForwardBoost: 3.25,
-    jumpSideBoost: 1.25,
-    landingHorizontalDamp: .62,
-    fallGravityBoost: 1.15,
-    spaceGravityScale: .84
+    jumpForwardBoost: 2.15,
+    jumpSideBoost: .95,
+    landingHorizontalDamp: .50,
+    fallGravityBoost: 1.78,
+    spaceGravityScale: .92
   };
 
   const GAMEPLAY_CAMERA = {
@@ -356,7 +356,7 @@
       return base;
     } catch { return base; }
   }
-  function saveProgress(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); updateLobbyStats(); }
+  function saveProgress(){ if (currentLevel && currentLevel.openWorld) saveOpenWorldPosition(); localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); updateLobbyStats(); }
   function addXP(amount){ progress.xp = Math.max(0, progress.xp + Math.round(amount * DIFFICULTY[progress.difficulty].bonus)); progress.best = Math.max(progress.best || 0, progress.xp); saveProgress(); updateHud(); }
   function medalCount(){ return Object.keys(progress.medals || {}).length; }
   function addMedal(name){ if (!name || progress.medals[name]) return; progress.medals[name] = new Date().toISOString(); saveProgress(); toast(`🏅 Medalha: ${name}`, 'good'); speak(`Medalha desbloqueada: ${name}`); }
@@ -696,13 +696,24 @@
   }
 
   function ensurePlayerContactShadow(){
-    // V49: sombra circular removida para não gerar a 'bola preta' em volta do Athos.
-    if (!player) return;
-    if (player.userData && player.userData.contactShadow && player.remove) {
-      try { player.remove(player.userData.contactShadow); } catch(_) {}
-    }
+    if (!player || !window.THREE) return;
+    if (player.userData && player.userData.contactShadow) return;
     if (!player.userData) player.userData = {};
-    player.userData.contactShadow = null;
+    const geo = new THREE.CircleGeometry(1, 36);
+    const matShadow = new THREE.MeshBasicMaterial({
+      color:0x000000,
+      transparent:true,
+      opacity:.26,
+      depthWrite:false,
+      side:THREE.DoubleSide
+    });
+    const shadow = new THREE.Mesh(geo, matShadow);
+    shadow.name = 'ATHOS_CONTACT_SHADOW_V591';
+    shadow.rotation.x = -Math.PI / 2;
+    shadow.position.set(0,.025,0);
+    shadow.renderOrder = 2;
+    player.add(shadow);
+    player.userData.contactShadow = shadow;
   }
 
   function addV40BackdropSilhouettes(world, length, cfg){
@@ -812,9 +823,10 @@
     };
     return progress.openWorld;
   }
-  function currentOpenWorldRegion(){
-    if (!p) return OPEN_WORLD_REGIONS[0];
-    return OPEN_WORLD_REGIONS.find(r => Math.abs(p.x - r.x) <= r.w/2 && Math.abs(p.z - r.z) <= r.d/2) || OPEN_WORLD_REGIONS[1];
+  function currentOpenWorldRegion(pos){
+    const q = pos || p;
+    if (!q) return OPEN_WORLD_REGIONS[0];
+    return OPEN_WORLD_REGIONS.find(r => Math.abs(q.x - r.x) <= r.w/2 && Math.abs(q.z - r.z) <= r.d/2) || OPEN_WORLD_REGIONS[1];
   }
   function currentOpenWorldMissionText(){
     const ow = openWorldProgress();
@@ -856,10 +868,74 @@
     return m;
   }
   function owTree(x,z,scale=1){
-    const trunk = owSolid(x,1.0*scale,z,.8*scale,2.0*scale,.8*scale,0x7c3f1d,{outline:true,outlineOpacity:.16});
-    const leaf1 = owBox(x,2.6*scale,z,3.0*scale,1.7*scale,3.0*scale,0x15803d,{outline:true,outlineOpacity:.10});
-    const leaf2 = owBox(x,3.45*scale,z,2.2*scale,1.2*scale,2.2*scale,0x22c55e,{outline:true,outlineOpacity:.08});
+    const trunk = owSolid(x,1.0*scale,z,.75*scale,2.0*scale,.75*scale,0x7c3f1d,{outline:true,outlineOpacity:.16});
+    owBox(x,2.55*scale,z,3.15*scale,1.55*scale,3.15*scale,0x15803d,{outline:true,outlineOpacity:.10});
+    owBox(x,3.35*scale,z,2.35*scale,1.08*scale,2.35*scale,0x22c55e,{outline:true,outlineOpacity:.08});
+    if (scale > 1.05) owBox(x,4.05*scale,z,1.45*scale,.72*scale,1.45*scale,0x86efac,{outline:true,outlineOpacity:.05});
     return trunk;
+  }
+  function owRock(x,z,s=1,color=0x7b8794){
+    return owSolid(x,.32*s,z,1.2*s,.64*s,1.05*s,color,{outline:true,outlineOpacity:.13,roughness:.9});
+  }
+  function owGrassPatch(x,z,color=0x7ee05f){
+    owBox(x,.26,z,.16,.52,.16,color,{outline:false});
+    if (Math.random()>.45) owBox(x+.28,.18,z-.18,.12,.36,.12,0xd9f99d,{outline:false});
+  }
+  function owFlower(x,z,color=0xffdf52){
+    owBox(x,.22,z,.10,.44,.10,0x22c55e,{outline:false});
+    owBox(x,.52,z,.36,.18,.36,color,{emissive:color,emissiveIntensity:.18,outline:false});
+  }
+  function owFence(x,z,w,d){
+    for(let xx=x-w/2; xx<=x+w/2+.01; xx+=2.2){ owSolid(xx,.55,z-d/2,.22,1.1,.22,0x6b3b17,{outline:true,outlineOpacity:.08}); owSolid(xx,.55,z+d/2,.22,1.1,.22,0x6b3b17,{outline:true,outlineOpacity:.08}); }
+    for(let zz=z-d/2; zz<=z+d/2+.01; zz+=2.2){ owSolid(x-w/2,.55,zz,.22,1.1,.22,0x6b3b17,{outline:true,outlineOpacity:.08}); owSolid(x+w/2,.55,zz,.22,1.1,.22,0x6b3b17,{outline:true,outlineOpacity:.08}); }
+  }
+  function owLamp(x,z,color=0xffd86b){
+    owSolid(x,1.15,z,.24,2.3,.24,0x5b341a,{outline:true,outlineOpacity:.12});
+    owBox(x,2.55,z,.72,.72,.72,color,{emissive:color,emissiveIntensity:.65,outline:true,outlineOpacity:.16});
+    addGlowSprite(x,2.55,z,color,3.2,.16);
+  }
+  function owPathTile(x,z,w,d,color=0xbf8a45){
+    owBox(x,.026,z,w,.09,d,color,{outline:true,outlineOpacity:.05,roughness:.86});
+  }
+  function owHedge(x,z,w,d){
+    owSolid(x,.55,z,w,1.1,d,0x1f8a3a,{outline:true,outlineColor:0x86efac,outlineOpacity:.10});
+  }
+  function owBridge(x,z,w=18,d=5){
+    owSolid(x,.36,z,w,.42,d,0x8b5a2b,{outline:true,outlineOpacity:.20});
+    for(let i=-w/2+1;i<w/2;i+=2.5){
+      owBox(x+i,.78,z-d/2-.35,.18,.72,.18,0x5b341a,{outline:true,outlineOpacity:.08});
+      owBox(x+i,.78,z+d/2+.35,.18,.72,.18,0x5b341a,{outline:true,outlineOpacity:.08});
+    }
+    owBox(x,.98,z-d/2-.35,w,.18,.18,0x5b341a,{outline:true,outlineOpacity:.08});
+    owBox(x,.98,z+d/2+.35,w,.18,.18,0x5b341a,{outline:true,outlineOpacity:.08});
+  }
+  function owPortalShrine(x,z){
+    owSolid(x,.22,z,15,.44,12,0x94a3b8,{outline:true,outlineOpacity:.12});
+    [-5.6,5.6].forEach(px=>{
+      owSolid(x+px,1.8,z,1.1,3.6,1.1,0x64748b,{outline:true,outlineOpacity:.18});
+      owBox(x+px,3.85,z,1.45,.55,1.45,0xa855f7,{emissive:0x8b5cf6,emissiveIntensity:.35,outline:true,outlineOpacity:.12});
+    });
+    owLamp(x-6.8,z+5.6,0x38bdf8); owLamp(x+6.8,z+5.6,0x38bdf8);
+  }
+  function owDistantMountains(){
+    for(let i=0;i<18;i++){
+      const x=-190+i*22;
+      const z=-205-(i%3)*12;
+      const h=10+(i%5)*3;
+      owBox(x,h/2-1,z,18,h,8, i%2?0x7c8a99:0x8fa3b7,{outline:false,roughness:.95});
+      owBox(x,h+.8,z,11,3,6,0xe0f2fe,{outline:false,roughness:.9});
+    }
+  }
+  function owDecorateRegion(){
+    for(let i=0;i<130;i++){
+      const x=(Math.random()-.5)*OPEN_WORLD.size*1.65;
+      const z=(Math.random()-.5)*OPEN_WORLD.size*1.65;
+      if(Math.abs(x)<11 || Math.abs(z)<11) continue;
+      const r=currentOpenWorldRegion({x,z});
+      if(Math.random()<.52) owGrassPatch(x,z, r && r.id==='forest'?0x3ee65d:0x7ee05f);
+      else if(Math.random()<.75) owFlower(x,z, Math.random()>.5?0xffdf52:0xff7ac8);
+      else owRock(x,z,.55+Math.random()*.6);
+    }
   }
   function owHouse(x,z,name,color=0xb8793a){
     // Casa com interior simples: quatro paredes em segmentos e porta aberta por interação.
@@ -894,77 +970,138 @@
     currentLevel.openWorld = true;
     currentLevel.length = OPEN_WORLD.size*2;
     runtime = newRuntime();
-    runtime.requiredCrystals = 6;
-    runtime.requiredEnemies = 3;
+    runtime.requiredCrystals = 9;
+    runtime.requiredEnemies = 5;
     p = defaultPlayer();
     p.x = Number(openWorldState.x || 0);
     p.y = Number(openWorldState.y || 0);
     p.z = Number(openWorldState.z || 4);
-    player.position.set(p.x,p.y+.34,p.z);
+    player.position.set(p.x,p.y + PLAYER_VISUAL_Y_OFFSET,p.z);
+    ensurePlayerContactShadow();
     cameraYaw = openWorldState.cameraYaw || 0;
     configureWorld('field');
-    const ground = owBox(0,-.12,0,OPEN_WORLD.size*2.15,.24,OPEN_WORLD.size*2.15,0x4ea83a,{outline:false,roughness:.72});
+    scene.background = new THREE.Color(0x7ac7ff);
+    scene.fog = new THREE.Fog(0xa8e6ff, 115, 430);
+    renderer.setClearColor(0x7ac7ff, 1);
+    renderer.toneMappingExposure = 1.18;
+    ambientLight.intensity = .58;
+    sunLight.intensity = 1.48;
+    sunLight.position.set(18,30,16);
+
+    // Céu, sol e horizonte 3D. Nada de imagem de referência colada.
+    createPremiumAtmosphere('field', OPEN_WORLD.size*2.1);
+    owDistantMountains();
+
+    const ground = owBox(0,-.16,0,OPEN_WORLD.size*2.08,.32,OPEN_WORLD.size*2.08,0x4db44a,{outline:false,roughness:.78});
     ground.receiveShadow = true;
-    // caminhos principais em cruz
-    owBox(0,.015,0,13,.08,OPEN_WORLD.size*1.95,0xb98242,{outline:true,outlineOpacity:.08});
-    owBox(0,.018,0,OPEN_WORLD.size*1.95,.08,13,0xb98242,{outline:true,outlineOpacity:.08});
-    // rio/lago e ponte quebrada
-    owBox(-58,.04,34,112,.10,12,0x35c9ff,{emissive:0x0ea5e9,emissiveIntensity:.22,transparent:true,opacity:.78});
-    owSolid(-8,.28,34,12,.42,4.2,0x8b5a2b,{outline:true,outlineOpacity:.18});
-    owBox(-18,.32,34,5,.18,3.8,0x5b341a,{outline:true,outlineOpacity:.10});
-    // vila central
-    owHouse(-16,-10,'casa_athos',0xb7793b);
-    owHouse(14,-12,'oficina',0xa16207);
-    owHouse(-18,16,'loja',0xc08457);
-    owHouse(16,14,'morador',0x9a6332);
-    owSolid(0,.18,0,12,.36,12,0xd8a35d,{outline:true,outlineOpacity:.12});
-    const portal = addPortalObject(0,-24,0x38bdf8,'openworld');
+
+    // Relevo leve e plataformas naturais
+    for(let i=0;i<42;i++){
+      const x=(Math.random()-.5)*OPEN_WORLD.size*1.75;
+      const z=(Math.random()-.5)*OPEN_WORLD.size*1.75;
+      if(Math.abs(x)<28 && Math.abs(z)<28) continue;
+      const c = currentOpenWorldRegion({x,z});
+      const color = c.id==='mountain'?0x9aa8b7:c.id==='volcano'?0x3a1510:c.id==='forest'?0x23823c:0x3f9c39;
+      owBox(x,.05,z,12+Math.random()*18,.18,10+Math.random()*18,color,{outline:false,roughness:.9});
+    }
+
+    // Trilhas orgânicas: cruz principal + ramificações
+    for(let z=-OPEN_WORLD.size*.88; z<OPEN_WORLD.size*.88; z+=10) owPathTile(0,z,12.5,9.5,0xc08a45);
+    for(let x=-OPEN_WORLD.size*.88; x<OPEN_WORLD.size*.88; x+=10) owPathTile(x,0,9.5,12.5,0xc08a45);
+    for(let i=0;i<24;i++){ owPathTile(-i*4.2,-8-i*3.1,8.5,7.2,0xb98242); }
+    for(let i=0;i<22;i++){ owPathTile(i*4.3,-10-i*3.4,8.5,7.2,0xb98242); }
+    for(let i=0;i<20;i++){ owPathTile(6+i*4.6,12+i*3.8,8.5,7.2,0xb98242); }
+
+    // Lago, rio e ponte com volume.
+    owBox(-62,.025,38,126,.12,15,0x35c9ff,{emissive:0x0ea5e9,emissiveIntensity:.22,transparent:true,opacity:.78});
+    owBox(-92,.02,58,42,.10,32,0x2dd4ff,{emissive:0x0ea5e9,emissiveIntensity:.18,transparent:true,opacity:.70});
+    owBridge(-8,38,18,5.4);
+    owBridge(-88,58,12,4.4);
+
+    // Vilarejo central profissionalizado.
+    owPortalShrine(0,-25);
+    const portal = addPortalObject(0,-25,0x38bdf8,'openworld');
     portal.userData.openWorldPortal = true;
-    addOWObject(portal, owChunkFor(0,-24).cx, owChunkFor(0,-24).cz);
-    // Totem de missão
-    owSolid(0,1.15,9,1.2,2.3,1.2,0x7c3aed,{emissive:0x8b5cf6,emissiveIntensity:.25,outline:true,outlineColor:0xffffff,outlineOpacity:.18});
-    addGlowSprite(0,2.5,9,0x8b5cf6,3.2,.18);
-    // floresta
-    for(let i=0;i<36;i++){
-      const x = -92 + (Math.random()-.5)*64;
-      const z = -68 + (Math.random()-.5)*80;
-      owTree(x,z,.8+Math.random()*.55);
+    addOWObject(portal, owChunkFor(0,-25).cx, owChunkFor(0,-25).cz);
+
+    owSolid(0,.18,0,15,.36,15,0xd8a35d,{outline:true,outlineOpacity:.12});
+    owHouse(-17,-12,'casa_athos',0xb7793b);
+    owHouse(16,-13,'oficina',0xa16207);
+    owHouse(-19,17,'loja',0xc08457);
+    owHouse(18,16,'morador',0x9a6332);
+    owHouse(34,6,'fazenda',0xb8793a);
+    owFence(-18,16,13,11);
+    owFence(34,6,15,12);
+    for(const pnt of [[-28,-3],[28,-4],[-26,28],[28,28],[-6,16],[7,16]]) owLamp(pnt[0],pnt[1],0xffd86b);
+    for(let i=0;i<9;i++) owRock(-35+i*8,27+(i%2)*3,.65,0x7b8794);
+
+    // Totem de missão.
+    owSolid(0,1.15,10,1.2,2.3,1.2,0x7c3aed,{emissive:0x8b5cf6,emissiveIntensity:.25,outline:true,outlineColor:0xffffff,outlineOpacity:.18});
+    addGlowSprite(0,2.5,10,0x8b5cf6,3.2,.18);
+
+    // Floresta densa e cabana.
+    for(let i=0;i<64;i++){
+      const x = -96 + (Math.random()-.5)*76;
+      const z = -68 + (Math.random()-.5)*96;
+      if(Math.abs(x+112)<8 && Math.abs(z+72)<8) continue;
+      owTree(x,z,.82+Math.random()*.78);
     }
     owHouse(-112,-72,'cabana_floresta',0x6b3b17);
     owChest(-108,-64,'bau_espada');
     addPowerup('sword',-104,1.2,-68);
-    // campo aberto
-    for(let i=0;i<12;i++) addCrystal(28+(Math.random()-.5)*58,1.1,-24+(Math.random()-.5)*52);
-    for(let i=0;i<10;i++) owBox(38+(Math.random()-.5)*70,.25,-12+(Math.random()-.5)*62,.8,.5,.8,0xfacc15,{emissive:0xfacc15,emissiveIntensity:.15});
-    // acampamento inimigo
+    for(let i=0;i<16;i++) owFlower(-98+(Math.random()-.5)*44,-70+(Math.random()-.5)*50,Math.random()>.5?0xffdf52:0xff7ac8);
+
+    // Campo aberto com cristais e ruínas pequenas.
+    for(let i=0;i<18;i++) addCrystal(34+(Math.random()-.5)*72,1.1,-24+(Math.random()-.5)*62);
+    for(let i=0;i<12;i++) owSolid(38+(Math.random()-.5)*70,.35,-12+(Math.random()-.5)*62,1.1,.7,1.1,0xfacc15,{emissive:0xfacc15,emissiveIntensity:.15,outline:true,outlineOpacity:.08});
+    for(let i=0;i<7;i++) owSolid(62+i*3,.75,-45-(i%2)*3,2,1.5,2,0x94a3b8,{outline:true,outlineOpacity:.12});
+
+    // Acampamento inimigo: baú protegido, fogueira, tendas.
+    owFence(58,-78,26,20);
     [-8,0,8].forEach(x=>owSolid(54+x,.55,-78,2.2,1.1,2.2,0x111827,{outline:true,outlineColor:0xff7a00,outlineOpacity:.22}));
+    owBox(58,.25,-78,2.7,.50,2.7,0xff4d00,{emissive:0xff2d00,emissiveIntensity:.80,outline:true,outlineOpacity:.10});
+    owSolid(48,.8,-88,7,1.6,5,0x7f1d1d,{outline:true,outlineOpacity:.10});
+    owSolid(68,.8,-88,7,1.6,5,0x7f1d1d,{outline:true,outlineOpacity:.10});
     owChest(58,-70,'bau_acampamento');
     addEnemy('flyer',54,-84);
     addEnemy('spiky',62,-78);
     addEnemy('walker',47,-75);
-    // montanha / caverna
-    for(let i=0;i<18;i++) owSolid(-62+(Math.random()-.5)*64,.6+Math.random()*1.4,-142+(Math.random()-.5)*54,4+Math.random()*5,1.2+Math.random()*2.4,4+Math.random()*5,0x94a3b8,{outline:true,outlineOpacity:.12});
-    owSolid(-82,1.6,-146,13,3.2,7,0x475569,{outline:true,outlineOpacity:.16});
-    owBox(-82,1.2,-142,5.2,2.4,.18,0x020617,{emissive:0x000000,emissiveIntensity:.1});
+
+    // Montanha / caverna.
+    for(let i=0;i<28;i++) owSolid(-62+(Math.random()-.5)*74,.6+Math.random()*1.8,-142+(Math.random()-.5)*64,4+Math.random()*6,1.2+Math.random()*3.0,4+Math.random()*6,0x94a3b8,{outline:true,outlineOpacity:.12});
+    owSolid(-82,1.6,-146,16,3.2,8,0x475569,{outline:true,outlineOpacity:.16});
+    owBox(-82,1.2,-141.9,6.4,2.5,.20,0x020617,{emissive:0x000000,emissiveIntensity:.1});
+    owChest(-86,-136,'bau_caverna');
     addEnemy('golem',-78,-132);
-    // vulcão
-    owBox(100,.06,-128,42,.18,36,0xff3d00,{emissive:0xff2d00,emissiveIntensity:.95,transparent:true,opacity:.90});
-    for(let i=0;i<12;i++) owSolid(92+(Math.random()-.5)*72,.8,-128+(Math.random()-.5)*70,3,1.6,3,0x2b0505,{outline:true,outlineColor:0xff7a00,outlineOpacity:.20});
+
+    // Vulcão, com lava real em 3D.
+    owBox(104,.06,-132,50,.18,42,0xff3d00,{emissive:0xff2d00,emissiveIntensity:.95,transparent:true,opacity:.90});
+    for(let i=0;i<18;i++) owSolid(98+(Math.random()-.5)*84,.8,-128+(Math.random()-.5)*76,3+Math.random()*4,1.6+Math.random()*3,3+Math.random()*4,0x2b0505,{outline:true,outlineColor:0xff7a00,outlineOpacity:.20});
+    owSolid(128,4.2,-156,18,8.4,18,0x3a1510,{outline:true,outlineColor:0xff7a00,outlineOpacity:.18});
+    addGlowSprite(128,6.2,-156,0xff4d00,12,.16);
     addEnemy('spiky',102,-112);
     addEnemy('spiky',118,-138);
-    // castelo
-    owSolid(112,2.4,88,34,4.8,28,0x6b7280,{outline:true,outlineColor:0xd1d5db,outlineOpacity:.15});
-    owSolid(112,5.2,74,38,1.2,3.6,0x9ca3af,{outline:true,outlineOpacity:.12});
+
+    // Castelo e boss.
+    owSolid(112,2.4,88,36,4.8,30,0x6b7280,{outline:true,outlineColor:0xd1d5db,outlineOpacity:.15});
+    owSolid(112,5.2,73,40,1.2,3.6,0x9ca3af,{outline:true,outlineOpacity:.12});
+    [-8,0,8].forEach(x=>owSolid(112+x,6.1,73,2.1,1.8,3.8,0x9ca3af,{outline:true,outlineOpacity:.12}));
+    owSolid(92,3.8,88,5.2,7.6,5.2,0x64748b,{outline:true,outlineOpacity:.16});
+    owSolid(132,3.8,88,5.2,7.6,5.2,0x64748b,{outline:true,outlineOpacity:.16});
     addEnemy('golem',104,62);
     addEnemy('boss',126,96);
-    // powerups/objetivos
+
+    // Powerups, baús e decoração final.
     addPowerup('shield',18,1.2,20);
     addPowerup('star',72,1.2,-92);
+    owDecorateRegion();
+
     updateOpenWorldChunks(true);
+    cameraRig.initialized = false;
     document.body.dataset.world = 'openworld';
     if (els.game) els.game.dataset.world = 'openworld';
     updateHud();
-    toast('Mundo aberto carregado', 'good');
+    toast('Mundo aberto profissional carregado', 'good');
   }
   function updateOpenWorldChunks(force=false){
     if(!isOpenWorld() || !p || !openWorldChunks) return;
@@ -2428,8 +2565,18 @@ function swordAttack(){
     p.height = input.crouch ? 1.25 : 2.4;
     p.targetScale = p.scaleMode==='mini' ? .55 : p.scaleMode==='giant' ? 1.65 : 1;
     p.scale += (p.targetScale - p.scale) * Math.min(1, dt*8);
-    const squash = input.crouch ? .62 : 1;
-    player.position.set(p.x,p.y + PLAYER_VISUAL_Y_OFFSET,p.z); player.scale.set(p.scale, p.scale*squash, p.scale);
+    const landPulse = Math.max(0, 1 - (now() - lastLandAt) / 180);
+    const airStretch = !p.grounded && p.vy > 1 ? .045 : 0;
+    const squash = input.crouch ? .62 : (1 - landPulse * .13 + airStretch);
+    player.position.set(p.x,p.y + PLAYER_VISUAL_Y_OFFSET,p.z); player.scale.set(p.scale * (1 + landPulse*.045), p.scale*squash, p.scale * (1 + landPulse*.045));
+    if (player.userData && player.userData.contactShadow) {
+      const h = Math.max(0, p.y - findGround(p.x,p.z).height);
+      const s = clamp(1.15 - h*.10, .42, 1.18) * p.scale;
+      player.userData.contactShadow.visible = !realBg;
+      player.userData.contactShadow.scale.set(s, s, 1);
+      player.userData.contactShadow.material.opacity = clamp(.28 - h*.035, .07, .28);
+      player.userData.contactShadow.position.y = .03 - PLAYER_VISUAL_Y_OFFSET;
+    }
     if (Math.hypot(p.vx,p.vz) > .1) { const rot = Math.atan2(p.vx,p.vz); p.facing = rot; player.rotation.y += angleDelta(player.rotation.y, rot) * Math.min(1, dt*10); }
     if (now() < p.spinUntil) player.rotation.y += dt*14;
     if (playerModel) playerModel.visible = !(now() < p.invUntil && Math.floor(now()/90)%2===0);
@@ -2446,11 +2593,18 @@ function swordAttack(){
     if (t - lastJumpAt < GAME_FEEL.jumpCooldownMs) return;
     lastJumpAt = t;
     const forward = Math.max(0, input.z);
-    p.vy = DIFFICULTY[progress.difficulty].jump + (forward > .35 ? .95 : 0);
-    p.vz += -forward * GAME_FEEL.jumpForwardBoost;
-    p.vx += input.x * GAME_FEEL.jumpSideBoost;
+    p.vy = DIFFICULTY[progress.difficulty].jump + (forward > .35 ? .35 : 0);
+    if (isOpenWorld()) {
+      const fX = Math.sin(cameraYaw), fZ = -Math.cos(cameraYaw);
+      const rX = Math.cos(cameraYaw), rZ = Math.sin(cameraYaw);
+      p.vx += (rX * input.x + fX * input.z) * GAME_FEEL.jumpSideBoost;
+      p.vz += (rZ * input.x + fZ * input.z) * GAME_FEEL.jumpSideBoost;
+    } else {
+      p.vz += -forward * GAME_FEEL.jumpForwardBoost;
+      p.vx += input.x * GAME_FEEL.jumpSideBoost;
+    }
     p.grounded=false;
-    toast(forward > .25 ? 'Pulo para o fundo!' : 'Pulo!', 'good');
+    toast('Pulo!', 'good');
     beep(520,70,'square');
   }
   function jump(){ if (!playing || paused) return; jumpBufferedUntil = now() + GAME_FEEL.jumpBufferMs; if (canJump()) { doJump(); jumpBufferedUntil = 0; } }
@@ -2787,9 +2941,38 @@ function swordAttack(){
   }
 
   function updateCamera(dt){
-    // V53.2: câmera mobile de jogo: Athos menor, centralizado e caminho visível.
     const landscape = innerWidth > innerHeight && innerHeight < 760;
     const portrait = !landscape;
+    const speed = clamp(Math.hypot(p.vx,p.vz) / 9, 0, 1);
+    if (isOpenWorld()) {
+      const dist = (landscape ? 12.6 : 14.8) + speed * 1.6;
+      const height = (landscape ? 6.1 : 7.4) + speed * .35 + (p.grounded ? 0 : .15);
+      const lookHeight = 1.65 + (p.grounded ? 0 : .18);
+      const desiredFov = (landscape ? 60 : 57) + speed * 1.2;
+      camera.fov += (desiredFov - camera.fov) * Math.min(1, dt * 3.8);
+      camera.updateProjectionMatrix();
+      const backX = -Math.sin(cameraYaw) * dist;
+      const backZ = Math.cos(cameraYaw) * dist;
+      const desiredPos = new THREE.Vector3(p.x + backX, p.y + height, p.z + backZ);
+      const desiredLook = new THREE.Vector3(
+        p.x + Math.sin(cameraYaw) * (4.5 + speed*2.4),
+        p.y + lookHeight,
+        p.z - Math.cos(cameraYaw) * (4.5 + speed*2.4)
+      );
+      if (!cameraRig.initialized || !cameraRig.pos || !cameraRig.look) {
+        cameraRig.initialized = true;
+        cameraRig.pos = desiredPos.clone();
+        cameraRig.look = desiredLook.clone();
+      }
+      cameraRig.pos.lerp(desiredPos, Math.min(1, dt * 6.8));
+      cameraRig.look.lerp(desiredLook, Math.min(1, dt * 7.4));
+      camera.position.copy(cameraRig.pos);
+      camera.lookAt(cameraRig.look);
+      sunLight.position.set(p.x + 18, 28, p.z + 14);
+      return;
+    }
+
+    // Câmera original preservada para modos lineares/legado.
     const speedForward = clamp(Math.abs(p.vz) / 8, 0, 1);
     const jumpLift = p.grounded ? 0 : GAMEPLAY_CAMERA.cameraJumpOffset;
     const followDistance = GAMEPLAY_CAMERA.cameraFollowDistance + (landscape ? -1.4 : 1.6) + speedForward * 1.1;
@@ -3516,6 +3699,7 @@ function swordAttack(){
     jump: () => jump(),
     power: () => power(),
     buildLevelById: (id) => { const idx = LEVELS.findIndex(l => l.id === id || l.world === id); if (idx < 0) return false; currentLevelIndex = idx; buildLevel(LEVELS[idx]); return true; },
+    getV591ProfessionalOpenWorld: () => ({ label:'V591_PROFESSIONAL_OPEN_WORLD', openWorld:isOpenWorld(), objects:openWorldObjects.length, chunks:openWorldChunks.size, doors:openWorldDoors.length, chests:openWorldChests.length, region:currentOpenWorldRegion()?.id, noReferenceBackground:true, physicsWeight:'professional' }),
     forcePortalReady: () => { if (!runtime) return false; runtime.crystals = runtime.requiredCrystals; runtime.defeated = runtime.requiredEnemies; runtime.quizSolved = true; runtime.portalAnnounced = false; updateHud(); return objectivesDone(); }
   };
 
@@ -3564,10 +3748,16 @@ function swordAttack(){
       const gridW=btn*2+gap, gridH=btn*2+gap;
       important(right,'position','fixed'); important(right,'left','auto'); important(right,'right',px(side)); important(right,'top','auto'); important(right,'bottom',`calc(${px(bottom)} + ${safeBottom})`); important(right,'width',px(gridW)); important(right,'height',px(gridH)); important(right,'min-width',px(gridW)); important(right,'display','flex'); important(right,'justify-content','flex-end'); important(right,'align-items','flex-end'); important(right,'z-index','9100'); important(right,'pointer-events','auto'); important(right,'transform','none'); important(right,'overflow','visible');
       important(actionGrid,'display','grid'); important(actionGrid,'grid-template-columns',`repeat(2, ${px(btn)})`); important(actionGrid,'grid-template-rows',`repeat(2, ${px(btn)})`); important(actionGrid,'gap',px(gap)); important(actionGrid,'width',px(gridW)); important(actionGrid,'height',px(gridH)); important(actionGrid,'pointer-events','auto'); important(actionGrid,'align-items','center'); important(actionGrid,'justify-items','center'); important(actionGrid,'overflow','visible');
-      const hidden=['#pauseBtn','#exitBtn','#sizeBtn','#crouchBtn','#normalBtn','[data-action="spin"]'];
-      for(const sel of hidden){const b=game.querySelector(sel); if(b){important(b,'display','none'); important(b,'visibility','hidden'); important(b,'pointer-events','none');}}
-      const visibleButtons=[['#powerBtn',2,1],['[data-action="interact"]',1,2],['#jumpBtn',2,2]];
-      for(const [sel,col,row] of visibleButtons){const b=game.querySelector(sel); if(!b) continue; important(b,'display','flex'); important(b,'visibility','visible'); important(b,'opacity','1'); important(b,'grid-column',String(col)); important(b,'grid-row',String(row)); important(b,'position','relative'); important(b,'width',px(btn)); important(b,'height',px(btn)); important(b,'min-width',px(btn)); important(b,'min-height',px(btn)); important(b,'max-width',px(btn)); important(b,'max-height',px(btn)); important(b,'margin','0'); important(b,'padding','0'); important(b,'border-radius','50%'); important(b,'overflow','hidden'); important(b,'align-items','center'); important(b,'justify-content','center'); important(b,'pointer-events','auto'); important(b,'z-index','9200'); important(b,'font-size','0'); important(b,'transform','none'); const span=b.querySelector('span'); if(span) important(span,'display','none');}
+      const visibleButtons=[
+        ['#powerBtn',3,2,true],['[data-action="interact"]',2,3,true],['#jumpBtn',3,3,true],
+        ['#crouchBtn',2,2,false],['#sizeBtn',1,2,false],['#normalBtn',1,3,false],
+        ['[data-action="spin"]',1,1,false],['#pauseBtn',2,1,false],['#exitBtn',3,1,false]
+      ];
+      important(actionGrid,'grid-template-columns',`repeat(3, ${px(btn)})`);
+      important(actionGrid,'grid-template-rows',`repeat(3, ${px(btn)})`);
+      important(actionGrid,'width',px(btn*3 + gap*2));
+      important(actionGrid,'height',px(btn*3 + gap*2));
+      for(const [sel,col,row,round] of visibleButtons){const b=game.querySelector(sel); if(!b) continue; important(b,'display','flex'); important(b,'visibility','visible'); important(b,'opacity','1'); important(b,'grid-column',String(col)); important(b,'grid-row',String(row)); important(b,'position','relative'); important(b,'width',px(btn)); important(b,'height',px(btn)); important(b,'min-width',px(btn)); important(b,'min-height',px(btn)); important(b,'max-width',px(btn)); important(b,'max-height',px(btn)); important(b,'margin','0'); important(b,'padding','0'); important(b,'border-radius',round?'50%':'14px'); important(b,'overflow','hidden'); important(b,'align-items','center'); important(b,'justify-content','center'); important(b,'pointer-events','auto'); important(b,'z-index','9200'); important(b,'font-size',round?'0':'13px'); important(b,'transform','none'); const span=b.querySelector('span'); if(span) important(span,'display',round?'none':'block');}
       const objective=game.querySelector('.objective-card'); if(objective){important(objective,'z-index','70'); important(objective,'pointer-events','none'); if(landscape){important(objective,'top','calc(58px + env(safe-area-inset-top))'); important(objective,'width','min(46vw,430px)'); important(objective,'min-height','54px');} else {important(objective,'top','calc(74px + env(safe-area-inset-top))'); important(objective,'width','min(86vw,500px)'); important(objective,'min-height','64px');}}
     }
     const schedule=()=>requestAnimationFrame(()=>requestAnimationFrame(apply)); window.addEventListener('resize',schedule,{passive:true}); window.addEventListener('orientationchange',schedule,{passive:true}); if(window.visualViewport) window.visualViewport.addEventListener('resize',schedule,{passive:true}); new MutationObserver(schedule).observe(document.documentElement,{subtree:true,attributes:true,attributeFilter:['class','style','hidden']}); setInterval(apply,900); schedule(); setTimeout(apply,400); setTimeout(apply,1400);

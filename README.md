@@ -1,64 +1,55 @@
-# ATHOS OPEN WORLD COMPLETO LIMPO V590
+# ATHOS OPEN WORLD V591 — PROFESSIONAL PASS 1
 
-Base limpa para novo repositório.
+Versão limpa para novo repositório, mantendo o jogo completo.
 
-## O que esta versão preserva
+## Preservado
 
-- Jogo 3D completo.
-- Mundo aberto V590.
-- AR / model-viewer com `athos.glb`.
+- Mundo aberto.
+- AR com `athos.glb`.
 - Quiz.
-- Conversa / falar com Athos.
+- Conversar / falar com Athos.
 - Coleção.
 - Progresso local.
-- HUD.
 - Joystick.
 - Gamepad.
-- Botões de ação.
+- Todos os botões de ação.
 - Pulo, poder, espada/interação, agachar, tamanho, girar, pausa e sair.
+- HUD.
 - Render premium V54.
 - Responsividade mobile em retrato e paisagem.
-- Service Worker limpo para evitar cache fantasma.
+- Service Worker limpo.
 
-## Estrutura limpa
+## Evolução V591
 
-```text
-index.html
-app.js
-style.css
-sw.js
-manifest.webmanifest
-athos.glb
-404.html
-.nojekyll
-icons/
-assets/render-v54/
-F12_TESTE_ATHOS_V590_OPEN_WORLD_FOUNDATION.js
-```
+- Remove a imagem de referência colada no fundo.
+- Cria cenário 3D/procedural real para o open world.
+- Vilarejo mais rico, com casas, cercas, postes, praça e portal.
+- Floresta mais densa.
+- Lago, pontes, campo aberto, acampamento inimigo, caverna, vulcão e castelo.
+- Mais props: pedras, flores, grama, lâmpadas, baús e cercas.
+- Física do pulo com mais peso.
+- Queda mais rápida e menos flutuante.
+- Sombra de contato do personagem.
+- Squash leve no pouso.
+- Câmera open world melhorada.
+- Movimento de pulo relativo à câmera no mundo aberto.
 
-## Arquivos antigos removidos
+## Publicação
 
-Foram removidos testes antigos V48, V52, V53, V541, V543, V544, V545, V546, V547, V548, V550, imagens de alvo antigas, moldes antigos e renderizadores antigos não usados.
+Suba todos os arquivos deste ZIP na raiz do novo repositório.
 
-## Como publicar
-
-Suba todos os arquivos desta pasta na raiz de um novo repositório GitHub Pages ou Vercel.
-
-Depois de publicar, abra com:
+Abra com:
 
 ```text
-index.html?v=590-open-world-foundation-clean
+index.html?v=591-professional-open-world
 ```
 
-## Teste
+## Testes F12
 
-No navegador, abra o jogo e rode no console:
+Use:
 
-```js
-// cole o conteúdo de:
-F12_TESTE_ATHOS_V590_OPEN_WORLD_FOUNDATION.js
+```text
+F12_TESTE_ATHOS_V591_PROFESSIONAL_OPEN_WORLD.js
 ```
 
-## Importante
-
-Esta limpeza não removeu funções principais do jogo. O objetivo foi remover histórico antigo, arquivos duplicados, testes obsoletos e assets de referência que não são necessários para o novo repositório.
+O teste antigo V590 foi mantido como referência temporária.

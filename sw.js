@@ -1,6 +1,6 @@
 // Athos V590 Open World — Service Worker leve para GitHub Pages.
 // Network-first para impedir cache fantasma durante correções e testes.
-const CACHE_VERSION = 'athos-v590-open-world-clean';
+const CACHE_VERSION = 'athos-v591-professional-open-world';
 
 self.addEventListener('install', () => {
   self.skipWaiting();

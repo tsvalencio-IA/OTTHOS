@@ -1,13 +1,13 @@
 {
-  "name": "Athos Open World 3D AR",
-  "short_name": "Athos OW",
-  "start_url": "./index.html?v=590-open-world-foundation-clean",
+  "name": "Athos Open World V591",
+  "short_name": "Athos V591",
+  "start_url": "./index.html?v=591-professional-open-world",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#080b16",
   "theme_color": "#0b1020",
-  "description": "Athos Open World completo com mundo aberto, AR, quiz, conversa, render premium, controles mobile e gamepad.",
+  "description": "Athos Open World profissional com AR, quiz, conversa, mundo aberto 3D procedural, física melhorada, render premium e controles mobile/gamepad.",
   "icons": [
     {
       "src": "./icons/icon-192.png",

@@ -690,7 +690,7 @@ body::before{
 .lobby{
   background:
     linear-gradient(180deg,rgba(18,28,44,.18),rgba(2,6,23,.72)),
-    url('./assets/athos_v442_visual_alvo.png') center top/cover no-repeat!important;
+    
   isolation:isolate;
 }
 .lobby::before{content:"";position:fixed;inset:0;background:linear-gradient(90deg,rgba(2,6,23,.82) 0%,rgba(2,6,23,.38) 44%,rgba(2,6,23,.76) 100%);z-index:-1;pointer-events:none}
@@ -1017,3 +1017,57 @@ body.athos-v58-gamepad .game.active #powerBtn,body.athos-v58-gamepad .game.activ
 body.athos-v58-gamepad .game.active #powerBtn{background:radial-gradient(circle at 35% 28%,#ffd473,#f97316 45%,#b91c1c 82%)!important}
 body.athos-v58-gamepad .game.active [data-action="interact"]{background:radial-gradient(circle at 35% 28%,#bde8ff,#0ea5e9 48%,#075985 82%)!important}
 body.athos-v58-gamepad .game.active #jumpBtn{background:radial-gradient(circle at 35% 28%,#d9ffce,#84cc16 50%,#3f8f10 82%)!important}
+
+
+/* V591 PROFESSIONAL OPEN WORLD — remove imagem colada e usa cenário 3D/procedural */
+body::before{
+  background:
+    radial-gradient(circle at 14% 12%,rgba(255,218,90,.36),transparent 22%),
+    radial-gradient(circle at 88% 16%,rgba(168,85,247,.16),transparent 24%),
+    linear-gradient(180deg,#66bfff 0%,#aeeaff 34%,#6ada72 66%,#2f842e 100%)!important;
+}
+.lobby{
+  background:
+    radial-gradient(circle at 18% 12%,rgba(255,216,90,.18),transparent 28%),
+    linear-gradient(180deg,rgba(18,28,44,.20),rgba(2,6,23,.78))!important;
+}
+.game.active{
+  background:
+    radial-gradient(circle at 18% 8%,rgba(255,224,122,.22),transparent 24%),
+    linear-gradient(180deg,#6fc8ff 0%,#a8eaff 34%,#69d66a 64%,#2d7d2b 100%)!important;
+}
+.game.active .three-stage{
+  background:
+    linear-gradient(180deg,#74c9ff 0%,#aeeaff 37%,#64d66a 69%,#2e842c 100%)!important;
+}
+.game.active canvas#three-canvas{
+  image-rendering:auto!important;
+  filter:saturate(1.22) contrast(1.05) brightness(1.02)!important;
+}
+
+/* HUD com mais presença e leitura no mundo aberto */
+body[data-world="openworld"] .objective-card{
+  opacity:.96!important;
+  backdrop-filter:blur(8px)!important;
+}
+body[data-world="openworld"] .hud-gems-box,
+body[data-world="openworld"] .hud-settings-btn,
+body[data-world="openworld"] .hud-avatar,
+body[data-world="openworld"] .hud-xp-bar-wrap{
+  backdrop-filter:blur(8px)!important;
+}
+
+/* Em paisagem, card não pode esconder o personagem nem o vilarejo */
+@media (orientation:landscape){
+  body[data-world="openworld"] .game.active .objective-card{
+    top:calc(54px + var(--safe-top))!important;
+    transform:translateX(-50%) scale(.88)!important;
+    transform-origin:top center!important;
+    opacity:.72!important;
+  }
+}
+
+/* Botões preservados: nenhum botão some no mundo aberto */
+body[data-world="openworld"] .game.active .action-grid .action-btn{
+  display:flex!important;
+}
