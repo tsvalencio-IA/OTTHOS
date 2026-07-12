@@ -1019,7 +1019,7 @@ body.athos-v58-gamepad .game.active [data-action="interact"]{background:radial-g
 body.athos-v58-gamepad .game.active #jumpBtn{background:radial-gradient(circle at 35% 28%,#d9ffce,#84cc16 50%,#3f8f10 82%)!important}
 
 
-/* V591 PROFESSIONAL OPEN WORLD — remove imagem colada e usa cenário 3D/procedural */
+/* V592 OTTHOS LIFE WORLD — remove imagem colada e usa cenário 3D/procedural */
 body::before{
   background:
     radial-gradient(circle at 14% 12%,rgba(255,218,90,.36),transparent 22%),
@@ -1070,4 +1070,15 @@ body[data-world="openworld"] .hud-xp-bar-wrap{
 /* Botões preservados: nenhum botão some no mundo aberto */
 body[data-world="openworld"] .game.active .action-grid .action-btn{
   display:flex!important;
+}
+
+
+/* V592 — OTTHOS LIFE WORLD: mais interatividade, interiores e atividades */
+body[data-world="openworld"] .objective-card{
+  border-color:rgba(125,211,252,.45)!important;
+  box-shadow:0 14px 26px rgba(0,0,0,.30),0 0 20px rgba(56,189,248,.18)!important;
+}
+body[data-world="openworld"] .toast{
+  border-radius:18px!important;
+  border-color:rgba(125,211,252,.72)!important;
 }

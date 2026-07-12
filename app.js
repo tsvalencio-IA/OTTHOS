@@ -338,7 +338,7 @@
   let actionPressAt = {};
   let p = defaultPlayer();
   let lastDamageAt = 0, jumpBufferedUntil = 0, lastGroundedAt = 0, lastJumpAt = 0, lastLandAt = 0, powerReadyAt = 0;
-  let cameraYaw = 0, cameraPitch = 0, openWorldObjects = [], openWorldChunks = new Map(), openWorldDoors = [], openWorldChests = [], openWorldState = null, cameraDrag = {active:false,id:null,x:0,y:0};
+  let cameraYaw = 0, cameraPitch = 0, openWorldObjects = [], openWorldChunks = new Map(), openWorldDoors = [], openWorldChests = [], openWorldActivities = [], openWorldNPCs = [], openWorldResourceNodes = [], openWorldInteriors = [], openWorldState = null, cameraDrag = {active:false,id:null,x:0,y:0};
 
   function defaultPlayer(){
     return { x:0, y:0, z:4, vx:0, vy:0, vz:0, grounded:true, scaleMode:'normal', scale:1, targetScale:1, height:2.4, radius:.55, spinUntil:0, invUntil:0, combo:0, facing:Math.PI, weapon:null, weaponUntil:0, shield:0, starUntil:0 };
@@ -401,6 +401,18 @@
     // Dados ocultos preservados
     els.hudEnemies.textContent = `${runtime.defeated}/${runtime.requiredEnemies}`;
     els.hudTime.textContent = runtime.timer ? Math.max(0, Math.ceil(runtime.timer)) : '∞';
+    if (isOpenWorld()) {
+      const region = currentOpenWorldRegion();
+      const mission = currentOpenWorldMissionText();
+      const ow = openWorldProgress();
+      els.worldName.textContent = `${region?.name || 'Mundo Aberto'} • ${DIFFICULTY[progress.difficulty].name}`;
+      els.objectiveText.textContent = mission[0];
+      const subtitleEl = document.getElementById('objectiveSubtitle');
+      if (subtitleEl) subtitleEl.textContent = mission[1];
+      const doneScore = (ow.step||0) + Math.min(3, (ow.resources?.wood||0))*.12 + Math.min(3,(ow.resources?.stone||0))*.12 + Object.keys(ow.talked||{}).length*.12;
+      els.objectiveProgress.style.width = `${clamp(doneScore/5*100, 0, 100)}%`;
+      return;
+    }
     els.worldName.textContent = `${WORLD[currentLevel.world]?.name || 'Mundo'} • ${DIFFICULTY[progress.difficulty].name}`;
     const portalReady = objectivesDone();
     const portalGoals = [
@@ -814,13 +826,23 @@
   function openWorldProgress(){
     progress.openWorld = progress.openWorld || {
       x:0, y:0, z:4,
-      mission:'espada_perdida',
+      mission:'vida_no_vilarejo',
       step:0,
       doors:{},
       chests:{},
+      activities:{},
+      talked:{},
+      resources:{ wood:0, stone:0, food:0 },
+      upgrades:{ sword:0, shield:0, house:0 },
       activatedPortals:0,
       visited:{ village:true }
     };
+    progress.openWorld.resources = progress.openWorld.resources || { wood:0, stone:0, food:0 };
+    progress.openWorld.activities = progress.openWorld.activities || {};
+    progress.openWorld.talked = progress.openWorld.talked || {};
+    progress.openWorld.upgrades = progress.openWorld.upgrades || { sword:0, shield:0, house:0 };
+    progress.openWorld.doors = progress.openWorld.doors || {};
+    progress.openWorld.chests = progress.openWorld.chests || {};
     return progress.openWorld;
   }
   function currentOpenWorldRegion(pos){
@@ -830,14 +852,19 @@
   }
   function currentOpenWorldMissionText(){
     const ow = openWorldProgress();
+    const r = ow.resources || {};
     const steps = [
-      ['A espada perdida','Converse com o totem no vilarejo.'],
-      ['A espada perdida','Vá até a floresta.'],
-      ['A espada perdida','Encontre a cabana abandonada.'],
-      ['A espada perdida','Derrote três monstros.'],
-      ['A espada perdida','Pegue a espada e volte ao vilarejo.']
+      ['Vida no Vilarejo','Fale com o Otto na praça e entre na Casa do Athos.'],
+      ['Vida no Vilarejo','Abra a casa, use a cama e pegue comida na cozinha.'],
+      ['A Espada Perdida','Vá à floresta, corte madeira e ache a cabana.'],
+      ['A Oficina','Leve madeira e pedra para a oficina melhorar a espada.'],
+      ['A Ponte','Colete 3 madeiras e 2 pedras para reparar a ponte.'],
+      ['O Mundo Vivo','Explore, converse, abra baús, lute e ative portais.']
     ];
-    return steps[Math.min(ow.step||0, steps.length-1)];
+    const idx = Math.min(ow.step||0, steps.length-1);
+    const base = steps[idx].slice();
+    if (idx >= 2) base[1] += `  Madeira:${r.wood||0} Pedra:${r.stone||0} Comida:${r.food||0}`;
+    return base;
   }
   function addOWObject(obj, chunkX, chunkZ){
     if (!obj) return obj;
@@ -961,11 +988,113 @@
     openWorldChests.push({id,x,z,mesh:c,opened:false});
     return c;
   }
+
+  function owActivity(id,x,z,type,label,color=0x38bdf8){
+    const base = owBox(x,.08,z,2.6,.16,2.6,color,{emissive:color,emissiveIntensity:.25,transparent:true,opacity:.72,outline:true,outlineColor:0xffffff,outlineOpacity:.18});
+    const icon = owBox(x,.72,z,.7,.7,.7,color,{emissive:color,emissiveIntensity:.55,outline:true,outlineOpacity:.12});
+    openWorldActivities.push({id,x,z,type,label,mesh:base,icon,used:false});
+    return base;
+  }
+  function owNPC(id,x,z,name,color=0xffdf52){
+    const g = new THREE.Group();
+    g.name = 'OW_NPC_' + id;
+    const body = box(.82,1.25,.58,color,{emissive:color,emissiveIntensity:.08,outline:true,outlineOpacity:.18});
+    body.position.y = .95;
+    const head = box(.70,.70,.70,0xffd8a8,{outline:true,outlineOpacity:.12});
+    head.position.y = 1.88;
+    const eye1 = box(.08,.08,.04,0x111827); eye1.position.set(-.16,1.92,.37);
+    const eye2 = box(.08,.08,.04,0x111827); eye2.position.set(.16,1.92,.37);
+    g.add(body,head,eye1,eye2);
+    g.position.set(x,0,z);
+    levelGroup.add(g);
+    addOWObject(g,owChunkFor(x,z).cx,owChunkFor(x,z).cz);
+    openWorldNPCs.push({id,name,x,z,mesh:g});
+    return g;
+  }
+  function owResourceNode(id,x,z,type,amount=1){
+    let mesh;
+    if(type==='wood'){
+      mesh = owTree(x,z,.82);
+    } else if(type==='stone'){
+      mesh = owRock(x,z,1.1,0x7b8794);
+    } else {
+      mesh = owBox(x,.35,z,1.2,.7,1.2,0xfacc15,{emissive:0xfacc15,emissiveIntensity:.16,outline:true,outlineOpacity:.12});
+    }
+    openWorldResourceNodes.push({id,x,z,type,amount,mesh,used:false});
+    return mesh;
+  }
+  function owInteriorZone(id,x,z,w,d,label){
+    const zone = owBox(x,.045,z,w,.09,d,0x93c5fd,{emissive:0x38bdf8,emissiveIntensity:.10,transparent:true,opacity:.16,outline:true,outlineOpacity:.07});
+    openWorldInteriors.push({id,x,z,w,d,label,mesh:zone,inside:false});
+    return zone;
+  }
+  function owIsInsideInterior(zone){
+    return Math.abs(p.x-zone.x) <= zone.w/2 && Math.abs(p.z-zone.z) <= zone.d/2;
+  }
+  function syncOpenWorldInteriors(){
+    if(!isOpenWorld()) return;
+    for(const zone of openWorldInteriors){
+      const inside = owIsInsideInterior(zone);
+      if(zone.inside === inside) continue;
+      zone.inside = inside;
+      for(const d of openWorldDoors){
+        if(d.name === zone.id && d.mesh) d.mesh.visible = !inside && !d.open;
+      }
+      if(inside) toast(`Entrou: ${zone.label}`, 'good');
+    }
+  }
+  function addOWResource(type,amount=1){
+    const ow = openWorldProgress();
+    ow.resources[type] = (ow.resources[type] || 0) + amount;
+    saveProgress(); updateHud();
+  }
+  function useOWActivity(act){
+    const ow = openWorldProgress();
+    ow.activities[act.id] = (ow.activities[act.id] || 0) + 1;
+    if(act.type === 'bed'){
+      runtime.hearts = runtime.maxHearts || DIFFICULTY[progress.difficulty].hearts;
+      ow.step = Math.max(ow.step||0, 2);
+      toast('Dormiu e salvou progresso. Vida cheia!', 'good');
+    } else if(act.type === 'kitchen'){
+      addOWResource('food',1);
+      toast('Pegou comida na cozinha.', 'good');
+    } else if(act.type === 'workbench'){
+      const r = ow.resources;
+      if((r.wood||0)>=2 && (r.stone||0)>=1){
+        r.wood -= 2; r.stone -= 1;
+        ow.upgrades.sword = (ow.upgrades.sword||0) + 1;
+        p.weapon='sword'; p.weaponUntil=now()+120000;
+        ow.step = Math.max(ow.step||0, 4);
+        toast('Oficina: espada melhorada!', 'good');
+        addXP(60);
+      } else toast('Oficina precisa de 2 madeiras e 1 pedra.', 'warn');
+    } else if(act.type === 'farm'){
+      addOWResource('food',1);
+      toast('Colheu alimento na fazenda.', 'good');
+    } else if(act.type === 'bridge'){
+      const r = ow.resources;
+      if((r.wood||0)>=3 && (r.stone||0)>=2){
+        r.wood -= 3; r.stone -= 2;
+        ow.activities.bridge_repaired = 1;
+        ow.step = Math.max(ow.step||0, 5);
+        toast('Ponte reparada! Nova área liberada.', 'good');
+        addXP(80);
+      } else toast('Ponte precisa de 3 madeiras e 2 pedras.', 'warn');
+    } else {
+      toast(act.label || 'Atividade concluída.', 'good');
+    }
+    saveProgress(); updateHud();
+  }
+
   function buildOpenWorld(){
     openWorldObjects = [];
     openWorldChunks = new Map();
     openWorldDoors = [];
     openWorldChests = [];
+    openWorldActivities = [];
+    openWorldNPCs = [];
+    openWorldResourceNodes = [];
+    openWorldInteriors = [];
     openWorldState = openWorldProgress();
     currentLevel.openWorld = true;
     currentLevel.length = OPEN_WORLD.size*2;
@@ -1030,6 +1159,21 @@
     owHouse(-19,17,'loja',0xc08457);
     owHouse(18,16,'morador',0x9a6332);
     owHouse(34,6,'fazenda',0xb8793a);
+    owInteriorZone('casa_athos',-17,-12,5.8,4.8,'Casa do Athos');
+    owInteriorZone('oficina',16,-13,5.8,4.8,'Oficina');
+    owInteriorZone('loja',-19,17,5.8,4.8,'Loja');
+    owInteriorZone('morador',18,16,5.8,4.8,'Casa do Morador');
+    owInteriorZone('fazenda',34,6,6.0,5.0,'Fazenda');
+    owActivity('cama_athos',-17,-13.7,'bed','Dormir / salvar',0x38bdf8);
+    owActivity('cozinha_athos',-15.1,-10.5,'kitchen','Cozinha',0xf59e0b);
+    owActivity('bancada_oficina',16,-13.5,'workbench','Melhorar espada',0x22c55e);
+    owActivity('loja_balcao',-19,15.4,'shop','Loja',0xfacc15);
+    owActivity('plantacao_fazenda',38,6.4,'farm','Colher alimento',0x84cc16);
+    owActivity('ponte_quebrada',-18,38,'bridge','Reparar ponte',0x8b5a2b);
+    owNPC('otto',2,5,'Otto',0xfacc15);
+    owNPC('mestre',14,-6,'Mestre da Oficina',0x38bdf8);
+    owNPC('moradora',20,20,'Moradora',0xff7ac8);
+    owNPC('fazendeiro',35,12,'Fazendeiro',0x84cc16);
     owFence(-18,16,13,11);
     owFence(34,6,15,12);
     for(const pnt of [[-28,-3],[28,-4],[-26,28],[28,28],[-6,16],[7,16]]) owLamp(pnt[0],pnt[1],0xffd86b);
@@ -1047,6 +1191,7 @@
       owTree(x,z,.82+Math.random()*.78);
     }
     owHouse(-112,-72,'cabana_floresta',0x6b3b17);
+    for(let i=0;i<10;i++) owResourceNode('madeira_'+i,-96+(Math.random()-.5)*58,-66+(Math.random()-.5)*72,'wood',1);
     owChest(-108,-64,'bau_espada');
     addPowerup('sword',-104,1.2,-68);
     for(let i=0;i<16;i++) owFlower(-98+(Math.random()-.5)*44,-70+(Math.random()-.5)*50,Math.random()>.5?0xffdf52:0xff7ac8);
@@ -1072,6 +1217,7 @@
     owSolid(-82,1.6,-146,16,3.2,8,0x475569,{outline:true,outlineOpacity:.16});
     owBox(-82,1.2,-141.9,6.4,2.5,.20,0x020617,{emissive:0x000000,emissiveIntensity:.1});
     owChest(-86,-136,'bau_caverna');
+    for(let i=0;i<8;i++) owResourceNode('pedra_'+i,-70+(Math.random()-.5)*54,-138+(Math.random()-.5)*48,'stone',1);
     addEnemy('golem',-78,-132);
 
     // Vulcão, com lava real em 3D.
@@ -2466,7 +2612,7 @@ function swordAttack(){
   }
 
   function update(dt){
-    updateInput(dt); updateTimer(dt); updatePlayer(dt); updateEnemies(dt); updateV44EnemyProjectiles(dt); updateFireballs(dt); updateParticles(dt); updatePremiumVisuals(dt); syncGameplayVisibility(); syncV55VisualLanguage(); checkPowerups(); checkCrystals(); checkHazards(); checkCheckpoints(); checkGates(); checkPortal(); updateCamera(dt); updateHud();
+    updateInput(dt); updateTimer(dt); updatePlayer(dt); updateEnemies(dt); updateV44EnemyProjectiles(dt); updateFireballs(dt); updateParticles(dt); updatePremiumVisuals(dt); syncGameplayVisibility(); syncV55VisualLanguage(); syncOpenWorldInteriors(); checkPowerups(); checkCrystals(); checkHazards(); checkCheckpoints(); checkGates(); checkPortal(); updateCamera(dt); updateHud();
   }
   function updateTimer(dt){ if (runtime && runtime.timer) { runtime.timer -= dt; if (runtime.timer <= 0) damagePlayer(999,'Tempo esgotado!'); } }
   function updateInput(dt=1/60){
@@ -3008,13 +3154,36 @@ function swordAttack(){
   function cycleSize(){ p.scaleMode = p.scaleMode==='normal' ? 'mini' : p.scaleMode==='mini' ? 'giant' : 'normal'; toast(p.scaleMode==='mini'?'Mini!':p.scaleMode==='giant'?'Gigante!':'Normal!', 'good'); if(p.scaleMode==='giant'){ addMedal('Athos Gigante'); checkGates(); } }
   function interact(){
     if (isOpenWorld()) {
+      const npc = openWorldNPCs.find(n => Math.abs(p.x-n.x)<3.6 && Math.abs(p.z-n.z)<3.6);
+      if (npc) {
+        const ow = openWorldProgress();
+        ow.talked[npc.id] = true;
+        if(npc.id === 'otto') { ow.step = Math.max(ow.step||0,1); toast('Otto: entre em casa, descanse e se prepare!', 'good'); }
+        else if(npc.id === 'mestre') toast('Mestre: traga madeira e pedra para melhorar a espada.', 'good');
+        else if(npc.id === 'fazendeiro') toast('Fazendeiro: colha comida e ajude a reparar a ponte.', 'good');
+        else toast(`${npc.name}: explore, colete e volte com novidades.`, 'good');
+        addXP(8);
+        saveProgress(); updateHud();
+        return;
+      }
+      const act = openWorldActivities.find(a => Math.abs(p.x-a.x)<3.3 && Math.abs(p.z-a.z)<3.3);
+      if (act) { useOWActivity(act); return; }
+      const node = openWorldResourceNodes.find(n => !n.used && Math.abs(p.x-n.x)<3.0 && Math.abs(p.z-n.z)<3.0);
+      if (node) {
+        node.used = true;
+        if(node.mesh) setTreeVisible(node.mesh,false);
+        addOWResource(node.type,node.amount||1);
+        addXP(10);
+        toast(node.type==='wood'?'Madeira coletada!':node.type==='stone'?'Pedra coletada!':'Recurso coletado!', 'good');
+        return;
+      }
       const door = openWorldDoors.find(d => Math.abs(p.x-d.x)<3.0 && Math.abs(p.z-d.z)<3.0);
       if (door) {
         door.open = !door.open;
         if (door.mesh) door.mesh.visible = !door.open;
         openWorldProgress().doors[door.name] = door.open;
         saveProgress();
-        toast(door.open ? 'Porta aberta!' : 'Porta fechada!', 'good');
+        toast(door.open ? 'Porta aberta — entre para ver dentro.' : 'Porta fechada!', 'good');
         return;
       }
       const chest = openWorldChests.find(c => !c.opened && Math.abs(p.x-c.x)<3.2 && Math.abs(p.z-c.z)<3.2);
@@ -3024,6 +3193,7 @@ function swordAttack(){
         openWorldProgress().chests[chest.id] = true;
         addXP(35);
         runtime.crystals = (runtime.crystals||0) + 1;
+        if(chest.id.includes('espada')) { p.weapon='sword'; p.weaponUntil=now()+120000; openWorldProgress().step=Math.max(openWorldProgress().step||0,3); }
         toast('Baú aberto! + cristal', 'good');
         saveProgress();
         updateHud();
@@ -3032,8 +3202,8 @@ function swordAttack(){
       const region = currentOpenWorldRegion();
       if(region && region.id === 'village') {
         openWorldProgress().step = Math.max(openWorldProgress().step||0, 1);
-        toast('Missão: vá até a floresta.', 'good');
-        saveProgress();
+        toast('Procure Otto, entre nas casas e use as atividades.', 'good');
+        saveProgress(); updateHud();
         return;
       }
     }
@@ -3699,7 +3869,7 @@ function swordAttack(){
     jump: () => jump(),
     power: () => power(),
     buildLevelById: (id) => { const idx = LEVELS.findIndex(l => l.id === id || l.world === id); if (idx < 0) return false; currentLevelIndex = idx; buildLevel(LEVELS[idx]); return true; },
-    getV591ProfessionalOpenWorld: () => ({ label:'V591_PROFESSIONAL_OPEN_WORLD', openWorld:isOpenWorld(), objects:openWorldObjects.length, chunks:openWorldChunks.size, doors:openWorldDoors.length, chests:openWorldChests.length, region:currentOpenWorldRegion()?.id, noReferenceBackground:true, physicsWeight:'professional' }),
+    getV592OtthosLifeWorld: () => ({ label:'V592_OTTHOS_LIFE_WORLD', openWorld:isOpenWorld(), objects:openWorldObjects.length, chunks:openWorldChunks.size, doors:openWorldDoors.length, chests:openWorldChests.length, activities:openWorldActivities.length, npcs:openWorldNPCs.length, resources:openWorldResourceNodes.length, interiors:openWorldInteriors.length, inventory:openWorldProgress().resources, region:currentOpenWorldRegion()?.id, noReferenceBackground:true, physicsWeight:'professional', ambition:'The Sims + Minecraft + Mario World + GTA Kids' }),
     forcePortalReady: () => { if (!runtime) return false; runtime.crystals = runtime.requiredCrystals; runtime.defeated = runtime.requiredEnemies; runtime.quizSolved = true; runtime.portalAnnounced = false; updateHud(); return objectivesDone(); }
   };
 

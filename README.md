@@ -1,55 +1,63 @@
-# ATHOS OPEN WORLD V591 — PROFESSIONAL PASS 1
+# OTTHOS LIFE WORLD V592
 
-Versão limpa para novo repositório, mantendo o jogo completo.
+Versão completa e limpa para novo repositório.
 
-## Preservado
+## Conceito desta versão
 
-- Mundo aberto.
-- AR com `athos.glb`.
-- Quiz.
-- Conversar / falar com Athos.
-- Coleção.
-- Progresso local.
-- Joystick.
-- Gamepad.
-- Todos os botões de ação.
-- Pulo, poder, espada/interação, agachar, tamanho, girar, pausa e sair.
-- HUD.
-- Render premium V54.
-- Responsividade mobile em retrato e paisagem.
-- Service Worker limpo.
+Primeira evolução para o nosso "Minecraft + The Sims + Mario World + GTA Kids":
 
-## Evolução V591
+- mundo aberto;
+- casas com portas e interiores visíveis;
+- atividades dentro e fora das casas;
+- NPCs para conversar;
+- coleta de madeira, pedra e comida;
+- oficina para melhorar espada;
+- cama para descansar/salvar;
+- cozinha/fazenda para comida;
+- ponte reparável;
+- baús com recompensas;
+- floresta, lago, caverna, vulcão, castelo e acampamento inimigo;
+- AR preservado;
+- quiz preservado;
+- conversar/falar com Athos preservado;
+- coleção e progresso preservados;
+- joystick, gamepad e todos os botões preservados.
 
-- Remove a imagem de referência colada no fundo.
-- Cria cenário 3D/procedural real para o open world.
-- Vilarejo mais rico, com casas, cercas, postes, praça e portal.
-- Floresta mais densa.
-- Lago, pontes, campo aberto, acampamento inimigo, caverna, vulcão e castelo.
-- Mais props: pedras, flores, grama, lâmpadas, baús e cercas.
-- Física do pulo com mais peso.
-- Queda mais rápida e menos flutuante.
-- Sombra de contato do personagem.
-- Squash leve no pouso.
-- Câmera open world melhorada.
-- Movimento de pulo relativo à câmera no mundo aberto.
+## Como jogar/testar
+
+Use o botão de ação/espada perto de:
+
+- NPCs;
+- portas;
+- camas;
+- cozinha;
+- bancada da oficina;
+- plantação;
+- ponte quebrada;
+- árvores e pedras coletáveis;
+- baús.
 
 ## Publicação
 
-Suba todos os arquivos deste ZIP na raiz do novo repositório.
+Suba todos os arquivos na raiz do novo repositório.
 
 Abra com:
 
 ```text
-index.html?v=591-professional-open-world
+index.html?v=592-otthos-life-world
 ```
 
-## Testes F12
+## Teste F12
 
 Use:
 
 ```text
-F12_TESTE_ATHOS_V591_PROFESSIONAL_OPEN_WORLD.js
+F12_TESTE_OTTHOS_V592_LIFE_WORLD.js
 ```
 
-O teste antigo V590 foi mantido como referência temporária.
+## Próximas versões
+
+- V593: interiores maiores, loja real, inventário visual e mini mapa.
+- V594: construção/colocação de blocos em áreas permitidas.
+- V595: IA dos NPCs e rotina diária.
+- V596: preparação técnica para multiplayer.

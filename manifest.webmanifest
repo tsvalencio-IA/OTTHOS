@@ -1,13 +1,13 @@
 {
-  "name": "Athos Open World V591",
-  "short_name": "Athos V591",
-  "start_url": "./index.html?v=591-professional-open-world",
+  "name": "Otthos Life World V592",
+  "short_name": "Otthos V592",
+  "start_url": "./index.html?v=592-otthos-life-world",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#080b16",
   "theme_color": "#0b1020",
-  "description": "Athos Open World profissional com AR, quiz, conversa, mundo aberto 3D procedural, física melhorada, render premium e controles mobile/gamepad.",
+  "description": "Otthos Life World: mundo aberto 3D com AR, quiz, conversa, casas com interiores, atividades, NPCs, recursos, combate, exploração e base para multiplayer.",
   "icons": [
     {
       "src": "./icons/icon-192.png",
