@@ -1,13 +1,13 @@
 {
-  "name": "Otthos Life World V592",
-  "short_name": "Otthos V592",
-  "start_url": "./index.html?v=592-otthos-life-world",
+  "name": "Otthos Life World V593",
+  "short_name": "Otthos V593",
+  "start_url": "./index.html?v=593-mobile-polish",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#080b16",
   "theme_color": "#0b1020",
-  "description": "Otthos Life World: mundo aberto 3D com AR, quiz, conversa, casas com interiores, atividades, NPCs, recursos, combate, exploração e base para multiplayer.",
+  "description": "Otthos Life World V593 com correção profissional de escala mobile, botões dentro da tela, configurações sem cenários antigos, render com menos névoa e câmera mais próxima.",
   "icons": [
     {
       "src": "./icons/icon-192.png",

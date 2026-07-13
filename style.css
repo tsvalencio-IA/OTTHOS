@@ -1082,3 +1082,31 @@ body[data-world="openworld"] .toast{
   border-radius:18px!important;
   border-color:rgba(125,211,252,.72)!important;
 }
+
+/* V593 — correção anti-amador: botões sempre dentro da tela e sem seletor de cenários */
+.settings-worlds,.settings-world-btn{display:none!important}
+.settings-hint{margin:6px 0 0;color:#cbd5e1;line-height:1.25}
+body.athos-v58-gamepad .game.active .action-grid{
+  overflow:visible!important;
+}
+@media (orientation:landscape){
+  body.athos-v58-gamepad .game.active .right-zone{
+    max-width:210px!important;
+    right:calc(8px + env(safe-area-inset-right))!important;
+  }
+  body.athos-v58-gamepad .game.active .left-zone{
+    left:calc(8px + env(safe-area-inset-left))!important;
+  }
+  body.athos-v58-gamepad .game.active .action-grid .action-btn{
+    box-shadow:0 4px 0 rgba(0,0,0,.35),0 6px 12px rgba(0,0,0,.18)!important;
+  }
+  body[data-world="openworld"] .game.active .objective-card{
+    top:calc(48px + var(--safe-top))!important;
+    width:min(44vw,390px)!important;
+    transform:translateX(-50%) scale(.82)!important;
+    opacity:.78!important;
+  }
+}
+body[data-world="openworld"] .game.active canvas#three-canvas{
+  filter:saturate(1.38) contrast(1.14) brightness(1.04)!important;
+}

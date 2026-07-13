@@ -1110,10 +1110,10 @@
     cameraYaw = openWorldState.cameraYaw || 0;
     configureWorld('field');
     scene.background = new THREE.Color(0x7ac7ff);
-    scene.fog = new THREE.Fog(0xa8e6ff, 115, 430);
+    scene.fog = new THREE.Fog(0xa8e6ff, 210, 780);
     renderer.setClearColor(0x7ac7ff, 1);
-    renderer.toneMappingExposure = 1.18;
-    ambientLight.intensity = .58;
+    renderer.toneMappingExposure = 1.28;
+    ambientLight.intensity = .50;
     sunLight.intensity = 1.48;
     sunLight.position.set(18,30,16);
 
@@ -3091,8 +3091,8 @@ function swordAttack(){
     const portrait = !landscape;
     const speed = clamp(Math.hypot(p.vx,p.vz) / 9, 0, 1);
     if (isOpenWorld()) {
-      const dist = (landscape ? 12.6 : 14.8) + speed * 1.6;
-      const height = (landscape ? 6.1 : 7.4) + speed * .35 + (p.grounded ? 0 : .15);
+      const dist = (landscape ? 9.8 : 12.6) + speed * 1.1;
+      const height = (landscape ? 4.9 : 6.3) + speed * .28 + (p.grounded ? 0 : .10);
       const lookHeight = 1.65 + (p.grounded ? 0 : .18);
       const desiredFov = (landscape ? 60 : 57) + speed * 1.2;
       camera.fov += (desiredFov - camera.fov) * Math.min(1, dt * 3.8);
@@ -3734,25 +3734,20 @@ function swordAttack(){
 
   function openGameSettings(){
     hardStopAllInput('settings-open');
-    const worlds = [
-      ['field','🌱 Campo'], ['fire','🔥 Vulcão'], ['forest','🌳 Floresta'],
-      ['castle','🏰 Castelo'], ['space','🚀 Espaço'], ['arena','🌀 Arena'], ['real','📷 Real']
-    ];
-    els.modalTitle.textContent = 'Configurações';
+    els.modalTitle.textContent = 'Configurações do Otthos';
     els.modalBody.innerHTML = `
       <div class="settings-game-panel">
         <div class="settings-section">
-          <strong>Escolher mundo</strong>
-          <div class="settings-worlds">
-            ${worlds.map(([id,label]) => `<button class="pixel-btn settings-world-btn ${currentLevel?.world===id?'active':''}" data-settings-world="${id}" type="button">${label}</button>`).join('')}
-          </div>
+          <strong>Mundo aberto ativo</strong>
+          <p class="settings-hint">Os cenários antigos foram removidos desta tela. Agora o jogo fica no Life World contínuo.</p>
         </div>
         <div class="settings-section">
-          <strong>Ações extras</strong>
+          <strong>Ações rápidas</strong>
           <div class="settings-actions">
             <button class="pixel-btn" data-settings-action="mini" type="button">Mini</button>
             <button class="pixel-btn" data-settings-action="normal" type="button">Normal</button>
             <button class="pixel-btn" data-settings-action="giant" type="button">Gigante</button>
+            <button class="pixel-btn" data-settings-action="home" type="button">Voltar à vila</button>
             <button class="pixel-btn" data-settings-action="pause" type="button">Pausar</button>
             <button class="pixel-btn danger" data-settings-action="exit" type="button">Sair</button>
           </div>
@@ -3760,15 +3755,13 @@ function swordAttack(){
       </div>`;
     els.modal.hidden = false;
     els.app && els.app.classList.add('modal-active');
-    $$('.settings-world-btn', els.modalBody).forEach(btn => {
-      btn.onclick = () => switchWorldFromSettings(btn.dataset.settingsWorld);
-    });
     $$('[data-settings-action]', els.modalBody).forEach(btn => {
       btn.onclick = () => {
         const a = btn.dataset.settingsAction;
         if (a === 'mini') { p.scaleMode = 'mini'; toast('Mini!', 'good'); closeModal(); }
         else if (a === 'normal') { p.scaleMode = 'normal'; toast('Normal!', 'good'); closeModal(); }
         else if (a === 'giant') { p.scaleMode = 'giant'; toast('Gigante!', 'good'); closeModal(); }
+        else if (a === 'home') { p.x = 0; p.z = 4; p.y = 0; p.vx = p.vz = p.vy = 0; cameraRig.initialized=false; saveProgress(); closeModal(); toast('Voltou para a vila.', 'good'); }
         else if (a === 'pause') { closeModal(); togglePause(); }
         else if (a === 'exit') { closeModal(); exitGame(); }
       };
@@ -3869,7 +3862,7 @@ function swordAttack(){
     jump: () => jump(),
     power: () => power(),
     buildLevelById: (id) => { const idx = LEVELS.findIndex(l => l.id === id || l.world === id); if (idx < 0) return false; currentLevelIndex = idx; buildLevel(LEVELS[idx]); return true; },
-    getV592OtthosLifeWorld: () => ({ label:'V592_OTTHOS_LIFE_WORLD', openWorld:isOpenWorld(), objects:openWorldObjects.length, chunks:openWorldChunks.size, doors:openWorldDoors.length, chests:openWorldChests.length, activities:openWorldActivities.length, npcs:openWorldNPCs.length, resources:openWorldResourceNodes.length, interiors:openWorldInteriors.length, inventory:openWorldProgress().resources, region:currentOpenWorldRegion()?.id, noReferenceBackground:true, physicsWeight:'professional', ambition:'The Sims + Minecraft + Mario World + GTA Kids' }),
+    getV593MobilePolish: () => ({ label:'V593_MOBILE_POLISH', openWorld:isOpenWorld(), objects:openWorldObjects.length, chunks:openWorldChunks.size, doors:openWorldDoors.length, chests:openWorldChests.length, activities:openWorldActivities.length, npcs:openWorldNPCs.length, resources:openWorldResourceNodes.length, interiors:openWorldInteriors.length, inventory:openWorldProgress().resources, region:currentOpenWorldRegion()?.id, noReferenceBackground:true, physicsWeight:'professional', ambition:'The Sims + Minecraft + Mario World + GTA Kids' }),
     forcePortalReady: () => { if (!runtime) return false; runtime.crystals = runtime.requiredCrystals; runtime.defeated = runtime.requiredEnemies; runtime.quizSolved = true; runtime.portalAnnounced = false; updateHud(); return objectivesDone(); }
   };
 
@@ -3888,12 +3881,6 @@ function swordAttack(){
         body.athos-v58-gamepad .game.active .world-strip,
         body.athos-v58-gamepad .game.active .direction-buttons,
         body.athos-v58-gamepad .game.active .minimap,
-        body.athos-v58-gamepad .game.active #pauseBtn,
-        body.athos-v58-gamepad .game.active #exitBtn,
-        body.athos-v58-gamepad .game.active #sizeBtn,
-        body.athos-v58-gamepad .game.active #crouchBtn,
-        body.athos-v58-gamepad .game.active #normalBtn,
-        body.athos-v58-gamepad .game.active [data-action="spin"]{display:none!important;visibility:hidden!important;pointer-events:none!important;}
         body.athos-v58-gamepad .game.active #powerBtn,
         body.athos-v58-gamepad .game.active #jumpBtn,
         body.athos-v58-gamepad .game.active [data-action="interact"]{display:flex!important;visibility:visible!important;opacity:1!important;}
@@ -3905,10 +3892,10 @@ function swordAttack(){
       const game=document.querySelector('.game.active')||document.querySelector('.game'); if(!game) return;
       const vv=window.visualViewport, vw=Math.max(320,vv?vv.width:innerWidth), vh=Math.max(260,vv?vv.height:innerHeight);
       const landscape=vw>vh, safeBottom='env(safe-area-inset-bottom)';
-      const btn=landscape?clampV(58,vh*.15,76):clampV(62,vw*.17,82);
-      const joy=landscape?clampV(110,vh*.28,150):clampV(120,vw*.34,170);
-      const gap=landscape?clampV(10,vh*.025,16):clampV(10,vw*.03,18);
-      const side=landscape?22:16, bottom=landscape?14:18;
+      const btn=landscape?clampV(40,Math.min(vh*.078,vw*.050),54):clampV(48,Math.min(vw*.135,vh*.095),64);
+      const joy=landscape?clampV(96,Math.min(vh*.22,vw*.13),124):clampV(104,Math.min(vw*.30,vh*.20),138);
+      const gap=landscape?clampV(6,vh*.014,10):clampV(7,vw*.020,11);
+      const side=landscape?10:10, bottom=landscape?8:10;
       const controls=game.querySelector('.game-controls'), left=game.querySelector('.left-zone'), right=game.querySelector('.right-zone'), joyRing=game.querySelector('.joy-ring'), joyKnob=game.querySelector('.joy-knob'), actionGrid=game.querySelector('.action-grid'), joystick=game.querySelector('.joystick');
       important(controls,'position','fixed'); important(controls,'left','0'); important(controls,'right','0'); important(controls,'bottom','0'); important(controls,'top','auto'); important(controls,'width','100vw'); important(controls,'height','0'); important(controls,'padding','0'); important(controls,'margin','0'); important(controls,'display','block'); important(controls,'z-index','9000'); important(controls,'pointer-events','none'); important(controls,'overflow','visible'); important(controls,'background','none'); important(controls,'border','0');
       important(left,'position','fixed'); important(left,'left',px(side)); important(left,'right','auto'); important(left,'top','auto'); important(left,'bottom',`calc(${px(bottom)} + ${safeBottom})`); important(left,'width',px(joy)); important(left,'height','auto'); important(left,'min-width',px(joy)); important(left,'display','flex'); important(left,'align-items','flex-end'); important(left,'justify-content','flex-start'); important(left,'z-index','9100'); important(left,'pointer-events','auto'); important(left,'transform','none'); important(left,'overflow','visible');
@@ -3923,10 +3910,12 @@ function swordAttack(){
         ['#crouchBtn',2,2,false],['#sizeBtn',1,2,false],['#normalBtn',1,3,false],
         ['[data-action="spin"]',1,1,false],['#pauseBtn',2,1,false],['#exitBtn',3,1,false]
       ];
+      const grid3W = btn*3 + gap*2, grid3H = btn*3 + gap*2;
+      important(right,'width',px(grid3W)); important(right,'height',px(grid3H)); important(right,'min-width',px(grid3W)); important(right,'right',px(side));
       important(actionGrid,'grid-template-columns',`repeat(3, ${px(btn)})`);
       important(actionGrid,'grid-template-rows',`repeat(3, ${px(btn)})`);
-      important(actionGrid,'width',px(btn*3 + gap*2));
-      important(actionGrid,'height',px(btn*3 + gap*2));
+      important(actionGrid,'width',px(grid3W));
+      important(actionGrid,'height',px(grid3H));
       for(const [sel,col,row,round] of visibleButtons){const b=game.querySelector(sel); if(!b) continue; important(b,'display','flex'); important(b,'visibility','visible'); important(b,'opacity','1'); important(b,'grid-column',String(col)); important(b,'grid-row',String(row)); important(b,'position','relative'); important(b,'width',px(btn)); important(b,'height',px(btn)); important(b,'min-width',px(btn)); important(b,'min-height',px(btn)); important(b,'max-width',px(btn)); important(b,'max-height',px(btn)); important(b,'margin','0'); important(b,'padding','0'); important(b,'border-radius',round?'50%':'14px'); important(b,'overflow','hidden'); important(b,'align-items','center'); important(b,'justify-content','center'); important(b,'pointer-events','auto'); important(b,'z-index','9200'); important(b,'font-size',round?'0':'13px'); important(b,'transform','none'); const span=b.querySelector('span'); if(span) important(span,'display',round?'none':'block');}
       const objective=game.querySelector('.objective-card'); if(objective){important(objective,'z-index','70'); important(objective,'pointer-events','none'); if(landscape){important(objective,'top','calc(58px + env(safe-area-inset-top))'); important(objective,'width','min(46vw,430px)'); important(objective,'min-height','54px');} else {important(objective,'top','calc(74px + env(safe-area-inset-top))'); important(objective,'width','min(86vw,500px)'); important(objective,'min-height','64px');}}
     }
