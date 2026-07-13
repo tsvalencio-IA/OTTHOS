@@ -1,43 +1,42 @@
-# OTTHOS LIFE WORLD — V604 COMPLETO SEM SIMPLIFICAÇÃO
+# OTTHOS LIFE WORLD V605 — BASE COMPLETA ESTÁVEL
 
-Esta versão completa parte da V603 e preserva todos os sistemas existentes.
+Esta entrega é um ZIP completo para publicar na raiz de um repositório GitHub Pages.
 
-## Mudança obrigatória do personagem
+## Base usada
 
-- O `athos.glb` NÃO é carregado durante a jogabilidade.
-- O GLB permanece apenas no lobby, visualizador 3D e Realidade Aumentada.
-- O personagem jogável é um modelo procedural próprio do **Otthos**.
-- Cabeça, tronco, olhos branco/vermelho e chamas pixeladas nos braços e pernas seguem o modelo de referência.
-- O ponto de origem do modelo fica na sola dos pés.
-- Caminhada, pulo, abaixar, Mini, Normal, Grande, Girar, Poder e Espada não podem mover a raiz abaixo do chão.
+- Estrutura completa V600.
+- Evoluções válidas da V601.
+- Correções localizadas de regressão, sem importar a física e o layout quebrados das versões posteriores.
 
-## Sistemas preservados
+## Regras preservadas
 
-- mundo aberto completo;
-- casas e interiores;
-- cozinhar, beber, dormir, banho, TV, sofá, baú e guarda-roupa;
-- todos os controles: joystick, Ação, Pular, Poder, Espada, Abaixar, Mini, Normal, Grande e Girar;
-- vizinhos com nomes próprios e interações sociais;
-- corrida, pega-moedas e ginásio;
-- empregos, carreira, moedas, reputação e amizade;
-- coleta, inventário e construção;
-- mapa GPS top-down com posição, direção, destinos, distância, rota e marcador no mundo;
-- AR, quiz, conversa, coleção e moldes 3D;
-- instalação PWA condicionada ao estado real do aplicativo;
-- salvamento automático em IndexedDB com cópia no localStorage;
-- exportação/importação de backup;
-- preparação para multiplayer.
+- O arquivo `athos.glb` é usado apenas no lobby/visualizador/AR.
+- Durante o jogo, o personagem é o Otthos procedural animado.
+- Ação, Pular, Poder, Abaixar, Mini, Normal, Grande e Girar permanecem disponíveis.
+- AR, quiz, coleção, moldes, casas, interiores, construção, missões e PWA foram preservados.
 
-## Publicação
+## Correções principais
 
-Substitua todo o conteúdo do repositório pelo conteúdo deste pacote e abra uma vez com:
+- Sola dos pés ancorada à raiz física do jogador.
+- Braços e pernas animados durante a caminhada.
+- Pulo, queda e aterrissagem preservados.
+- Ação contextual prioriza fogão, geladeira, cama, baú, porta, NPC e outros objetos próximos.
+- Mapa GPS usa as coordenadas reais do mundo, mostra jogador, direção, distâncias, destinos e rota.
+- Controles não ficam sobre o mapa ou outros modais.
+- Layout validado em retrato e paisagem, inclusive com menu Vida expandido.
+- IndexedDB principal, cópia no localStorage, salvamento automático, backups e importação/exportação.
+- Instalação aparece no lobby somente quando o navegador oferece a instalação e desaparece após instalar.
 
-```text
-?v=604
-```
+## Publicação no GitHub
 
-## Teste F12
+1. Exclua os arquivos da versão quebrada no repositório.
+2. Envie todo o conteúdo deste pacote para a raiz.
+3. Ative GitHub Pages na branch principal e pasta raiz.
+4. No primeiro teste, abra `index.html?v=605`.
+5. Aguarde o 3D carregar antes de entrar no mundo.
 
-Use `F12_TESTE_OTTHOS_V604_JOGABILIDADE_COMERCIAL.js`.
+## Auditoria pelo F12
 
-Powered by thIAguinho Soluções Digitais.
+Use `F12_TESTE_OTTHOS_V605_JOGABILIDADE_COMERCIAL.js` no Console do navegador depois que o jogo estiver publicado.
+
+Leia também `RELATORIO_VALIDACAO_V605.txt`.

@@ -93,7 +93,7 @@ button:focus-visible,input:focus-visible{outline:3px solid #fff;outline-offset:2
 }
 
 /* =========================================================
-   V602 — CONTROLES COMPLETOS / AÇÃO CONTEXTUAL / MAPA REAL
+   V605 — CONTROLES COMPLETOS / AÇÃO CONTEXTUAL / MAPA REAL
    ========================================================= */
 :root{--skill:46px;--skill-gap:6px}
 html.app-installed #installBtn,html.app-installed #installHint{display:none!important}
@@ -134,37 +134,65 @@ html.app-installed #installBtn,html.app-installed #installHint{display:none!impo
  .skill-btn span{display:none}.skill-btn b{font-size:18px}
 }
 
+
 /* =========================================================
-   V604 — OTTHOS PROCEDURAL FIEL / PÉS ANCORADOS / MAPA GPS REAL
-   Preserva todos os controles e sistemas da V602.
+   V605 — REGRESSÃO ZERO: PÉS NO CHÃO, MAPA GPS E PAISAGEM
    ========================================================= */
-.waypoint-guide{
-  position:absolute;z-index:51;left:50%;top:calc(136px + var(--safe-top));transform:translateX(-50%);
-  min-width:250px;max-width:min(430px,72vw);display:grid;grid-template-columns:44px minmax(0,1fr) 32px;gap:9px;align-items:center;
-  padding:8px 10px;border-radius:18px;background:linear-gradient(180deg,rgba(8,35,62,.96),rgba(4,20,38,.96));
-  border:2px solid rgba(89,215,255,.82);box-shadow:0 8px 24px rgba(0,0,0,.32);pointer-events:auto
+body.modal-open .game-hud,
+body.modal-open .mission-card,
+body.modal-open .quick-toggle,
+body.modal-open .quick-bar,
+body.modal-open .context-prompt,
+body.modal-open .joystick,
+body.modal-open .primary-actions,
+body.modal-open .secondary-actions,
+body.modal-open .build-badge,
+body.modal-open .vehicle-badge,
+body.modal-open .race-badge{visibility:hidden!important;pointer-events:none!important}
+body.modal-open .stage{pointer-events:none!important}
+.modal.map-modal .modal-card{width:min(1180px,96vw);max-height:95dvh}
+.modal.map-modal .modal-body{max-height:calc(95dvh - 72px);padding:12px}
+.map-layout{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(220px,.75fr);gap:12px;align-items:start}
+.map-sidebar{display:flex;flex-direction:column;gap:8px;min-width:0}
+.map-sidebar h3{margin:2px 0 4px}
+.world-map{min-height:400px;aspect-ratio:1.55;background:
+ radial-gradient(circle at 17% 28%,rgba(18,122,55,.95) 0 20%,transparent 21%),
+ radial-gradient(circle at 78% 71%,rgba(99,111,126,.83) 0 18%,transparent 19%),
+ linear-gradient(180deg,#62c9ff 0 15%,#78d363 15% 100%)}
+.map-road.diagonal{left:20%;top:25%;width:64%;height:6%;transform:rotate(42deg);transform-origin:center}
+.map-route{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none;overflow:visible}
+.map-route line{stroke:#fff237;stroke-width:1.35;stroke-dasharray:3 2;filter:drop-shadow(0 0 2px #000);vector-effect:non-scaling-stroke}
+.map-marker{z-index:4;min-width:64px;max-width:92px;padding:4px 6px}
+.map-marker small{font-size:7px;color:#9ee9ff;font-weight:900}
+.player-dot{z-index:8;width:22px;height:22px}
+.player-dot i{position:absolute;left:50%;top:-15px;width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:16px solid #fff;transform:translateX(-50%) rotate(var(--player-angle));transform-origin:50% 26px;filter:drop-shadow(0 1px 2px #000)}
+.waypoint-dot{z-index:7;animation:waypointPulse .8s infinite alternate}@keyframes waypointPulse{to{transform:translate(-50%,-50%) scale(1.18)}}
+.active-waypoint{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:9px;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.08)}
+.active-waypoint>div,.active-waypoint.empty{display:flex;flex-direction:column}.active-waypoint small{color:#81e8ff;font-weight:900}.active-waypoint span{font-size:11px;color:#c7d8eb}.active-waypoint.empty{align-items:flex-start}
+.map-destinations{display:grid;gap:7px}.map-destination{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px;border-radius:13px;background:linear-gradient(180deg,#315779,#173149);border:1px solid rgba(255,255,255,.16);text-align:left}.map-destination b{font-size:12px}.map-destination span{font-size:9px;color:#bfe9ff;white-space:nowrap}
+.map-legend{margin-top:auto}.map-legend span{font-size:9px}
+
+/* Em paisagem, a missão ocupa a esquerda e o menu Vida ocupa a direita sem cruzamento. */
+@media (orientation:landscape){
+ .mission-card{left:calc(10px + var(--safe-left));transform:none;width:min(420px,46vw)}
+ .quick-toggle{right:calc(8px + var(--safe-right));top:calc(58px + var(--safe-top))}
+ .quick-bar{right:calc(62px + var(--safe-right));top:calc(58px + var(--safe-top));flex-direction:row;max-width:calc(54vw - 75px);overflow-x:auto;overflow-y:hidden}
+ .quick-bar button{flex:0 0 auto}
+ .secondary-actions{right:auto;left:calc(var(--joy) + 34px + var(--safe-left));bottom:calc(10px + var(--safe-bottom));grid-template-columns:repeat(5,var(--skill));grid-template-rows:var(--skill)}
+ .context-prompt{left:50%;right:auto;transform:translateX(-50%);max-width:38vw}
 }
-.waypoint-compass{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,#1c7dff 0 42%,#0c3158 44% 100%);border:2px solid #fff;overflow:hidden}
-.waypoint-compass i{display:block;font-style:normal;font-size:24px;line-height:1;color:#fff;text-shadow:0 2px 5px #000;transition:transform .12s linear}
-.waypoint-copy{min-width:0}.waypoint-copy small,.waypoint-copy strong,.waypoint-copy span{display:block}.waypoint-copy small{font-size:8px;color:#73e5ff;font-weight:900;letter-spacing:.08em}.waypoint-copy strong{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.waypoint-copy span{font-size:10px;color:#d2e7f7;margin-top:1px}.waypoint-guide>button{width:30px;height:30px;border-radius:10px;background:#8f2235;font-size:14px;font-weight:900}
-
-.map-layout{display:grid;grid-template-columns:minmax(320px,1.35fr) minmax(230px,.75fr);gap:14px;align-items:stretch}
-.map-main{min-width:0}.world-map-canvas{display:block;width:100%;height:min(62vh,520px);min-height:330px;border-radius:20px;border:3px solid rgba(255,255,255,.38);background:#6dc95f;box-shadow:inset 0 0 45px rgba(0,0,0,.18),0 10px 28px rgba(0,0,0,.24);touch-action:none}
-.map-help{margin-top:8px;padding:8px 10px;border-radius:12px;background:rgba(72,190,255,.12);color:#d8f2ff;font-size:10px;font-weight:700}
-.map-sidebar{display:flex;flex-direction:column;min-height:0;gap:10px}.map-live-status{display:grid;grid-template-columns:1fr 1fr;gap:7px}.map-live-status>div{padding:10px;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.11);min-width:0}.map-live-status small,.map-live-status b,.map-live-status span{display:block}.map-live-status small{font-size:7px;color:#74e3ff;font-weight:900}.map-live-status b{font-size:11px;margin:3px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.map-live-status span{font-size:9px;color:#c5d5e6}
-.map-places{display:grid;gap:6px;overflow:auto;max-height:min(47vh,410px);padding-right:3px;touch-action:pan-y}.map-place{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:8px;align-items:center;text-align:left;padding:8px 9px;border-radius:13px;background:linear-gradient(180deg,#294d70,#17324d);border:2px solid rgba(255,255,255,.10);box-shadow:0 3px 0 rgba(0,0,0,.25)}.map-place>b{font-size:21px;text-align:center}.map-place span{min-width:0}.map-place strong,.map-place small{display:block}.map-place strong{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.map-place small{font-size:8px;color:#bad1e3;margin-top:2px}.map-place>i{font-size:8px;font-style:normal;padding:5px 7px;border-radius:8px;background:#2178bd;font-weight:900}.map-place.selected{border-color:#ffe14d;box-shadow:0 0 0 3px rgba(255,225,77,.18)}.map-clear{margin-top:auto}
-
-@media (orientation:landscape) and (max-height:700px){
-  .waypoint-guide{top:calc(96px + var(--safe-top));min-width:220px;padding:6px 8px}.waypoint-compass{width:34px;height:34px}.waypoint-compass i{font-size:20px}
-  .world-map-canvas{height:66vh;min-height:280px}.map-places{max-height:43vh}
+@media (orientation:landscape) and (max-height:520px){
+ :root{--skill:38px;--action:54px;--joy:98px}
+ .game-hud{transform:scale(.88);transform-origin:top left;width:113%}
+ .mission-card{top:calc(48px + var(--safe-top));width:min(350px,43vw)}
+ .mission-card p{display:none}
+ .quick-toggle{top:calc(48px + var(--safe-top));width:42px;height:40px}
+ .quick-bar{top:calc(48px + var(--safe-top));right:calc(54px + var(--safe-right));max-width:42vw}
+ .secondary-actions{left:calc(var(--joy) + 25px + var(--safe-left));bottom:calc(7px + var(--safe-bottom))}
+ .skill-btn span{display:none}
+ .world-map{min-height:300px}
 }
 @media (orientation:portrait){
-  .waypoint-guide{top:calc(178px + var(--safe-top));max-width:calc(100vw - 96px);min-width:210px;grid-template-columns:38px minmax(0,1fr) 28px;padding:7px 8px}.waypoint-compass{width:34px;height:34px}.waypoint-copy strong{font-size:11px}.waypoint-copy span{font-size:9px}.waypoint-guide>button{width:27px;height:27px}
-  .map-layout{grid-template-columns:1fr}.world-map-canvas{height:min(52vh,440px);min-height:310px}.map-live-status{grid-template-columns:1fr 1fr}.map-places{max-height:28vh}
+ .map-layout{grid-template-columns:1fr}.world-map{min-height:360px;aspect-ratio:1.03}.map-sidebar{max-height:none}.map-destinations{grid-template-columns:repeat(2,minmax(0,1fr))}.map-destination{align-items:flex-start;flex-direction:column}.modal.map-modal .modal-card{width:97vw}
 }
-@media (max-width:390px) and (orientation:portrait){
-  .waypoint-guide{top:calc(174px + var(--safe-top));max-width:calc(100vw - 78px)}.world-map-canvas{min-height:285px}.map-place{grid-template-columns:30px minmax(0,1fr) auto;padding:7px}.map-place>b{font-size:18px}
-}
-/* Correção de herança do mapa antigo: os destinos agora são linhas legíveis, não marcadores sobrepostos. */
-.map-places .map-place{position:relative;left:auto;top:auto;transform:none;min-width:0;max-width:none;width:100%}
-.map-places .map-place:active{transform:scale(.985)}
+@media (max-width:390px) and (orientation:portrait){.world-map{min-height:330px}.map-marker{min-width:48px}.map-marker span{display:none}.map-destinations{grid-template-columns:1fr 1fr}}
