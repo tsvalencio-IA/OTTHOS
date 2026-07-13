@@ -1,0 +1,39 @@
+OTTHOS LIFE WORLD V604 — RELATÓRIO DE VALIDAÇÃO
+
+BASE
+- Estrutura completa derivada da V603.
+- Nenhum recurso da V602/V603 foi removido.
+- athos.glb preservado para AR e visualizador.
+
+PERSONAGEM JOGÁVEL
+- Não existe chamada GLTFLoader no app.js.
+- GLTFLoader foi removido do index.html.
+- O modelo jogável é OTTHOS_PROCEDURAL_GAME_MODEL.
+- A raiz do modelo fica em Y=0, na sola dos pés.
+- O bob de caminhada é sempre positivo.
+- A pose sentada não grava Y negativo.
+- Mini, Normal, Grande e Abaixar mantêm escala ancorada na origem dos pés.
+
+MAPA E GPS
+- Mapa top-down com limites reais do mundo.
+- Posição e direção do jogador.
+- Lista ordenada de destinos.
+- Linha de rota, distância, marcador e guia no HUD.
+
+SALVAMENTO
+- IndexedDB schema 604.
+- Migração das chaves V603/V602/V601/V600.
+- Cópia de emergência em localStorage.
+- Salvamento automático e backup exportável.
+
+VALIDAÇÕES ESTÁTICAS
+- app.js validado com node --check.
+- sw.js validado com node --check.
+- save-db.js validado com node --check.
+- manifest.webmanifest validado como JSON.
+- referências locais verificadas.
+- ZIP completo verificado após criação.
+
+LIMITAÇÃO HONESTA
+- A validação visual final precisa ser executada no navegador e no celular reais.
+- O pacote inclui auditoria F12 específica da V604.

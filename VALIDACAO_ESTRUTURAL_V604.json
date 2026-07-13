@@ -1,0 +1,12 @@
+{
+  "version": "V604",
+  "files": 33,
+  "missing_local_references": [],
+  "glb_gameplay_loader_present": false,
+  "procedural_model_present": true,
+  "all_controls_present": true,
+  "map_gps_present": true,
+  "indexeddb_present": true,
+  "ar_glb_present": true,
+  "browser_visual_test": "blocked_by_administrator_in_generation_environment"
+}

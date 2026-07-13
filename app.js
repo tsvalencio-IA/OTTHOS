@@ -7,8 +7,8 @@
   const lerp = (a, b, t) => a + (b - a) * t;
   const distance2D = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
   const uid = () => (crypto.randomUUID ? crypto.randomUUID() : `p-${Date.now()}-${Math.random().toString(16).slice(2)}`);
-  const STORAGE_KEY = 'otthos_life_world_roleplay_v602';
-  const LEGACY_STORAGE_KEYS = ['otthos_life_world_roleplay_v601','otthos_life_world_complete_v600'];
+  const STORAGE_KEY = 'otthos_life_world_roleplay_v604';
+  const LEGACY_STORAGE_KEYS = ['otthos_life_world_roleplay_v603','otthos_life_world_roleplay_v602','otthos_life_world_roleplay_v601','otthos_life_world_complete_v600'];
 
   const els = {
     lobby: $('#lobby'), game: $('#game'), stage: $('#stage'), screenTint: $('#screenTint'),
@@ -18,6 +18,7 @@
     hudLevel: $('#hudLevel'), xpFill: $('#xpFill'), xpText: $('#xpText'), hudCoins: $('#hudCoins'),
     needHunger: $('#needHunger'), needEnergy: $('#needEnergy'), needFun: $('#needFun'), needHygiene: $('#needHygiene'),
     missionChapter: $('#missionChapter'), missionTitle: $('#missionTitle'), missionStep: $('#missionStep'), missionFill: $('#missionFill'),
+    waypointGuide: $('#waypointGuide'), waypointArrow: $('#waypointArrow'), waypointName: $('#waypointName'), waypointDistance: $('#waypointDistance'), waypointClearBtn: $('#waypointClearBtn'),
     quickToggleBtn: $('#quickToggleBtn'), quickBar: $('#quickBar'), needsToggleBtn: $('#needsToggleBtn'), missionCard: $('#missionCard'), avatarGameBtn: $('#avatarGameBtn'), inventoryBtn: $('#inventoryBtn'), buildBtn: $('#buildBtn'), mapBtn: $('#mapBtn'), gameSettingsBtn: $('#gameSettingsBtn'),
     contextPrompt: $('#contextPrompt'), contextIcon: $('#contextIcon'), contextLabel: $('#contextLabel'), contextHint: $('#contextHint'),
     joystick: $('#joystick'), joystickKnob: $('#joystickKnob'), specialBtn: $('#specialBtn'), actionBtn: $('#actionBtn'), jumpBtn: $('#jumpBtn'), crouchBtn: $('#crouchBtn'), miniBtn: $('#miniBtn'), normalBtn: $('#normalBtn'), giantBtn: $('#giantBtn'), spinBtn: $('#spinBtn'),
@@ -27,7 +28,7 @@
   };
 
   const defaultState = () => ({
-    version: 602,
+    version: 604,
     profile: { playerId: uid(), name: 'Otthos', level: 1, xp: 0, coins: 500, reputation: 0 },
     needs: { hunger: 92, energy: 92, fun: 86, hygiene: 88 },
     inventory: { wood: 0, stone: 0, food: 2, water: 2, crystals: 0, blocks: 4, fences: 2, keys: 0 },
@@ -67,7 +68,7 @@
     return {
       ...fresh,
       ...saved,
-      version: 602,
+      version: 604,
       profile: { ...fresh.profile, ...(saved.profile || {}) },
       needs: { ...fresh.needs, ...(saved.needs || {}) },
       inventory: { ...fresh.inventory, ...(saved.inventory || {}) },
@@ -126,7 +127,7 @@
   let saveTimer = 0;
   let lastSavePromise = Promise.resolve(true);
   function commitState() {
-    state.version = 602;
+    state.version = 604;
     state.lastSaved = Date.now();
     const snapshot = JSON.parse(JSON.stringify(state));
     localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
@@ -266,7 +267,7 @@
       : '<p>No Chrome, abra o menu ⋮ e escolha <b>Instalar aplicativo</b> ou <b>Adicionar à tela inicial</b>.</p>');
   }
   if (els.installBtn) els.installBtn.onclick = installApp;
-  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=602').catch(console.warn));
+  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=604').catch(console.warn));
   updateInstallUI();
 
   const quizQuestions = [
@@ -533,36 +534,119 @@
       <div class="inventory-item"><b>🪙 ${state.profile.coins}</b><span>Moedas</span></div>
     </div>`);
   }
+  const MAP_BOUNDS = Object.freeze({ minX:-116, maxX:116, minZ:-116, maxZ:116 });
   const MAP_LOCATIONS = [
-    { id:'home', name:'Casa do Otthos', icon:'🏠', x:0, z:18 },
-    { id:'village', name:'Praça da Vila', icon:'🏘', x:0, z:0 },
-    { id:'shop', name:'Mercadinho', icon:'🛒', x:-22, z:-18 },
-    { id:'workshop', name:'Oficina', icon:'🛠', x:22, z:-18 },
-    { id:'forest', name:'Floresta', icon:'🌲', x:-88, z:-42 },
-    { id:'lake', name:'Lago e Ponte', icon:'🌊', x:-22, z:50 },
-    { id:'crystal', name:'Vale dos Cristais', icon:'💎', x:70, z:-60 },
-    { id:'garage', name:'Garagem', icon:'🚗', x:52, z:48 },
-    { id:'gym', name:'Ginásio', icon:'🏃', x:45, z:78 },
-    { id:'castle', name:'Castelo', icon:'🏰', x:88, z:62 }
+    { id:'home', name:'Casa do Otthos', category:'Casa', icon:'🏠', x:0, z:18, color:'#db4b42' },
+    { id:'blue', name:'Casa Azul', category:'Casa', icon:'🏡', x:-25, z:17, color:'#4f9fd7' },
+    { id:'pink', name:'Casa Rosa', category:'Casa', icon:'🏡', x:25, z:17, color:'#e58aae' },
+    { id:'village', name:'Praça da Vila', category:'Vila', icon:'🏘', x:0, z:0, color:'#ffd84d' },
+    { id:'shop', name:'Mercadinho', category:'Serviço', icon:'🛒', x:-22, z:-18, color:'#f1b83e' },
+    { id:'workshop', name:'Oficina', category:'Serviço', icon:'🛠', x:22, z:-18, color:'#8c96a4' },
+    { id:'cabin', name:'Cabana da Floresta', category:'Casa', icon:'🛖', x:-88, z:-42, color:'#7e4a28' },
+    { id:'bridge', name:'Ponte do Lago', category:'Desafio', icon:'🌉', x:-12, z:52, color:'#a56a2c' },
+    { id:'garage', name:'Garagem e Trabalhos', category:'Trabalho', icon:'🚗', x:52, z:48, color:'#35a8ff' },
+    { id:'gym', name:'Ginásio de Atletismo', category:'Desafio', icon:'🏃', x:45, z:84, color:'#c46a3b' },
+    { id:'mini', name:'Passagem Mini', category:'Desafio', icon:'◱', x:-38, z:42, color:'#25b7c9' },
+    { id:'crouch', name:'Túnel Abaixado', category:'Desafio', icon:'▼', x:-53, z:24, color:'#d18a16' },
+    { id:'giant', name:'Portão Gigante', category:'Desafio', icon:'⬡', x:36, z:-35, color:'#59b845' },
+    { id:'crystal', name:'Trilha dos Cristais', category:'Aventura', icon:'💎', x:70, z:-66, color:'#8757d7' },
+    { id:'castle', name:'Castelo', category:'Aventura', icon:'🏰', x:88, z:62, color:'#737f8c' },
+    { id:'lava', name:'Vulcão e Baú Secreto', category:'Aventura', icon:'🌋', x:96, z:-82, color:'#ef4b2f' }
   ];
-  function worldToMap(x,z){ return { left:clamp((x+116)/232*100,3,97), top:clamp((116-z)/232*100,3,97) }; }
-  function setWaypoint(id){
-    const point=MAP_LOCATIONS.find(p=>p.id===id);if(!point)return;
-    state.waypoint={id:point.id,name:point.name,x:point.x,z:point.z};
-    updateWaypointMarker();saveState(true);closeModal();toast(`Destino marcado: ${point.name}`,'good',2200);
+  function worldToMap(x,z){ return { left:clamp((x-MAP_BOUNDS.minX)/(MAP_BOUNDS.maxX-MAP_BOUNDS.minX)*100,1,99), top:clamp((MAP_BOUNDS.maxZ-z)/(MAP_BOUNDS.maxZ-MAP_BOUNDS.minZ)*100,1,99) }; }
+  function worldToCanvas(x,z,width,height,pad=20){
+    const usableW=Math.max(1,width-pad*2),usableH=Math.max(1,height-pad*2);
+    return { x:pad+(x-MAP_BOUNDS.minX)/(MAP_BOUNDS.maxX-MAP_BOUNDS.minX)*usableW, y:pad+(MAP_BOUNDS.maxZ-z)/(MAP_BOUNDS.maxZ-MAP_BOUNDS.minZ)*usableH };
+  }
+  function canvasToWorld(px,py,width,height,pad=20){
+    const usableW=Math.max(1,width-pad*2),usableH=Math.max(1,height-pad*2);
+    return { x:clamp(MAP_BOUNDS.minX+((px-pad)/usableW)*(MAP_BOUNDS.maxX-MAP_BOUNDS.minX),MAP_BOUNDS.minX,MAP_BOUNDS.maxX), z:clamp(MAP_BOUNDS.maxZ-((py-pad)/usableH)*(MAP_BOUNDS.maxZ-MAP_BOUNDS.minZ),MAP_BOUNDS.minZ,MAP_BOUNDS.maxZ) };
+  }
+  function locationDistance(loc){ return Math.hypot(player.x-loc.x,player.z-loc.z); }
+  function nearestMapLocation(){ return [...MAP_LOCATIONS].sort((a,b)=>locationDistance(a)-locationDistance(b))[0]||null; }
+  function compassName(angle){
+    const names=['N','NE','L','SE','S','SO','O','NO'];
+    const normalized=(angle%(Math.PI*2)+Math.PI*2)%(Math.PI*2);
+    return names[Math.round(normalized/(Math.PI/4))%8];
+  }
+  function setWaypoint(idOrPoint){
+    let point=typeof idOrPoint==='string'?MAP_LOCATIONS.find(p=>p.id===idOrPoint):idOrPoint;
+    if(!point)return;
+    state.waypoint={id:point.id||'custom',name:point.name||'Destino no mapa',x:+point.x.toFixed(2),z:+point.z.toFixed(2)};
+    updateWaypointMarker();updateWaypointGuide(true);saveState(true);closeModal();toast(`Destino marcado: ${state.waypoint.name}`,'good',2200);
+  }
+  function clearWaypoint(showToast=true){
+    state.waypoint=null;updateWaypointMarker();updateWaypointGuide(true);saveState(true);if(showToast)toast('Destino removido.','good');
+  }
+  function updateWaypointGuide(force=false){
+    if(!els.waypointGuide)return;
+    const wp=state.waypoint;
+    if(!wp){els.waypointGuide.hidden=true;return;}
+    const dx=wp.x-player.x,dz=wp.z-player.z,distance=Math.hypot(dx,dz);
+    if(distance<2.4){clearWaypoint(false);toast(`Você chegou: ${wp.name}`,'good',2200);return;}
+    const targetAngle=Math.atan2(dx,dz);
+    const cameraForward=Math.PI-cameraYaw;
+    const relative=targetAngle-cameraForward;
+    els.waypointGuide.hidden=false;
+    els.waypointName.textContent=wp.name;
+    els.waypointDistance.textContent=distance<100?`${Math.round(distance)} m • ${compassName(targetAngle)}`:`${Math.round(distance)} m`;
+    els.waypointArrow.style.transform=`rotate(${relative}rad)`;
+  }
+  function roundedRect(ctx,x,y,w,h,r,fill,stroke){
+    const rr=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+rr,y);ctx.arcTo(x+w,y,x+w,y+h,rr);ctx.arcTo(x+w,y+h,x,y+h,rr);ctx.arcTo(x,y+h,x,y,rr);ctx.arcTo(x,y,x+w,y,rr);ctx.closePath();if(fill){ctx.fillStyle=fill;ctx.fill();}if(stroke){ctx.strokeStyle=stroke;ctx.stroke();}
+  }
+  function drawWorldMap(canvas){
+    if(!canvas?.isConnected)return;
+    const rect=canvas.getBoundingClientRect(),dpr=Math.min(2,window.devicePixelRatio||1),width=Math.max(320,Math.round(rect.width)),height=Math.max(280,Math.round(rect.height));
+    if(canvas.width!==Math.round(width*dpr)||canvas.height!==Math.round(height*dpr)){canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);}
+    const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,width,height);
+    const pad=22,pt=(x,z)=>worldToCanvas(x,z,width,height,pad);
+    const scaleX=(width-pad*2)/(MAP_BOUNDS.maxX-MAP_BOUNDS.minX),scaleZ=(height-pad*2)/(MAP_BOUNDS.maxZ-MAP_BOUNDS.minZ);
+    const mapRect=(x,z,w,d,color,r=7)=>{const a=pt(x-w/2,z+d/2);roundedRect(ctx,a.x,a.y,w*scaleX,d*scaleZ,r,color,'rgba(255,255,255,.18)');};
+
+    const grd=ctx.createLinearGradient(0,pad,0,height-pad);grd.addColorStop(0,'#88d9ff');grd.addColorStop(.16,'#8edb75');grd.addColorStop(1,'#62ba55');roundedRect(ctx,pad,pad,width-pad*2,height-pad*2,18,grd,'rgba(255,255,255,.55)');
+    mapRect(-88,-42,70,82,'rgba(22,126,56,.82)',30);
+    mapRect(88,62,48,42,'rgba(91,102,116,.68)',16);
+    mapRect(70,-66,62,58,'rgba(104,72,151,.50)',24);
+    mapRect(96,-82,34,26,'rgba(239,75,47,.82)',12);
+    mapRect(0,0,18,210,'#c99a61',9);mapRect(0,0,210,18,'#c99a61',9);mapRect(-55,-55,9,105,'#c99a61',6);mapRect(55,48,9,92,'#c99a61',6);
+    mapRect(-72,52,92,18,'#31bde8',9);mapRect(-100,70,38,34,'#2ba7df',14);mapRect(-12,52,24,6,'#a56a2c',4);
+    mapRect(51,75.5,58,15,'#c46a3b',8);
+
+    ctx.save();ctx.strokeStyle='rgba(255,255,255,.16)';ctx.lineWidth=1;ctx.setLineDash([3,5]);
+    for(let v=-100;v<=100;v+=20){const a=pt(v,MAP_BOUNDS.maxZ),b=pt(v,MAP_BOUNDS.minZ);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();const c=pt(MAP_BOUNDS.minX,v),d=pt(MAP_BOUNDS.maxX,v);ctx.beginPath();ctx.moveTo(c.x,c.y);ctx.lineTo(d.x,d.y);ctx.stroke();}
+    ctx.restore();
+
+    const houseData=world?.houses?.length?world.houses.map(h=>({id:h.id,name:h.name,x:h.x,z:h.z,color:h.color||'#e6c08b'})):[];
+    for(const h of houseData){const p=pt(h.x,h.z);roundedRect(ctx,p.x-7,p.y-6,14,12,3,h.color||'#e6c08b','#24354d');}
+
+    if(state.waypoint){const p1=pt(player.x,player.z),p2=pt(state.waypoint.x,state.waypoint.z);ctx.save();ctx.strokeStyle='#ffe14d';ctx.lineWidth=4;ctx.setLineDash([9,7]);ctx.beginPath();ctx.moveTo(p1.x,p1.y);ctx.lineTo(p2.x,p2.y);ctx.stroke();ctx.restore();ctx.beginPath();ctx.arc(p2.x,p2.y,10,0,Math.PI*2);ctx.fillStyle='#ffe14d';ctx.fill();ctx.lineWidth=3;ctx.strokeStyle='#13243a';ctx.stroke();}
+
+    for(const loc of MAP_LOCATIONS){const p=pt(loc.x,loc.z);ctx.beginPath();ctx.arc(p.x,p.y,7,0,Math.PI*2);ctx.fillStyle=loc.color||'#17314c';ctx.fill();ctx.lineWidth=2;ctx.strokeStyle='#fff';ctx.stroke();}
+
+    const pp=pt(player.x,player.z);ctx.save();ctx.translate(pp.x,pp.y);ctx.rotate(player.facing);ctx.beginPath();ctx.moveTo(0,-15);ctx.lineTo(11,11);ctx.lineTo(0,7);ctx.lineTo(-11,11);ctx.closePath();ctx.fillStyle='#1677ff';ctx.fill();ctx.lineWidth=4;ctx.strokeStyle='#fff';ctx.stroke();ctx.restore();
+    ctx.font='900 11px system-ui';ctx.textAlign='center';ctx.fillStyle='#07182c';ctx.fillText('VOCÊ',pp.x,pp.y+27);
+    ctx.font='900 13px system-ui';ctx.textAlign='left';ctx.fillStyle='#09203a';ctx.fillText('N ↑',pad+10,pad+22);
   }
   function openMap() {
-    const pp=worldToMap(player.x,player.z);
-    const wp=state.waypoint?worldToMap(state.waypoint.x,state.waypoint.z):null;
-    const markers=MAP_LOCATIONS.map(loc=>{const pos=worldToMap(loc.x,loc.z);return `<button class="map-marker" style="left:${pos.left}%;top:${pos.top}%" data-waypoint="${loc.id}" title="Marcar ${loc.name}"><b>${loc.icon}</b><span>${loc.name}</span></button>`;}).join('');
-    openModal('Mapa da Vila do Sol', `<div class="world-map">
-      <i class="map-road horizontal"></i><i class="map-road vertical"></i><i class="map-river"></i>
-      <div class="map-region forest">FLORESTA</div><div class="map-region city">VILA</div><div class="map-region adventure">AVENTURA</div>
-      ${markers}
-      ${wp?`<span class="waypoint-dot" style="left:${wp.left}%;top:${wp.top}%">◎</span>`:''}
-      <span class="player-dot" style="left:${pp.left}%;top:${pp.top}%"><b>VOCÊ</b></span>
-    </div><div class="map-legend"><span>🔵 Sua posição</span><span>◎ Destino marcado</span><span>Toque em um lugar para marcar</span></div>`,root=>{
+    const nearest=nearestMapLocation();
+    const wp=state.waypoint;
+    const sorted=[...MAP_LOCATIONS].sort((a,b)=>locationDistance(a)-locationDistance(b));
+    const cards=sorted.map(loc=>`<button class="map-place ${wp?.id===loc.id?'selected':''}" data-waypoint="${loc.id}"><b>${loc.icon}</b><span><strong>${loc.name}</strong><small>${loc.category} • ${Math.round(locationDistance(loc))} m</small></span><i>Marcar</i></button>`).join('');
+    openModal('Mapa e GPS da Vila do Sol', `<div class="map-layout">
+      <section class="map-main"><canvas id="worldMapCanvas" class="world-map-canvas" aria-label="Mapa do mundo"></canvas><div class="map-help">Toque no mapa para marcar qualquer ponto. A seta azul mostra sua direção real.</div></section>
+      <aside class="map-sidebar"><div class="map-live-status"><div><small>VOCÊ ESTÁ PERTO DE</small><b id="mapNearest">${nearest?.name||'Mundo aberto'}</b><span id="mapCoordinates">X ${Math.round(player.x)} • Z ${Math.round(player.z)}</span></div><div><small>DESTINO</small><b id="mapDestination">${wp?.name||'Nenhum destino'}</b><span id="mapRouteDistance">${wp?`${Math.round(Math.hypot(wp.x-player.x,wp.z-player.z))} m`:'Escolha abaixo'}</span></div></div>
+      <div class="map-places">${cards}</div>${wp?'<button class="btn danger map-clear" data-clear-waypoint>Remover destino</button>':''}</aside>
+    </div>`,root=>{
+      const canvas=$('#worldMapCanvas',root);drawWorldMap(canvas);
       $$('[data-waypoint]',root).forEach(btn=>btn.onclick=()=>setWaypoint(btn.dataset.waypoint));
+      $('[data-clear-waypoint]',root)?.addEventListener('click',()=>{clearWaypoint();closeModal();});
+      canvas.addEventListener('pointerdown',event=>{
+        const rect=canvas.getBoundingClientRect();const p=canvasToWorld(event.clientX-rect.left,event.clientY-rect.top,rect.width,rect.height,22);
+        const nearby=[...MAP_LOCATIONS].sort((a,b)=>Math.hypot(a.x-p.x,a.z-p.z)-Math.hypot(b.x-p.x,b.z-p.z))[0];
+        if(nearby&&Math.hypot(nearby.x-p.x,nearby.z-p.z)<10)setWaypoint(nearby.id);else setWaypoint({id:'custom',name:`Ponto X ${Math.round(p.x)} / Z ${Math.round(p.z)}`,x:p.x,z:p.z});
+      });
+      const update=()=>{if(!canvas.isConnected||els.modal.hidden)return;drawWorldMap(canvas);const near=nearestMapLocation();const dest=state.waypoint;const nearestEl=$('#mapNearest',root),coordEl=$('#mapCoordinates',root),destEl=$('#mapDestination',root),distEl=$('#mapRouteDistance',root);if(nearestEl)nearestEl.textContent=near?.name||'Mundo aberto';if(coordEl)coordEl.textContent=`X ${Math.round(player.x)} • Z ${Math.round(player.z)}`;if(destEl)destEl.textContent=dest?.name||'Nenhum destino';if(distEl)distEl.textContent=dest?`${Math.round(Math.hypot(dest.x-player.x,dest.z-player.z))} m`:'Escolha abaixo';requestAnimationFrame(update);};requestAnimationFrame(update);
     });
   }
 
@@ -629,6 +713,7 @@
   const toggleMission = () => { state.ui.missionOpen = !state.ui.missionOpen; els.missionCard.classList.toggle('expanded', state.ui.missionOpen); saveState(); };
   els.missionCard.onclick = toggleMission;
   els.missionCard.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleMission(); } };
+  els.waypointClearBtn?.addEventListener('click',event=>{event.stopPropagation();clearWaypoint();});
   [els.avatarGameBtn,els.inventoryBtn,els.buildBtn,els.mapBtn,els.gameSettingsBtn].forEach(btn => btn?.addEventListener('click', () => { state.ui.quickOpen=false; els.quickBar.hidden=true; els.quickToggleBtn.classList.remove('active'); }));
   els.arBtn.onclick = async () => {
     try { await els.nativeViewer.activateAR(); }
@@ -712,59 +797,107 @@
     const light = new THREE.PointLight(color, .5, size * 3); light.position.set(x,y,z); worldGroup.add(light); return light;
   }
 
+  function addOtthosFlamePixels(parent, limbWidth, limbDepth, yTop, yBottom) {
+    const palette = {
+      Y: mat(0xffed37, { emissive:0x6a4a00, emissiveIntensity:.18, roughness:.58 }),
+      O: mat(0xff8a00, { emissive:0x5a2300, emissiveIntensity:.18, roughness:.58 }),
+      R: mat(0xff2f18, { emissive:0x520600, emissiveIntensity:.18, roughness:.58 }),
+      D: mat(0x9f1014, { emissive:0x250000, emissiveIntensity:.12, roughness:.62 })
+    };
+    const rows = [
+      '.Y..',
+      '.YY.',
+      'YOOY',
+      'YOOO',
+      'ORRO',
+      'RRDR',
+      'DRRD'
+    ];
+    const cellW = limbWidth / 4;
+    const cellH = (yTop - yBottom) / rows.length;
+    rows.forEach((row, rowIndex) => {
+      [...row].forEach((code, colIndex) => {
+        if (code === '.') return;
+        const px = -limbWidth / 2 + cellW * (colIndex + .5);
+        const py = yTop - cellH * (rowIndex + .5);
+        const pixel = box(cellW * .92, cellH * .92, .045, palette[code], px, py, limbDepth / 2 + .026, parent);
+        pixel.castShadow = false;
+        pixel.receiveShadow = false;
+      });
+    });
+  }
+
   function createPlayerModel() {
     playerGroup = new THREE.Group();
     playerGroup.name = 'OTTHOS_PLAYER';
     scene.add(playerGroup);
+
+    // Modelo jogável próprio do Otthos. O ponto 0,0,0 é a sola dos pés.
+    // O arquivo athos.glb fica reservado exclusivamente ao visualizador/AR.
     playerModel = new THREE.Group();
+    playerModel.name = 'OTTHOS_PROCEDURAL_GAME_MODEL';
+    playerModel.position.set(0, 0, 0);
     playerGroup.add(playerModel);
-    const black = mat(0x050608), red = mat(0xff263d,{emissive:0x400008,emissiveIntensity:.22}), orange = mat(0xff7a13), yellow = mat(0xffd83d);
+
+    const black = mat(0x050608, { roughness:.48, metalness:.03 });
+    const red = mat(0xff263d, { emissive:0x420008, emissiveIntensity:.30, roughness:.48 });
+    const white = mat(0xf8fbff, { emissive:0x222222, emissiveIntensity:.08, roughness:.42 });
     const parts = {};
-    parts.body = box(1.0,1.25,.72,black,0,1.55,0,playerModel);
-    parts.head = box(1.08,1.08,1.08,black,0,2.72,0,playerModel);
-    box(.22,.12,.06,red,-.27,2.78,.56,playerModel); box(.22,.12,.06,red,.27,2.78,.56,playerModel);
-    parts.leftArm = new THREE.Group(); parts.rightArm = new THREE.Group(); parts.leftLeg = new THREE.Group(); parts.rightLeg = new THREE.Group();
-    parts.leftArm.position.set(-.72,2.0,0); parts.rightArm.position.set(.72,2.0,0); parts.leftLeg.position.set(-.28,.92,0); parts.rightLeg.position.set(.28,.92,0);
-    playerModel.add(parts.leftArm,parts.rightArm,parts.leftLeg,parts.rightLeg);
-    box(.36,.95,.36,orange,0,-.46,0,parts.leftArm); box(.36,.30,.4,yellow,0,-1.08,0,parts.leftArm);
-    box(.36,.95,.36,orange,0,-.46,0,parts.rightArm); box(.36,.30,.4,yellow,0,-1.08,0,parts.rightArm);
-    box(.4,.92,.4,black,0,-.44,0,parts.leftLeg); box(.42,.30,.46,orange,0,-1.00,.05,parts.leftLeg);
-    box(.4,.92,.4,black,0,-.44,0,parts.rightLeg); box(.42,.30,.46,orange,0,-1.00,.05,parts.rightLeg);
+
+    // Proporções baseadas no modelo de referência: cabeça grande, tronco retangular,
+    // braços e pernas pretos com chamas pixeladas.
+    parts.body = box(1.16, 1.45, .78, black, 0, 1.84, 0, playerModel);
+    parts.head = box(1.22, 1.20, 1.08, black, 0, 3.15, 0, playerModel);
+
+    // Olhos branco/vermelho espelhados, fiéis à identidade do personagem.
+    box(.17, .15, .055, white, -.37, 3.18, .568, playerModel);
+    box(.17, .15, .055, red,   -.20, 3.18, .568, playerModel);
+    box(.17, .15, .055, red,    .20, 3.18, .568, playerModel);
+    box(.17, .15, .055, white,  .37, 3.18, .568, playerModel);
+
+    parts.leftArm = new THREE.Group();
+    parts.rightArm = new THREE.Group();
+    parts.leftLeg = new THREE.Group();
+    parts.rightLeg = new THREE.Group();
+
+    parts.leftArm.position.set(-.79, 2.48, 0);
+    parts.rightArm.position.set(.79, 2.48, 0);
+    parts.leftLeg.position.set(-.30, 1.15, 0);
+    parts.rightLeg.position.set(.30, 1.15, 0);
+
+    playerModel.add(parts.leftArm, parts.rightArm, parts.leftLeg, parts.rightLeg);
+
+    box(.44, 1.40, .48, black, 0, -.70, 0, parts.leftArm);
+    box(.44, 1.40, .48, black, 0, -.70, 0, parts.rightArm);
+    box(.48, 1.15, .52, black, 0, -.575, 0, parts.leftLeg);
+    box(.48, 1.15, .52, black, 0, -.575, 0, parts.rightLeg);
+
+    addOtthosFlamePixels(parts.leftArm, .40, .48, -.42, -1.34);
+    addOtthosFlamePixels(parts.rightArm, .40, .48, -.42, -1.34);
+    addOtthosFlamePixels(parts.leftLeg, .44, .52, -.20, -1.10);
+    addOtthosFlamePixels(parts.rightLeg, .44, .52, -.20, -1.10);
+
     playerModel.userData.parts = parts;
+    playerModel.userData.faithfulAthos = true;
+    playerModel.userData.modelSource = 'procedural';
+    playerModel.userData.baseY = 0;
+    playerModel.userData.visualHeight = 3.75;
+    playerModel.userData.visualWidth = 2.02;
+    playerModel.userData.visualDepth = 1.08;
+    playerModel.userData.footClearance = 0;
 
-    const shadowMat = new THREE.MeshBasicMaterial({color:0x000000,transparent:true,opacity:.26,depthWrite:false,side:THREE.DoubleSide});
-    contactShadow = new THREE.Mesh(new THREE.CircleGeometry(.85,32),shadowMat); contactShadow.rotation.x = -Math.PI/2; contactShadow.position.y=.025; scene.add(contactShadow);
+    const shadowMat = new THREE.MeshBasicMaterial({ color:0x000000, transparent:true, opacity:.26, depthWrite:false, side:THREE.DoubleSide });
+    contactShadow = new THREE.Mesh(new THREE.CircleGeometry(.88, 32), shadowMat);
+    contactShadow.rotation.x = -Math.PI / 2;
+    contactShadow.position.y = .025;
+    scene.add(contactShadow);
 
-    vehicleVisual = new THREE.Group(); vehicleVisual.visible=false; playerGroup.add(vehicleVisual);
-    box(1.8,.45,2.3,0x35a8ff,0,.42,0,vehicleVisual); box(1.5,.5,1.1,0xffd83d,0,.85,-.1,vehicleVisual);
-    [[-.75,.18,-.75],[.75,.18,-.75],[-.75,.18,.75],[.75,.18,.75]].forEach(([x,y,z])=>cylinder(.25,.25,0x111827,x,y,z,vehicleVisual,12).rotation.z=Math.PI/2);
-  }
-
-  function loadFaithfulAthosModel() {
-    if (!window.THREE?.GLTFLoader) { console.warn('GLTFLoader indisponível; fallback voxel mantido.'); return; }
-    const loader = new THREE.GLTFLoader();
-    loader.load('./athos.glb', gltf => {
-      const model = gltf.scene;
-      model.traverse(obj => {
-        if (!obj.isMesh) return;
-        obj.castShadow = true; obj.receiveShadow = true;
-        const materials = Array.isArray(obj.material) ? obj.material : [obj.material];
-        materials.forEach(m => { if (!m) return; if ('roughness' in m) m.roughness = Math.min(.72, m.roughness ?? .6); if ('metalness' in m) m.metalness = Math.min(.12, m.metalness ?? .04); m.needsUpdate = true; });
-      });
-      const bounds = new THREE.Box3().setFromObject(model), size = new THREE.Vector3(); bounds.getSize(size);
-      const scale = size.y > 0 ? 2.85 / size.y : 1;
-      model.scale.setScalar(scale);
-      const grounded = new THREE.Box3().setFromObject(model);
-      model.position.y -= grounded.min.y;
-      if (playerModel) playerGroup.remove(playerModel);
-      playerModel = model;
-      playerModel.userData.faithfulAthos = true;
-      playerModel.userData.baseY = 0;
-      playerGroup.add(playerModel);
-      if (gltf.animations?.length) { playerMixer = new THREE.AnimationMixer(playerModel); playerMixer.clipAction(gltf.animations[0]).play(); }
-      applyAvatarCustomization();
-      toast('Athos original carregado!', 'good');
-    }, undefined, error => console.warn('Falha ao carregar athos.glb; fallback mantido.', error));
+    vehicleVisual = new THREE.Group();
+    vehicleVisual.visible = false;
+    playerGroup.add(vehicleVisual);
+    box(1.8, .45, 2.3, 0x35a8ff, 0, .42, 0, vehicleVisual);
+    box(1.5, .5, 1.1, 0xffd83d, 0, .85, -.1, vehicleVisual);
+    [[-.75,.18,-.75],[.75,.18,-.75],[-.75,.18,.75],[.75,.18,.75]].forEach(([x,y,z]) => cylinder(.25,.25,0x111827,x,y,z,vehicleVisual,12).rotation.z = Math.PI/2);
   }
 
   function clearAvatarLayer() {
@@ -777,17 +910,21 @@
     if (!playerGroup || !window.THREE) return;
     clearAvatarLayer();
     const outfit = state.avatar?.outfit || 'classic', hat = state.avatar?.hat || 'none', accessory = state.avatar?.accessory || 'none';
+    const faithful=!!playerModel?.userData?.faithfulAthos;
+    const height=faithful?(playerModel.userData.visualHeight||2.85):3.3;
+    const width=faithful?clamp(playerModel.userData.visualWidth||1.2,.9,1.65):1.08;
+    const bodyY=height*.52,headY=height*.82,topY=height+.10;
     const outfitColors = { blue:0x2477d4, red:0xd93645, explorer:0x3f9b4b };
     if (outfit !== 'classic') {
-      const vest = box(1.02,1.08,.76,outfitColors[outfit]||0x2477d4,0,1.55,0,avatarLayer);
-      vest.material.transparent = true; vest.material.opacity = .86;
+      const vest = box(width*.82,height*.34,faithful?clamp((playerModel.userData.visualDepth||1.0)*.62,.55,1.1):.76,outfitColors[outfit]||0x2477d4,0,bodyY,0,avatarLayer);
+      vest.material.transparent = true; vest.material.opacity = .72;
     }
-    if (hat === 'cap') { box(1.0,.22,1.0,0x2477d4,0,3.28,0,avatarLayer); box(.55,.10,.55,0x2477d4,0,3.18,.58,avatarLayer); }
-    else if (hat === 'crown') { box(.92,.25,.92,0xffd84d,0,3.32,0,avatarLayer); [[-.32,.22],[0,.34],[.32,.22]].forEach(([x,h])=>box(.18,h,.18,0xffd84d,x,3.48+h/2,0,avatarLayer)); }
-    else if (hat === 'helmet') { const helm = new THREE.Mesh(new THREE.SphereGeometry(.62,12,8,0,Math.PI*2,0,Math.PI*.62),mat(0xf97316,{metalness:.08})); helm.position.set(0,3.08,0); avatarLayer.add(helm); }
-    if (accessory === 'backpack') { box(.78,1.05,.42,0x9a5b2b,0,1.65,-.58,avatarLayer); }
-    else if (accessory === 'glasses') { box(.38,.18,.08,0x111827,-.26,2.78,.59,avatarLayer); box(.38,.18,.08,0x111827,.26,2.78,.59,avatarLayer); box(.18,.06,.08,0x111827,0,2.78,.59,avatarLayer); }
-    else if (accessory === 'cape') { const cape=box(.92,1.35,.08,0x8b5cf6,0,1.58,-.60,avatarLayer); cape.rotation.x=-.08; }
+    if (hat === 'cap') { box(width*.72,.18,width*.72,0x2477d4,0,topY,0,avatarLayer); box(width*.42,.09,width*.34,0x2477d4,0,topY-.06,width*.38,avatarLayer); }
+    else if (hat === 'crown') { box(width*.68,.18,width*.68,0xffd84d,0,topY,0,avatarLayer); [[-.26,.22],[0,.32],[.26,.22]].forEach(([x,h])=>box(.15,h,.15,0xffd84d,x*width,topY+.08+h/2,0,avatarLayer)); }
+    else if (hat === 'helmet') { const helm = new THREE.Mesh(new THREE.SphereGeometry(width*.47,16,10,0,Math.PI*2,0,Math.PI*.62),mat(0xf97316,{metalness:.08,transparent:true,opacity:.86})); helm.position.set(0,headY+.17,0); avatarLayer.add(helm); }
+    if (accessory === 'backpack') { box(width*.58,height*.30,faithful?.34:.42,0x9a5b2b,0,bodyY,-(faithful?.55:.58),avatarLayer); }
+    else if (accessory === 'glasses') { const gy=headY+.02;box(width*.28,.15,.07,0x111827,-width*.18,gy,.52,avatarLayer); box(width*.28,.15,.07,0x111827,width*.18,gy,.52,avatarLayer); box(width*.13,.05,.07,0x111827,0,gy,.52,avatarLayer); }
+    else if (accessory === 'cape') { const cape=box(width*.68,height*.38,.07,0x8b5cf6,0,bodyY,-.58,avatarLayer); cape.rotation.x=-.08; }
     avatarLayer.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
   }
 
@@ -1304,7 +1441,7 @@
     renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,state.settings.quality==='high'?1.6:1));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;els.stage.innerHTML='';els.stage.appendChild(renderer.domElement);
     initMaterials();
     scene.add(new THREE.HemisphereLight(0xe8f8ff,0x385022,.95));const sun=new THREE.DirectionalLight(0xfff4d1,1.35);sun.position.set(32,46,24);sun.castShadow=true;sun.shadow.mapSize.set(state.settings.quality==='high'?2048:1024,state.settings.quality==='high'?2048:1024);sun.shadow.camera.left=-80;sun.shadow.camera.right=80;sun.shadow.camera.top=80;sun.shadow.camera.bottom=-80;sun.shadow.camera.far=160;scene.add(sun);
-    createPlayerModel();playerModel.position.y=.24;loadFaithfulAthosModel();applyAvatarCustomization();buildWorld();restorePosition();initLocalMultiplayer();applyQuality();resize();return true;
+    createPlayerModel();applyAvatarCustomization();buildWorld();restorePosition();initLocalMultiplayer();applyQuality();resize();return true;
   }
   function applyQuality(){
     if(!renderer)return;const high=state.settings.quality==='high';renderer.setPixelRatio(Math.min(devicePixelRatio||1,high?1.6:1));renderer.shadowMap.enabled=high;renderer.toneMappingExposure=high?1.12:1.0;
@@ -1365,7 +1502,7 @@
     if(player.jumpBuffer&&player.jumpBuffer>performance.now()&&canJump())doJump();
     if(Math.hypot(player.vx,player.vz)>.15)player.facing=Math.atan2(player.vx,player.vz);
     playerGroup.position.set(player.x,player.y,player.z);playerGroup.rotation.y=performance.now()<player.spinUntil?player.facing+(1-(player.spinUntil-performance.now())/720)*Math.PI*4:player.facing;const scale=playerScaleValue();playerGroup.scale.set(scale,scale*(player.crouched?.62:1),scale);contactShadow.position.set(player.x,ground+.025,player.z);const air=Math.max(0,player.y-ground);const ss=clamp(1-air*.08,.48,1);contactShadow.scale.setScalar(ss);contactShadow.material.opacity=clamp(.27-air*.035,.06,.27);vehicleVisual.visible=player.vehicle;
-    animatePlayer(dt);checkHazards();collectNearbyCrystals();updateContext();
+    animatePlayer(dt);checkHazards();collectNearbyCrystals();updateContext();updateWaypointGuide();
   }
   let animTime=0;
   function animatePlayer(dt){
@@ -1374,17 +1511,20 @@
     const parts=playerModel.userData.parts;const speed=Math.hypot(player.vx,player.vz);const walking=speed>.25&&player.grounded&&!player.vehicle;const swing=walking?Math.sin(animTime*(8+speed*.45))*.62:0;
     if(parts){
       parts.leftArm.rotation.x=lerp(parts.leftArm.rotation.x,player.grounded?swing:-.65,.22);parts.rightArm.rotation.x=lerp(parts.rightArm.rotation.x,player.grounded?-swing:-.65,.22);parts.leftLeg.rotation.x=lerp(parts.leftLeg.rotation.x,player.grounded?-swing*.8:.38,.22);parts.rightLeg.rotation.x=lerp(parts.rightLeg.rotation.x,player.grounded?swing*.8:.38,.22);
-      const breathe=Math.sin(animTime*2.2)*.02;parts.body.scale.y=(player.crouched?.78:1)+breathe;playerModel.position.y=.24+(walking?Math.abs(Math.sin(animTime*10))*.035:0);
-      if(performance.now()<player.sitUntil){parts.leftLeg.rotation.x=1.25;parts.rightLeg.rotation.x=1.25;playerModel.position.y=-.18;}
+      const breathe=Math.sin(animTime*2.2)*.018;
+      parts.body.scale.y=(player.crouched?.82:1)+breathe;
+      // A raiz visual nunca fica abaixo de zero: os pés permanecem no solo.
+      playerModel.position.y=walking?Math.abs(Math.sin(animTime*10))*.035:Math.max(0,Math.sin(animTime*2.2))*.006;
+      if(performance.now()<player.sitUntil){parts.leftLeg.rotation.x=1.25;parts.rightLeg.rotation.x=1.25;playerModel.position.y=0;}
     } else {
-      const base=playerModel.userData.baseY||0;
+      const base=Number.isFinite(playerModel.userData.baseY)?playerModel.userData.baseY:0;
       const bob=walking?Math.abs(Math.sin(animTime*(8+speed*.4)))*.045:Math.sin(animTime*2.1)*.012;
-      const jumpTilt=player.grounded?0:clamp(-player.vy*.012,-.12,.10);
-      playerModel.position.y=base+bob+(performance.now()<player.sitUntil?-.22:0);
+      const jumpTilt=player.grounded?0:clamp(-player.vy*.012,-.10,.08);
+      playerModel.position.y=base+bob+(performance.now()<player.sitUntil?-.16:0);
       playerModel.rotation.x=lerp(playerModel.rotation.x,jumpTilt,.18);
-      playerModel.rotation.z=lerp(playerModel.rotation.z,walking?Math.sin(animTime*8)*.025:0,.18);
+      playerModel.rotation.z=lerp(playerModel.rotation.z,walking?Math.sin(animTime*8)*.018:0,.18);
     }
-    if(avatarLayer){avatarLayer.position.y=playerModel.position.y;avatarLayer.rotation.x=playerModel.rotation.x;avatarLayer.rotation.z=playerModel.rotation.z;}
+    if(avatarLayer){avatarLayer.position.y=Math.max(0,playerModel?.position?.y||0);avatarLayer.rotation.x=playerModel.rotation.x;avatarLayer.rotation.z=playerModel.rotation.z;}
   }
   function checkHazards(){
     for(const h of world.hazards){if(Math.abs(player.x-h.x)<=h.w/2&&Math.abs(player.z-h.z)<=h.d/2&&player.y<.6){if(h.type==='water'){player.vx*=.9;player.vz*=.9;}else if(performance.now()>player.damageUntil){player.damageUntil=performance.now()+1200;state.needs.energy=clamp(state.needs.energy-18,0,100);toast('Cuidado com a lava!','bad');returnHome();}}}
@@ -1471,7 +1611,7 @@
 
   let localChannel=null,lastPublish=0;
   function initLocalMultiplayer(){
-    if(typeof BroadcastChannel!=='function')return;localChannel=new BroadcastChannel('otthos-life-world-v602');localChannel.onmessage=e=>{const data=e.data;if(!data||data.id===state.profile.playerId)return;if(data.type==='leave'){const ghost=world.ghosts.get(data.id);if(ghost){scene.remove(ghost);world.ghosts.delete(data.id);}return;}let ghost=world.ghosts.get(data.id);if(!ghost){ghost=createGhost(data.color||0x5ad8ff);world.ghosts.set(data.id,ghost);}ghost.userData.target=data;};window.addEventListener('beforeunload',()=>localChannel.postMessage({type:'leave',id:state.profile.playerId}));
+    if(typeof BroadcastChannel!=='function')return;localChannel=new BroadcastChannel('otthos-life-world-v604');localChannel.onmessage=e=>{const data=e.data;if(!data||data.id===state.profile.playerId)return;if(data.type==='leave'){const ghost=world.ghosts.get(data.id);if(ghost){scene.remove(ghost);world.ghosts.delete(data.id);}return;}let ghost=world.ghosts.get(data.id);if(!ghost){ghost=createGhost(data.color||0x5ad8ff);world.ghosts.set(data.id,ghost);}ghost.userData.target=data;};window.addEventListener('beforeunload',()=>localChannel.postMessage({type:'leave',id:state.profile.playerId}));
     window.OTTHOS_MULTIPLAYER={version:3,playerId:state.profile.playerId,mode:'local-preview',connect:()=>true,publish:payload=>localChannel?.postMessage(payload),adapter:'BroadcastChannel',futureAdapters:['Firebase','WebSocket']};
   }
   function createGhost(color){const g=new THREE.Group();box(.82,1.2,.58,color,0,1.3,0,g);box(.72,.72,.72,0xffd2a0,0,2.25,0,g);scene.add(g);return g;}
@@ -1509,7 +1649,7 @@
   async function startGame(resetPosition=false){
     await dbReady; closeModal();showScreen('game');
     state.ui.quickOpen=false;els.quickBar.hidden=true;els.quickToggleBtn.classList.remove('active');els.game.classList.toggle('needs-expanded',!!state.ui.needsOpen);els.missionCard.classList.toggle('expanded',!!state.ui.missionOpen);if(!scene){if(!initThree()){showScreen('lobby');return;}setupControls();}else{applyAvatarCustomization();}
-    if(resetPosition){player.x=0;player.z=8;player.y=0;}else restorePosition();player.scaleMode=state.abilities?.scaleMode||'normal';player.crouched=!!state.abilities?.crouched;updateAbilityUI();running=true;paused=false;clock.start();evaluateMissions();updateHUD();updateContext(true);resize();cancelAnimationFrame(raf);gameLoop();toast('Bem-vindo à Vila do Sol!','good',2200);
+    if(resetPosition){player.x=0;player.z=8;player.y=0;}else restorePosition();player.scaleMode=state.abilities?.scaleMode||'normal';player.crouched=!!state.abilities?.crouched;updateAbilityUI();running=true;paused=false;clock.start();evaluateMissions();updateHUD();updateContext(true);updateWaypointGuide(true);resize();cancelAnimationFrame(raf);gameLoop();toast('Bem-vindo à Vila do Sol!','good',2200);
   }
   function stopGame(){
     running=false;paused=false;cancelAnimationFrame(raf);savePlayerPosition(true);showScreen('lobby');updateLobbyStats();
@@ -1527,10 +1667,10 @@
 
   // Public test/audit API
   window.OTTHOS_TEST_API={
-    version:'V602_ROLEPLAY_RESTORED_CONTROLS',
+    version:'V604_ROLEPLAY_PROCEDURAL_OTTHOS_COMPLETE',
     getState:()=>JSON.parse(JSON.stringify(state)),
-    getGame:()=>({running,paused,currentHouse:currentHouse?.id||null,cameraMode,player:{...player},objects:{houses:world.houses.length,npcs:world.npcs.length,enemies:world.enemies.length,interactables:world.interactables.length,builds:world.builds.length}}),
-    teleport:(x,z)=>{player.x=x;player.z=z;player.y=0;updateContext(true);},
+    getGame:()=>({running,paused,currentHouse:currentHouse?.id||null,cameraMode,player:{...player},visual:{faithful:!!playerModel?.userData?.faithfulAthos,source:playerModel?.userData?.modelSource||'unknown',modelY:playerModel?.position?.y??null,baseY:playerModel?.userData?.baseY??null,footDelta:(playerModel?.position?.y||0)-(playerModel?.userData?.baseY||0)},objects:{houses:world.houses.length,npcs:world.npcs.length,enemies:world.enemies.length,interactables:world.interactables.length,builds:world.builds.length}}),
+    teleport:(x,z)=>{player.x=x;player.z=z;player.y=groundHeightAt(x,z);player.vx=player.vy=player.vz=0;player.grounded=true;updateContext(true);updateWaypointGuide(true);},
     getContext:()=>currentContext?{id:currentContext.id,label:currentContext.label,type:currentContext.type,activity:currentContext.activity||null}:null,
     getLastAction:()=>lastActionSource,
     action:()=>doAction(),
@@ -1542,7 +1682,7 @@
     controls:()=>({crouch:!!els.crouchBtn,mini:!!els.miniBtn,normal:!!els.normalBtn,giant:!!els.giantBtn,spin:!!els.spinBtn,action:!!els.actionBtn,jump:!!els.jumpBtn,power:!!els.specialBtn}),
     race:()=>activeRace?{type:activeRace.type,npc:activeRace.npcName,playerScore:activeRace.playerScore,opponentScore:activeRace.opponentScore,timeLeft:activeRace.timeLeft}:null,
     startRace:(type='sprint')=>startRace(type,world.npcs[0]),
-    map:()=>({player:{x:player.x,z:player.z},waypoint:state.waypoint,locations:MAP_LOCATIONS.map(x=>({...x}))}),
+    map:()=>({player:{x:player.x,z:player.z,facing:player.facing},waypoint:state.waypoint,nearest:nearestMapLocation(),bounds:{...MAP_BOUNDS},locations:MAP_LOCATIONS.map(x=>({...x}))}),
     enterHouseById:(id)=>{const h=world.houses.find(x=>x.id===id);if(!h)return false;enterHouse(h);return true;},
     exitHouse,
     returnHome,
