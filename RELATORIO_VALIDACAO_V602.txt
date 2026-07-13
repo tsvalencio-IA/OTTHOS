@@ -1,0 +1,48 @@
+OTTHOS V602 — RELATÓRIO DE VALIDAÇÃO ESTÁTICA
+
+Arquivos no pacote: 25
+Manifesto: Otthos Roleplay Life World V602 | start_url=./index.html?v=602
+
+CHECKS:
+[OK] arquivo index.html
+[OK] arquivo app.js
+[OK] arquivo style.css
+[OK] arquivo sw.js
+[OK] arquivo manifest.webmanifest
+[OK] arquivo athos.glb
+[OK] arquivo assets/js/save-db.js
+[OK] arquivo icons/icon-192.png
+[OK] arquivo icons/icon-512.png
+[OK] id installBtn
+[OK] id arBtn
+[OK] id quizBtn
+[OK] id talkBtn
+[OK] id collectionBtn
+[OK] id avatarBtn
+[OK] id moldsBtn
+[OK] id crouchBtn
+[OK] id miniBtn
+[OK] id normalBtn
+[OK] id giantBtn
+[OK] id spinBtn
+[OK] id specialBtn
+[OK] id actionBtn
+[OK] id jumpBtn
+[OK] id mapBtn
+[OK] id buildBtn
+[OK] id inventoryBtn
+[OK] app V602
+[OK] ação contextual
+[OK] cozinhar contextual
+[OK] baú da casa próprio
+[OK] IndexedDB
+[OK] autosave 5s
+[OK] PWA instalação condicional
+[OK] NPCs distintos
+[OK] ginásio
+[OK] corrida pega-moedas
+[OK] mapa coordenadas reais
+[OK] AR preservado
+[OK] moldes preservados
+
+Falhas: 0

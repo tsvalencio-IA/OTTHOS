@@ -91,3 +91,45 @@ button:focus-visible,input:focus-visible{outline:3px solid #fff;outline-offset:2
 @media (orientation:portrait){
  .game-hud{grid-template-columns:auto 1fr auto}.needs-summary{position:absolute;top:57px;left:50%;transform:translateX(-50%);width:44px;height:44px}.game.needs-expanded .needs-box{top:58px}.mission-card{top:calc(108px + var(--safe-top));width:calc(100vw - 22px);left:50%}.quick-toggle{top:calc(174px + var(--safe-top));right:calc(8px + var(--safe-right))}.quick-bar{top:calc(230px + var(--safe-top))}.mission-card.expanded{width:calc(100vw - 20px)}
 }
+
+/* =========================================================
+   V602 — CONTROLES COMPLETOS / AÇÃO CONTEXTUAL / MAPA REAL
+   ========================================================= */
+:root{--skill:46px;--skill-gap:6px}
+html.app-installed #installBtn,html.app-installed #installHint{display:none!important}
+.primary-actions{z-index:55;pointer-events:auto}
+.primary-actions .round{touch-action:none;user-select:none}
+.secondary-actions{position:absolute;z-index:54;right:calc(14px + var(--safe-right) + (var(--action) * 2) + var(--gap) + 14px);bottom:calc(14px + var(--safe-bottom));display:grid;grid-template-columns:repeat(2,var(--skill));grid-auto-rows:var(--skill);gap:var(--skill-gap);pointer-events:auto}
+.skill-btn{width:var(--skill);height:var(--skill);padding:0;border-radius:13px;background:linear-gradient(180deg,rgba(50,84,119,.98),rgba(15,35,58,.98));border:2px solid rgba(255,255,255,.72);box-shadow:0 5px 0 rgba(0,0,0,.32),0 8px 16px rgba(0,0,0,.18);display:flex;flex-direction:column;align-items:center;justify-content:center;touch-action:none;user-select:none}
+.skill-btn b{font-size:18px;line-height:1}.skill-btn span{font-size:7px;font-weight:900;margin-top:2px;white-space:nowrap}.skill-btn.active{background:linear-gradient(180deg,#6ee94b,#278f20);box-shadow:0 5px 0 #155e10,0 0 0 3px rgba(110,233,75,.22)}
+.skill-btn.crouch{background:linear-gradient(180deg,#d18a16,#8b5905)}.skill-btn.mini{background:linear-gradient(180deg,#25b7c9,#116779)}.skill-btn.normal{background:linear-gradient(180deg,#556478,#293546)}.skill-btn.giant{background:linear-gradient(180deg,#59b845,#276b20)}.skill-btn.spin{background:linear-gradient(180deg,#687382,#333c49)}
+.context-prompt{z-index:53}.quick-bar{z-index:49}.quick-toggle{z-index:49}
+.action.pulse{animation:actionPulse .72s infinite alternate}@keyframes actionPulse{to{transform:scale(1.08);filter:brightness(1.18)}}
+.race-badge{position:absolute;z-index:52;left:50%;top:calc(142px + var(--safe-top));transform:translateX(-50%);min-width:250px;max-width:70vw;padding:9px 14px;border-radius:16px;background:linear-gradient(180deg,rgba(92,32,150,.96),rgba(30,17,72,.96));border:2px solid #ffd84d;box-shadow:var(--shadow);text-align:center;pointer-events:none}.race-badge b,.race-badge span{display:block}.race-badge b{font-size:14px}.race-badge span{font-size:11px;color:#f8e9ff;margin-top:2px}
+.storage-list{display:grid;gap:8px}.storage-row{padding:11px;border-radius:14px;background:rgba(255,255,255,.07);display:grid;grid-template-columns:1fr auto;gap:5px 10px;align-items:center}.storage-row>span{font-weight:900}.storage-row>b{font-size:11px;color:#c7d8eb}.storage-row>div{grid-column:1/-1;display:flex;gap:7px}.storage-row button{flex:1;padding:9px;border-radius:11px;background:#294d70;font-weight:800}
+.world-map{position:relative;aspect-ratio:1.48;min-height:270px;border-radius:20px;overflow:hidden;border:3px solid rgba(255,255,255,.22);background:
+ radial-gradient(circle at 18% 30%,rgba(21,128,61,.92) 0 19%,transparent 20%),
+ radial-gradient(circle at 78% 70%,rgba(100,116,139,.75) 0 18%,transparent 19%),
+ linear-gradient(180deg,#5cc6ff 0 16%,#71cf63 16% 100%);box-shadow:inset 0 0 40px rgba(0,0,0,.18)}
+.map-road{position:absolute;background:#c99555;border:2px solid rgba(255,255,255,.18);border-radius:999px;opacity:.9}.map-road.horizontal{left:5%;right:5%;height:9%;top:48%}.map-road.vertical{top:17%;bottom:5%;width:7%;left:48%}.map-river{position:absolute;left:0;right:0;top:68%;height:8%;background:#31bde8;transform:rotate(-5deg);box-shadow:0 0 0 2px rgba(255,255,255,.22)}
+.map-region{position:absolute;font-size:10px;font-weight:900;letter-spacing:.08em;color:rgba(255,255,255,.72);pointer-events:none}.map-region.forest{left:9%;top:20%}.map-region.city{left:45%;top:41%}.map-region.adventure{right:7%;top:24%}
+.map-marker{position:absolute;transform:translate(-50%,-50%);min-width:58px;max-width:100px;padding:5px 7px;border-radius:12px;background:rgba(7,23,43,.92);border:2px solid rgba(255,255,255,.28);box-shadow:0 4px 0 rgba(0,0,0,.28);display:flex;flex-direction:column;align-items:center;gap:1px}.map-marker b{font-size:17px}.map-marker span{font-size:8px;font-weight:900;line-height:1.05}.map-marker:active{transform:translate(-50%,-50%) scale(.94)}
+.player-dot,.waypoint-dot{position:absolute;transform:translate(-50%,-50%);z-index:5;pointer-events:none}.player-dot{width:18px;height:18px;border-radius:50%;background:#1d7dff;border:4px solid #fff;box-shadow:0 0 0 4px rgba(29,125,255,.25),0 0 16px #1d7dff}.player-dot b{position:absolute;left:50%;top:18px;transform:translateX(-50%);padding:2px 5px;border-radius:7px;background:#06172b;font-size:7px;white-space:nowrap}.waypoint-dot{font-size:28px;color:#ffe14d;text-shadow:0 0 10px #ffb800}.map-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.map-legend span{padding:6px 8px;border-radius:999px;background:rgba(255,255,255,.08);font-size:10px}
+
+@media (orientation:landscape) and (max-height:700px){
+ :root{--skill:42px;--skill-gap:5px}
+ .secondary-actions{right:calc(10px + var(--safe-right) + (var(--action) * 2) + var(--gap) + 10px);bottom:calc(8px + var(--safe-bottom))}
+ .skill-btn span{font-size:6.5px}.race-badge{top:calc(96px + var(--safe-top));min-width:220px;padding:6px 10px}
+}
+@media (orientation:portrait){
+ :root{--skill:min(12vw,48px);--skill-gap:5px}
+ .secondary-actions{left:50%;right:auto;bottom:calc(18px + var(--safe-bottom) + (var(--action) * 2) + var(--gap));transform:translateX(-50%);grid-template-columns:repeat(5,var(--skill));grid-template-rows:var(--skill)}
+ .skill-btn{border-radius:12px}.skill-btn b{font-size:17px}.skill-btn span{font-size:6px}
+ .race-badge{top:calc(194px + var(--safe-top));max-width:92vw}
+ .world-map{aspect-ratio:1.05;min-height:330px}.map-marker{min-width:52px;padding:4px}.map-marker span{font-size:7px}
+}
+@media (max-width:390px) and (orientation:portrait){
+ :root{--skill:39px;--action:62px;--joy:112px}
+ .secondary-actions{bottom:calc(15px + var(--safe-bottom) + (var(--action) * 2) + var(--gap))}
+ .skill-btn span{display:none}.skill-btn b{font-size:18px}
+}

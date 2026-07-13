@@ -8,10 +8,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Otthos Roleplay Life World</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=601" />
+  <link rel="manifest" href="./manifest.webmanifest?v=602" />
   <link rel="icon" href="./icons/favicon.png" />
   <link rel="apple-touch-icon" href="./icons/icon-192.png" />
-  <link rel="stylesheet" href="./style.css?v=601" />
+  <link rel="stylesheet" href="./style.css?v=602" />
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
@@ -107,12 +107,22 @@
       <div id="contextPrompt" class="context-prompt" hidden><span id="contextIcon">✋</span><div><b id="contextLabel">Interagir</b><small id="contextHint">Toque em AÇÃO</small></div></div>
 
       <div id="joystick" class="joystick" aria-label="Joystick"><div class="joystick-ring"><i id="joystickKnob"></i></div></div>
+
+      <div class="secondary-actions" aria-label="Habilidades do Otthos">
+        <button id="crouchBtn" class="skill-btn crouch" type="button"><b>▼</b><span>Abaixar</span></button>
+        <button id="miniBtn" class="skill-btn mini" type="button"><b>◱</b><span>Mini</span></button>
+        <button id="normalBtn" class="skill-btn normal" type="button"><b>N</b><span>Normal</span></button>
+        <button id="giantBtn" class="skill-btn giant" type="button"><b>⬡</b><span>Grande</span></button>
+        <button id="spinBtn" class="skill-btn spin" type="button"><b>↻</b><span>Girar</span></button>
+      </div>
+
       <div class="primary-actions" aria-label="Ações principais">
         <button id="specialBtn" class="round special" type="button"><b>🔥</b><span>Poder</span></button>
         <button id="actionBtn" class="round action" type="button"><b>✋</b><span>Ação</span></button>
         <button id="jumpBtn" class="round jump" type="button"><b>⬆</b><span>Pular</span></button>
       </div>
 
+      <div id="raceBadge" class="race-badge" hidden><b id="raceTitle">Desafio</b><span id="raceStatus">Prepare-se!</span></div>
       <div id="buildBadge" class="build-badge" hidden>CONSTRUÇÃO: <b id="buildTypeLabel">Bloco</b> — toque em AÇÃO para colocar</div>
       <div id="vehicleBadge" class="vehicle-badge" hidden>🚗 Carrinho ativo — AÇÃO para sair</div>
       <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -125,14 +135,9 @@
       </div>
     </div>
 
-    <div id="installBanner" class="install-banner" hidden>
-      <div><b>Instalar Otthos</b><span>Jogue como aplicativo, com tela cheia.</span></div>
-      <button id="installBannerBtn" class="btn primary" type="button">Instalar</button>
-      <button id="installBannerClose" class="icon-btn" type="button">✕</button>
-    </div>
   </div>
 
-  <script src="./assets/js/save-db.js?v=601"></script>
-  <script src="./app.js?v=601"></script>
+  <script src="./assets/js/save-db.js?v=602"></script>
+  <script src="./app.js?v=602"></script>
 </body>
 </html>

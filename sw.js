@@ -1,6 +1,6 @@
-const CACHE = 'otthos-life-world-v601';
+const CACHE = 'otthos-life-world-v602';
 const CORE = [
-  './','./index.html?v=601','./style.css?v=601','./assets/js/save-db.js?v=601','./app.js?v=601','./manifest.webmanifest?v=601',
+  './','./index.html?v=602','./style.css?v=602','./assets/js/save-db.js?v=602','./app.js?v=602','./manifest.webmanifest?v=602',
   './icons/icon-192.png','./icons/icon-512.png','./icons/favicon.png','./athos.glb'
 ];
 self.addEventListener('install', event => {
@@ -18,7 +18,7 @@ self.addEventListener('fetch', event => {
   if (isCore) {
     event.respondWith(fetch(event.request, {cache:'no-store'}).then(response => {
       const copy = response.clone(); caches.open(CACHE).then(cache => cache.put(event.request, copy)); return response;
-    }).catch(() => caches.match(event.request).then(r => r || caches.match('./index.html?v=601'))));
+    }).catch(() => caches.match(event.request).then(r => r || caches.match('./index.html?v=602'))));
   } else {
     event.respondWith(caches.match(event.request).then(cached => cached || fetch(event.request).then(response => {
       const copy = response.clone(); caches.open(CACHE).then(cache => cache.put(event.request, copy)); return response;
