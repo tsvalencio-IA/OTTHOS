@@ -2,8 +2,8 @@
 (async () => {
   'use strict';
 
-  const VERSION = 'V605_COMMERCIAL_GAMEPLAY_AUDIT_1';
-  const STORAGE_KEY = 'otthos_life_world_roleplay_v605';
+  const VERSION = 'V606_COMMERCIAL_GAMEPLAY_AUDIT_1';
+  const STORAGE_KEY = 'otthos_life_world_roleplay_v606';
   const CONFIG = {
     autoStartGame: true,
     movementHoldMs: 650,
@@ -373,7 +373,7 @@
       </style>
       <header>
         <div>
-          <h2>Auditoria de Jogabilidade Comercial — Otthos V605</h2>
+          <h2>Auditoria de Jogabilidade Comercial — Otthos V606</h2>
           <div>${report.verdict}</div>
         </div>
         <div class="score">${report.score}/100</div>
@@ -432,7 +432,7 @@
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement('a');
       anchor.href = url;
-      anchor.download = `otthos-v605-auditoria-comercial-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+      anchor.download = `otthos-v606-auditoria-comercial-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
       anchor.click();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
     };
@@ -455,7 +455,7 @@
 
   function reportToText(report) {
     const lines = [
-      `OTTHOS V605 — AUDITORIA DE JOGABILIDADE COMERCIAL`,
+      `OTTHOS V606 — AUDITORIA DE JOGABILIDADE COMERCIAL`,
       `Pontuação: ${report.score}/100`,
       `Veredito: ${report.verdict}`,
       `Aprovados: ${report.passed}/${report.total}`,
@@ -479,12 +479,12 @@
   try {
     api = window.OTTHOS_TEST_API;
 
-    await safe('Inicialização', 'API pública de testes V605 disponível', 'critical', () => ({
-      passed: !!api && api.version === 'V605_STABLE_ROLEPLAY_FULL',
+    await safe('Inicialização', 'API pública de testes V606 disponível', 'critical', () => ({
+      passed: !!api && api.version === 'V606_STABLE_VEHICLE_UPDATE',
       details: api?.version || 'OTTHOS_TEST_API ausente'
     }));
 
-    if (!api) throw new Error('OTTHOS_TEST_API não foi encontrada. Abra a V605 e execute novamente.');
+    if (!api) throw new Error('OTTHOS_TEST_API não foi encontrada. Abra a V606 e execute novamente.');
 
     snapshotState = clone(api.getState());
     snapshotLocal = localStorage.getItem(STORAGE_KEY);
@@ -1005,7 +1005,7 @@
 
   window.OTTHOS_COMMERCIAL_AUDIT_REPORT = report;
 
-  console.group(`%cOTTHOS V605 — AUDITORIA COMERCIAL ${score}/100`, 'font-size:16px;font-weight:bold;color:#52d8ff');
+  console.group(`%cOTTHOS V606 — AUDITORIA COMERCIAL ${score}/100`, 'font-size:16px;font-weight:bold;color:#52d8ff');
   console.log(verdict);
   console.table(results.map(item => ({
     Área: item.area,

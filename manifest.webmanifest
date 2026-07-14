@@ -1,8 +1,8 @@
 {
-  "name": "Otthos Roleplay Life World V605",
+  "name": "Otthos Roleplay Life World V607",
   "short_name": "Otthos RP",
   "description": "Simulador de vida infantil em mundo aberto 3D com casas, vizinhos, controles completos, corridas, pega-moedas, ginásio, profissões, construção, AR, quiz e progresso automático no celular.",
-  "start_url": "./index.html?v=605",
+  "start_url": "./index.html?v=607",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",

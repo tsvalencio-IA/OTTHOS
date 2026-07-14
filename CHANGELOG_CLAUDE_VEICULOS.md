@@ -86,3 +86,101 @@ como combinamos.
 3. Dano visual leve ao bater (arranhado/fumaça) sem mexer no sistema de vida.
 4. Rampas/obstáculos de manobra para curtir a derrapagem (parte divertida do
    GTA/arcade racing).
+
+---
+
+## Correções após revisão técnica externa (V606.1)
+
+Uma segunda IA revisou o ZIP anterior comparando-o linha a linha com a base
+V605. A revisão foi tecnicamente correta em praticamente todos os pontos —
+conferi cada um no código antes de corrigir. Nada disso é cosmético; eram
+bugs reais introduzidos pela pressa da primeira entrega. Lista do que foi
+corrigido:
+
+1. **`.nojekyll` sumiu por engano.** Causa raiz: eu usei `cp pasta/* destino`
+   no terminal, e o `*` do shell não copia arquivos ocultos (que começam com
+   `.`). Não foi uma remoção intencional, foi um bug de cópia. Restaurado.
+
+2. **O Otthos ficava visível dentro do carro** (pernas/corpo atravessando a
+   carroceria). Corrigido: `playerModel.visible=false` e
+   `avatarLayer.visible=false` ao entrar no carro (e `true` de novo ao sair).
+
+3. **Mini/Grande/Abaixar deformavam o carro**, porque o carro é filho do
+   mesmo grupo 3D que recebe a escala do tamanho do personagem. Corrigido na
+   raiz: ao entrar no carro, o tamanho é forçado para `normal` e o agachar é
+   desligado; e agora **não dá mais para trocar de tamanho, agachar ou girar
+   enquanto dirige** (os botões ficam visualmente apagados/bloqueados, sem
+   sumir do jogo, e voltam ao normal ao sair do carro).
+
+4. **O carro ainda pulava** com o botão normal de pular. Corrigido:
+   `canJump()` agora retorna falso enquanto `player.vehicle` é verdadeiro, e
+   o botão de pular fica visualmente desativado durante a direção.
+
+5. **As rodas dianteiras que viravam eram, na verdade, as de trás.** Os
+   faróis estão no lado `z=+1.24` (frente), mas eu tinha marcado como
+   dianteiras as rodas em `z=-0.78`. Invertido — agora as rodas do lado dos
+   faróis são as que viram ao curvar.
+
+6. **Colisão do carro menor que a carroceria** (raio de 0,65 contra uma
+   carroceria de ~1,86×2,50). Aumentado para um raio de 1,1 — ainda é uma
+   colisão simplificada (círculo, não uma caixa orientada de verdade), mas
+   agora não deixa mais a carroceria visualmente atravessar paredes/cercas.
+
+7. **Bater na parede não tirava velocidade real.** O carro ficava "vibrando"
+   contra o obstáculo com o motor ainda acelerado. Agora, ao bater, a
+   velocidade do carro e a velocidade física caem de verdade (para ~10-15%),
+   com uma vibração e um som curto de impacto (com um pequeno intervalo
+   mínimo entre sons, para não spammar enquanto o botão fica pressionado
+   contra a parede).
+
+8. **Ciclo do som do motor incompleto**: religar o som nas configurações
+   durante a direção não voltava a tocar o motor; e pausar o jogo ou sair
+   para o Lobby deixava o oscilador de áudio tocando escondido (nunca era
+   parado). Corrigido: o motor liga/desliga corretamente com o som das
+   configurações, para ao abrir o menu de pausa, volta ao continuar (se
+   ainda estiver no carro) e é sempre encerrado ao sair para o Lobby.
+
+9. **Nuvens paradas**, apesar do changelog anterior dizer "flutuando". Isso
+   estava errado da minha parte — elas não tinham nenhuma atualização por
+   quadro. Agora elas realmente se movem (deriva horizontal lenta com
+   wraparound), e o número de malhas caiu de 56 para 27 (9 nuvens × 3
+   partes, antes 14×4), para pesar menos em celulares de entrada.
+
+10. **Versão e cache travados em "605" em todo lugar**, mesmo o ZIP se
+    chamando V606 — isso incluía a chave de save no `localStorage`, o nome
+    do cache do service worker, as strings `?v=` de cache-busting no HTML, o
+    nome do app no `manifest.webmanifest` e a string de versão interna usada
+    pelo script de teste (F12). Tudo foi atualizado para V606, **seguindo o
+    mesmo padrão seguro de migração que a própria V605 já usava** (a chave
+    de save antiga entra na lista `LEGACY_STORAGE_KEYS`, então o progresso de
+    quem já jogou a V605 é migrado automaticamente para a chave nova, nada é
+    apagado). O script `F12_TESTE_OTTHOS_...js` foi atualizado para verificar
+    a versão nova, senão ele ia falhar sozinho contra este build.
+
+11. **Relatórios de validação antigos** (`RELATORIO_VALIDACAO_V605.txt` e
+    `VALIDACAO_AUTOMATIZADA_V605.json`) foram mantidos (não apago histórico),
+    mas agora têm um aviso no topo deixando claro que eles validam só a V605
+    e não cobrem nada da física de veículo — para não serem usados como
+    "prova" de teste desta versão, como a revisão apontou corretamente.
+
+### O que a revisão apontou e eu decidi **não** mudar, com justificativa
+
+- A colisão do carro continua sendo um círculo simples contra retângulos, não
+  uma caixa orientada (OBB) de verdade. Uma colisão 100% fiel ao formato
+  exato da carroceria em todas as direções exigiria reescrever todo o sistema
+  de colisão do jogo (que também é usado pelo personagem a pé, pelas casas,
+  cercas etc.) — isso é maior do que "raso" e arriscaria quebrar colisões que
+  já funcionam. O que fiz (raio maior + perda de velocidade ao bater) resolve
+  o sintoma prático (carro atravessando parede) sem esse risco.
+- Não renomeei o arquivo `F12_TESTE_OTTHOS_V605_JOGABILIDADE_COMERCIAL.js`
+  (só o conteúdo por dentro) para não quebrar nenhuma instrução/atalho que
+  você já tenha para rodá-lo.
+
+### Ainda vale testar no celular
+
+Continua tudo validado apenas de forma estática (sintaxe via esbuild, HTML
+bem formado, chaves balanceadas, checagem cruzada de IDs) — não tenho
+navegador neste ambiente. Recomendo testar especialmente: entrar/sair do
+carro várias vezes seguidas, bater de propósito numa casa/cerca dirigindo, e
+ligar/desligar o som das configurações enquanto dirige.
+

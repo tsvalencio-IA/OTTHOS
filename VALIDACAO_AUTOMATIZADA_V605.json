@@ -1,4 +1,5 @@
 {
+  "_aviso_v606_claude": "Este relatório valida apenas a V605 original e NÃO cobre a física de veículo, textura, céu ou estrada da V606. Não usar como evidência de teste da V606. Ver CHANGELOG_CLAUDE_VEICULOS.md.",
   "version": "V605_STABLE_ROLEPLAY_FULL",
   "syntax": {
     "app.js": {

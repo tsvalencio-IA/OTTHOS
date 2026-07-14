@@ -8,8 +8,8 @@
   const lerpAngle = (a, b, t) => { let d=((b-a+Math.PI)%(Math.PI*2))-Math.PI; if(d<-Math.PI)d+=Math.PI*2; return a+d*t; };
   const distance2D = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
   const uid = () => (crypto.randomUUID ? crypto.randomUUID() : `p-${Date.now()}-${Math.random().toString(16).slice(2)}`);
-  const STORAGE_KEY = 'otthos_life_world_roleplay_v605';
-  const LEGACY_STORAGE_KEYS = ['otthos_life_world_roleplay_v604','otthos_life_world_roleplay_v603','otthos_life_world_roleplay_v602','otthos_life_world_roleplay_v601','otthos_life_world_complete_v600'];
+  const STORAGE_KEY = 'otthos_life_world_roleplay_v607';
+  const LEGACY_STORAGE_KEYS = ['otthos_life_world_roleplay_v606','otthos_life_world_roleplay_v605','otthos_life_world_roleplay_v604','otthos_life_world_roleplay_v603','otthos_life_world_roleplay_v602','otthos_life_world_roleplay_v601','otthos_life_world_complete_v600'];
   const safeLocalGet = key => { try { return window.localStorage?.getItem(key) ?? null; } catch { return null; } };
   const safeLocalSet = (key, value) => { try { window.localStorage?.setItem(key, value); return true; } catch { return false; } };
   const safeLocalRemove = key => { try { window.localStorage?.removeItem(key); return true; } catch { return false; } };
@@ -24,14 +24,14 @@
     missionChapter: $('#missionChapter'), missionTitle: $('#missionTitle'), missionStep: $('#missionStep'), missionFill: $('#missionFill'),
     quickToggleBtn: $('#quickToggleBtn'), quickBar: $('#quickBar'), needsToggleBtn: $('#needsToggleBtn'), missionCard: $('#missionCard'), avatarGameBtn: $('#avatarGameBtn'), inventoryBtn: $('#inventoryBtn'), buildBtn: $('#buildBtn'), mapBtn: $('#mapBtn'), gameSettingsBtn: $('#gameSettingsBtn'),
     contextPrompt: $('#contextPrompt'), contextIcon: $('#contextIcon'), contextLabel: $('#contextLabel'), contextHint: $('#contextHint'),
-    joystick: $('#joystick'), joystickKnob: $('#joystickKnob'), specialBtn: $('#specialBtn'), actionBtn: $('#actionBtn'), jumpBtn: $('#jumpBtn'), crouchBtn: $('#crouchBtn'), miniBtn: $('#miniBtn'), normalBtn: $('#normalBtn'), giantBtn: $('#giantBtn'), spinBtn: $('#spinBtn'),
+    joystick: $('#joystick'), joystickKnob: $('#joystickKnob'), specialBtn: $('#specialBtn'), actionBtn: $('#actionBtn'), jumpBtn: $('#jumpBtn'), crouchBtn: $('#crouchBtn'), miniBtn: $('#miniBtn'), normalBtn: $('#normalBtn'), giantBtn: $('#giantBtn'), spinBtn: $('#spinBtn'), secondaryActions: document.querySelector('.secondary-actions'),
     buildBadge: $('#buildBadge'), buildTypeLabel: $('#buildTypeLabel'), vehicleBadge: $('#vehicleBadge'), raceBadge: $('#raceBadge'), raceTitle: $('#raceTitle'), raceStatus: $('#raceStatus'), toast: $('#toast'),
     modal: $('#modal'), modalTitle: $('#modalTitle'), modalBody: $('#modalBody'), modalClose: $('#modalClose'),
     nativeViewer: $('#nativeViewer')
   };
 
   const defaultState = () => ({
-    version: 605,
+    version: 607,
     profile: { playerId: uid(), name: 'Otthos', level: 1, xp: 0, coins: 500, reputation: 0 },
     needs: { hunger: 92, energy: 92, fun: 86, hygiene: 88 },
     inventory: { wood: 0, stone: 0, food: 2, water: 2, crystals: 0, blocks: 4, fences: 2, keys: 0 },
@@ -71,7 +71,7 @@
     return {
       ...fresh,
       ...saved,
-      version: 605,
+      version: 607,
       profile: { ...fresh.profile, ...(saved.profile || {}) },
       needs: { ...fresh.needs, ...(saved.needs || {}) },
       inventory: { ...fresh.inventory, ...(saved.inventory || {}) },
@@ -130,7 +130,7 @@
   let saveTimer = 0;
   let lastSavePromise = Promise.resolve(true);
   function commitState() {
-    state.version = 605;
+    state.version = 606;
     state.lastSaved = Date.now();
     const snapshot = JSON.parse(JSON.stringify(state));
     safeLocalSet(STORAGE_KEY, JSON.stringify(snapshot));
@@ -216,6 +216,9 @@
     state.ui.quickOpen = false;
     if (els.quickBar) els.quickBar.hidden = true;
     els.quickToggleBtn?.classList.remove('active');
+    input.keys?.clear?.();
+    input.targetX = input.targetZ = input.x = input.z = 0;
+    if (typeof player !== 'undefined' && player.vehicle) player.car.speed *= .7;
     els.modalTitle.textContent = title;
     els.modalBody.innerHTML = html;
     els.modal.hidden = false;
@@ -224,6 +227,7 @@
     if (onReady) onReady(els.modalBody);
   }
   function closeModal() {
+    const resumePausedGame = pauseMenuOpen;
     els.modal.hidden = true;
     els.modal.classList.remove('map-modal');
     els.modalBody.innerHTML = '';
@@ -231,6 +235,11 @@
     els.game?.removeAttribute('aria-hidden');
     input.keys?.clear?.();
     input.targetX = input.targetZ = input.x = input.z = 0;
+    if (resumePausedGame) {
+      pauseMenuOpen = false;
+      paused = false;
+      if (running && player.vehicle) startEngineSound();
+    }
   }
   function confirmModal(title, text, yesLabel = 'Sim', noLabel = 'Não') {
     return new Promise(resolve => {
@@ -283,7 +292,7 @@
       : '<p>No Chrome, abra o menu ⋮ e escolha <b>Instalar aplicativo</b> ou <b>Adicionar à tela inicial</b>.</p>');
   }
   if (els.installBtn) els.installBtn.onclick = installApp;
-  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=605').catch(console.warn));
+  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=607').catch(console.warn));
   updateInstallUI();
 
   const quizQuestions = [
@@ -601,7 +610,8 @@
   function openSettings(inGame = false) {
     const sound = state.settings.sound, vibration = state.settings.vibration, high = state.settings.quality === 'high';
     const savedAt = state.lastSaved ? new Date(state.lastSaved).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}) : 'ainda não salvo';
-    const installOption = !isStandalone() ? '<button class="btn" data-install>Instalar aplicativo</button>' : ''; // somente se ainda não estiver instalado
+    const isiOSInstall = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const installOption = !isStandalone() && (!!deferredInstallPrompt || isiOSInstall) ? '<button class="btn" data-install>Instalar aplicativo</button>' : '';
     openModal('Configurações', `<div class="settings-list">
       <div class="settings-row"><div><b>Som</b><small>Interface, coleta e combate</small></div><button class="toggle ${sound ? 'on' : ''}" data-toggle="sound"><i></i></button></div>
       <div class="settings-row"><div><b>Vibração</b><small>Feedback no celular</small></div><button class="toggle ${vibration ? 'on' : ''}" data-toggle="vibration"><i></i></button></div>
@@ -667,9 +677,9 @@
 
   /* THREE.JS GAME */
   let scene, camera, renderer, clock, worldGroup, playerGroup, playerModel, playerMixer, avatarLayer, contactShadow, vehicleVisual;
-  let running = false, paused = false, raf = 0, cameraYaw = 0, cameraPitch = .38, cameraMode = 'openworld';
+  let running = false, paused = false, pauseMenuOpen = false, raf = 0, cameraYaw = 0, cameraPitch = .38, cameraMode = 'openworld';
   let currentHouse = null, buildMode = null, currentContext = null, lastContextId = '', lastActionSource = 'none', actionLockedUntil = 0, activeRace = null;
-  const player = { x: 0, y: 0, z: 8, vx: 0, vy: 0, vz: 0, facing: Math.PI, grounded: true, vehicle: false, sitUntil: 0, lastGrounded: 0, jumpBuffer: 0, attackUntil: 0, damageUntil: 0, scaleMode: state.abilities?.scaleMode || 'normal', crouched: !!state.abilities?.crouched, spinUntil: 0, car: { heading: Math.PI, speed: 0, steerVisual: 0, drift: 0 } };
+  const player = { x: 0, y: 0, z: 8, vx: 0, vy: 0, vz: 0, facing: Math.PI, grounded: true, vehicle: false, sitUntil: 0, lastGrounded: 0, jumpBuffer: 0, attackUntil: 0, damageUntil: 0, scaleMode: state.abilities?.scaleMode || 'normal', crouched: !!state.abilities?.crouched, spinUntil: 0, preVehicleAbilities: null, hornUntil: 0, car: { heading: Math.PI, speed: 0, steerVisual: 0, drift: 0, _prevSpeed: 0 } };
   const input = { x: 0, z: 0, targetX: 0, targetZ: 0, joyId: null, keys: new Set(), cameraDrag: null };
   const world = {
     houses: [], npcs: [], interactables: [], enemies: [], fireballs: [], resources: [], crystals: [], platforms: [], colliders: [], hazards: [], builds: [], ghosts: new Map(),
@@ -680,7 +690,7 @@
 
   function playerScaleValue(mode = player.scaleMode) { return mode === 'mini' ? .58 : mode === 'giant' ? 1.42 : 1; }
   function setScaleMode(mode) {
-    if(!els.modal.hidden||paused)return;
+    if(!els.modal.hidden||paused||player.vehicle)return;
     if (!['mini','normal','giant'].includes(mode)) return;
     player.scaleMode = mode;
     player.crouched = false;
@@ -690,13 +700,13 @@
     toast(mode === 'mini' ? 'Modo mini: entre em passagens pequenas.' : mode === 'giant' ? 'Modo grande: força para desafios pesados.' : 'Tamanho normal.', 'good');
   }
   function toggleCrouch(force) {
-    if(!els.modal.hidden||paused)return;
+    if(!els.modal.hidden||paused||player.vehicle)return;
     player.crouched = typeof force === 'boolean' ? force : !player.crouched;
     state.abilities.crouched = player.crouched;
     updateAbilityUI(); saveState();
     toast(player.crouched ? 'Otthos abaixou.' : 'Otthos levantou.', 'good');
   }
-  function spinPlayer(){ if(!els.modal.hidden||paused)return; player.spinUntil=performance.now()+720; addXP(1); beep(430,50,'sine'); }
+  function spinPlayer(){ if(!els.modal.hidden||paused||player.vehicle)return; player.spinUntil=performance.now()+720; addXP(1); beep(430,50,'sine'); }
   function updateAbilityUI(){
     els.crouchBtn?.classList.toggle('active',player.crouched);
     els.miniBtn?.classList.toggle('active',player.scaleMode==='mini');
@@ -799,7 +809,7 @@
     box(.26,.16,.06,taillight,-.62,.42,-1.24,vehicleVisual); box(.26,.16,.06,taillight,.62,.42,-1.24,vehicleVisual);
     vehicleVisual.userData.wheels=[]; vehicleVisual.userData.frontWheels=[];
     const wheelMat=mat(0x111827,{roughness:.85});
-    [[-.82,.22,-.78,true],[.82,.22,-.78,true],[-.82,.22,.78,false],[.82,.22,.78,false]].forEach(([x,y,z,front])=>{
+    [[-.82,.22,-.78,false],[.82,.22,-.78,false],[-.82,.22,.78,true],[.82,.22,.78,true]].forEach(([x,y,z,front])=>{
       const holder=new THREE.Group(); holder.position.set(x,y,z); vehicleVisual.add(holder);
       const wheel=new THREE.Mesh(new THREE.CylinderGeometry(.32,.32,.26,14),wheelMat); wheel.rotation.z=Math.PI/2; wheel.castShadow=true; holder.add(wheel);
       const hub=new THREE.Mesh(new THREE.CylinderGeometry(.1,.1,.28,8),mat(0xcfd6e0,{roughness:.4,metalness:.6})); hub.rotation.z=Math.PI/2; holder.add(hub);
@@ -808,7 +818,7 @@
   }
 
   function loadFaithfulAthosModel() {
-    // Regra V605: athos.glb pertence apenas ao visualizador/AR do lobby.
+    // Regra V606 (herdada da V605): athos.glb pertence apenas ao visualizador/AR do lobby.
     // A jogabilidade usa o Otthos procedural animado para preservar física, escala e desempenho.
     return false;
   }
@@ -1043,14 +1053,20 @@
     // sol visível (disco emissivo simples, não projeta sombra)
     const sun=new THREE.Mesh(new THREE.CircleGeometry(18,24),new THREE.MeshBasicMaterial({color:0xfff3c4,transparent:true,opacity:.9,depthWrite:false,fog:false}));
     sun.position.set(160,150,-260); sun.lookAt(0,80,0); scene.add(sun);
-    // nuvens simples: alguns blocos brancos achatados flutuando
+    // nuvens simples: alguns blocos brancos achatados flutuando (leve, com deriva real)
     const cloudMat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.85,fog:false});
-    for(let i=0;i<14;i++){
+    world.clouds=[];
+    for(let i=0;i<9;i++){
       const cx=(Math.random()-.5)*380,cz=(Math.random()-.5)*380,cy=55+Math.random()*30;
       const cloud=new THREE.Group();
-      for(let k=0;k<4;k++){const puff=new THREE.Mesh(new THREE.SphereGeometry(4+Math.random()*3,8,8),cloudMat);puff.position.set(k*4.5-6,Math.random()*1.5,Math.random()*2);cloud.add(puff);}
+      for(let k=0;k<3;k++){const puff=new THREE.Mesh(new THREE.SphereGeometry(4+Math.random()*3,7,6),cloudMat);puff.position.set(k*4.5-4.5,Math.random()*1.5,Math.random()*2);cloud.add(puff);}
       cloud.position.set(cx,cy,cz); cloud.scale.setScalar(1.4+Math.random()*1.2); scene.add(cloud);
+      world.clouds.push({group:cloud,speed:1.2+Math.random()*1.8});
     }
+  }
+  function updateClouds(dt){
+    if(!world.clouds)return;
+    for(const c of world.clouds){c.group.position.x+=c.speed*dt;if(c.group.position.x>210)c.group.position.x=-210;}
   }
   function buildWorld(){
     worldGroup=new THREE.Group();scene.add(worldGroup);
@@ -1392,16 +1408,49 @@
       if(updateVehicleFX.acc>.045){updateVehicleFX.acc=0;spawnDust(player.x-Math.sin(car.heading)*1.05,player.z-Math.cos(car.heading)*1.05);}
       driftSoundCooldown-=dt;if(driftSoundCooldown<=0){driftSoundCooldown=.5;beep(180,55,'sawtooth');}
     }
-    if(!state.settings.sound&&engineAudio)stopEngineSound(); else if(state.settings.sound&&engineAudio){
+    if(els.vehicleBadge)els.vehicleBadge.textContent=`🚗 ${Math.round(Math.abs(car.speed)*6)} km/h — AÇÃO para sair`;
+    if(!state.settings.sound&&engineAudio)stopEngineSound();
+    else if(state.settings.sound&&!engineAudio)startEngineSound();
+    else if(state.settings.sound&&engineAudio){
       const freq=68+Math.abs(car.speed)*11.5;
       try{engineAudio.osc.frequency.setTargetAtTime(freq,engineAudio.ctx.currentTime,.05);}catch(_){}
     }
   }
 
-  function enterVehicle(){
-    player.vehicle=true;player.car.heading=player.facing;player.car.speed=0;player.car.steerVisual=0;player.car.drift=0;vehicleVisual.visible=true;if(world.vehicle)world.vehicle.group.visible=false;els.vehicleBadge.hidden=false;setFlag('gotVehicle');toast('Carro ligado! Use o manche para dirigir.','good');startEngineSound();saveState();
+  function updateVehicleControlsUI(){
+    els.secondaryActions?.classList.toggle('vehicle-hidden',player.vehicle);
+    els.jumpBtn?.classList.toggle('vehicle-disabled',player.vehicle);
+    els.specialBtn?.classList.toggle('vehicle-horn',player.vehicle);
+    const specialIcon=$('b',els.specialBtn),specialLabel=$('span',els.specialBtn);
+    if(specialIcon)specialIcon.textContent=player.vehicle?'📣':'🔥';
+    if(specialLabel)specialLabel.textContent=player.vehicle?'Buzina':'Poder';
+    if(els.specialBtn)els.specialBtn.setAttribute('aria-label',player.vehicle?'Buzina do carro':'Poder do Otthos');
   }
-  function exitVehicle(){player.vehicle=false;player.vx*=.2;player.vz*=.2;vehicleVisual.visible=false;els.vehicleBadge.hidden=true;stopEngineSound();if(world.vehicle){world.vehicle.group.visible=true;world.vehicle.group.position.set(player.x,0,player.z);}toast('Saiu do carro.','good');}
+  function vehicleHorn(){
+    if(!player.vehicle||paused||!els.modal.hidden)return;
+    const t=performance.now();if(t<player.hornUntil)return;player.hornUntil=t+360;
+    beep(410,95,'square');setTimeout(()=>{if(player.vehicle)beep(520,70,'square');},105);vibrate(18);
+    vehicleVisual.scale.set(1.015,.99,1.015);setTimeout(()=>vehicleVisual?.scale?.set(1,1,1),120);
+  }
+  function enterVehicle(){
+    if(player.vehicle)return;
+    player.preVehicleAbilities={scaleMode:player.scaleMode,crouched:player.crouched};
+    player.vehicle=true;player.car.heading=player.facing;player.car.speed=0;player.car.steerVisual=0;player.car.drift=0;player.car._prevSpeed=0;
+    player.scaleMode='normal';player.crouched=false; // carro nunca herda escala/agachamento do personagem
+    updateAbilityUI();
+    if(playerModel)playerModel.visible=false; if(avatarLayer)avatarLayer.visible=false;
+    vehicleVisual.visible=true;vehicleVisual.scale.set(1,1,1);vehicleVisual.rotation.set(0,0,0);
+    if(world.vehicle)world.vehicle.group.visible=false;els.vehicleBadge.hidden=false;updateVehicleControlsUI();setFlag('gotVehicle');toast('Carro ligado! Use o manche para dirigir.','good');startEngineSound();saveState();
+  }
+  function exitVehicle(silent=false){
+    if(!player.vehicle)return;
+    player.vehicle=false;player.vx=0;player.vz=0;player.car.speed=0;player.car._prevSpeed=0;
+    const prior=player.preVehicleAbilities||state.abilities||{scaleMode:'normal',crouched:false};
+    player.scaleMode=['mini','normal','giant'].includes(prior.scaleMode)?prior.scaleMode:'normal';player.crouched=!!prior.crouched;player.preVehicleAbilities=null;
+    if(playerModel)playerModel.visible=true; if(avatarLayer)avatarLayer.visible=true;
+    vehicleVisual.visible=false;vehicleVisual.rotation.set(0,0,0);els.vehicleBadge.hidden=true;updateVehicleControlsUI();updateAbilityUI();stopEngineSound();
+    if(world.vehicle){world.vehicle.group.visible=true;world.vehicle.group.position.set(player.x,groundHeightAt(player.x,player.z),player.z);world.vehicle.group.rotation.y=player.car.heading;}if(!silent)toast('Saiu do carro.','good');
+  }
 
   function repairBridge(){
     if(state.flags.bridgeFixed){toast('A ponte já está consertada.','good');return;}
@@ -1472,8 +1521,28 @@
   function groundHeightAt(x,z){
     let top=0;for(const p of world.platforms){if(p.bridgePart!==undefined&&!state.flags.bridgeFixed&&p.bridgePart%2===1)continue;if(Math.abs(x-p.x)<=p.w/2+.35&&Math.abs(z-p.z)<=p.d/2+.35&&p.top>top&&player.y>=p.top-.75)top=p.top;}return top;
   }
+  function vehicleHitsCollider(x,z){
+    const h=player.car.heading,fx=Math.sin(h),fz=Math.cos(h),rx=Math.cos(h),rz=-Math.sin(h);
+    const probes=[
+      [0,0,.38],[fx*1.12,fz*1.12,.34],[-fx*1.08,-fz*1.08,.34],
+      [fx*.88+rx*.72,fz*.88+rz*.72,.30],[fx*.88-rx*.72,fz*.88-rz*.72,.30],
+      [-fx*.84+rx*.72,-fz*.84+rz*.72,.30],[-fx*.84-rx*.72,-fz*.84-rz*.72,.30]
+    ];
+    return world.colliders.some(c=>{
+      if(c.houseId&&currentHouse&&c.houseId===currentHouse.id)return false;
+      return probes.some(([ox,oz,pad])=>Math.abs(x+ox-c.x)<=c.w/2+pad&&Math.abs(z+oz-c.z)<=c.d/2+pad);
+    });
+  }
+  function registerVehicleImpact(){
+    player.car.speed*=.08;player.vx*=.1;player.vz*=.1;
+    const t=performance.now();if(!registerVehicleImpact._cool||t>registerVehicleImpact._cool){registerVehicleImpact._cool=t+240;vibrate([18,35,18]);beep(135,65,'square');toast('Cuidado com a batida!','warn',900);}
+  }
   function resolveCollisions(prevX,prevZ){
-    const radius=player.vehicle?.65:.43*playerScaleValue()*(player.crouched?.82:1);
+    if(player.vehicle){
+      if(vehicleHitsCollider(player.x,player.z)){player.x=prevX;player.z=prevZ;registerVehicleImpact();}
+      return;
+    }
+    const radius=.43*playerScaleValue()*(player.crouched?.82:1);
     for(const c of world.colliders){
       if(c.houseId&&currentHouse&&c.houseId===currentHouse.id)continue;
       if(Math.abs(player.x-c.x)>c.w/2+radius||Math.abs(player.z-c.z)>c.d/2+radius)continue;
@@ -1487,8 +1556,8 @@
     const kx=(right?1:0)-(left?1:0),kz=(up?1:0)-(down?1:0);if(Math.abs(kx)+Math.abs(kz)>0){input.targetX=clamp(kx,-1,1);input.targetZ=clamp(kz,-1,1);}
     else if(input.joyId===null){input.targetX=0;input.targetZ=0;}
   }
-  function canJump(){return player.grounded||performance.now()-player.lastGrounded<125;}
-  function requestJump(){if(!els.modal.hidden||paused)return;player.jumpBuffer=performance.now()+150;if(canJump())doJump();}
+  function canJump(){return !player.vehicle&&(player.grounded||performance.now()-player.lastGrounded<125);}
+  function requestJump(){if(!els.modal.hidden||paused||player.vehicle)return;player.jumpBuffer=performance.now()+150;if(canJump())doJump();}
   function doJump(){if(!canJump())return;player.vy=10.2;player.grounded=false;player.jumpBuffer=0;beep(540);vibrate(18);}
   function updatePlayer(dt){
     if(performance.now()<player.sitUntil){player.vx*=.82;player.vz*=.82;}else{
@@ -1593,6 +1662,7 @@
   }
   function firePower(){
     if(!els.modal.hidden||paused)return;
+    if(player.vehicle){vehicleHorn();return;}
     if(currentHouse){toast('Use o poder do lado de fora.','warn');return;}
     const dir={x:Math.sin(player.facing),z:Math.cos(player.facing)};const mesh=new THREE.Mesh(new THREE.BoxGeometry(.42,.42,.42),mat(0xff5a12,{emissive:0xff2a00,emissiveIntensity:.9}));mesh.position.set(player.x,player.y+1.35,player.z);worldGroup.add(mesh);world.fireballs.push({mesh,x:player.x,y:player.y+1.35,z:player.z,vx:dir.x*12,vz:dir.z*12,life:1.4});beep(220,90,'sawtooth');vibrate(18);
   }
@@ -1650,7 +1720,7 @@
 
   let localChannel=null,lastPublish=0;
   function initLocalMultiplayer(){
-    if(typeof BroadcastChannel!=='function')return;localChannel=new BroadcastChannel('otthos-life-world-v605');localChannel.onmessage=e=>{const data=e.data;if(!data||data.id===state.profile.playerId)return;if(data.type==='leave'){const ghost=world.ghosts.get(data.id);if(ghost){scene.remove(ghost);world.ghosts.delete(data.id);}return;}let ghost=world.ghosts.get(data.id);if(!ghost){ghost=createGhost(data.color||0x5ad8ff);world.ghosts.set(data.id,ghost);}ghost.userData.target=data;};window.addEventListener('beforeunload',()=>localChannel.postMessage({type:'leave',id:state.profile.playerId}));
+    if(typeof BroadcastChannel!=='function')return;localChannel=new BroadcastChannel('otthos-life-world-v606');localChannel.onmessage=e=>{const data=e.data;if(!data||data.id===state.profile.playerId)return;if(data.type==='leave'){const ghost=world.ghosts.get(data.id);if(ghost){scene.remove(ghost);world.ghosts.delete(data.id);}return;}let ghost=world.ghosts.get(data.id);if(!ghost){ghost=createGhost(data.color||0x5ad8ff);world.ghosts.set(data.id,ghost);}ghost.userData.target=data;};window.addEventListener('beforeunload',()=>localChannel.postMessage({type:'leave',id:state.profile.playerId}));
     window.OTTHOS_MULTIPLAYER={version:3,playerId:state.profile.playerId,mode:'local-preview',connect:()=>true,publish:payload=>localChannel?.postMessage(payload),adapter:'BroadcastChannel',futureAdapters:['Firebase','WebSocket']};
   }
   function createGhost(color){const g=new THREE.Group();box(.82,1.2,.58,color,0,1.3,0,g);box(.72,.72,.72,0xffd2a0,0,2.25,0,g);scene.add(g);return g;}
@@ -1660,7 +1730,7 @@
   }
 
   function gameLoop(){
-    if(!running)return;raf=requestAnimationFrame(gameLoop);const dt=Math.min(.033,clock.getDelta());if(!paused){pollGamepad();updatePlayer(dt);updateVehicleFX(dt);updateFX(dt);updateNPCs(dt);updateEnemies(dt);updateFireballs(dt);updateRace(dt);updateNeeds(dt);updateMultiplayer(dt);updateCamera(dt);}
+    if(!running)return;raf=requestAnimationFrame(gameLoop);const dt=Math.min(.033,clock.getDelta());if(!paused){pollGamepad();updatePlayer(dt);updateVehicleFX(dt);updateFX(dt);updateClouds(dt);updateNPCs(dt);updateEnemies(dt);updateFireballs(dt);updateRace(dt);updateNeeds(dt);updateMultiplayer(dt);updateCamera(dt);}
     renderer.render(scene,camera);
   }
 
@@ -1673,7 +1743,7 @@
     const press=(el,fn)=>el?.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();fn();},{passive:false});
     press(els.jumpBtn,requestJump);press(els.actionBtn,doAction);press(els.specialBtn,firePower);press(els.crouchBtn,()=>toggleCrouch());press(els.miniBtn,()=>setScaleMode('mini'));press(els.normalBtn,()=>setScaleMode('normal'));press(els.giantBtn,()=>setScaleMode('giant'));press(els.spinBtn,spinPlayer);
     [els.quickBar,els.inventoryBtn,els.buildBtn,els.mapBtn,els.gameSettingsBtn].forEach(el=>el?.addEventListener('pointerdown',e=>e.stopPropagation()));
-    window.addEventListener('keydown',e=>{input.keys.add(e.code);if(['Space','KeyE','KeyF','KeyC','Digit1','Digit2','Digit3','KeyR'].includes(e.code))e.preventDefault();if(e.code==='Space')requestJump();if(e.code==='KeyE')doAction();if(e.code==='KeyF')firePower();if(e.code==='KeyC')toggleCrouch();if(e.code==='Digit1')setScaleMode('mini');if(e.code==='Digit2')setScaleMode('normal');if(e.code==='Digit3')setScaleMode('giant');if(e.code==='KeyR')spinPlayer();if(e.code==='Escape')paused=!paused;});window.addEventListener('keyup',e=>input.keys.delete(e.code));
+    window.addEventListener('keydown',e=>{input.keys.add(e.code);if(['Space','KeyE','KeyF','KeyC','Digit1','Digit2','Digit3','KeyR'].includes(e.code))e.preventDefault();if(e.code==='Space')requestJump();if(e.code==='KeyE')doAction();if(e.code==='KeyF')firePower();if(e.code==='KeyC')toggleCrouch();if(e.code==='Digit1')setScaleMode('mini');if(e.code==='Digit2')setScaleMode('normal');if(e.code==='Digit3')setScaleMode('giant');if(e.code==='KeyR')spinPlayer();if(e.code==='Escape'){e.preventDefault();if(!running)return;if(pauseMenuOpen)closeModal();else if(!els.modal.hidden)closeModal();else openPauseMenu();}});window.addEventListener('keyup',e=>input.keys.delete(e.code));
     els.stage.addEventListener('pointerdown',e=>{if(e.target!==renderer?.domElement)return;input.cameraDrag={id:e.pointerId,x:e.clientX,y:e.clientY};els.stage.setPointerCapture?.(e.pointerId);});
     els.stage.addEventListener('pointermove',e=>{const d=input.cameraDrag;if(!d||d.id!==e.pointerId||currentHouse)return;const dx=e.clientX-d.x,dy=e.clientY-d.y;cameraYaw-=dx*.006;cameraPitch=clamp(cameraPitch+dy*.003,.2,.75);d.x=e.clientX;d.y=e.clientY;});
     const endDrag=e=>{if(input.cameraDrag?.id===e.pointerId)input.cameraDrag=null;};els.stage.addEventListener('pointerup',endDrag);els.stage.addEventListener('pointercancel',endDrag);
@@ -1691,13 +1761,17 @@
     if(resetPosition){player.x=0;player.z=8;player.y=0;}else restorePosition();player.scaleMode=state.abilities?.scaleMode||'normal';player.crouched=!!state.abilities?.crouched;updateAbilityUI();running=true;paused=false;clock.start();evaluateMissions();updateHUD();updateContext(true);resize();cancelAnimationFrame(raf);gameLoop();toast('Bem-vindo à Vila do Sol!','good',2200);
   }
   function stopGame(){
-    running=false;paused=false;cancelAnimationFrame(raf);savePlayerPosition(true);showScreen('lobby');updateLobbyStats();
+    if(player.vehicle)exitVehicle(true);running=false;paused=false;pauseMenuOpen=false;cancelAnimationFrame(raf);stopEngineSound();savePlayerPosition(true);showScreen('lobby');updateLobbyStats();
   }
   els.playBtn.onclick=()=>startGame(true);els.continueBtn.onclick=()=>startGame(false);
 
   function openPauseMenu(){
-    paused=true;openModal('Jogo pausado',`<div class="choice-grid"><button class="choice" data-resume><b>▶ Continuar</b><span>Voltar ao mundo</span></button><button class="choice" data-life><b>👤 Minha vida</b><span>Carreira, amizades e visual</span></button><button class="choice" data-home><b>🏠 Casa</b><span>Voltar para a Casa do Otthos</span></button><button class="choice" data-menu><b>↩ Menu inicial</b><span>Salvar e sair</span></button></div>`,root=>{
-      $('[data-resume]',root).onclick=()=>{paused=false;closeModal();};$('[data-life]',root).onclick=()=>{paused=false;closeModal();openLifePanel();};$('[data-home]',root).onclick=()=>{paused=false;closeModal();returnHome();};$('[data-menu]',root).onclick=()=>{paused=false;closeModal();stopGame();};
+    if(!running||pauseMenuOpen)return;
+    paused=true;pauseMenuOpen=true;if(engineAudio)stopEngineSound();openModal('Jogo pausado',`<div class="choice-grid"><button class="choice" data-resume><b>▶ Continuar</b><span>Voltar ao mundo</span></button><button class="choice" data-life><b>👤 Minha vida</b><span>Carreira, amizades e visual</span></button><button class="choice" data-home><b>🏠 Casa</b><span>Voltar para a Casa do Otthos</span></button><button class="choice" data-menu><b>↩ Menu inicial</b><span>Salvar e sair</span></button></div>`,root=>{
+      $('[data-resume]',root).onclick=()=>closeModal();
+      $('[data-life]',root).onclick=()=>{pauseMenuOpen=false;paused=false;closeModal();if(player.vehicle)startEngineSound();openLifePanel();};
+      $('[data-home]',root).onclick=()=>{pauseMenuOpen=false;paused=false;closeModal();returnHome();};
+      $('[data-menu]',root).onclick=()=>{pauseMenuOpen=false;paused=false;closeModal();stopGame();};
     });
   }
   els.gameSettingsBtn.addEventListener('contextmenu',e=>e.preventDefault());
@@ -1706,7 +1780,7 @@
 
   // Public test/audit API
   window.OTTHOS_TEST_API={
-    version:'V605_STABLE_ROLEPLAY_FULL',
+    version:'V607_VEHICLE_INTEGRATION_SAFE',
     getState:()=>JSON.parse(JSON.stringify(state)),
     getGame:()=>({running,paused,currentHouse:currentHouse?.id||null,cameraMode,player:{...player},objects:{houses:world.houses.length,npcs:world.npcs.length,enemies:world.enemies.length,interactables:world.interactables.length,builds:world.builds.length}}),
     getVisual:()=>{const parts=playerModel?.userData?.parts||{};const modelY=playerModel?.position?.y||0;const minFootY=playerModel?.userData?.minFootY??0;const scaleY=playerGroup?.scale?.y||1;const rootY=playerGroup?.position?.y||0;return {procedural:!!playerModel?.userData?.proceduralOtthos,rootY,modelY,minFootY,scaleY,visualBottom:rootY+(modelY+minFootY)*scaleY,limbs:{leftArm:parts.leftArm?.rotation?.x||0,rightArm:parts.rightArm?.rotation?.x||0,leftLeg:parts.leftLeg?.rotation?.x||0,rightLeg:parts.rightLeg?.rotation?.x||0}};},
@@ -1716,6 +1790,11 @@
     action:()=>doAction(),
     jump:()=>requestJump(),
     fire:()=>firePower(),
+    enterVehicle:()=>{enterVehicle();return player.vehicle;},
+    exitVehicle:()=>{exitVehicle();return !player.vehicle;},
+    setDriveInput:(steer=0,throttle=0)=>{input.targetX=clamp(Number(steer)||0,-1,1);input.targetZ=clamp(Number(throttle)||0,-1,1);},
+    vehicle:()=>({active:player.vehicle,speed:player.car.speed,heading:player.car.heading,drift:player.car.drift,playerVisible:playerModel?.visible!==false,accessoriesVisible:avatarLayer?.visible!==false,vehicleVisible:!!vehicleVisual?.visible,parkedVisible:world.vehicle?.group?.visible!==false,preVehicleAbilities:player.preVehicleAbilities?{...player.preVehicleAbilities}:null,specialLabel:$('span',els.specialBtn)?.textContent||'',fireballs:world.fireballs.length,engineActive:!!engineAudio,wheelCount:vehicleVisual?.userData?.wheels?.length||0,frontWheelCount:vehicleVisual?.userData?.frontWheels?.length||0,rootScale:{x:playerGroup?.scale?.x||0,y:playerGroup?.scale?.y||0,z:playerGroup?.scale?.z||0}}),
+    pause:()=>openPauseMenu(),
     crouch:()=>toggleCrouch(),
     setSize:setScaleMode,
     spin:spinPlayer,

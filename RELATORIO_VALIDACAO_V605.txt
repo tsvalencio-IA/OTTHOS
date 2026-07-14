@@ -1,3 +1,9 @@
+⚠️ AVISO (adicionado na passada V606 — Claude): este relatório valida apenas
+a V605 original. Ele NÃO cobre a física de veículo, o carro, a textura, o
+céu ou a estrada novos da V606. Não usar este arquivo como evidência de que
+a V606 foi testada. Ver CHANGELOG_CLAUDE_VEICULOS.md para o que mudou.
+================================================
+
 OTTHOS LIFE WORLD V605 — RELATÓRIO DE VALIDAÇÃO
 ================================================
 
