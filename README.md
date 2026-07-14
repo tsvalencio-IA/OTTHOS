@@ -4,6 +4,6 @@ Leia `README_V608_COMPLETO.md` e `CHANGELOG_V608_CORRECAO_ENTRADA_VEICULO.md`.
 
 ---
 
-## Atualização V609
+## Atualização V610
 
-A V609 corrige o conflito entre teclado, joystick, gamepad e entrada virtual do veículo. Consulte `README_V609_COMPLETO.md` e `CHANGELOG_V609_CORRECAO_ENTRADAS_VEICULO.md`.
+A V610 preserva as entradas corrigidas da V609 e isola definitivamente a escala do carro das habilidades Mini, Grande e Abaixar. Consulte `README_V610_COMPLETO.md` e `CHANGELOG_V610_ESCALA_VEICULO.md`.

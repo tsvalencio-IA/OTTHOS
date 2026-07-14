@@ -68,7 +68,7 @@
         const store = tx.objectStore(STORE);
         if (previousBackup?.data) store.put({ ...previousBackup, slot: BACKUP_2 });
         if (previousMain?.data) store.put({ ...previousMain, slot: BACKUP_1 });
-        store.put({ slot: MAIN, data: payload, savedAt: Date.now(), schema: 609 });
+        store.put({ slot: MAIN, data: payload, savedAt: Date.now(), schema: 610 });
         tx.oncomplete = resolve;
         tx.onerror = () => reject(tx.error || new Error('Falha ao salvar progresso'));
         tx.onabort = () => reject(tx.error || new Error('Salvamento cancelado'));
@@ -99,7 +99,7 @@
   async function exportFile(data) {
     const payload = {
       product: 'Otthos Life World',
-      schema: 609,
+      schema: 610,
       exportedAt: new Date().toISOString(),
       data: cleanData(data)
     };
@@ -141,12 +141,12 @@
     let persisted = false;
     try { persisted = !!(await navigator.storage?.persisted?.()); } catch {}
     const main = await readSlot(MAIN).catch(() => null);
-    return { database: DB_NAME, schema: 609, persisted, savedAt: main?.savedAt || 0, backups: 2 };
+    return { database: DB_NAME, schema: 610, persisted, savedAt: main?.savedAt || 0, backups: 2 };
   }
 
   window.OTTHOS_DB = Object.freeze({
     name: DB_NAME,
-    schema: 609,
+    schema: 610,
     load,
     save,
     clear,
