@@ -8,8 +8,8 @@
   const lerpAngle = (a, b, t) => { let d=((b-a+Math.PI)%(Math.PI*2))-Math.PI; if(d<-Math.PI)d+=Math.PI*2; return a+d*t; };
   const distance2D = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
   const uid = () => (crypto.randomUUID ? crypto.randomUUID() : `p-${Date.now()}-${Math.random().toString(16).slice(2)}`);
-  const STORAGE_KEY = 'otthos_life_world_roleplay_v608';
-  const LEGACY_STORAGE_KEYS = ['otthos_life_world_roleplay_v607','otthos_life_world_roleplay_v606','otthos_life_world_roleplay_v605','otthos_life_world_roleplay_v604','otthos_life_world_roleplay_v603','otthos_life_world_roleplay_v602','otthos_life_world_roleplay_v601','otthos_life_world_complete_v600'];
+  const STORAGE_KEY = 'otthos_life_world_roleplay_v609';
+  const LEGACY_STORAGE_KEYS = ['otthos_life_world_roleplay_v608','otthos_life_world_roleplay_v607','otthos_life_world_roleplay_v606','otthos_life_world_roleplay_v605','otthos_life_world_roleplay_v604','otthos_life_world_roleplay_v603','otthos_life_world_roleplay_v602','otthos_life_world_roleplay_v601','otthos_life_world_complete_v600'];
   const safeLocalGet = key => { try { return window.localStorage?.getItem(key) ?? null; } catch { return null; } };
   const safeLocalSet = (key, value) => { try { window.localStorage?.setItem(key, value); return true; } catch { return false; } };
   const safeLocalRemove = key => { try { window.localStorage?.removeItem(key); return true; } catch { return false; } };
@@ -31,7 +31,7 @@
   };
 
   const defaultState = () => ({
-    version: 608,
+    version: 609,
     profile: { playerId: uid(), name: 'Otthos', level: 1, xp: 0, coins: 500, reputation: 0 },
     needs: { hunger: 92, energy: 92, fun: 86, hygiene: 88 },
     inventory: { wood: 0, stone: 0, food: 2, water: 2, crystals: 0, blocks: 4, fences: 2, keys: 0 },
@@ -71,7 +71,7 @@
     return {
       ...fresh,
       ...saved,
-      version: 608,
+      version: 609,
       profile: { ...fresh.profile, ...(saved.profile || {}) },
       needs: { ...fresh.needs, ...(saved.needs || {}) },
       inventory: { ...fresh.inventory, ...(saved.inventory || {}) },
@@ -130,7 +130,7 @@
   let saveTimer = 0;
   let lastSavePromise = Promise.resolve(true);
   function commitState() {
-    state.version = 608;
+    state.version = 609;
     state.lastSaved = Date.now();
     const snapshot = JSON.parse(JSON.stringify(state));
     safeLocalSet(STORAGE_KEY, JSON.stringify(snapshot));
@@ -292,7 +292,7 @@
       : '<p>No Chrome, abra o menu ⋮ e escolha <b>Instalar aplicativo</b> ou <b>Adicionar à tela inicial</b>.</p>');
   }
   if (els.installBtn) els.installBtn.onclick = installApp;
-  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=608').catch(console.warn));
+  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=609').catch(console.warn));
   updateInstallUI();
 
   const quizQuestions = [
@@ -680,7 +680,13 @@
   let running = false, paused = false, pauseMenuOpen = false, raf = 0, cameraYaw = 0, cameraPitch = .38, cameraMode = 'openworld';
   let currentHouse = null, buildMode = null, currentContext = null, lastContextId = '', lastActionSource = 'none', actionLockedUntil = 0, activeRace = null;
   const player = { x: 0, y: 0, z: 8, vx: 0, vy: 0, vz: 0, facing: Math.PI, grounded: true, vehicle: false, sitUntil: 0, lastGrounded: 0, jumpBuffer: 0, attackUntil: 0, damageUntil: 0, scaleMode: state.abilities?.scaleMode || 'normal', crouched: !!state.abilities?.crouched, spinUntil: 0, preVehicleAbilities: null, hornUntil: 0, car: { heading: Math.PI, speed: 0, steerVisual: 0, drift: 0, _prevSpeed: 0 } };
-  const input = { x: 0, z: 0, targetX: 0, targetZ: 0, joyId: null, keys: new Set(), cameraDrag: null };
+  const input = {
+    x:0,z:0,targetX:0,targetZ:0,
+    joyId:null,joyX:0,joyZ:0,
+    gamepadX:0,gamepadZ:0,gamepadActive:false,
+    virtualX:0,virtualZ:0,virtualActive:false,
+    keys:new Set(),cameraDrag:null
+  };
   const world = {
     houses: [], npcs: [], interactables: [], enemies: [], fireballs: [], resources: [], crystals: [], platforms: [], colliders: [], hazards: [], builds: [], ghosts: new Map(),
     bridgeParts: [], secretChest: null, vehicle: null, deliveryPoint: null, raceCoins: [], waypointMarker: null, gym: null
@@ -1376,7 +1382,7 @@
       if(p.life<=0){worldGroup.remove(p.mesh);p.mesh.geometry.dispose();p.mesh.material.dispose();fxParticles.splice(i,1);}
     }
   }
-  let engineAudio=null,driftSoundCooldown=0;
+  let engineAudio=null,driftSoundCooldown=0,vehicleImpactCount=0;
   function startEngineSound(){
     if(!state.settings.sound||engineAudio)return;
     try{
@@ -1437,7 +1443,7 @@
     player.preVehicleAbilities={scaleMode:player.scaleMode,crouched:player.crouched};
     // Estados de ações domésticas/personagem não podem congelar a física do carro.
     player.sitUntil=0;player.attackUntil=0;player.spinUntil=0;player.jumpBuffer=0;player.vy=0;player.grounded=true;
-    input.x=0;input.z=0;input.targetX=0;input.targetZ=0;
+    clearMovementInputs();
     player.vehicle=true;player.car.heading=player.facing;player.car.speed=0;player.car.steerVisual=0;player.car.drift=0;player.car._prevSpeed=0;
     player.scaleMode='normal';player.crouched=false; // carro nunca herda escala/agachamento do personagem
     updateAbilityUI();
@@ -1447,7 +1453,7 @@
   }
   function exitVehicle(silent=false){
     if(!player.vehicle)return;
-    player.vehicle=false;player.vx=0;player.vz=0;player.car.speed=0;player.car._prevSpeed=0;
+    player.vehicle=false;player.vx=0;player.vz=0;player.car.speed=0;player.car._prevSpeed=0;clearMovementInputs();
     const prior=player.preVehicleAbilities||state.abilities||{scaleMode:'normal',crouched:false};
     player.scaleMode=['mini','normal','giant'].includes(prior.scaleMode)?prior.scaleMode:'normal';player.crouched=!!prior.crouched;player.preVehicleAbilities=null;
     if(playerModel)playerModel.visible=true; if(avatarLayer)avatarLayer.visible=true;
@@ -1537,7 +1543,7 @@
     });
   }
   function registerVehicleImpact(){
-    player.car.speed*=.08;player.vx*=.1;player.vz*=.1;
+    vehicleImpactCount++;player.car.speed*=.08;player.vx*=.1;player.vz*=.1;
     const t=performance.now();if(!registerVehicleImpact._cool||t>registerVehicleImpact._cool){registerVehicleImpact._cool=t+240;vibrate([18,35,18]);beep(135,65,'square');toast('Cuidado com a batida!','warn',900);}
   }
   function resolveCollisions(prevX,prevZ){
@@ -1554,10 +1560,27 @@
     }
     if(currentHouse){player.x=clamp(player.x,currentHouse.x-3.75,currentHouse.x+3.75);player.z=clamp(player.z,currentHouse.z-2.75,currentHouse.z+2.75);}
   }
-  function updateInputFromKeys(){
-    const left=input.keys.has('ArrowLeft')||input.keys.has('KeyA'),right=input.keys.has('ArrowRight')||input.keys.has('KeyD'),up=input.keys.has('ArrowUp')||input.keys.has('KeyW'),down=input.keys.has('ArrowDown')||input.keys.has('KeyS');
-    const kx=(right?1:0)-(left?1:0),kz=(up?1:0)-(down?1:0);if(Math.abs(kx)+Math.abs(kz)>0){input.targetX=clamp(kx,-1,1);input.targetZ=clamp(kz,-1,1);}
-    else if(input.joyId===null){input.targetX=0;input.targetZ=0;}
+  function resolveMovementInput(){
+    const left=input.keys.has('ArrowLeft')||input.keys.has('KeyA');
+    const right=input.keys.has('ArrowRight')||input.keys.has('KeyD');
+    const up=input.keys.has('ArrowUp')||input.keys.has('KeyW');
+    const down=input.keys.has('ArrowDown')||input.keys.has('KeyS');
+    const keyboardX=(right?1:0)-(left?1:0);
+    const keyboardZ=(up?1:0)-(down?1:0);
+    let sourceX=0,sourceZ=0;
+    if(input.virtualActive){sourceX=input.virtualX;sourceZ=input.virtualZ;}
+    else if(Math.abs(keyboardX)+Math.abs(keyboardZ)>0){sourceX=keyboardX;sourceZ=keyboardZ;}
+    else if(input.joyId!==null||Math.abs(input.joyX)+Math.abs(input.joyZ)>.02){sourceX=input.joyX;sourceZ=input.joyZ;}
+    else if(input.gamepadActive){sourceX=input.gamepadX;sourceZ=input.gamepadZ;}
+    input.targetX=clamp(sourceX,-1,1);input.targetZ=clamp(sourceZ,-1,1);
+    return {x:input.targetX,z:input.targetZ};
+  }
+  function clearMovementInputs(){
+    input.keys.clear();input.joyId=null;input.joyX=0;input.joyZ=0;
+    input.gamepadX=0;input.gamepadZ=0;input.gamepadActive=false;
+    input.virtualX=0;input.virtualZ=0;input.virtualActive=false;
+    input.x=0;input.z=0;input.targetX=0;input.targetZ=0;
+    if(els.joystickKnob)els.joystickKnob.style.transform='translate(-50%,-50%)';
   }
   function canJump(){return !player.vehicle&&(player.grounded||performance.now()-player.lastGrounded<125);}
   function requestJump(){if(!els.modal.hidden||paused||player.vehicle)return;player.jumpBuffer=performance.now()+150;if(canJump())doJump();}
@@ -1565,7 +1588,7 @@
   function updatePlayer(dt){
     // Entrada é atualizada em todos os estados. O veículo tem prioridade absoluta:
     // uma animação anterior de sofá/cama/TV nunca pode bloquear aceleração ou direção.
-    updateInputFromKeys();
+    resolveMovementInput();
     input.x=lerp(input.x,input.targetX,Math.min(1,dt*18));
     input.z=lerp(input.z,input.targetZ,Math.min(1,dt*18));
     const mag=Math.hypot(input.x,input.z);let ix=input.x,iz=input.z;if(mag>1){ix/=mag;iz/=mag;}
@@ -1728,7 +1751,7 @@
 
   let localChannel=null,lastPublish=0;
   function initLocalMultiplayer(){
-    if(typeof BroadcastChannel!=='function')return;localChannel=new BroadcastChannel('otthos-life-world-v606');localChannel.onmessage=e=>{const data=e.data;if(!data||data.id===state.profile.playerId)return;if(data.type==='leave'){const ghost=world.ghosts.get(data.id);if(ghost){scene.remove(ghost);world.ghosts.delete(data.id);}return;}let ghost=world.ghosts.get(data.id);if(!ghost){ghost=createGhost(data.color||0x5ad8ff);world.ghosts.set(data.id,ghost);}ghost.userData.target=data;};window.addEventListener('beforeunload',()=>localChannel.postMessage({type:'leave',id:state.profile.playerId}));
+    if(typeof BroadcastChannel!=='function')return;localChannel=new BroadcastChannel('otthos-life-world-v609');localChannel.onmessage=e=>{const data=e.data;if(!data||data.id===state.profile.playerId)return;if(data.type==='leave'){const ghost=world.ghosts.get(data.id);if(ghost){scene.remove(ghost);world.ghosts.delete(data.id);}return;}let ghost=world.ghosts.get(data.id);if(!ghost){ghost=createGhost(data.color||0x5ad8ff);world.ghosts.set(data.id,ghost);}ghost.userData.target=data;};window.addEventListener('beforeunload',()=>localChannel.postMessage({type:'leave',id:state.profile.playerId}));
     window.OTTHOS_MULTIPLAYER={version:3,playerId:state.profile.playerId,mode:'local-preview',connect:()=>true,publish:payload=>localChannel?.postMessage(payload),adapter:'BroadcastChannel',futureAdapters:['Firebase','WebSocket']};
   }
   function createGhost(color){const g=new THREE.Group();box(.82,1.2,.58,color,0,1.3,0,g);box(.72,.72,.72,0xffd2a0,0,2.25,0,g);scene.add(g);return g;}
@@ -1743,11 +1766,11 @@
   }
 
   function setupControls(){
-    const resetJoy=()=>{input.joyId=null;input.targetX=0;input.targetZ=0;els.joystickKnob.style.transform='translate(-50%,-50%)';};
+    const resetJoy=()=>{input.joyId=null;input.joyX=0;input.joyZ=0;els.joystickKnob.style.transform='translate(-50%,-50%)';};
     els.joystick.addEventListener('pointerdown',e=>{e.preventDefault();input.joyId=e.pointerId;els.joystick.setPointerCapture(e.pointerId);updateJoy(e);});
     els.joystick.addEventListener('pointermove',e=>{if(e.pointerId===input.joyId)updateJoy(e);});
     els.joystick.addEventListener('pointerup',resetJoy);els.joystick.addEventListener('pointercancel',resetJoy);
-    function updateJoy(e){const r=els.joystick.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,max=r.width*.32;let dx=e.clientX-cx,dy=e.clientY-cy;const mag=Math.hypot(dx,dy);if(mag>max){dx=dx/mag*max;dy=dy/mag*max;}input.targetX=dx/max;input.targetZ=-dy/max;els.joystickKnob.style.transform=`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px))`;}
+    function updateJoy(e){const r=els.joystick.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,max=r.width*.32;let dx=e.clientX-cx,dy=e.clientY-cy;const mag=Math.hypot(dx,dy);if(mag>max){dx=dx/mag*max;dy=dy/mag*max;}input.joyX=dx/max;input.joyZ=-dy/max;els.joystickKnob.style.transform=`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px))`;}
     const press=(el,fn)=>el?.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();fn();},{passive:false});
     press(els.jumpBtn,requestJump);press(els.actionBtn,doAction);press(els.specialBtn,firePower);press(els.crouchBtn,()=>toggleCrouch());press(els.miniBtn,()=>setScaleMode('mini'));press(els.normalBtn,()=>setScaleMode('normal'));press(els.giantBtn,()=>setScaleMode('giant'));press(els.spinBtn,spinPlayer);
     [els.quickBar,els.inventoryBtn,els.buildBtn,els.mapBtn,els.gameSettingsBtn].forEach(el=>el?.addEventListener('pointerdown',e=>e.stopPropagation()));
@@ -1758,8 +1781,13 @@
   }
   let gamepadJump=false,gamepadAction=false,gamepadPower=false,gamepadCrouch=false,gamepadSize=false;
   function pollGamepad(){
-    const gp=[...(navigator.getGamepads?.()||[])].find(Boolean);if(!gp)return;const ax=gp.axes[0]||0,az=-(gp.axes[1]||0);if(Math.hypot(ax,az)>.16&&input.joyId===null){input.targetX=ax;input.targetZ=az;}
-    const jump=!!gp.buttons[0]?.pressed,action=!!gp.buttons[2]?.pressed,power=!!gp.buttons[1]?.pressed,crouch=!!gp.buttons[4]?.pressed,size=!!gp.buttons[5]?.pressed;if(jump&&!gamepadJump)requestJump();if(action&&!gamepadAction)doAction();if(power&&!gamepadPower)firePower();if(crouch&&!gamepadCrouch)toggleCrouch();if(size&&!gamepadSize)setScaleMode(player.scaleMode==='normal'?'mini':player.scaleMode==='mini'?'giant':'normal');gamepadJump=jump;gamepadAction=action;gamepadPower=power;gamepadCrouch=crouch;gamepadSize=size;
+    const gp=[...(navigator.getGamepads?.()||[])].find(Boolean);
+    if(!gp){input.gamepadX=0;input.gamepadZ=0;input.gamepadActive=false;return;}
+    const ax=gp.axes[0]||0,az=-(gp.axes[1]||0);
+    input.gamepadActive=Math.hypot(ax,az)>.16;input.gamepadX=input.gamepadActive?ax:0;input.gamepadZ=input.gamepadActive?az:0;
+    const jump=!!gp.buttons[0]?.pressed,action=!!gp.buttons[2]?.pressed,power=!!gp.buttons[1]?.pressed,crouch=!!gp.buttons[4]?.pressed,size=!!gp.buttons[5]?.pressed;
+    if(jump&&!gamepadJump)requestJump();if(action&&!gamepadAction)doAction();if(power&&!gamepadPower)firePower();if(crouch&&!gamepadCrouch)toggleCrouch();if(size&&!gamepadSize)setScaleMode(player.scaleMode==='normal'?'mini':player.scaleMode==='mini'?'giant':'normal');
+    gamepadJump=jump;gamepadAction=action;gamepadPower=power;gamepadCrouch=crouch;gamepadSize=size;
     const camX=gp.axes[2]||0;if(Math.abs(camX)>.18&&!currentHouse)cameraYaw-=camX*.035;
   }
 
@@ -1786,9 +1814,42 @@
 
   function updateBridgeVisual(){world.bridgeParts.forEach((p,i)=>{p.visible=state.flags.bridgeFixed||i%2===0;});}
 
+
+  function prepareVehicleTestArea(){
+    if(currentHouse){
+      const h=currentHouse;h.roof.visible=true;h.front.visible=true;h.door.visible=true;currentHouse=null;cameraMode='openworld';
+    }
+    if(player.vehicle)exitVehicle(true);
+    clearMovementInputs();
+    player.x=0;player.z=-70;player.y=groundHeightAt(0,-70);
+    player.vx=0;player.vy=0;player.vz=0;player.grounded=true;player.sitUntil=0;
+    player.facing=0;player.car.heading=0;player.car.speed=0;player.car.steerVisual=0;player.car.drift=0;player.car._prevSpeed=0;
+    vehicleImpactCount=0;
+    enterVehicle();
+    return {x:player.x,z:player.z,active:player.vehicle,heading:player.car.heading};
+  }
+  function stepVehicleSimulation(frames=120,steer=.35,throttle=1){
+    if(!player.vehicle)prepareVehicleTestArea();
+    const count=clamp(Math.round(Number(frames)||120),1,600);
+    const sx=clamp(Number(steer)||0,-1,1),sz=clamp(Number(throttle)||0,-1,1);
+    const dt=1/60,startX=player.x,startZ=player.z,startImpacts=vehicleImpactCount;
+    const wasPaused=paused;paused=true;
+    for(let i=0;i<count;i++){
+      updateVehiclePhysics(dt,sx,sz);
+      const prevX=player.x,prevZ=player.z;
+      player.x=clamp(player.x+player.vx*dt,-116,116);
+      player.z=clamp(player.z+player.vz*dt,-116,116);
+      resolveCollisions(prevX,prevZ);
+      const ground=groundHeightAt(player.x,player.z);player.y=ground;player.vy=0;player.grounded=true;
+    }
+    playerGroup?.position?.set(player.x,player.y,player.z);
+    paused=wasPaused;
+    return {frames:count,seconds:count*dt,distance:Math.hypot(player.x-startX,player.z-startZ),speed:player.car.speed,x:player.x,z:player.z,impacts:vehicleImpactCount-startImpacts};
+  }
+
   // Public test/audit API
   window.OTTHOS_TEST_API={
-    version:'V608_VEHICLE_INPUT_STABLE',
+    version:'V609_VEHICLE_INPUT_STABLE',
     getState:()=>JSON.parse(JSON.stringify(state)),
     getGame:()=>({running,paused,currentHouse:currentHouse?.id||null,cameraMode,player:{...player},objects:{houses:world.houses.length,npcs:world.npcs.length,enemies:world.enemies.length,interactables:world.interactables.length,builds:world.builds.length}}),
     getVisual:()=>{const parts=playerModel?.userData?.parts||{};const modelY=playerModel?.position?.y||0;const minFootY=playerModel?.userData?.minFootY??0;const scaleY=playerGroup?.scale?.y||1;const rootY=playerGroup?.position?.y||0;return {procedural:!!playerModel?.userData?.proceduralOtthos,rootY,modelY,minFootY,scaleY,visualBottom:rootY+(modelY+minFootY)*scaleY,limbs:{leftArm:parts.leftArm?.rotation?.x||0,rightArm:parts.rightArm?.rotation?.x||0,leftLeg:parts.leftLeg?.rotation?.x||0,rightLeg:parts.rightLeg?.rotation?.x||0}};},
@@ -1799,10 +1860,13 @@
     jump:()=>requestJump(),
     fire:()=>firePower(),
     enterVehicle:()=>{enterVehicle();return player.vehicle;},
-    prepareVehicleTest:()=>{if(player.vehicle)exitVehicle(true);player.x=0;player.z=-40;player.y=groundHeightAt(0,-40);player.vx=player.vy=player.vz=0;player.sitUntil=0;player.grounded=true;input.keys.clear();input.x=input.z=input.targetX=input.targetZ=0;enterVehicle();return {x:player.x,z:player.z,active:player.vehicle};},
+    prepareVehicleTest:prepareVehicleTestArea,
     exitVehicle:()=>{exitVehicle();return !player.vehicle;},
-    setDriveInput:(steer=0,throttle=0)=>{input.targetX=clamp(Number(steer)||0,-1,1);input.targetZ=clamp(Number(throttle)||0,-1,1);},
-    vehicle:()=>({active:player.vehicle,speed:player.car.speed,heading:player.car.heading,drift:player.car.drift,sitUntilRemaining:Math.max(0,player.sitUntil-performance.now()),driveInput:{x:input.x,z:input.z,targetX:input.targetX,targetZ:input.targetZ},playerVisible:playerModel?.visible!==false,accessoriesVisible:avatarLayer?.visible!==false,vehicleVisible:!!vehicleVisual?.visible,parkedVisible:world.vehicle?.group?.visible!==false,preVehicleAbilities:player.preVehicleAbilities?{...player.preVehicleAbilities}:null,specialLabel:$('span',els.specialBtn)?.textContent||'',fireballs:world.fireballs.length,engineActive:!!engineAudio,wheelCount:vehicleVisual?.userData?.wheels?.length||0,frontWheelCount:vehicleVisual?.userData?.frontWheels?.length||0,rootScale:{x:playerGroup?.scale?.x||0,y:playerGroup?.scale?.y||0,z:playerGroup?.scale?.z||0}}),
+    setDriveInput:(steer=0,throttle=0)=>{input.virtualX=clamp(Number(steer)||0,-1,1);input.virtualZ=clamp(Number(throttle)||0,-1,1);input.virtualActive=Math.abs(input.virtualX)+Math.abs(input.virtualZ)>.001;resolveMovementInput();return {active:input.virtualActive,x:input.targetX,z:input.targetZ};},
+    clearDriveInput:()=>{input.virtualX=0;input.virtualZ=0;input.virtualActive=false;resolveMovementInput();return {x:input.targetX,z:input.targetZ};},
+    refreshInput:()=>resolveMovementInput(),
+    stepVehicleSimulation,
+    vehicle:()=>({active:player.vehicle,speed:player.car.speed,heading:player.car.heading,drift:player.car.drift,sitUntilRemaining:Math.max(0,player.sitUntil-performance.now()),driveInput:{x:input.x,z:input.z,targetX:input.targetX,targetZ:input.targetZ,virtualActive:input.virtualActive,joyX:input.joyX,joyZ:input.joyZ,gamepadActive:input.gamepadActive},playerVisible:playerModel?.visible!==false,accessoriesVisible:avatarLayer?.visible!==false,vehicleVisible:!!vehicleVisual?.visible,parkedVisible:world.vehicle?.group?.visible!==false,preVehicleAbilities:player.preVehicleAbilities?{...player.preVehicleAbilities}:null,specialLabel:$('span',els.specialBtn)?.textContent||'',fireballs:world.fireballs.length,engineActive:!!engineAudio,wheelCount:vehicleVisual?.userData?.wheels?.length||0,frontWheelCount:vehicleVisual?.userData?.frontWheels?.length||0,impactCount:vehicleImpactCount,rootScale:{x:playerGroup?.scale?.x||0,y:playerGroup?.scale?.y||0,z:playerGroup?.scale?.z||0}}),
     pause:()=>openPauseMenu(),
     crouch:()=>toggleCrouch(),
     setSize:setScaleMode,
