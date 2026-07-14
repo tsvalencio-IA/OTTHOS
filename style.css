@@ -196,3 +196,38 @@ body.modal-open .stage{pointer-events:none!important}
  .map-layout{grid-template-columns:1fr}.world-map{min-height:360px;aspect-ratio:1.03}.map-sidebar{max-height:none}.map-destinations{grid-template-columns:repeat(2,minmax(0,1fr))}.map-destination{align-items:flex-start;flex-direction:column}.modal.map-modal .modal-card{width:97vw}
 }
 @media (max-width:390px) and (orientation:portrait){.world-map{min-height:330px}.map-marker{min-width:48px}.map-marker span{display:none}.map-destinations{grid-template-columns:1fr 1fr}}
+
+
+/* =========================================================
+   V606 — NÚCLEO DE JOGABILIDADE, NAVEGAÇÃO E RESPONSIVIDADE
+   ========================================================= */
+.screen-tint{transition:opacity .22s ease,background .22s ease;opacity:1}.screen-tint.transitioning{background:#020814;opacity:.96;z-index:90}
+.nav-guide{position:absolute;z-index:44;left:50%;top:calc(132px + var(--safe-top));transform:translateX(-50%);min-width:190px;max-width:min(360px,55vw);display:flex;align-items:center;gap:9px;padding:7px 11px;border-radius:16px;background:linear-gradient(180deg,rgba(4,19,35,.91),rgba(9,38,59,.91));border:2px solid rgba(84,226,255,.52);box-shadow:0 8px 24px rgba(0,0,0,.25);pointer-events:none}.nav-arrow{display:flex;width:34px;height:34px;border-radius:50%;align-items:center;justify-content:center;background:#2d86ff;color:#fff;font-size:22px;transform-origin:center;transition:transform .12s linear}.nav-guide div{display:grid;grid-template-columns:1fr auto;min-width:0;column-gap:8px}.nav-guide small{grid-column:1/-1;color:#8ceaff;font-size:8px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.nav-guide b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}.nav-guide em{font-style:normal;color:#ffd84d;font-weight:900;font-size:11px}
+
+.quick-bar{right:calc(8px + var(--safe-right));top:calc(136px + var(--safe-top));max-height:calc(100dvh - var(--safe-top) - var(--safe-bottom) - (var(--action) * 2) - 110px);overflow-y:auto;overflow-x:hidden;scrollbar-width:none}.quick-bar::-webkit-scrollbar{display:none}.quick-bar button{flex:0 0 auto}
+.game.quick-open .quick-toggle{filter:brightness(1.15)}
+
+.world-map-v2{isolation:isolate;background:#75cf69!important}.map-base{position:absolute;inset:0;width:100%;height:100%;z-index:0}.map-pin{position:absolute;z-index:4;transform:translate(-50%,-50%);width:34px;height:34px;padding:0;border-radius:50%;background:#0a1b30;border:2px solid rgba(255,255,255,.82);box-shadow:0 4px 0 rgba(0,0,0,.32),0 0 0 3px rgba(9,25,45,.25);display:grid;place-items:center}.map-pin b{font-size:18px;line-height:1}.map-pin.selected{background:#ffca28;transform:translate(-50%,-50%) scale(1.17);box-shadow:0 4px 0 #8d5e00,0 0 0 5px rgba(255,216,77,.26)}.map-pin:active{transform:translate(-50%,-50%) scale(.92)}.map-selected{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px;padding:10px 12px;border-radius:15px;background:rgba(255,255,255,.08)}.map-selected>div{display:flex;flex-direction:column;min-width:0}.map-selected small{color:#8ceaff;font-size:8px;font-weight:900}.map-selected b{font-size:13px}.map-selected span{font-size:10px;color:#cfe6fa}.map-header-info{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 12px;margin-bottom:10px;border-radius:15px;background:rgba(255,255,255,.07)}.map-header-info>div:first-child{display:flex;flex-direction:column}.map-header-info small{color:#81e8ff;font-size:8px;font-weight:900}.map-header-info span,.map-current-route{font-size:10px;color:#c7d8eb}.map-current-route{text-align:right}.map-scroll{display:grid;gap:10px;max-height:64dvh;overflow:auto;padding-right:3px}.map-group h4{margin:0 0 5px;color:#8ceaff;font-size:10px;text-transform:uppercase;letter-spacing:.06em}.map-group{display:grid;gap:5px}.map-destination{padding:8px 9px}.map-destination b{font-size:11px}.map-destination span{font-size:9px}.player-dot{width:24px!important;height:24px!important;box-shadow:0 0 0 5px rgba(29,125,255,.28),0 0 20px #1d7dff!important}.player-dot b{top:24px!important;font-size:8px!important}.waypoint-dot{font-size:34px!important}
+
+/* Paisagem: três zonas independentes, sem sobreposição. */
+@media (orientation:landscape){
+ .mission-card{top:calc(66px + var(--safe-top));left:50%;transform:translateX(-50%);width:min(420px,43vw)}
+ .nav-guide{top:calc(124px + var(--safe-top));max-width:36vw}
+ .quick-toggle{top:calc(62px + var(--safe-top));right:calc(8px + var(--safe-right))}
+ .quick-bar{top:calc(118px + var(--safe-top));right:calc(8px + var(--safe-right));flex-direction:column;max-width:none}
+ .secondary-actions{left:calc(var(--joy) + 28px + var(--safe-left));right:auto;bottom:calc(10px + var(--safe-bottom));grid-template-columns:repeat(5,var(--skill));grid-template-rows:var(--skill)}
+ .context-prompt{bottom:calc(12px + var(--safe-bottom) + var(--skill) + 10px);max-width:36vw}
+}
+@media (orientation:landscape) and (max-height:560px){
+ :root{--skill:38px;--skill-gap:4px}
+ .identity-box{transform:scale(.88);transform-origin:top left}.currency-box{transform:scale(.88);transform-origin:top right}.needs-summary{transform:scale(.86)}
+ .mission-card{top:calc(48px + var(--safe-top));width:min(350px,40vw);padding:6px 9px}.mission-card p{display:none}.nav-guide{top:calc(94px + var(--safe-top));padding:5px 8px;min-width:170px}.nav-arrow{width:28px;height:28px;font-size:18px}
+ .quick-toggle{top:calc(48px + var(--safe-top));width:42px;height:40px}.quick-bar{top:calc(94px + var(--safe-top));max-height:calc(100dvh - 190px)}
+ .secondary-actions{left:calc(var(--joy) + 23px + var(--safe-left));bottom:calc(7px + var(--safe-bottom))}.skill-btn span{display:none}
+ .context-prompt{bottom:calc(53px + var(--safe-bottom));font-size:10px}
+}
+@media (orientation:portrait){
+ .nav-guide{top:calc(174px + var(--safe-top));max-width:calc(100vw - 110px);left:12px;transform:none;min-width:0}.quick-toggle{top:calc(174px + var(--safe-top))}.quick-bar{top:calc(230px + var(--safe-top));max-height:calc(100dvh - 440px)}
+ .map-header-info{align-items:flex-start;flex-direction:column}.map-current-route{text-align:left}.map-selected{align-items:flex-start;flex-direction:column}.map-selected .btn{width:100%}.map-scroll{max-height:none}.map-pin{width:30px;height:30px}.map-pin b{font-size:16px}
+}
+@media (max-width:390px) and (orientation:portrait){.nav-guide{top:calc(168px + var(--safe-top));max-width:calc(100vw - 96px)}.nav-guide small{display:none}.nav-guide b{font-size:10px}.nav-arrow{width:29px;height:29px}.secondary-actions{grid-template-columns:repeat(5,38px)}.skill-btn{width:38px;height:38px}}

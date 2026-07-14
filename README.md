@@ -1,42 +1,49 @@
-# OTTHOS LIFE WORLD V605 — BASE COMPLETA ESTÁVEL
+# OTTHOS LIFE WORLD V606 — NÚCLEO DE JOGABILIDADE RECONSTRUÍDO
 
-Esta entrega é um ZIP completo para publicar na raiz de um repositório GitHub Pages.
+Esta é uma versão **completa** para publicar na raiz do repositório GitHub Pages.
 
-## Base usada
+A V606 parte da base de roleplay que já possuía casas, vizinhos, missões, trabalhos, construção, corridas, AR, quiz, coleção, moldes e salvamento. O trabalho principal desta versão foi reconstruir o núcleo que estava causando as regressões vistas no vídeo: personagem genérico, pés entrando no chão, deslocamento artificial, mapa pouco útil e conflitos entre HUD, mapa e modo paisagem.
 
-- Estrutura completa V600.
-- Evoluções válidas da V601.
-- Correções localizadas de regressão, sem importar a física e o layout quebrados das versões posteriores.
+## Principais correções
 
-## Regras preservadas
+- Otthos procedural fiel à referência durante a jogabilidade; `athos.glb` permanece apenas no lobby/AR.
+- Corpo preto, olhos branco/vermelho e chamas pixeladas nos braços e pernas.
+- Animação procedural de braços, pernas, caminhada, repouso, pulo, queda, aterrissagem, abaixar e ações.
+- Trava dinâmica da sola dos pés usando os limites reais do modelo visual.
+- Física, escala e visual separados para evitar afundamento em Mini, Normal, Grande e Abaixar.
+- Movimento com zona morta, aceleração, desaceleração, curva de resposta e rotação suave.
+- Superfícies reais para terreno, ruas, interiores, pista e plataformas.
+- Transições de entrada e saída de casas com câmera interna.
+- Ações visuais para porta, fogão, pia, baú, coleta, conversa, ataque e poder.
+- Vizinhos reconstruídos como personagens completos, com braços, pernas, rosto, cabelo, nome e caminhada.
+- Mapa GPS baseado nas coordenadas reais do mundo, com posição, direção, distância, seleção e rota.
+- Guia de navegação dentro do mundo com seta e distância.
+- HUD e controles separados em zonas para retrato e paisagem.
+- Ao abrir mapa ou modal, os controles incompatíveis ficam ocultos.
+- Todos os controles foram preservados: joystick, Ação, Pular, Poder, Abaixar, Mini, Normal, Grande e Girar.
+- Salvamento automático em IndexedDB, backups internos, cópia no localStorage e exportação/importação.
+- Instalação PWA exibida apenas quando disponível e quando o aplicativo ainda não está instalado.
 
-- O arquivo `athos.glb` é usado apenas no lobby/visualizador/AR.
-- Durante o jogo, o personagem é o Otthos procedural animado.
-- Ação, Pular, Poder, Abaixar, Mini, Normal, Grande e Girar permanecem disponíveis.
-- AR, quiz, coleção, moldes, casas, interiores, construção, missões e PWA foram preservados.
+## Publicação
 
-## Correções principais
+1. Apague os arquivos da versão anterior do repositório.
+2. Extraia este ZIP.
+3. Envie todo o conteúdo extraído para a raiz.
+4. Aguarde o GitHub Pages atualizar.
+5. Abra uma vez com `?v=606` para evitar cache antigo.
 
-- Sola dos pés ancorada à raiz física do jogador.
-- Braços e pernas animados durante a caminhada.
-- Pulo, queda e aterrissagem preservados.
-- Ação contextual prioriza fogão, geladeira, cama, baú, porta, NPC e outros objetos próximos.
-- Mapa GPS usa as coordenadas reais do mundo, mostra jogador, direção, distâncias, destinos e rota.
-- Controles não ficam sobre o mapa ou outros modais.
-- Layout validado em retrato e paisagem, inclusive com menu Vida expandido.
-- IndexedDB principal, cópia no localStorage, salvamento automático, backups e importação/exportação.
-- Instalação aparece no lobby somente quando o navegador oferece a instalação e desaparece após instalar.
+Exemplo:
 
-## Publicação no GitHub
+`https://SEU-USUARIO.github.io/SEU-REPOSITORIO/?v=606`
 
-1. Exclua os arquivos da versão quebrada no repositório.
-2. Envie todo o conteúdo deste pacote para a raiz.
-3. Ative GitHub Pages na branch principal e pasta raiz.
-4. No primeiro teste, abra `index.html?v=605`.
-5. Aguarde o 3D carregar antes de entrar no mundo.
+## Teste F12
 
-## Auditoria pelo F12
+Depois de publicar, execute no Console do navegador:
 
-Use `F12_TESTE_OTTHOS_V605_JOGABILIDADE_COMERCIAL.js` no Console do navegador depois que o jogo estiver publicado.
+`F12_TESTE_OTTHOS_V606_JOGABILIDADE_COMERCIAL.js`
 
-Leia também `RELATORIO_VALIDACAO_V605.txt`.
+O script testa o jogo real no navegador: personagem, pés, movimento, pulo, controles, ações contextuais, casas, NPCs, mapa, salvamento, PWA, arquivos e desempenho.
+
+## Observação de validação
+
+Nesta entrega foram executados testes sintáticos, estruturais, de referências, manifest, Service Worker, banco local, integridade e empacotamento. O ambiente de geração não conseguiu iniciar um navegador gráfico funcional, por isso a validação visual final em celular deve ser feita após a publicação usando o arquivo F12 incluído e a jogabilidade no aparelho.

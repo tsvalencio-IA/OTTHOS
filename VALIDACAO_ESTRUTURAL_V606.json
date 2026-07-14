@@ -1,0 +1,183 @@
+{
+  "version": "V606_STABLE_ROLEPLAY_FULL",
+  "generatedAt": "2026-07-13T23:59:08.492985+00:00",
+  "passed": 35,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "Arquivos essenciais presentes",
+      "passed": true,
+      "details": "16 arquivos encontrados"
+    },
+    {
+      "name": "HTML sem IDs duplicados",
+      "passed": true,
+      "details": "74 IDs únicos"
+    },
+    {
+      "name": "IDs usados pelo JavaScript existem no HTML",
+      "passed": true,
+      "details": "76 referências resolvidas"
+    },
+    {
+      "name": "Banco carrega antes do app",
+      "passed": true,
+      "details": "['https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', './assets/js/save-db.js?v=606', './app.js?v=606']"
+    },
+    {
+      "name": "CSS versionado V606",
+      "passed": true,
+      "details": "['./style.css?v=606']"
+    },
+    {
+      "name": "Manifest JSON válido",
+      "passed": true,
+      "details": "Otthos Roleplay Life World V606"
+    },
+    {
+      "name": "Manifest V606 e standalone",
+      "passed": true,
+      "details": "{'start_url': './index.html?v=606', 'display': 'standalone', 'orientation': 'any'}"
+    },
+    {
+      "name": "icons/icon-192.png dimensão correta",
+      "passed": true,
+      "details": "(192, 192)"
+    },
+    {
+      "name": "icons/icon-512.png dimensão correta",
+      "passed": true,
+      "details": "(512, 512)"
+    },
+    {
+      "name": "CSS analisado sem erro de parser",
+      "passed": true,
+      "details": "332 regras/blocos"
+    },
+    {
+      "name": "Otthos procedural fiel",
+      "passed": true,
+      "details": "implementado"
+    },
+    {
+      "name": "Animação de braços e pernas",
+      "passed": true,
+      "details": "implementado"
+    },
+    {
+      "name": "Trava dinâmica dos pés",
+      "passed": true,
+      "details": "implementado"
+    },
+    {
+      "name": "Movimento e pulo",
+      "passed": true,
+      "details": "implementado"
+    },
+    {
+      "name": "Abaixar Mini Normal Grande Girar",
+      "passed": true,
+      "details": "implementado"
+    },
+    {
+      "name": "Ação contextual",
+      "passed": true,
+      "details": "implementado"
+    },
+    {
+      "name": "Casas e interiores",
+      "passed": true,
+      "details": "implementado"
+    },
+    {
+      "name": "NPCs e interações sociais",
+      "passed": true,
+      "details": "implementado"
+    },
+    {
+      "name": "Ginásio e corridas",
+      "passed": true,
+      "details": "implementado"
+    },
+    {
+      "name": "Mapa GPS e rota",
+      "passed": true,
+      "details": "implementado"
+    },
+    {
+      "name": "Salvamento IndexedDB",
+      "passed": true,
+      "details": "implementado"
+    },
+    {
+      "name": "PWA instalação condicional",
+      "passed": true,
+      "details": "implementado"
+    },
+    {
+      "name": "AR/quiz/coleção/moldes",
+      "passed": true,
+      "details": "implementado"
+    },
+    {
+      "name": "Construção",
+      "passed": true,
+      "details": "implementado"
+    },
+    {
+      "name": "Gamepad",
+      "passed": true,
+      "details": "implementado"
+    },
+    {
+      "name": "athos.glb não é carregado na jogabilidade",
+      "passed": true,
+      "details": "Somente lobby/model-viewer"
+    },
+    {
+      "name": "Todos os controles obrigatórios preservados",
+      "passed": true,
+      "details": "['joystick', 'actionBtn', 'jumpBtn', 'specialBtn', 'crouchBtn', 'miniBtn', 'normalBtn', 'giantBtn', 'spinBtn', 'quickToggleBtn', 'mapBtn']"
+    },
+    {
+      "name": "Mapa/modal ocultam controles incompatíveis",
+      "passed": true,
+      "details": "regras presentes"
+    },
+    {
+      "name": "Versão V606 consistente nos arquivos ativos",
+      "passed": true,
+      "details": "['index.html', 'app.js', 'style.css', 'sw.js', 'save-db.js', 'manifest']"
+    },
+    {
+      "name": "API de teste V606 exposta",
+      "passed": true,
+      "details": "OTTHOS_TEST_API"
+    },
+    {
+      "name": "Schema de save V606",
+      "passed": true,
+      "details": "IndexedDB + estado"
+    },
+    {
+      "name": "Service Worker referencia arquivos existentes",
+      "passed": true,
+      "details": "['./', './index.html?v=606', './style.css?v=606', './assets/js/save-db.js?v=606', './app.js?v=606', './manifest.webmanifest?v=606', './icons/icon-192.png', './icons/icon-512.png', './icons/favicon.png', './athos.glb']"
+    },
+    {
+      "name": "Referências locais do HTML existem",
+      "passed": true,
+      "details": "['./assets/js/save-db.js?v=606', './app.js?v=606', './manifest.webmanifest?v=606', './icons/favicon.png', './icons/icon-192.png', './style.css?v=606', './athos.glb']"
+    },
+    {
+      "name": "Galeria de moldes aponta para imagens existentes",
+      "passed": true,
+      "details": "['athos_moldes_caneta_3d.png', 'athos_moldes_para_caneta_3d.png', 'modelo-referencia-athos.png', 'modelo_referencia.png', 'modelo_referencia_athos.png', 'moldes-athos-caneta-3d.png']"
+    },
+    {
+      "name": "Sem funções nomeadas duplicadas no app",
+      "passed": true,
+      "details": "162 funções"
+    }
+  ]
+}

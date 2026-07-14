@@ -1,0 +1,37 @@
+OTTHOS LIFE WORLD V606 — RELATÓRIO DE VALIDAÇÃO
+
+VALIDAÇÕES EXECUTADAS NESTE AMBIENTE
+
+1. SINTAXE JAVASCRIPT
+- app.js: aprovado por `node --check`.
+- sw.js: aprovado por `node --check`.
+- assets/js/save-db.js: aprovado por `node --check`.
+- F12_TESTE_OTTHOS_V606_JOGABILIDADE_COMERCIAL.js: aprovado por `node --check`.
+
+2. ESTRUTURA
+- 35 verificações estruturais aprovadas e nenhuma falha.
+- HTML sem IDs duplicados.
+- Todos os IDs estáticos usados no JavaScript foram encontrados.
+- Todos os controles obrigatórios foram preservados.
+- Referências locais do HTML, manifest e Service Worker apontam para arquivos existentes.
+- Galeria de moldes validada.
+- Manifest JSON válido e ícones 192x192 / 512x512 conferidos.
+- CSS analisado sem erro de parser.
+- Nenhuma função nomeada duplicada no app.js.
+
+3. REGRAS CRÍTICAS CONFERIDAS NO CÓDIGO
+- Otthos procedural V606_FIEL_REFERENCIA.
+- athos.glb não possui loader dentro da jogabilidade.
+- Animação de braços e pernas presente.
+- Trava dinâmica da sola presente.
+- Movimento, pulo, Abaixar, Mini, Normal, Grande e Girar preservados.
+- Ação contextual, casas, interiores, NPCs, corridas, mapa, construção, AR, quiz, coleção e moldes presentes.
+- IndexedDB schema 606, backups e autosave presentes.
+- Instalação PWA condicionada à disponibilidade real.
+- Modal/mapa ocultam os controles incompatíveis.
+
+4. LIMITAÇÃO DE TESTE
+O navegador Chromium disponível no ambiente administrativo não conseguiu iniciar, inclusive com páginas mínimas locais. Portanto, não foi possível afirmar teste visual real de FPS, colisão e responsividade no celular dentro deste ambiente. Para isso, o ZIP inclui o teste F12 que deve ser executado depois da publicação.
+
+CONCLUSÃO
+O pacote está sintaticamente íntegro e passou nas verificações estruturais automatizadas. A confirmação final de jogabilidade deve ser feita no GitHub Pages e no aparelho físico, sem confundir validação de código com comprovação visual.
