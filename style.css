@@ -205,3 +205,8 @@ body.modal-open .stage{pointer-events:none!important}
 #specialBtn.vehicle-horn b{transform:scale(1.05)}
 .secondary-actions.vehicle-hidden .skill-btn,#jumpBtn.vehicle-disabled{cursor:not-allowed}
 .vehicle-badge{max-width:min(92vw,420px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+
+/* V612 — visualizador 3D/AR sob demanda, sem competir com o jogo no carregamento inicial. */
+.viewer-placeholder{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px;text-align:center;color:#071522;background:radial-gradient(circle at 50% 24%,rgba(255,255,255,.82),rgba(118,220,244,.72) 46%,rgba(45,124,140,.52));}
+.viewer-placeholder[hidden]{display:none!important}.viewer-placeholder-mark{display:grid;place-items:center;width:86px;height:86px;border-radius:28px;background:#071522;color:#fff;font-size:42px;box-shadow:0 16px 36px #07152244}.viewer-placeholder strong{font-size:clamp(18px,2vw,26px)}.viewer-placeholder span{max-width:340px;font-weight:700;color:#17344b}.viewer-placeholder button:disabled{opacity:.65;cursor:wait}.viewer-shell model-viewer[hidden]{display:none!important}.viewer-shell.viewer-ready model-viewer{display:block}

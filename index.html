@@ -8,12 +8,33 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Otthos Life World</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=610" />
+  <link rel="manifest" href="./manifest.webmanifest?v=612" />
   <link rel="icon" href="./icons/favicon.png" />
   <link rel="apple-touch-icon" href="./icons/icon-192.png" />
-  <link rel="stylesheet" href="./style.css?v=610" />
-  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <link rel="stylesheet" href="./style.css?v=612" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    // Visualizador/AR verdadeiramente sob demanda: não baixa model-viewer nem athos.glb no boot.
+    window.loadModelViewerLib = function loadModelViewerLib(){
+      if (customElements.get('model-viewer')) return Promise.resolve(true);
+      if (window.__mvPromise) return window.__mvPromise;
+      window.__mvPromise = new Promise((resolve, reject) => {
+        const previous = document.querySelector('script[data-otthos-model-viewer]');
+        if (previous) previous.remove();
+        const script = document.createElement('script');
+        script.type = 'module';
+        script.dataset.otthosModelViewer = '1';
+        script.src = 'https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js';
+        const timer = setTimeout(() => fail(new Error('Tempo esgotado carregando model-viewer')), 15000);
+        const reset = () => { clearTimeout(timer); window.__mvPromise = null; };
+        const fail = error => { reset(); script.remove(); reject(error); };
+        script.onerror = () => fail(new Error('Falha de rede carregando model-viewer'));
+        script.onload = () => customElements.whenDefined('model-viewer').then(() => { clearTimeout(timer); resolve(true); }).catch(fail);
+        document.head.appendChild(script);
+      });
+      return window.__mvPromise;
+    };
+  </script>
 </head>
 <body>
   <div id="app" class="app">
@@ -30,8 +51,14 @@
 
       <main class="lobby-layout">
         <section class="panel hero-panel">
-          <div class="viewer-shell">
-            <model-viewer id="nativeViewer" src="./athos.glb" alt="Otthos 3D" camera-controls interaction-prompt="none" ar ar-modes="scene-viewer webxr quick-look" ar-placement="floor" ar-scale="fixed" shadow-intensity="1.2" exposure="1.05" environment-image="neutral">
+          <div id="viewerShell" class="viewer-shell">
+            <div id="viewerPlaceholder" class="viewer-placeholder">
+              <div class="viewer-placeholder-mark" aria-hidden="true">🔥</div>
+              <strong>Otthos 3D e Realidade Aumentada</strong>
+              <span id="viewerStatus">Carregue somente quando quiser usar o visualizador.</span>
+              <button id="viewerLoadBtn" class="btn primary" type="button">Carregar visualizador 3D</button>
+            </div>
+            <model-viewer id="nativeViewer" src="./athos.glb" alt="Otthos 3D" camera-controls interaction-prompt="none" ar ar-modes="scene-viewer webxr quick-look" ar-placement="floor" ar-scale="fixed" shadow-intensity="1.2" exposure="1.05" environment-image="neutral" hidden>
               <button id="insideArBtn" slot="ar-button" class="floating-ar-btn" type="button">📱 Ver em AR</button>
             </model-viewer>
           </div>
@@ -136,7 +163,7 @@
 
   </div>
 
-  <script src="./assets/js/save-db.js?v=610"></script>
-  <script src="./app.js?v=610"></script>
+  <script src="./assets/js/save-db.js?v=612"></script>
+  <script src="./app.js?v=612"></script>
 </body>
 </html>
