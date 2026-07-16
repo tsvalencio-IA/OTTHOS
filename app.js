@@ -8,8 +8,8 @@
   const lerpAngle = (a, b, t) => { let d=((b-a+Math.PI)%(Math.PI*2))-Math.PI; if(d<-Math.PI)d+=Math.PI*2; return a+d*t; };
   const distance2D = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
   const uid = () => (crypto.randomUUID ? crypto.randomUUID() : `p-${Date.now()}-${Math.random().toString(16).slice(2)}`);
-  const STORAGE_KEY = 'otthos_life_world_roleplay_v615';
-  const LEGACY_STORAGE_KEYS = ['otthos_life_world_roleplay_v614','otthos_life_world_roleplay_v613','otthos_life_world_roleplay_v612','otthos_life_world_roleplay_v611','otthos_life_world_roleplay_v610','otthos_life_world_roleplay_v609','otthos_life_world_roleplay_v608','otthos_life_world_roleplay_v607','otthos_life_world_roleplay_v606','otthos_life_world_roleplay_v605','otthos_life_world_roleplay_v604','otthos_life_world_roleplay_v603','otthos_life_world_roleplay_v602','otthos_life_world_roleplay_v601','otthos_life_world_complete_v600'];
+  const STORAGE_KEY = 'otthos_life_world_roleplay_v616';
+  const LEGACY_STORAGE_KEYS = ['otthos_life_world_roleplay_v615','otthos_life_world_roleplay_v614','otthos_life_world_roleplay_v613','otthos_life_world_roleplay_v612','otthos_life_world_roleplay_v611','otthos_life_world_roleplay_v610','otthos_life_world_roleplay_v609','otthos_life_world_roleplay_v608','otthos_life_world_roleplay_v607','otthos_life_world_roleplay_v606','otthos_life_world_roleplay_v605','otthos_life_world_roleplay_v604','otthos_life_world_roleplay_v603','otthos_life_world_roleplay_v602','otthos_life_world_roleplay_v601','otthos_life_world_complete_v600'];
   const safeLocalGet = key => { try { return window.localStorage?.getItem(key) ?? null; } catch { return null; } };
   const safeLocalSet = (key, value) => { try { window.localStorage?.setItem(key, value); return true; } catch { return false; } };
   const safeLocalRemove = key => { try { window.localStorage?.removeItem(key); return true; } catch { return false; } };
@@ -22,7 +22,7 @@
     hudLevel: $('#hudLevel'), xpFill: $('#xpFill'), xpText: $('#xpText'), hudCoins: $('#hudCoins'),
     needHunger: $('#needHunger'), needEnergy: $('#needEnergy'), needFun: $('#needFun'), needHygiene: $('#needHygiene'),
     missionChapter: $('#missionChapter'), missionTitle: $('#missionTitle'), missionStep: $('#missionStep'), missionFill: $('#missionFill'),
-    quickToggleBtn: $('#quickToggleBtn'), quickBar: $('#quickBar'), needsToggleBtn: $('#needsToggleBtn'), missionCard: $('#missionCard'), avatarGameBtn: $('#avatarGameBtn'), inventoryBtn: $('#inventoryBtn'), buildBtn: $('#buildBtn'), mapBtn: $('#mapBtn'), gameSettingsBtn: $('#gameSettingsBtn'),
+    quickToggleBtn: $('#quickToggleBtn'), quickBar: $('#quickBar'), needsToggleBtn: $('#needsToggleBtn'), missionCard: $('#missionCard'), avatarGameBtn: $('#avatarGameBtn'), inventoryBtn: $('#inventoryBtn'), buildBtn: $('#buildBtn'), mapBtn: $('#mapBtn'), dailyBtn: $('#dailyBtn'), gameSettingsBtn: $('#gameSettingsBtn'), multiplayerBadge: $('#multiplayerBadge'),
     contextPrompt: $('#contextPrompt'), contextIcon: $('#contextIcon'), contextLabel: $('#contextLabel'), contextHint: $('#contextHint'),
     joystick: $('#joystick'), joystickKnob: $('#joystickKnob'), runBtn: $('#runBtn'), specialBtn: $('#specialBtn'), actionBtn: $('#actionBtn'), jumpBtn: $('#jumpBtn'), crouchBtn: $('#crouchBtn'), miniBtn: $('#miniBtn'), normalBtn: $('#normalBtn'), giantBtn: $('#giantBtn'), spinBtn: $('#spinBtn'), secondaryActions: document.querySelector('.secondary-actions'),
     miniNav: $('#miniNav'), miniMapCanvas: $('#miniMapCanvas'), miniNavName: $('#miniNavName'), miniNavDistance: $('#miniNavDistance'), miniNavArrow: $('#miniNavArrow'),
@@ -33,7 +33,7 @@
   };
 
   const defaultState = () => ({
-    version: 615,
+    version: 616,
     profile: { playerId: uid(), name: 'Otthos', level: 1, xp: 0, coins: 500, reputation: 0 },
     needs: { hunger: 92, energy: 92, fun: 86, hygiene: 88 },
     inventory: { wood: 0, stone: 0, food: 2, water: 2, crystals: 0, blocks: 4, fences: 2, keys: 0 },
@@ -58,7 +58,10 @@
     builds: [],
     defeated: 0,
     position: { x: 0, y: 0, z: 8, yaw: 0 },
-    settings: { sound: true, quality: 'auto', vibration: true, cameraZoom: 0, joystickNatural: true },
+    settings: { sound: true, quality: 'auto', autoTier: 'balanced', vibration: true, cameraZoom: 0, joystickNatural: true },
+    stats: { walked:0, driven:0, jumps:0, collected:0, talks:0, cooked:0, races:0, actions:0 },
+    daily: { date:'', streak:0, lastDate:'', quests:[] },
+    multiplayer: { enabled:false, room:'vila-do-sol', displayName:'Otthos' },
     lastSaved: Date.now()
   });
 
@@ -73,7 +76,7 @@
     return {
       ...fresh,
       ...saved,
-      version: 615,
+      version: 616,
       profile: { ...fresh.profile, ...(saved.profile || {}) },
       needs: { ...fresh.needs, ...(saved.needs || {}) },
       inventory: { ...fresh.inventory, ...(saved.inventory || {}) },
@@ -82,6 +85,9 @@
       friendship,
       flags,
       settings: { ...fresh.settings, ...(saved.settings || {}), quality: Number(saved.version||0)<615 && (saved.settings?.quality||'high')==='high' ? 'auto' : ((saved.settings?.quality)||fresh.settings.quality) },
+      stats: { ...fresh.stats, ...(saved.stats || {}) },
+      daily: { ...fresh.daily, ...(saved.daily || {}), quests:Array.isArray(saved.daily?.quests)?saved.daily.quests:[] },
+      multiplayer: { ...fresh.multiplayer, ...(saved.multiplayer || {}) },
       avatar: { ...fresh.avatar, ...(saved.avatar || {}) },
       career: { ...fresh.career, ...(saved.career || {}) },
       social: { ...fresh.social, ...(saved.social || {}) },
@@ -123,8 +129,8 @@
       } else {
         window.OTTHOS_DB.save(state).catch(console.warn);
       }
-      updateLobbyStats();
-      updateHUD();
+      ensureDailyChallenges();updateLobbyStats();
+      updateHUD();updateDailyBadge();
       return state;
     }).catch(error => { console.warn('IndexedDB indisponível; usando armazenamento local.', error); return state; });
     window.OTTHOS_DB.requestPersistentStorage().catch(() => false);
@@ -142,7 +148,7 @@
           return false;
         })
       : Promise.resolve(true);
-    updateLobbyStats();
+    ensureDailyChallenges();updateLobbyStats();updateDailyBadge();
     return lastSavePromise;
   }
   function saveState(immediate = false) {
@@ -296,6 +302,26 @@
   if (els.installBtn) els.installBtn.onclick = installApp;
   if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=613').catch(console.warn));
   updateInstallUI();
+
+
+  const DAILY_QUEST_POOL=[
+    {id:'walk',icon:'👟',title:'Explorador da Vila',target:180,reward:90,xp:50,label:n=>`${Math.floor(n)}/180 m caminhando`},
+    {id:'drive',icon:'🚗',title:'Piloto da Vila',target:260,reward:120,xp:70,label:n=>`${Math.floor(n)}/260 m dirigindo`},
+    {id:'jump',icon:'⬆',title:'Pula-pula',target:12,reward:70,xp:45,label:n=>`${Math.floor(n)}/12 pulos`},
+    {id:'collect',icon:'💎',title:'Caçador de Tesouros',target:5,reward:95,xp:60,label:n=>`${Math.floor(n)}/5 itens coletados`},
+    {id:'talk',icon:'💬',title:'Amigo da Vizinhança',target:3,reward:80,xp:50,label:n=>`${Math.floor(n)}/3 conversas`},
+    {id:'cook',icon:'🍳',title:'Chef do Otthos',target:1,reward:75,xp:45,label:n=>`${Math.floor(n)}/1 refeição`},
+    {id:'race',icon:'🏁',title:'Competidor',target:1,reward:130,xp:80,label:n=>`${Math.floor(n)}/1 corrida concluída`}
+  ];
+  function localDateKey(){const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+  function daysBetween(a,b){if(!a||!b)return 99;return Math.round((new Date(`${b}T12:00:00`)-new Date(`${a}T12:00:00`))/86400000)}
+  function ensureDailyChallenges(){const key=localDateKey();if(state.daily.date===key&&state.daily.quests?.length)return;const gap=daysBetween(state.daily.lastDate,key);state.daily.streak=gap===1?(state.daily.streak||0)+1:gap===0?(state.daily.streak||1):1;let seed=Number(key.replaceAll('-',''));const pool=[...DAILY_QUEST_POOL],picked=[];while(picked.length<3&&pool.length){seed=(seed*9301+49297)%233280;const q=pool.splice(Math.floor(seed/233280*pool.length),1)[0];picked.push({id:q.id,progress:0,target:q.target,reward:q.reward,xp:q.xp,claimed:false});}state.daily={date:key,lastDate:key,streak:state.daily.streak||1,quests:picked};saveState();}
+  function dailyDefinition(id){return DAILY_QUEST_POOL.find(q=>q.id===id)}
+  function trackDaily(type,amount=1){ensureDailyChallenges();let changed=false;for(const q of state.daily.quests){if(q.id!==type||q.claimed)continue;const before=q.progress;q.progress=clamp((q.progress||0)+amount,0,q.target);if(q.progress!==before)changed=true;}if(changed){updateDailyBadge();saveState();}}
+  function updateDailyBadge(){if(!els.dailyBtn)return;ensureDailyChallenges();const ready=state.daily.quests.filter(q=>!q.claimed&&q.progress>=q.target).length;els.dailyBtn.classList.toggle('reward-ready',ready>0);const span=$('span',els.dailyBtn);if(span)span.textContent=ready?`Prêmio ${ready}`:'Desafios';}
+  function claimDailyQuest(index){const q=state.daily.quests[index],def=dailyDefinition(q?.id);if(!q||!def||q.claimed||q.progress<q.target)return;q.claimed=true;addCoins(q.reward);addXP(q.xp);addReputation(3);beep(980,90);vibrate(30);toast(`Desafio concluído! +${q.reward} moedas`,'good',2200);saveState(true);openDailyChallenges();}
+  function openDailyChallenges(){ensureDailyChallenges();const rows=state.daily.quests.map((q,i)=>{const d=dailyDefinition(q.id),pct=clamp(q.progress/q.target*100,0,100),ready=q.progress>=q.target&&!q.claimed;return`<article class="daily-card ${ready?'ready':''} ${q.claimed?'claimed':''}"><div class="daily-icon">${d.icon}</div><div><b>${d.title}</b><span>${d.label(q.progress)}</span><div class="daily-progress"><i style="width:${pct}%"></i></div><small>${q.reward} moedas • ${q.xp} XP</small></div><button data-daily-claim="${i}" ${ready?'':'disabled'}>${q.claimed?'✓':ready?'Receber':'Em andamento'}</button></article>`}).join('');openModal('Desafios Diários',`<div class="daily-header"><b>🔥 Sequência: ${state.daily.streak} dia${state.daily.streak===1?'':'s'}</b><span>Complete os desafios para evoluir mais rápido.</span></div><div class="daily-list">${rows}</div>`,root=>{$$('[data-daily-claim]',root).forEach(btn=>btn.onclick=()=>claimDailyQuest(Number(btn.dataset.dailyClaim)));});}
+  function triggerEmote(type,npc=null){player.emoteType=type;player.emoteUntil=performance.now()+2200;if(npc){npc.emoteType=type;npc.emoteUntil=performance.now()+2200;}const msg={wave:'Acenou!',dance:'Hora da dança!',selfie:'Selfie da amizade!',highfive:'Toca aqui!'};toast(msg[type]||'Ação social!','good',1200);beep(type==='highfive'?820:620,55);vibrate(15);addXP(3);}
 
   const quizQuestions = [
     ['O que recupera energia?', ['Dormir na cama', 'Pular na lava', 'Fechar o jogo'], 0],
@@ -562,72 +588,35 @@
     </div>`);
   }
 
-  const ROAD_GUIDE_NODES = [
-    {x:0,z:0},{x:0,z:18},{x:0,z:50},{x:0,z:78},{x:0,z:-18},{x:0,z:-55},
-    {x:-25,z:0},{x:-55,z:0},{x:-88,z:0},{x:25,z:0},{x:55,z:0},{x:88,z:0},
-    {x:-25,z:18},{x:25,z:18},{x:-22,z:-18},{x:22,z:-18},{x:-22,z:50},{x:52,z:48},{x:45,z:78},{x:88,z:62},{x:70,z:-60}
-  ];
+  const WORLD_MAP_ROADS=[{x:0,z:0,w:18,d:210},{x:0,z:0,w:210,d:18},{x:-55,z:-55,w:9,d:105},{x:55,z:48,w:9,d:92}];
+  const NAV_STEP=4,NAV_MIN=-112,NAV_MAX=112;
   function routeLength(points){let total=0;for(let i=1;i<points.length;i++)total+=Math.hypot(points[i].x-points[i-1].x,points[i].z-points[i-1].z);return total;}
-  function compactRoute(points){
-    const result=[];for(const p of points){const last=result[result.length-1];if(!last||Math.hypot(last.x-p.x,last.z-p.z)>.4)result.push({x:p.x,z:p.z});}
-    return result;
-  }
-  function buildRoutePoints(from,to){
-    const start={x:from.x,z:from.z},end={x:to.x,z:to.z};
-    const candidates=[
-      compactRoute([start,{x:start.x,z:0},{x:end.x,z:0},end]),
-      compactRoute([start,{x:0,z:start.z},{x:0,z:end.z},end]),
-      compactRoute([start,{x:start.x,z:18},{x:0,z:18},{x:0,z:end.z},end]),
-      compactRoute([start,{x:start.x,z:-18},{x:0,z:-18},{x:end.x,z:-18},end])
-    ];
-    return candidates.sort((a,b)=>routeLength(a)-routeLength(b))[0];
-  }
-  function sampleRoute(points,spacing=4){
-    const samples=[];for(let i=1;i<points.length;i++){const a=points[i-1],b=points[i],dx=b.x-a.x,dz=b.z-a.z,len=Math.hypot(dx,dz);const steps=Math.max(1,Math.floor(len/spacing));for(let s=1;s<=steps;s++){const t=s/steps;samples.push({x:a.x+dx*t,z:a.z+dz*t,angle:Math.atan2(dx,dz)});}}
-    return samples;
-  }
-  function createRouteGuide(){
-    if(world.routeGuide)return;
-    world.routeGuide=new THREE.Group();world.routeGuide.name='OTTHOS_ROUTE_GUIDE';worldGroup.add(world.routeGuide);
-    const routeMat=mat(0x53e8ff,{emissive:0x0a9fc0,emissiveIntensity:1.2,roughness:.25,transparent:true,opacity:.9});
-    for(let i=0;i<28;i++){const arrow=new THREE.Mesh(new THREE.ConeGeometry(.34,.75,4),routeMat.clone());arrow.rotation.x=Math.PI/2;arrow.visible=false;world.routeGuide.add(arrow);world.routeArrows.push(arrow);}
-  }
-  function updateRouteGuide(force=false){
-    createRouteGuide();if(!state.waypoint){world.routeArrows.forEach(a=>a.visible=false);return;}
-    const moved=Math.hypot(player.x-world.routeLastX,player.z-world.routeLastZ);if(!force&&performance.now()-world.routeLastBuild<550&&moved<2.2)return;
-    world.routeLastBuild=performance.now();world.routeLastX=player.x;world.routeLastZ=player.z;
-    const samples=sampleRoute(buildRoutePoints(player,state.waypoint),4.2).slice(0,world.routeArrows.length);
-    world.routeArrows.forEach((arrow,i)=>{const p=samples[i];arrow.visible=!!p;if(!p)return;arrow.position.set(p.x,groundHeightAt(p.x,p.z)+.24,p.z);arrow.rotation.z=-p.angle;arrow.material.opacity=.72+.24*Math.sin(performance.now()*.005+i*.7);arrow.scale.setScalar(1+Math.sin(performance.now()*.004+i*.5)*.08);});
-  }
-  function drawMiniMap(){
-    const canvas=els.miniMapCanvas;if(!canvas)return;const ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height;ctx.clearRect(0,0,w,h);
-    const tx=x=>(x+116)/232*w,tz=z=>(116-z)/232*h;const grad=ctx.createLinearGradient(0,0,0,h);grad.addColorStop(0,'#70c8ff');grad.addColorStop(.22,'#74d764');grad.addColorStop(1,'#3f9f4a');ctx.fillStyle=grad;ctx.fillRect(0,0,w,h);
-    ctx.fillStyle='#236c38';ctx.beginPath();ctx.arc(tx(-88),tz(-42),34,0,Math.PI*2);ctx.fill();ctx.fillStyle='#2ab8e7';ctx.fillRect(0,tz(58),w,11);
-    const roads=[[[-105,0],[105,0]],[[0,-105],[0,105]],[[-55,-105],[-55,0]],[[55,0],[55,92]]];
-    ctx.strokeStyle='#d2d5d9';ctx.lineWidth=13;ctx.lineCap='round';roads.forEach(seg=>{ctx.beginPath();ctx.moveTo(tx(seg[0][0]),tz(seg[0][1]));ctx.lineTo(tx(seg[1][0]),tz(seg[1][1]));ctx.stroke();});
-    ctx.strokeStyle='#4a5058';ctx.lineWidth=8;roads.forEach(seg=>{ctx.beginPath();ctx.moveTo(tx(seg[0][0]),tz(seg[0][1]));ctx.lineTo(tx(seg[1][0]),tz(seg[1][1]));ctx.stroke();});
-    if(state.waypoint){const route=buildRoutePoints(player,state.waypoint);ctx.strokeStyle='#5ff5ff';ctx.lineWidth=4;ctx.setLineDash([7,5]);ctx.beginPath();route.forEach((p,i)=>i?ctx.lineTo(tx(p.x),tz(p.z)):ctx.moveTo(tx(p.x),tz(p.z)));ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#ffe44f';ctx.beginPath();ctx.arc(tx(state.waypoint.x),tz(state.waypoint.z),6,0,Math.PI*2);ctx.fill();}
-    ctx.save();ctx.translate(tx(player.x),tz(player.z));ctx.rotate(-(player.facing||0));ctx.fillStyle='#1e79ff';ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,-8);ctx.lineTo(6,7);ctx.lineTo(-6,7);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();
-  }
-  function updateNavigation(dt=0,force=false){
-    updateNavigation.acc=(updateNavigation.acc||0)+dt;if(!force&&updateNavigation.acc<.12)return;updateNavigation.acc=0;drawMiniMap();updateRouteGuide(force);if(!els.miniNav)return;
-    if(state.waypoint){const dx=state.waypoint.x-player.x,dz=state.waypoint.z-player.z,dist=Math.round(Math.hypot(dx,dz));els.miniNavName.textContent=state.waypoint.name;els.miniNavDistance.textContent=dist<4?'Você chegou!':`${dist} m • siga as setas azuis`;const targetAngle=Math.atan2(dx,dz),relative=targetAngle-player.facing;els.miniNavArrow.style.transform=`rotate(${relative}rad)`;els.miniNav.classList.add('active');}
-    else{els.miniNavName.textContent='Mapa da Vila';els.miniNavDistance.textContent='Toque para escolher um destino';els.miniNavArrow.style.transform='rotate(0deg)';els.miniNav.classList.remove('active');}
-  }
+  function compactRoute(points){const out=[];for(const p of points){const last=out[out.length-1];if(!last||Math.hypot(last.x-p.x,last.z-p.z)>.45)out.push({x:p.x,z:p.z});}return out;}
+  function navBlocked(x,z){if(x<NAV_MIN||x>NAV_MAX||z<NAV_MIN||z>NAV_MAX)return true;for(const h of world.hazards||[]){if(Math.abs(x-h.x)<=h.w/2+.8&&Math.abs(z-h.z)<=h.d/2+.8)return true;}for(const c of world.colliders||[]){if(c.houseId&&currentHouse&&c.houseId===currentHouse.id)continue;if(Math.abs(x-c.x)<=c.w/2+.7&&Math.abs(z-c.z)<=c.d/2+.7)return true;}return false;}
+  function gridPoint(x,z){return{gx:Math.round(x/NAV_STEP),gz:Math.round(z/NAV_STEP)}}function gridWorld(gx,gz){return{x:gx*NAV_STEP,z:gz*NAV_STEP}}function navKey(gx,gz){return`${gx},${gz}`}
+  function nearestFreeGrid(pos){const b=gridPoint(pos.x,pos.z);for(let r=0;r<=7;r++)for(let dx=-r;dx<=r;dx++)for(let dz=-r;dz<=r;dz++){if(r&&Math.abs(dx)!==r&&Math.abs(dz)!==r)continue;const p=gridWorld(b.gx+dx,b.gz+dz);if(!navBlocked(p.x,p.z))return{gx:b.gx+dx,gz:b.gz+dz};}return b;}
+  function reconstructNav(came,current,start,end){const points=[end];let key=navKey(current.gx,current.gz);while(came.has(key)){const prev=came.get(key);points.push(gridWorld(prev.gx,prev.gz));key=navKey(prev.gx,prev.gz);}points.push(start);points.reverse();const simplified=[];for(const p of points){const a=simplified[simplified.length-2],b=simplified[simplified.length-1];if(a&&b){const d1={x:b.x-a.x,z:b.z-a.z},d2={x:p.x-b.x,z:p.z-b.z};if(Math.sign(d1.x)===Math.sign(d2.x)&&Math.sign(d1.z)===Math.sign(d2.z)&&(d1.x===0)===(d2.x===0)){simplified[simplified.length-1]=p;continue;}}simplified.push(p);}return compactRoute(simplified);}
+  function buildRoutePoints(from,to){const target={x:Number(to.navX??to.x),z:Number(to.navZ??to.z)};if(!world.colliders?.length)return compactRoute([{x:from.x,z:from.z},{x:from.x,z:target.z},target]);const s=nearestFreeGrid(from),g=nearestFreeGrid(target),cacheKey=`${s.gx},${s.gz}>${g.gx},${g.gz}:${world.colliders.length}`,cached=world.navCache.get(cacheKey);if(cached)return[{x:from.x,z:from.z},...cached.slice(1,-1),target];const open=[{...s,f:0}],came=new Map(),gs=new Map([[navKey(s.gx,s.gz),0]]),dirs=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];let found=null,guard=0;while(open.length&&guard++<6500){let best=0;for(let i=1;i<open.length;i++)if(open[i].f<open[best].f)best=i;const cur=open.splice(best,1)[0];if(cur.gx===g.gx&&cur.gz===g.gz){found=cur;break;}const base=gs.get(navKey(cur.gx,cur.gz))??Infinity;for(const[dx,dz]of dirs){const gx=cur.gx+dx,gz=cur.gz+dz,p=gridWorld(gx,gz);if(navBlocked(p.x,p.z))continue;if(dx&&dz){const a=gridWorld(cur.gx+dx,cur.gz),b=gridWorld(cur.gx,cur.gz+dz);if(navBlocked(a.x,a.z)||navBlocked(b.x,b.z))continue;}const nk=navKey(gx,gz),tent=base+(dx&&dz?1.414:1);if(tent>=(gs.get(nk)??Infinity))continue;came.set(nk,{gx:cur.gx,gz:cur.gz});gs.set(nk,tent);const h=Math.hypot(g.gx-gx,g.gz-gz),ex=open.find(n=>n.gx===gx&&n.gz===gz);if(ex)ex.f=tent+h;else open.push({gx,gz,f:tent+h});}}let route=found?reconstructNav(came,found,{x:from.x,z:from.z},target):compactRoute([{x:from.x,z:from.z},{x:0,z:from.z},{x:0,z:target.z},target]);world.navCache.set(cacheKey,route);if(world.navCache.size>40)world.navCache.delete(world.navCache.keys().next().value);return route;}
+  function sampleRoute(points,spacing=3.2){const samples=[];for(let i=1;i<points.length;i++){const a=points[i-1],b=points[i],dx=b.x-a.x,dz=b.z-a.z,len=Math.hypot(dx,dz),steps=Math.max(1,Math.floor(len/spacing));for(let s=1;s<=steps;s++){const t=s/steps;samples.push({x:a.x+dx*t,z:a.z+dz*t,angle:Math.atan2(dx,dz)});}}return samples;}
+  function createRouteGuide(){if(world.routeGuide)return;world.routeGuide=new THREE.Group();world.routeGuide.name='OTTHOS_ROUTE_GUIDE';worldGroup.add(world.routeGuide);const m=mat(0x48ecff,{emissive:0x087fa0,emissiveIntensity:1.35,roughness:.22,transparent:true,opacity:.92});for(let i=0;i<42;i++){const a=new THREE.Mesh(new THREE.ConeGeometry(.32,.76,4),m);a.rotation.x=Math.PI/2;a.visible=false;world.routeGuide.add(a);world.routeArrows.push(a);}}
+  function updateRouteGuide(force=false){createRouteGuide();if(!state.waypoint){world.routeArrows.forEach(a=>a.visible=false);world.routePath=[];return;}const moved=Math.hypot(player.x-world.routeLastX,player.z-world.routeLastZ);if(!force&&performance.now()-world.routeLastBuild<700&&moved<3.2)return;world.routeLastBuild=performance.now();world.routeLastX=player.x;world.routeLastZ=player.z;world.routePath=buildRoutePoints(player,state.waypoint);const samples=sampleRoute(world.routePath,3.3).filter((_,i)=>i>0).slice(0,world.routeArrows.length);world.routeArrows.forEach((a,i)=>{const p=samples[i];a.visible=!!p;if(!p)return;a.position.set(p.x,groundHeightAt(p.x,p.z)+.22,p.z);a.rotation.z=-p.angle;a.material.opacity=i<5?.98:.76;a.scale.setScalar(i<4?1.16:1);});}
+  function localMapPoint(x,z,scale,w,h){const dx=x-player.x,dz=z-player.z,c=Math.cos(player.facing||0),s=Math.sin(player.facing||0);return{x:w/2+(dx*c-dz*s)*scale,y:h*.72-(dx*s+dz*c)*scale};}
+  function drawMiniMap(){const c=els.miniMapCanvas;if(!c)return;const ctx=c.getContext('2d'),w=c.width,h=c.height,scale=1.28;ctx.clearRect(0,0,w,h);ctx.fillStyle='#6fcf59';ctx.fillRect(0,0,w,h);ctx.save();ctx.lineCap='round';for(const road of WORLD_MAP_ROADS){const hor=road.w>=road.d,a=hor?localMapPoint(road.x-road.w/2,road.z,scale,w,h):localMapPoint(road.x,road.z-road.d/2,scale,w,h),b=hor?localMapPoint(road.x+road.w/2,road.z,scale,w,h):localMapPoint(road.x,road.z+road.d/2,scale,w,h);ctx.strokeStyle='#d9dde2';ctx.lineWidth=(hor?road.d:road.w)*scale+4;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();ctx.strokeStyle='#454c56';ctx.lineWidth=(hor?road.d:road.w)*scale;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();}const route=world.routePath?.length?world.routePath:(state.waypoint?buildRoutePoints(player,state.waypoint):[]);if(route.length){ctx.strokeStyle='#53efff';ctx.lineWidth=5;ctx.setLineDash([9,5]);ctx.beginPath();route.forEach((p,i)=>{const q=localMapPoint(p.x,p.z,scale,w,h);i?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y)});ctx.stroke();ctx.setLineDash([]);}for(const loc of MAP_LOCATIONS){const q=localMapPoint(loc.navX??loc.x,loc.navZ??loc.z,scale,w,h);if(q.x<-12||q.x>w+12||q.y<-12||q.y>h+12)continue;ctx.fillStyle=state.waypoint?.id===loc.id?'#ffe347':'#fff';ctx.beginPath();ctx.arc(q.x,q.y,state.waypoint?.id===loc.id?5:3,0,Math.PI*2);ctx.fill();}ctx.restore();ctx.fillStyle='#1479e8';ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(w/2,h*.72-10);ctx.lineTo(w/2+7,h*.72+7);ctx.lineTo(w/2-7,h*.72+7);ctx.closePath();ctx.fill();ctx.stroke();}
+  function updateNavigation(dt=0,force=false){updateNavigation.acc=(updateNavigation.acc||0)+dt;if(!force&&updateNavigation.acc<.12)return;updateNavigation.acc=0;updateRouteGuide(force);drawMiniMap();if(!els.miniNav)return;if(state.waypoint){const tx=state.waypoint.navX??state.waypoint.x,tz=state.waypoint.navZ??state.waypoint.z,dx=tx-player.x,dz=tz-player.z,dist=Math.round(Math.hypot(dx,dz));els.miniNavName.textContent=state.waypoint.name;els.miniNavDistance.textContent=dist<4?'Você chegou!':`${dist} m • siga a trilha azul`;els.miniNavArrow.style.transform=`rotate(${Math.atan2(dx,dz)-player.facing}rad)`;els.miniNav.classList.add('active');if(dist<4&&!state.waypoint.arrived){state.waypoint.arrived=true;toast(`Você chegou: ${state.waypoint.name}`,'good',1800);beep(850,90);}}else{els.miniNavName.textContent='Radar da Vila';els.miniNavDistance.textContent='Toque para escolher um destino';els.miniNavArrow.style.transform='rotate(0deg)';els.miniNav.classList.remove('active');}}
   function routeSvgMarkup(points){const mapped=points.map(p=>worldToMap(p.x,p.z));return `<svg class="map-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polyline points="${mapped.map(p=>`${p.left},${p.top}`).join(' ')}"/></svg>`;}
 
   const MAP_LOCATIONS = [
-    { id:'home', name:'Casa do Otthos', icon:'🏠', x:0, z:18, group:'Casa' },
+    { id:'home', name:'Casa do Otthos', icon:'🏠', x:0, z:18, navX:0, navZ:23.3, group:'Casa' },
     { id:'village', name:'Praça da Vila', icon:'🏘', x:0, z:0, group:'Vila' },
-    { id:'blue', name:'Casa Azul', icon:'🏡', x:-25, z:17, group:'Casas' },
-    { id:'pink', name:'Casa Rosa', icon:'🏡', x:25, z:17, group:'Casas' },
-    { id:'shop', name:'Mercadinho', icon:'🛒', x:-22, z:-18, group:'Serviços' },
-    { id:'workshop', name:'Oficina', icon:'🛠', x:22, z:-18, group:'Serviços' },
-    { id:'forest', name:'Floresta', icon:'🌲', x:-88, z:-42, group:'Exploração' },
-    { id:'lake', name:'Lago e Ponte', icon:'🌊', x:-22, z:50, group:'Exploração' },
+    { id:'blue', name:'Casa Azul', icon:'🏡', x:-25, z:17, navX:-25, navZ:22.3, group:'Casas' },
+    { id:'pink', name:'Casa Rosa', icon:'🏡', x:25, z:17, navX:25, navZ:22.3, group:'Casas' },
+    { id:'shop', name:'Mercadinho', icon:'🛒', x:-22, z:-18, navX:-22, navZ:-12.7, group:'Serviços' },
+    { id:'workshop', name:'Oficina', icon:'🛠', x:22, z:-18, navX:22, navZ:-12.7, group:'Serviços' },
+    { id:'forest', name:'Floresta', icon:'🌲', x:-88, z:-42, navX:-82, navZ:-35, group:'Exploração' },
+    { id:'lake', name:'Lago e Ponte', icon:'🌊', x:-22, z:50, navX:-18, navZ:46, group:'Exploração' },
     { id:'crystal', name:'Vale dos Cristais', icon:'💎', x:70, z:-60, group:'Desafios' },
-    { id:'garage', name:'Garagem e Fazenda', icon:'🚗', x:52, z:48, group:'Trabalho' },
-    { id:'gym', name:'Ginásio', icon:'🏃', x:45, z:78, group:'Desafios' },
+    { id:'garage', name:'Garagem e Fazenda', icon:'🚗', x:52, z:48, navX:48, navZ:43, group:'Trabalho' },
+    { id:'gym', name:'Ginásio', icon:'🏃', x:45, z:78, navX:45, navZ:84, group:'Desafios' },
     { id:'castle', name:'Castelo', icon:'🏰', x:88, z:62, group:'Aventura' },
     { id:'mini', name:'Passagem Mini', icon:'◱', x:-38, z:42, group:'Habilidades' },
     { id:'crouch', name:'Túnel Baixo', icon:'▼', x:-53, z:24, group:'Habilidades' },
@@ -637,7 +626,7 @@
   function mapDistance(point){ return Math.round(Math.hypot(player.x-point.x,player.z-point.z)); }
   function setWaypoint(id){
     const point=MAP_LOCATIONS.find(p=>p.id===id);if(!point)return;
-    state.waypoint={id:point.id,name:point.name,x:point.x,z:point.z};
+    state.waypoint={id:point.id,name:point.name,x:point.x,z:point.z,navX:point.navX??point.x,navZ:point.navZ??point.z,arrived:false};
     updateWaypointMarker();updateNavigation(0,true);saveState(true);closeModal();toast(`Destino marcado: ${point.name} • siga as setas azuis`,'good',2600);
   }
   function clearWaypoint(){ state.waypoint=null; updateWaypointMarker(); updateNavigation(0,true); saveState(true); closeModal(); toast('Destino removido.','good'); }
@@ -650,7 +639,7 @@
     const route=wp?routeSvgMarkup(buildRoutePoints(player,state.waypoint)):'';
     const waypointText=state.waypoint?`<div class="active-waypoint"><div><small>DESTINO ATUAL</small><b>◎ ${state.waypoint.name}</b><span>${Math.round(Math.hypot(player.x-state.waypoint.x,player.z-state.waypoint.z))} m de distância</span></div><button class="btn danger" data-clear-waypoint>Remover</button></div>`:'<div class="active-waypoint empty"><b>Nenhum destino marcado</b><span>Toque em um ponto do mapa ou na lista abaixo.</span></div>';
     openModal('Mapa GPS da Vila do Sol', `<div class="map-layout"><div><div class="world-map">
-      <i class="map-road horizontal"></i><i class="map-road vertical"></i><i class="map-road diagonal"></i><i class="map-river"></i>
+      <i class="map-road horizontal"></i><i class="map-road vertical"></i><i class="map-road west"></i><i class="map-road east"></i><i class="map-river"></i>
       <div class="map-region forest">FLORESTA</div><div class="map-region city">VILA</div><div class="map-region adventure">AVENTURA</div>
       ${route}${markers}
       ${wp?`<span class="waypoint-dot" style="left:${wp.left}%;top:${wp.top}%">◎</span>`:''}
@@ -674,6 +663,7 @@
       <div class="settings-row"><div><b>Vibração</b><small>Feedback no celular</small></div><button class="toggle ${vibration ? 'on' : ''}" data-toggle="vibration"><i></i></button></div>
       <div class="settings-row"><div><b>Qualidade gráfica</b><small>${qualityLabel()}</small></div><button class="toggle ${quality !== 'low' ? 'on' : ''}" data-toggle="quality"><i></i></button></div><div class="settings-row"><div><b>Desempenho atual</b><small>${Math.round(perf.fps)} FPS • render ${qualityTier()}</small></div><span class="db-status">AUTO</span></div>
       <div class="settings-row"><div><b>Salvamento automático</b><small>IndexedDB no celular + cópia local. Último: ${savedAt}</small></div><span class="db-status">✓ Ativo</span></div>
+      <div class="settings-row"><div><b>Multiplayer Firebase</b><small id="mpSettingsStatus">${multiplayerStatusText()}</small></div><button class="btn compact" data-multiplayer-config>Configurar</button></div>
     </div><div class="modal-actions">
       <button class="btn primary" data-save-now>Salvar agora</button>
       <button class="btn" data-export>Exportar backup</button>
@@ -683,6 +673,7 @@
       ${inGame ? '<button class="btn" data-home>Voltar para casa</button><button class="btn" data-exit>Sair para o menu</button>' : ''}
       <button class="btn danger" data-reset>Apagar progresso</button>
     </div>`, root => {
+      $('[data-multiplayer-config]',root)?.addEventListener('click',openMultiplayerConfig);
       $$('[data-toggle]', root).forEach(btn => btn.onclick = () => {
         const key = btn.dataset.toggle;
         if (key === 'quality') state.settings.quality = requestedQuality() === 'auto' ? 'high' : requestedQuality() === 'high' ? 'low' : 'auto';
@@ -716,7 +707,7 @@
   els.avatarBtn.onclick = openAvatarStudio;
   els.moldsBtn.onclick = openMolds;
   els.howBtn.onclick = openHow;
-  els.settingsBtn.onclick = () => openSettings(false);
+  els.settingsBtn.onclick = () => openSettings(false);els.multiplayerBadge.onclick=openMultiplayerConfig;
   els.avatarGameBtn.onclick = openLifePanel;
   els.inventoryBtn.onclick = openInventory;
   els.mapBtn.onclick = openMap;
@@ -772,7 +763,7 @@
   let scene, camera, renderer, clock, worldGroup, playerGroup, playerModel, playerMixer, avatarLayer, contactShadow, vehicleVisual, sunLight;
   let running = false, paused = false, pauseMenuOpen = false, raf = 0, cameraYaw = 0, cameraPitch = .38, cameraZoom = Number(state.settings?.cameraZoom || 0), cameraMode = 'openworld';
   let currentHouse = null, buildMode = null, currentContext = null, lastContextId = '', lastActionSource = 'none', actionLockedUntil = 0, activeRace = null, lastContextScanAt = 0, lastContextScanX = Infinity, lastContextScanZ = Infinity;
-  const player = { x: 0, y: 0, z: 8, vx: 0, vy: 0, vz: 0, facing: Math.PI, grounded: true, vehicle: false, sitUntil: 0, lastGrounded: 0, jumpBuffer: 0, attackUntil: 0, damageUntil: 0, scaleMode: state.abilities?.scaleMode || 'normal', crouched: !!state.abilities?.crouched, spinUntil: 0, preVehicleAbilities: null, hornUntil: 0, car: { heading: Math.PI, speed: 0, steerVisual: 0, drift: 0, _prevSpeed: 0 } };
+  const player = { x: 0, y: 0, z: 8, vx: 0, vy: 0, vz: 0, facing: Math.PI, grounded: true, vehicle: false, sitUntil: 0, lastGrounded: 0, jumpBuffer: 0, attackUntil: 0, damageUntil: 0, scaleMode: state.abilities?.scaleMode || 'normal', crouched: !!state.abilities?.crouched, spinUntil: 0, preVehicleAbilities: null, hornUntil: 0, emoteUntil:0, emoteType:'', car: { heading: Math.PI, speed: 0, steerVisual: 0, drift: 0, _prevSpeed: 0 } };
   const input = {
     x:0,z:0,targetX:0,targetZ:0,
     joyId:null,joyX:0,joyZ:0,
@@ -783,48 +774,48 @@
   };
   const world = {
     houses: [], npcs: [], interactables: [], enemies: [], fireballs: [], resources: [], crystals: [], platforms: [], colliders: [], hazards: [], builds: [], ghosts: new Map(),
-    bridgeParts: [], secretChest: null, vehicle: null, deliveryPoint: null, raceCoins: [], waypointMarker: null, gym: null, routeGuide: null, routeArrows: [], routeLastBuild: 0, routeLastX: Infinity, routeLastZ: Infinity, landmarks: [], outlines: [], glows: []
+    bridgeParts: [], secretChest: null, vehicle: null, deliveryPoint: null, raceCoins: [], waypointMarker: null, gym: null, routeGuide: null, routeArrows: [], routeLastBuild: 0, routeLastX: Infinity, routeLastZ: Infinity, routePath: [], navCache: new Map(), landmarks: [], outlines: [], glows: []
   };
   const textures = {};
   const materials = {};
 
 
+  function detectStableAutoTier(){
+    const memory=Number(navigator.deviceMemory||4),cores=Number(navigator.hardwareConcurrency||4),mobile=matchMedia('(pointer:coarse)').matches;
+    if(memory<=3||cores<=4)return 'low';
+    if(!mobile&&memory>=8&&cores>=8)return 'high';
+    return 'balanced';
+  }
   const perf = {
-    tier:'balanced', fps:60, frameAcc:0, frameCount:0, sampleMs:0, lastNow:performance.now(),
-    lowSamples:0, highSamples:0, aiAcc:0, cloudAcc:0, lodAcc:0, uiAcc:0, mobile:matchMedia('(pointer:coarse)').matches
+    tier:state.settings?.autoTier||detectStableAutoTier(), fps:60, frameAcc:0, frameCount:0, sampleMs:0, lastNow:performance.now(),
+    lowSamples:0, highSamples:0, aiAcc:0, cloudAcc:0, lodAcc:0, uiAcc:0, mobile:matchMedia('(pointer:coarse)').matches,
+    appliedTier:'',appliedDpr:0,recommendation:'',lastRenderW:0,lastRenderH:0,resizeTimer:0
   };
   function requestedQuality(){return ['high','low','auto'].includes(state.settings.quality)?state.settings.quality:'auto';}
-  function qualityLabel(){return requestedQuality()==='high'?'Alta':requestedQuality()==='low'?'Econômica':`Automática • ${perf.tier==='high'?'Alta':perf.tier==='low'?'Econômica':'Equilibrada'}`;}
-  function qualityTier(){const requested=requestedQuality();return requested==='high'?'high':requested==='low'?'low':perf.tier;}
+  function qualityLabel(){return requestedQuality()==='high'?'Alta':requestedQuality()==='low'?'Econômica':`Automática estável • ${qualityTier()==='high'?'Alta':qualityTier()==='low'?'Econômica':'Equilibrada'}`;}
+  function qualityTier(){const requested=requestedQuality();return requested==='high'?'high':requested==='low'?'low':(state.settings.autoTier||perf.tier||'balanced');}
   function targetDpr(){
     const tier=qualityTier(), mobile=perf.mobile;
     if(tier==='high') return mobile?1.22:1.45;
     if(tier==='low') return mobile?.78:1.0;
     return mobile?.96:1.18;
   }
-  function applyAdaptiveRenderSettings(){
+  function applyAdaptiveRenderSettings(force=false){
     if(!renderer)return;
     const tier=qualityTier(),dpr=Math.min(devicePixelRatio||1,targetDpr());
-    renderer.setPixelRatio(dpr);
+    if(force||!running||Math.abs(perf.appliedDpr-dpr)>.08){renderer.setPixelRatio(dpr);perf.appliedDpr=dpr;}
     renderer.shadowMap.enabled=tier!=='low';
     renderer.toneMappingExposure=tier==='high'?1.08:tier==='balanced'?1.04:1.0;
-    if(sunLight){
-      const size=tier==='high'?(perf.mobile?1024:1536):tier==='balanced'?768:512;
-      if(sunLight.shadow.mapSize.x!==size){sunLight.shadow.mapSize.set(size,size);sunLight.shadow.map?.dispose?.();sunLight.shadow.map=null;}
-      sunLight.castShadow=tier!=='low';
-    }
-    document.body.dataset.renderTier=tier;
-    resize();
+    if(sunLight){if(!perf.appliedTier){const size=tier==='high'?(perf.mobile?1024:1536):tier==='balanced'?768:512;sunLight.shadow.mapSize.set(size,size);}sunLight.castShadow=tier!=='low';}
+    perf.appliedTier=tier;document.body.dataset.renderTier=tier;scheduleStableResize(80,true);
   }
   function samplePerformance(dt){
     perf.frameAcc+=dt;perf.frameCount++;perf.sampleMs+=dt;
-    if(perf.sampleMs<2.25)return;
-    perf.fps=perf.frameCount/Math.max(.001,perf.frameAcc);
-    perf.frameAcc=0;perf.frameCount=0;perf.sampleMs=0;
+    if(perf.sampleMs<3)return;
+    perf.fps=perf.frameCount/Math.max(.001,perf.frameAcc);perf.frameAcc=0;perf.frameCount=0;perf.sampleMs=0;
     if(requestedQuality()!=='auto')return;
-    if(perf.fps<32){perf.lowSamples++;perf.highSamples=0;}else if(perf.fps>52){perf.highSamples++;perf.lowSamples=0;}else{perf.lowSamples=Math.max(0,perf.lowSamples-1);perf.highSamples=Math.max(0,perf.highSamples-1);}
-    if(perf.lowSamples>=2&&perf.tier!=='low'){perf.tier=perf.tier==='high'?'balanced':'low';perf.lowSamples=0;applyAdaptiveRenderSettings();toast('Desempenho ajustado automaticamente.','good',1200);}
-    else if(perf.highSamples>=4&&perf.tier!=='high'){perf.tier=perf.tier==='low'?'balanced':'high';perf.highSamples=0;applyAdaptiveRenderSettings();}
+    const recommendation=perf.fps<30?'low':perf.fps>54?'high':'balanced';perf.recommendation=recommendation;
+    if(recommendation!==state.settings.autoTier){state.settings.autoTier=recommendation;saveState();}
   }
   function updateVisualLOD(dt){
     perf.lodAcc+=dt;if(perf.lodAcc<.45)return;perf.lodAcc=0;
@@ -1475,7 +1466,7 @@
 
   function collectResource(id){
     const resource=world.resources.find(r=>r.id===id);if(!resource||resource.collected)return;
-    resource.collected=true;resource.mesh.visible=false;state.inventory[resource.type]=(state.inventory[resource.type]||0)+1;
+    resource.collected=true;resource.mesh.visible=false;state.inventory[resource.type]=(state.inventory[resource.type]||0)+1;state.stats.collected++;trackDaily('collect',1);
     addXP(8);toast(resource.type==='wood'?'Madeira coletada!':'Pedra coletada!','good');beep(620);vibrate(25);evaluateMissions();checkActiveJob();saveState();
   }
   function openChest(chest){
@@ -1540,7 +1531,7 @@
       });
     }else if(type==='stove'){
       openModal('Cozinha',`<p>Cozinhar custa 1 comida e recupera muita fome.</p><div class="modal-actions"><button class="btn primary" data-cook>Cozinhar refeição</button><button class="btn" data-close>Cancelar</button></div>`,root=>{
-        $('[data-cook]',root).onclick=()=>{if(state.inventory.food<=0){toast('Você precisa comprar ou colher comida.','warn');return;}state.inventory.food--;state.needs.hunger=100;state.needs.fun=clamp(state.needs.fun+8,0,100);setFlag('ateMeal');addXP(20);saveState();closeModal();toast('Refeição pronta!','good');};$('[data-close]',root).onclick=closeModal;
+        $('[data-cook]',root).onclick=()=>{if(state.inventory.food<=0){toast('Você precisa comprar ou colher comida.','warn');return;}state.inventory.food--;state.stats.cooked++;trackDaily('cook',1);state.needs.hunger=100;state.needs.fun=clamp(state.needs.fun+8,0,100);setFlag('ateMeal');addXP(20);saveState();closeModal();toast('Refeição pronta!','good');};$('[data-close]',root).onclick=closeModal;
       });
     }else if(type==='sink'){
       if(state.inventory.water>0)state.inventory.water--;state.needs.hunger=clamp(state.needs.hunger+5,0,100);state.needs.hygiene=clamp(state.needs.hygiene+8,0,100);toast('Bebeu água.','good');saveState();
@@ -1585,10 +1576,14 @@
       <button class="choice" data-social="house"><b>🏠 Disputar casa</b><span>Ganhe uma propriedade</span></button>
       <button class="choice" data-social="job"><b>💼 Perguntar trabalho</b><span>Ganhar moedas</span></button>
       <button class="choice" data-social="invite"><b>🏡 Convidar para casa</b><span>Precisa de amizade 10</span></button>
+      <button class="choice" data-social="wave"><b>👋 Acenar</b><span>Animação social rápida</span></button>
+      <button class="choice" data-social="dance"><b>🕺 Dançar</b><span>Aumenta diversão</span></button>
+      <button class="choice" data-social="selfie"><b>📸 Tirar selfie</b><span>Guarde uma lembrança</span></button>
+      <button class="choice" data-social="follow"><b>👣 Seguir junto</b><span>O vizinho acompanha o Otthos</span></button>
     </div>`,root=>{
       $$('[data-social]',root).forEach(btn=>btn.onclick=()=>{
         const action=btn.dataset.social;
-        if(action==='talk'){changeFriendship(npc,2,`${npc.name} gostou da conversa.`);closeModal();}
+        if(action==='talk'){state.stats.talks++;trackDaily('talk',1);changeFriendship(npc,2,`${npc.name} gostou da conversa.`);closeModal();}
         else if(action==='joke'){state.social.jokes++;state.needs.fun=clamp(state.needs.fun+12,0,100);changeFriendship(npc,3,`${npc.name} riu da piada!`);closeModal();}
         else if(action==='gift'){
           if(state.inventory.food>0){state.inventory.food--;state.social.gifts++;changeFriendship(npc,7,'Presente entregue!');closeModal();}
@@ -1603,7 +1598,10 @@
         else if(action==='invite'){
           if((state.friendship[npc.id]||0)<10){toast('A amizade precisa chegar a 10.','warn');return;}
           if(!state.social.invited.includes(npc.id))state.social.invited.push(npc.id);changeFriendship(npc,2,`${npc.name} aceitou visitar sua casa!`);closeModal();
-        }
+        }else if(action==='wave'){triggerEmote('wave',npc);changeFriendship(npc,1);closeModal();}
+        else if(action==='dance'){triggerEmote('dance',npc);state.needs.fun=clamp(state.needs.fun+10,0,100);changeFriendship(npc,2);closeModal();}
+        else if(action==='selfie'){triggerEmote('selfie',npc);state.flags.selfies=(state.flags.selfies||0)+1;changeFriendship(npc,2);closeModal();}
+        else if(action==='follow'){npc.following=!npc.following;toast(npc.following?`${npc.name} vai acompanhar você.`:`${npc.name} parou de seguir.`,'good');closeModal();}
       });
     });
   }
@@ -1647,7 +1645,7 @@
     toast(`Desafio contra ${activeRace.npcName}!`,'good',2200);saveState(true);
   }
   function finishRace(won){
-    if(!activeRace)return;const race=activeRace;clearRaceObjects();activeRace=null;els.raceBadge.hidden=true;
+    if(!activeRace)return;const race=activeRace;state.stats.races++;trackDaily('race',1);clearRaceObjects();activeRace=null;els.raceBadge.hidden=true;
     if(won){
       state.races.wins++;if(race.type==='coins')state.races.coinWins++;
       addCoins(race.type==='coins'?90:120);addReputation(18);addXP(70);setFlag(race.type==='coins'?'wonCoinRace':'wonRace');
@@ -1859,11 +1857,13 @@
     initMaterials();
     scene.add(new THREE.HemisphereLight(0xe8f8ff,0x314923,1.02));sunLight=new THREE.DirectionalLight(0xffe5a9,1.32);sunLight.position.set(32,46,24);sunLight.castShadow=qualityTier()!=='low';sunLight.shadow.mapSize.set(qualityTier()==='high'?1024:768,qualityTier()==='high'?1024:768);sunLight.shadow.camera.left=-80;sunLight.shadow.camera.right=80;sunLight.shadow.camera.top=80;sunLight.shadow.camera.bottom=-80;sunLight.shadow.camera.far=160;sunLight.shadow.bias=-.0015;scene.add(sunLight);
     const fill=new THREE.DirectionalLight(0xbfe0ff,.28);fill.position.set(-28,20,-18);scene.add(fill); // preenchimento barato (sem sombra) para suavizar o lado escuro dos objetos
-    createPlayerModel();playerModel.position.y=playerModel.userData.baseY;applyAvatarCustomization();buildWorld();restorePosition();initLocalMultiplayer();applyQuality();applyAdaptiveRenderSettings();resize();return true;
+    createPlayerModel();playerModel.position.y=playerModel.userData.baseY;applyAvatarCustomization();buildWorld();restorePosition();initLocalMultiplayer();applyQuality();applyAdaptiveRenderSettings(true);resize(true);return true;
   }
   function applyQuality(){ if(!renderer)return;applyAdaptiveRenderSettings(); }
-  function resize(){
-    if(!renderer||!camera)return;const vv=window.visualViewport,rect=els.stage.getBoundingClientRect();const w=Math.max(280,Math.round(rect.width||vv?.width||innerWidth)),h=Math.max(220,Math.round(rect.height||vv?.height||innerHeight));camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false);
+  function resize(force=false){
+    if(!renderer||!camera)return;const vv=window.visualViewport,rect=els.stage.getBoundingClientRect();const w=Math.max(280,Math.round(rect.width||vv?.width||innerWidth)),h=Math.max(220,Math.round(rect.height||vv?.height||innerHeight));
+    const sizeChanged=Math.abs(w-perf.lastRenderW)>2||Math.abs(h-perf.lastRenderH)>2;const chromeJitter=running&&Math.abs(w-perf.lastRenderW)<=2&&Math.abs(h-perf.lastRenderH)<58;
+    if(sizeChanged&&!chromeJitter){camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false);perf.lastRenderW=w;perf.lastRenderH=h;}
     const landscape=w>h,short=landscape&&h<560,narrow=!landscape&&w<390;
     const action=landscape?clamp(h*(short?.118:.125),44,62):clamp(w*(narrow?.165:.178),54,76);
     const joy=landscape?clamp(h*(short?.225:.245),88,122):clamp(w*(narrow?.285:.305),102,142);
@@ -1873,7 +1873,8 @@
     const root=document.documentElement;root.style.setProperty('--action',`${Math.round(action)}px`);root.style.setProperty('--joy',`${Math.round(joy)}px`);root.style.setProperty('--gap',`${landscape?6:8}px`);root.style.setProperty('--skill',`${Math.round(skill)}px`);root.style.setProperty('--skill-gap',`${Math.round(skillGap)}px`);root.style.setProperty('--ui-scale',uiScale.toFixed(3));root.style.setProperty('--vvh',`${h}px`);root.style.setProperty('--vvw',`${w}px`);
     document.body.classList.toggle('ui-landscape',landscape);document.body.classList.toggle('ui-short',short);document.body.classList.toggle('ui-narrow',narrow);document.body.classList.toggle('ui-compact',short||narrow||w<700);
   }
-  window.addEventListener('resize',()=>requestAnimationFrame(resize),{passive:true});window.addEventListener('orientationchange',()=>setTimeout(resize,120),{passive:true});if(window.visualViewport)window.visualViewport.addEventListener('resize',()=>requestAnimationFrame(resize),{passive:true});
+  function scheduleStableResize(delay=160,force=false){clearTimeout(perf.resizeTimer);perf.resizeTimer=setTimeout(()=>resize(force),delay);}
+  window.addEventListener('resize',()=>scheduleStableResize(180),{passive:true});window.addEventListener('orientationchange',()=>scheduleStableResize(320,true),{passive:true});if(window.visualViewport)window.visualViewport.addEventListener('resize',()=>scheduleStableResize(220),{passive:true});
 
   function restorePosition(){
     const pos=state.position||{x:0,y:0,z:8,yaw:0};player.x=Number.isFinite(pos.x)?pos.x:0;player.z=Number.isFinite(pos.z)?pos.z:8;player.y=0;cameraYaw=Number.isFinite(pos.yaw)?pos.yaw:0;
@@ -1951,7 +1952,7 @@
   }
   function canJump(){return !player.vehicle&&(player.grounded||performance.now()-player.lastGrounded<125);}
   function requestJump(){if(!els.modal.hidden||paused||player.vehicle)return;player.jumpBuffer=performance.now()+150;if(canJump())doJump();}
-  function doJump(){if(!canJump())return;player.vy=10.2;player.grounded=false;player.jumpBuffer=0;beep(540);vibrate(18);}
+  function doJump(){if(!canJump())return;state.stats.jumps++;trackDaily('jump',1);player.vy=10.2;player.grounded=false;player.jumpBuffer=0;beep(540);vibrate(18);}
   function updatePlayer(dt){
     // Entrada é atualizada em todos os estados. O veículo tem prioridade absoluta:
     // uma animação anterior de sofá/cama/TV nunca pode bloquear aceleração ou direção.
@@ -1973,6 +1974,7 @@
       player.vx=lerp(player.vx,targetVx,Math.min(1,dt*accel));player.vz=lerp(player.vz,targetVz,Math.min(1,dt*accel));if(mag<.03){player.vx*=Math.pow(.0008,dt);player.vz*=Math.pow(.0008,dt);}
     }
     const prevX=player.x,prevZ=player.z;player.x+=player.vx*dt;player.z+=player.vz*dt;player.x=clamp(player.x,-116,116);player.z=clamp(player.z,-116,116);resolveCollisions(prevX,prevZ);
+    const movedNow=Math.hypot(player.x-prevX,player.z-prevZ);if(movedNow>.001){if(player.vehicle){state.stats.driven+=movedNow;trackDaily('drive',movedNow);}else{state.stats.walked+=movedNow;trackDaily('walk',movedNow);}}
     const ground=groundHeightAt(player.x,player.z);if(!player.grounded)player.vy-=31*dt;player.y+=player.vy*dt;
     if(player.y<=ground&&player.vy<=0){const landed=!player.grounded&&player.vy<-4;player.y=ground;player.vy=0;player.grounded=true;player.lastGrounded=performance.now();if(landed){vibrate(20);beep(180,35,'sine');}}
     else if(player.y>ground+.03)player.grounded=false;
@@ -2011,6 +2013,7 @@
     const parts=playerModel.userData.parts;const speed=Math.hypot(player.vx,player.vz);const walking=speed>.25&&player.grounded&&!player.vehicle;const swing=walking?Math.sin(animTime*(8+speed*.45))*.62:0;
     if(parts){
       parts.leftArm.rotation.x=lerp(parts.leftArm.rotation.x,player.grounded?swing:-.65,.22);parts.rightArm.rotation.x=lerp(parts.rightArm.rotation.x,player.grounded?-swing:-.65,.22);parts.leftLeg.rotation.x=lerp(parts.leftLeg.rotation.x,player.grounded?-swing*.8:.38,.22);parts.rightLeg.rotation.x=lerp(parts.rightLeg.rotation.x,player.grounded?swing*.8:.38,.22);
+      if(performance.now()<player.emoteUntil){if(player.emoteType==='wave'){parts.rightArm.rotation.x=-2.25;parts.rightArm.rotation.z=Math.sin(animTime*10)*.55;}else if(player.emoteType==='dance'){parts.leftArm.rotation.z=1.1;parts.rightArm.rotation.z=-1.1;playerModel.rotation.y=Math.sin(animTime*4)*.35;}else if(player.emoteType==='selfie'){parts.leftArm.rotation.x=-1.7;parts.rightArm.rotation.x=-.9;playerModel.rotation.z=.08;}else if(player.emoteType==='highfive'){parts.rightArm.rotation.x=-2.6;}}else{parts.leftArm.rotation.z=lerp(parts.leftArm.rotation.z,0,.2);parts.rightArm.rotation.z=lerp(parts.rightArm.rotation.z,0,.2);playerModel.rotation.y=lerp(playerModel.rotation.y,0,.18);}
       const breathe=Math.sin(animTime*2.2)*.02;parts.body.scale.y=(player.crouched?.78:1)+breathe;
       const visualBase=playerModel.userData.baseY??.24;
       const walkBob=walking?Math.abs(Math.sin(animTime*10))*.035:0;
@@ -2032,14 +2035,17 @@
     for(const h of world.hazards){if(Math.abs(player.x-h.x)<=h.w/2&&Math.abs(player.z-h.z)<=h.d/2&&player.y<.6){if(h.type==='water'){player.vx*=.9;player.vz*=.9;}else if(performance.now()>player.damageUntil){player.damageUntil=performance.now()+1200;state.needs.energy=clamp(state.needs.energy-18,0,100);toast('Cuidado com a lava!','bad');returnHome();}}}
   }
   function collectNearbyCrystals(){
-    for(const c of world.crystals){if(c.got)continue;c.mesh.rotation.y+=.035;c.mesh.position.y=c.y+Math.sin(animTime*2+c.x)*.12;if(Math.hypot(player.x-c.x,player.z-c.z)<1.25&&Math.abs(player.y-c.mesh.position.y)<2){c.got=true;c.mesh.visible=false;state.inventory.crystals++;addXP(15);addCoins(5);toast('Cristal coletado!','good');beep(880);vibrate(20);evaluateMissions();checkActiveJob();saveState();}}
+    for(const c of world.crystals){if(c.got)continue;c.mesh.rotation.y+=.035;c.mesh.position.y=c.y+Math.sin(animTime*2+c.x)*.12;if(Math.hypot(player.x-c.x,player.z-c.z)<1.25&&Math.abs(player.y-c.mesh.position.y)<2){c.got=true;c.mesh.visible=false;state.inventory.crystals++;state.stats.collected++;trackDaily('collect',1);addXP(15);addCoins(5);toast('Cristal coletado!','good');beep(880);vibrate(20);evaluateMissions();checkActiveJob();saveState();}}
   }
 
   function updateNPCs(dt){
     for(const npc of world.npcs){
       const near=distance2D(player,npc.group.position)<3.2;
       const oldX=npc.group.position.x,oldZ=npc.group.position.z;
-      if(near){
+      if(npc.following){
+        const backX=player.x-Math.sin(player.facing)*2.2,backZ=player.z-Math.cos(player.facing)*2.2;
+        npc.group.position.x=lerp(npc.group.position.x,backX,Math.min(1,dt*2.4));npc.group.position.z=lerp(npc.group.position.z,backZ,Math.min(1,dt*2.4));npc.group.rotation.y=lerpAngle(npc.group.rotation.y,player.facing,Math.min(1,dt*5));
+      }else if(near){
         const look=Math.atan2(player.x-npc.group.position.x,player.z-npc.group.position.z);
         npc.group.rotation.y=lerpAngle(npc.group.rotation.y,look,Math.min(1,dt*5.5));
       }else{
@@ -2050,10 +2056,10 @@
       }
       const moved=Math.hypot(npc.group.position.x-oldX,npc.group.position.z-oldZ);
       const walk=moved>.001?Math.sin(animTime*8+npc.phase)*.52:0;
-      const gesture=near?Math.sin(animTime*2.4+npc.phase)*.12:0;
+      const gesture=near?Math.sin(animTime*2.4+npc.phase)*.12:0,emote=performance.now()<npc.emoteUntil?npc.emoteType:'';
       if(npc.limbs){
-        npc.limbs.leftArm.rotation.x=lerp(npc.limbs.leftArm.rotation.x,walk+gesture,.18);
-        npc.limbs.rightArm.rotation.x=lerp(npc.limbs.rightArm.rotation.x,-walk-gesture,.18);
+        npc.limbs.leftArm.rotation.x=lerp(npc.limbs.leftArm.rotation.x,emote==='dance'?-1.4:walk+gesture,.18);
+        npc.limbs.rightArm.rotation.x=lerp(npc.limbs.rightArm.rotation.x,emote==='wave'?-2.2:emote==='dance'?-1.4:-walk-gesture,.18);
         npc.limbs.leftLeg.rotation.x=lerp(npc.limbs.leftLeg.rotation.x,-walk*.78,.18);
         npc.limbs.rightLeg.rotation.x=lerp(npc.limbs.rightLeg.rotation.x,walk*.78,.18);
       }
@@ -2124,7 +2130,7 @@
   }
   function doAction(){
     if(paused||!els.modal.hidden||performance.now()<actionLockedUntil)return;
-    actionLockedUntil=performance.now()+90;
+    actionLockedUntil=performance.now()+90;state.stats.actions++;
     if(state.ui.quickOpen){state.ui.quickOpen=false;els.quickBar.hidden=true;els.quickToggleBtn.classList.remove('active');}
     let target=currentContext;
     if(target&&target.radius!==999){const pos=worldPos(target);if(!isInteractionAvailable(target)||Math.hypot(player.x-pos.x,player.z-pos.z)>(target.radius||2)+.2)target=null;}
@@ -2139,14 +2145,25 @@
   }
 
   let localChannel=null,lastPublish=0;
+
+  let multiplayerState={mode:'solo',connected:false,count:0,room:state.multiplayer?.room||'vila-do-sol',error:''};
+  function multiplayerStatusText(){if(multiplayerState.connected)return`Online • ${multiplayerState.count||1} jogador${multiplayerState.count===1?'':'es'} • sala ${multiplayerState.room}`;if(window.OTTHOS_RTDB?.configured)return multiplayerState.error?`Offline: ${multiplayerState.error}`:'Conectando ao Realtime Database...';return'Solo • configure o Firebase para jogar online';}
+  function updateMultiplayerBadge(){if(!els.multiplayerBadge)return;els.multiplayerBadge.classList.toggle('online',multiplayerState.connected);els.multiplayerBadge.classList.toggle('offline',!multiplayerState.connected);const label=$('span',els.multiplayerBadge);if(label)label.textContent=multiplayerState.connected?`${multiplayerState.count||1} online`:'Solo';}
+  function openMultiplayerConfig(){const cfg=window.OTTHOS_RTDB?.getConfig?.()||window.OTTHOS_FIREBASE_CONFIG||{};openModal('Multiplayer pelo Firebase',`<p>Cole o objeto <b>firebaseConfig</b> do seu projeto. O login dos jogadores será anônimo.</p><label class="field"><span>Sala</span><input id="mpRoomInput" value="${cfg.room||state.multiplayer.room||'vila-do-sol'}"></label><label class="field"><span>firebaseConfig em JSON</span><textarea id="mpConfigInput" rows="9" placeholder='{"apiKey":"...","authDomain":"...","databaseURL":"...","projectId":"...","appId":"..."}'>${cfg.apiKey?JSON.stringify({...cfg,enabled:undefined,room:undefined},null,2):''}</textarea></label><div class="modal-actions"><button class="btn primary" data-mp-save>Salvar e conectar</button><button class="btn danger" data-mp-disable>Usar modo solo</button></div><p class="settings-note">Ative Authentication Anônimo e publique as regras do arquivo firebase-database.rules.json.</p>`,root=>{$('[data-mp-save]',root).onclick=()=>{try{const parsed=JSON.parse($('#mpConfigInput',root).value.trim());parsed.enabled=true;parsed.room=$('#mpRoomInput',root).value.trim()||'vila-do-sol';window.OTTHOS_RTDB?.configure?.(parsed);state.multiplayer={enabled:true,room:parsed.room,displayName:state.profile.name||'Otthos'};saveState(true);toast('Configuração salva. Reconectando...','good');setTimeout(()=>location.reload(),500);}catch{toast('JSON do Firebase inválido.','bad',2400);}};$('[data-mp-disable]',root).onclick=()=>{window.OTTHOS_RTDB?.disable?.();state.multiplayer.enabled=false;saveState(true);closeModal();multiplayerState={mode:'solo',connected:false,count:0,room:state.multiplayer.room,error:''};updateMultiplayerBadge();toast('Modo solo ativado.','good');};});}
+  function remotePlayerEvent(data){if(!data||data.uid===window.OTTHOS_RTDB?.uid)return;let ghost=world.ghosts.get(data.uid);if(!ghost){ghost=createGhost(data.color||0x5ad8ff,data.name||'Jogador');world.ghosts.set(data.uid,ghost);}ghost.userData.target=data;multiplayerState.count=Math.max(1,Number(data.count||multiplayerState.count||1));updateMultiplayerBadge();}
+  window.addEventListener('otthos:mp-status',e=>{multiplayerState={...multiplayerState,...e.detail};updateMultiplayerBadge();});
+  window.addEventListener('otthos:mp-player',e=>remotePlayerEvent(e.detail));
+  window.addEventListener('otthos:mp-leave',e=>{const id=e.detail?.uid,ghost=world.ghosts.get(id);if(ghost){scene?.remove(ghost);world.ghosts.delete(id);}multiplayerState.count=Math.max(1,world.ghosts.size+1);updateMultiplayerBadge();});
+  window.addEventListener('otthos:rtdb-ready',()=>{if(running)window.OTTHOS_RTDB?.connect?.({name:state.profile.name||'Otthos',room:state.multiplayer.room||'vila-do-sol'});});
+
   function initLocalMultiplayer(){
-    if(typeof BroadcastChannel!=='function')return;localChannel=new BroadcastChannel('otthos-life-world-v615');localChannel.onmessage=e=>{const data=e.data;if(!data||data.id===state.profile.playerId)return;if(data.type==='leave'){const ghost=world.ghosts.get(data.id);if(ghost){scene.remove(ghost);world.ghosts.delete(data.id);}return;}let ghost=world.ghosts.get(data.id);if(!ghost){ghost=createGhost(data.color||0x5ad8ff);world.ghosts.set(data.id,ghost);}ghost.userData.target=data;};window.addEventListener('beforeunload',()=>localChannel.postMessage({type:'leave',id:state.profile.playerId}));
-    window.OTTHOS_MULTIPLAYER={version:3,playerId:state.profile.playerId,mode:'local-preview',connect:()=>true,publish:payload=>localChannel?.postMessage(payload),adapter:'BroadcastChannel',futureAdapters:['Firebase','WebSocket']};
+    if(typeof BroadcastChannel==='function'){localChannel=new BroadcastChannel('otthos-life-world-v616');localChannel.onmessage=e=>{const data=e.data;if(!data||data.id===state.profile.playerId)return;if(data.type==='leave'){const ghost=world.ghosts.get(data.id);if(ghost){scene.remove(ghost);world.ghosts.delete(data.id);}return;}remotePlayerEvent({...data,uid:data.id});};window.addEventListener('beforeunload',()=>localChannel?.postMessage({type:'leave',id:state.profile.playerId}));}
+    window.OTTHOS_MULTIPLAYER={version:4,playerId:state.profile.playerId,mode:window.OTTHOS_RTDB?.configured?'firebase-rtdb':'local-preview',connect:()=>window.OTTHOS_RTDB?.connect?.({name:state.profile.name||'Otthos',room:state.multiplayer.room||'vila-do-sol'})||true,publish:payload=>{localChannel?.postMessage(payload);window.OTTHOS_RTDB?.publish?.(payload);},adapter:window.OTTHOS_RTDB?.configured?'Firebase Realtime Database':'BroadcastChannel'};updateMultiplayerBadge();if(window.OTTHOS_RTDB?.configured)window.OTTHOS_RTDB.connect({name:state.profile.name||'Otthos',room:state.multiplayer.room||'vila-do-sol'});
   }
-  function createGhost(color){const g=new THREE.Group();box(.82,1.2,.58,color,0,1.3,0,g);box(.72,.72,.72,0xffd2a0,0,2.25,0,g);scene.add(g);return g;}
+  function createGhost(color,name='Jogador'){const g=new THREE.Group();box(.82,1.18,.58,color,0,1.25,0,g);box(.72,.72,.72,0x111217,0,2.24,0,g);const leftArm=box(.22,1,.25,0xff9a24,-.58,1.28,0,g),rightArm=box(.22,1,.25,0xff9a24,.58,1.28,0,g),leftLeg=box(.25,1,.28,0x20242b,-.22,.34,0,g),rightLeg=box(.25,1,.28,0x20242b,.22,.34,0,g);box(.12,.1,.04,0xff3344,-.14,2.27,.38,g);box(.12,.1,.04,0xff3344,.14,2.27,.38,g);const label=new THREE.Sprite(new THREE.SpriteMaterial({map:iconTexture(String(name).slice(0,1).toUpperCase(),'#fff','#15314b'),transparent:true,depthWrite:false}));label.position.set(0,3,0);label.scale.set(.5,.5,.5);g.add(label);g.userData.limbs={leftArm,rightArm,leftLeg,rightLeg};g.userData.phase=Math.random()*6.28;scene.add(g);return g;}
   function updateMultiplayer(dt){
-    if(localChannel&&performance.now()-lastPublish>250){lastPublish=performance.now();localChannel.postMessage({type:'position',id:state.profile.playerId,x:player.x,y:player.y,z:player.z,r:player.facing,color:0x5ad8ff});}
-    for(const ghost of world.ghosts.values()){const t=ghost.userData.target;if(!t)continue;ghost.position.x=lerp(ghost.position.x,t.x,dt*8);ghost.position.y=lerp(ghost.position.y,t.y,dt*8);ghost.position.z=lerp(ghost.position.z,t.z,dt*8);ghost.rotation.y=lerp(ghost.rotation.y,t.r,dt*8);}
+    if(performance.now()-lastPublish>200){lastPublish=performance.now();const payload={type:'position',id:state.profile.playerId,name:state.profile.name||'Otthos',x:+player.x.toFixed(2),y:+player.y.toFixed(2),z:+player.z.toFixed(2),r:+player.facing.toFixed(3),vehicle:!!player.vehicle,scaleMode:player.scaleMode,crouched:!!player.crouched,color:0x5ad8ff};localChannel?.postMessage(payload);window.OTTHOS_RTDB?.publish?.(payload);}
+    for(const ghost of world.ghosts.values()){const t=ghost.userData.target;if(!t)continue;ghost.position.x=lerp(ghost.position.x,t.x,Math.min(1,dt*8));ghost.position.y=lerp(ghost.position.y,t.y,Math.min(1,dt*8));ghost.position.z=lerp(ghost.position.z,t.z,Math.min(1,dt*8));ghost.rotation.y=lerpAngle(ghost.rotation.y,t.r||0,Math.min(1,dt*8));const moving=Math.hypot(ghost.position.x-t.x,ghost.position.z-t.z)>.03,walk=moving?Math.sin(animTime*9+ghost.userData.phase)*.45:0;if(ghost.userData.limbs){ghost.userData.limbs.leftArm.rotation.x=walk;ghost.userData.limbs.rightArm.rotation.x=-walk;ghost.userData.limbs.leftLeg.rotation.x=-walk*.75;ghost.userData.limbs.rightLeg.rotation.x=walk*.75;}ghost.scale.setScalar(t.scaleMode==='mini'?.58:t.scaleMode==='giant'?1.42:1);}
   }
 
   function gameLoop(){
@@ -2195,7 +2212,7 @@
   async function startGame(resetPosition=false){
     await dbReady; closeModal();showScreen('game');
     state.ui.quickOpen=false;els.quickBar.hidden=true;els.quickToggleBtn.classList.remove('active');els.game.classList.toggle('needs-expanded',!!state.ui.needsOpen);els.missionCard.classList.toggle('expanded',!!state.ui.missionOpen);if(!scene){if(!initThree()){showScreen('lobby');return;}setupControls();}else{applyAvatarCustomization();}
-    if(resetPosition){player.x=0;player.z=8;player.y=0;}else restorePosition();player.scaleMode=state.abilities?.scaleMode||'normal';player.crouched=!!state.abilities?.crouched;updateAbilityUI();running=true;paused=false;clock.start();evaluateMissions();updateHUD();updateContext(true);updateNavigation(0,true);resize();cancelAnimationFrame(raf);gameLoop();toast('Bem-vindo à Vila do Sol!','good',2200);
+    if(resetPosition){player.x=0;player.z=8;player.y=0;}else restorePosition();player.scaleMode=state.abilities?.scaleMode||'normal';player.crouched=!!state.abilities?.crouched;updateAbilityUI();running=true;paused=false;clock.start();evaluateMissions();updateHUD();updateContext(true);updateNavigation(0,true);resize(true);cancelAnimationFrame(raf);gameLoop();toast('Bem-vindo à Vila do Sol!','good',2200);
   }
   function stopGame(){
     if(player.vehicle)exitVehicle(true);running=false;paused=false;pauseMenuOpen=false;cancelAnimationFrame(raf);stopEngineSound();savePlayerPosition(true);showScreen('lobby');updateLobbyStats();
@@ -2250,7 +2267,7 @@
 
   // Public test/audit API
   window.OTTHOS_TEST_API={
-    version:'V615_PERFORMANCE_RESPONSIVE',
+    version:'V616_STABLE_NAV_ACTIONS_RTDB',
     performance:()=>({fps:+perf.fps.toFixed(1),tier:qualityTier(),requested:requestedQuality(),dpr:renderer?.getPixelRatio?.()||0,drawCalls:renderer?.info?.render?.calls||0,triangles:renderer?.info?.render?.triangles||0}),
     getState:()=>JSON.parse(JSON.stringify(state)),
     getGame:()=>({running,paused,currentHouse:currentHouse?.id||null,cameraMode,player:{...player},objects:{houses:world.houses.length,npcs:world.npcs.length,enemies:world.enemies.length,interactables:world.interactables.length,builds:world.builds.length}}),
@@ -2307,7 +2324,7 @@
       wheelFrontCount:vehicleVisual?.userData?.frontWheels?.length||0,
       wheelTotalCount:vehicleVisual?.userData?.wheels?.length||0
     }),
-    multiplayer:()=>window.OTTHOS_MULTIPLAYER||null
+    multiplayer:()=>({local:window.OTTHOS_MULTIPLAYER||null,cloud:window.OTTHOS_RTDB?.status?.()||multiplayerState})
   };
 
   updateLobbyStats();evaluateMissions();updateInstallUI();

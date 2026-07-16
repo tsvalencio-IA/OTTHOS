@@ -1,0 +1,8 @@
+OTTHOS V616
+
+app.js: OK
+sw.js: OK
+assets/js/save-db.js: OK
+assets/js/multiplayer-rtdb.js: OK
+F12_TESTE_OTTHOS_V616_ESTABILIDADE_NAVEGACAO_MULTIPLAYER.js: OK
+Firebase: módulo pronto; configuração necessária.

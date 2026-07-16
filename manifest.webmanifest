@@ -1,8 +1,8 @@
 {
-  "name": "Otthos Life World V615",
+  "name": "Otthos Life World V616",
   "short_name": "Otthos RP",
-  "description": "Mundo aberto voxel premium com performance adaptativa, controles imediatos, escalas responsivas, casas, veículos, missões e construção.",
-  "start_url": "./index.html?v=615",
+  "description": "Mundo aberto voxel com render estável, navegação A*, desafios diários, ações sociais e multiplayer opcional pelo Firebase Realtime Database.",
+  "start_url": "./index.html?v=616",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",

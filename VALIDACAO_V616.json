@@ -1,0 +1,35 @@
+{
+  "version": 616,
+  "indexeddb_schema": 610,
+  "syntax": {
+    "app.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "sw.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "assets/js/save-db.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "assets/js/multiplayer-rtdb.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "F12_TESTE_OTTHOS_V616_ESTABILIDADE_NAVEGACAO_MULTIPLAYER.js": {
+      "ok": true,
+      "stderr": ""
+    }
+  },
+  "duplicate_ids": [],
+  "features": {
+    "flicker_fix": true,
+    "astar_navigation": true,
+    "daily_challenges": true,
+    "social_actions": true,
+    "firebase_rtdb": true
+  },
+  "firebase_requires_config": true
+}
