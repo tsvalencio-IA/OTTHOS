@@ -1,8 +1,8 @@
 {
-  "name": "Otthos Life World V620",
+  "name": "Otthos Life World V622",
   "short_name": "Otthos RP",
-  "description": "Mundo social online com contagem correta de jogadores, chat e Academia Otthos em trilha de lições inspirada em apps de aprendizagem.",
-  "start_url": "./index.html?v=620",
+  "description": "Mundo aberto infantil com Academia Kids, jogos educativos solo e duelos multiplayer funcionais.",
+  "start_url": "./index.html?v=622",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",

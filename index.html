@@ -4,14 +4,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
   <meta name="theme-color" content="#0c1b33" />
-  <meta name="description" content="Otthos Life World — simulador de vida infantil em mundo aberto 3D com casas, vizinhos, roupas, profissões, construção, desafios, AR, quiz e progressão." />
+  <meta name="description" content="Otthos Life World — mundo aberto infantil com casas, vizinhos, construção, Academia Kids, jogos educativos e multiplayer." />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Otthos Life World</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=620" />
+  <link rel="manifest" href="./manifest.webmanifest?v=622" />
   <link rel="icon" href="./icons/favicon.png" />
   <link rel="apple-touch-icon" href="./icons/icon-192.png" />
-  <link rel="stylesheet" href="./style.css?v=620" />
+  <link rel="stylesheet" href="./style.css?v=622" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script>
     // Visualizador/AR verdadeiramente sob demanda: não baixa model-viewer nem athos.glb no boot.
@@ -86,10 +86,10 @@
           <div class="menu-grid">
             <button id="installBtn" class="menu-tile install" type="button"><b>⬇</b><span>Instalar aplicativo</span></button>
             <button id="arBtn" class="menu-tile" type="button"><b>📱</b><span>Realidade aumentada</span></button>
-            <button id="quizBtn" class="menu-tile" type="button"><b>🧠</b><span>Quiz do Otthos</span></button>
+            <button id="quizBtn" class="menu-tile academy-tile" type="button"><b>🎓</b><span>Academia Kids</span><small>Matemática • Português • Inglês</small></button>
             <button id="talkBtn" class="menu-tile" type="button"><b>💬</b><span>Conversar</span></button>
             <button id="collectionBtn" class="menu-tile" type="button"><b>🏅</b><span>Coleção</span></button>
-            <button id="avatarBtn" class="menu-tile" type="button"><b>👕</b><span>Meu Otthos</span></button>
+            <button id="avatarBtn" class="menu-tile" type="button"><b>👕</b><span>Meu personagem</span></button>
             <button id="moldsBtn" class="menu-tile" type="button"><b>🧩</b><span>Moldes 3D</span></button>
             <button id="howBtn" class="menu-tile" type="button"><b>❓</b><span>Como jogar</span></button>
             <button id="settingsBtn" class="menu-tile" type="button"><b>⚙</b><span>Configurações</span></button>
@@ -122,16 +122,16 @@
 
       <section id="missionCard" class="mission-card" role="button" tabindex="0" aria-label="Expandir missão">
         <div class="mission-icon">◆</div>
-        <div><small id="missionChapter">MISSÃO PRINCIPAL</small><strong id="missionTitle">Arrume sua casa</strong><p id="missionStep">Entre na Casa do Otthos.</p><div class="mission-progress"><i id="missionFill"></i></div></div>
+        <div><small id="missionChapter">MISSÃO PRINCIPAL</small><strong id="missionTitle">Arrume sua casa</strong><p id="missionStep">Entre na sua casa.</p><div class="mission-progress"><i id="missionFill"></i></div></div>
       </section>
 
       <button id="quickToggleBtn" class="quick-toggle" type="button" aria-label="Abrir menu de vida">☰<span>Vida</span></button>
       <nav id="quickBar" class="quick-bar" aria-label="Atalhos" hidden>
-        <button id="avatarGameBtn" type="button">👕<span>Otthos</span></button>
+        <button id="avatarGameBtn" type="button">👕<span>Personagem</span></button>
         <button id="inventoryBtn" type="button">🎒<span>Itens</span></button>
         <button id="buildBtn" type="button">🧱<span>Construir</span></button>
         <button id="mapBtn" type="button">🗺<span>Mapa</span></button>
-        <button id="dailyBtn" type="button">🎯<span>Desafios</span></button>
+        <button id="dailyBtn" class="academy-quick" type="button">🎓<span>Jogos Kids</span></button>
         <button id="onlineBtn" type="button">🌐<span>Online</span></button>
         <button id="gameSettingsBtn" type="button">⚙<span>Menu</span></button>
       </nav>
@@ -153,7 +153,7 @@
       <div id="joystick" class="joystick" aria-label="Joystick"><div class="joystick-ring"><i id="joystickKnob"></i></div></div>
 
       <button id="skillsToggleBtn" class="skills-toggle" type="button" aria-label="Abrir habilidades"><b>⚡</b><span>Habilidades</span></button>
-      <div class="secondary-actions" aria-label="Habilidades do Otthos">
+      <div class="secondary-actions" aria-label="Habilidades do personagem">
         <button id="crouchBtn" class="skill-btn crouch" type="button"><b>▼</b><span>Abaixar</span></button>
         <button id="miniBtn" class="skill-btn mini" type="button"><b>◱</b><span>Mini</span></button>
         <button id="normalBtn" class="skill-btn normal" type="button"><b>N</b><span>Normal</span></button>
@@ -174,6 +174,15 @@
       <div id="toast" class="toast" role="status" aria-live="polite"></div>
     </section>
 
+    <aside id="challengePrompt" class="challenge-prompt" hidden aria-live="assertive">
+      <div class="challenge-prompt-icon">⚔️</div>
+      <div class="challenge-prompt-copy"><small id="challengePromptKicker">NOVO DESAFIO</small><b id="challengePromptTitle">Convite recebido</b><span id="challengePromptText">Toque para responder.</span></div>
+      <div class="challenge-prompt-actions">
+        <button id="challengePromptDecline" type="button">Recusar</button>
+        <button id="challengePromptAccept" class="accept" type="button">Aceitar e jogar</button>
+      </div>
+    </aside>
+
     <div id="modal" class="modal" hidden>
       <div class="modal-card">
         <header><h2 id="modalTitle">Janela</h2><button id="modalClose" type="button" aria-label="Fechar">✕</button></header>
@@ -183,9 +192,9 @@
 
   </div>
 
-  <script src="./assets/js/save-db.js?v=620"></script>
-  <script src="./firebase-config.js?v=620"></script>
-  <script type="module" src="./assets/js/multiplayer-rtdb.js?v=620"></script>
-  <script src="./app.js?v=620"></script>
+  <script src="./assets/js/save-db.js?v=622"></script>
+  <script src="./firebase-config.js?v=622"></script>
+  <script type="module" src="./assets/js/multiplayer-rtdb.js?v=622"></script>
+  <script src="./app.js?v=622"></script>
 </body>
 </html>

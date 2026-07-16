@@ -1,13 +1,13 @@
-const CACHE = 'otthos-life-world-main-v620';
+const CACHE = 'otthos-life-world-main-v622';
 const CORE = [
   './',
-  './index.html?v=620',
-  './style.css?v=620',
-  './assets/js/save-db.js?v=620',
-  './firebase-config.js?v=620',
-  './assets/js/multiplayer-rtdb.js?v=620',
-  './app.js?v=620',
-  './manifest.webmanifest?v=620',
+  './index.html?v=622',
+  './style.css?v=622',
+  './assets/js/save-db.js?v=622',
+  './firebase-config.js?v=622',
+  './assets/js/multiplayer-rtdb.js?v=622',
+  './app.js?v=622',
+  './manifest.webmanifest?v=622',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/favicon.png'
@@ -41,7 +41,7 @@ self.addEventListener('fetch', event => {
         }
         return response;
       }).catch(async () => {
-        return (await caches.match(event.request)) || (await caches.match('./index.html?v=620'));
+        return (await caches.match(event.request)) || (await caches.match('./index.html?v=622'));
       })
     );
     return;

@@ -1,0 +1,8 @@
+OTTHOS V622 — substitua somente estes arquivos:
+
+app.js
+index.html
+style.css
+sw.js
+manifest.webmanifest
+assets/js/multiplayer-rtdb.js

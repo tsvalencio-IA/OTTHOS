@@ -8,8 +8,8 @@
   const lerpAngle = (a, b, t) => { let d=((b-a+Math.PI)%(Math.PI*2))-Math.PI; if(d<-Math.PI)d+=Math.PI*2; return a+d*t; };
   const distance2D = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
   const uid = () => (crypto.randomUUID ? crypto.randomUUID() : `p-${Date.now()}-${Math.random().toString(16).slice(2)}`);
-  const STORAGE_KEY = 'otthos_life_world_roleplay_v620';
-  const LEGACY_STORAGE_KEYS = ['otthos_life_world_roleplay_v619','otthos_life_world_roleplay_v618','otthos_life_world_roleplay_v617','otthos_life_world_roleplay_v616','otthos_life_world_roleplay_v615','otthos_life_world_roleplay_v614','otthos_life_world_roleplay_v613','otthos_life_world_roleplay_v612','otthos_life_world_roleplay_v611','otthos_life_world_roleplay_v610','otthos_life_world_roleplay_v609','otthos_life_world_roleplay_v608','otthos_life_world_roleplay_v607','otthos_life_world_roleplay_v606','otthos_life_world_roleplay_v605','otthos_life_world_roleplay_v604','otthos_life_world_roleplay_v603','otthos_life_world_roleplay_v602','otthos_life_world_roleplay_v601','otthos_life_world_complete_v600'];
+  const STORAGE_KEY = 'otthos_life_world_roleplay_v622';
+  const LEGACY_STORAGE_KEYS = ['otthos_life_world_roleplay_v621','otthos_life_world_roleplay_v620','otthos_life_world_roleplay_v619','otthos_life_world_roleplay_v618','otthos_life_world_roleplay_v617','otthos_life_world_roleplay_v616','otthos_life_world_roleplay_v615','otthos_life_world_roleplay_v614','otthos_life_world_roleplay_v613','otthos_life_world_roleplay_v612','otthos_life_world_roleplay_v611','otthos_life_world_roleplay_v610','otthos_life_world_roleplay_v609','otthos_life_world_roleplay_v608','otthos_life_world_roleplay_v607','otthos_life_world_roleplay_v606','otthos_life_world_roleplay_v605','otthos_life_world_roleplay_v604','otthos_life_world_roleplay_v603','otthos_life_world_roleplay_v602','otthos_life_world_roleplay_v601','otthos_life_world_complete_v600'];
   const safeLocalGet = key => { try { return window.localStorage?.getItem(key) ?? null; } catch { return null; } };
   const safeLocalSet = (key, value) => { try { window.localStorage?.setItem(key, value); return true; } catch { return false; } };
   const safeLocalRemove = key => { try { window.localStorage?.removeItem(key); return true; } catch { return false; } };
@@ -28,12 +28,12 @@
     miniNav: $('#miniNav'), miniMapCanvas: $('#miniMapCanvas'), miniNavName: $('#miniNavName'), miniNavDistance: $('#miniNavDistance'), miniNavArrow: $('#miniNavArrow'),
     cameraControls: $('#cameraControls'), cameraNearBtn: $('#cameraNearBtn'), cameraResetBtn: $('#cameraResetBtn'), cameraFarBtn: $('#cameraFarBtn'),
     buildBadge: $('#buildBadge'), buildTypeLabel: $('#buildTypeLabel'), vehicleBadge: $('#vehicleBadge'), raceBadge: $('#raceBadge'), raceTitle: $('#raceTitle'), raceStatus: $('#raceStatus'), toast: $('#toast'),
-    modal: $('#modal'), modalTitle: $('#modalTitle'), modalBody: $('#modalBody'), modalClose: $('#modalClose'),
+    modal: $('#modal'), modalTitle: $('#modalTitle'), modalBody: $('#modalBody'), modalClose: $('#modalClose'), challengePrompt: $('#challengePrompt'), challengePromptKicker: $('#challengePromptKicker'), challengePromptTitle: $('#challengePromptTitle'), challengePromptText: $('#challengePromptText'), challengePromptAccept: $('#challengePromptAccept'), challengePromptDecline: $('#challengePromptDecline'),
     nativeViewer: $('#nativeViewer'), viewerShell: $('#viewerShell'), viewerPlaceholder: $('#viewerPlaceholder'), viewerLoadBtn: $('#viewerLoadBtn'), viewerStatus: $('#viewerStatus'), insideArBtn: $('#insideArBtn')
   };
 
   const defaultState = () => ({
-    version: 620,
+    version: 622,
     profile: { playerId: uid(), name: '', nameConfirmed: false, level: 1, xp: 0, coins: 500, reputation: 0 },
     needs: { hunger: 92, energy: 92, fun: 86, hygiene: 88 },
     inventory: { wood: 0, stone: 0, food: 2, water: 2, crystals: 0, blocks: 4, fences: 2, keys: 0 },
@@ -61,7 +61,7 @@
     settings: { sound: true, quality: 'auto', autoTier: 'balanced', vibration: true, cameraZoom: 0, joystickNatural: true },
     stats: { walked:0, driven:0, jumps:0, collected:0, talks:0, cooked:0, races:0, actions:0 },
     daily: { date:'', streak:0, lastDate:'', quests:[] },
-    learning: { crowns:0, totalCorrect:0, lessons:{}, lastLesson:'', perfectLessons:0 },
+    learning: { crowns:0, totalCorrect:0, lessons:{}, lastLesson:'', perfectLessons:0, subjectXP:{math:0,portuguese:0,english:0}, multiplayerWins:0, multiplayerPlayed:0 },
     multiplayer: { enabled:true, room:'mundo-publico', displayName:'', cloudUid:'', cloudReady:false },
     npcSociety: { lastEvent:0, houses:{}, friendships:{}, moods:{} },
     lastSaved: Date.now()
@@ -78,7 +78,7 @@
     return {
       ...fresh,
       ...saved,
-      version: 620,
+      version: 622,
       profile: { ...fresh.profile, ...(saved.profile || {}) },
       needs: { ...fresh.needs, ...(saved.needs || {}) },
       inventory: { ...fresh.inventory, ...(saved.inventory || {}) },
@@ -89,7 +89,7 @@
       settings: { ...fresh.settings, ...(saved.settings || {}), quality: Number(saved.version||0)<615 && (saved.settings?.quality||'high')==='high' ? 'auto' : ((saved.settings?.quality)||fresh.settings.quality) },
       stats: { ...fresh.stats, ...(saved.stats || {}) },
       daily: { ...fresh.daily, ...(saved.daily || {}), quests:Array.isArray(saved.daily?.quests)?saved.daily.quests:[] },
-      learning: { ...fresh.learning, ...(saved.learning || {}), lessons:{...fresh.learning.lessons,...(saved.learning?.lessons||{})} },
+      learning: { ...fresh.learning, ...(saved.learning || {}), subjectXP:{...fresh.learning.subjectXP,...(saved.learning?.subjectXP||{})}, lessons:{...fresh.learning.lessons,...(saved.learning?.lessons||{})} },
       multiplayer: { ...fresh.multiplayer, ...(saved.multiplayer || {}), room:'mundo-publico' },
       npcSociety: { ...fresh.npcSociety, ...(saved.npcSociety || {}), houses:{...fresh.npcSociety.houses,...(saved.npcSociety?.houses||{})}, friendships:{...fresh.npcSociety.friendships,...(saved.npcSociety?.friendships||{})}, moods:{...fresh.npcSociety.moods,...(saved.npcSociety?.moods||{})} },
       avatar: { ...fresh.avatar, ...(saved.avatar || {}) },
@@ -148,7 +148,7 @@
   let saveTimer = 0;
   let lastSavePromise = Promise.resolve(true);
   function commitState() {
-    state.version = 619;
+    state.version = 621;
     state.lastSaved = Date.now();
     const snapshot = JSON.parse(JSON.stringify(state));
     safeLocalSet(STORAGE_KEY, JSON.stringify(snapshot));
@@ -172,11 +172,11 @@
 
   function cloudProgressPayload(){
     return {
-      version: 620,lastSaved:Number(state.lastSaved||Date.now()),
+      version: 622,lastSaved:Number(state.lastSaved||Date.now()),
       profile:{name:state.profile.name||'Jogador',coins:state.profile.coins||0,xp:state.profile.xp||0,level:state.profile.level||1,reputation:state.profile.reputation||0},
       inventory:{...state.inventory},medals:[...(state.medals||[])],flags:{...state.flags},houses:{...state.houses},races:{...state.races},
       avatar:{...state.avatar},abilities:{...state.abilities},builds:[...(state.builds||[])],homeStorage:{...state.homeStorage},
-      achievements:{stats:{...state.stats},daily:{...state.daily,quests:[...(state.daily?.quests||[])]}},position:{...state.position}
+      achievements:{stats:{...state.stats},daily:{...state.daily,quests:[...(state.daily?.quests||[])]},learning:{...state.learning,subjectXP:{...state.learning.subjectXP},lessons:{...state.learning.lessons}}},position:{...state.position}
     };
   }
   function syncCloudProgress(force=false){
@@ -193,8 +193,8 @@
       flags:{...state.flags,...(remote.flags||{})},houses:{...state.houses,...(remote.houses||{})},races:{...state.races,...(remote.races||{})},
       avatar:{...state.avatar,...(remote.avatar||{})},abilities:{...state.abilities,...(remote.abilities||{})},
       builds:Array.isArray(remote.builds)?remote.builds:state.builds,homeStorage:{...state.homeStorage,...(remote.homeStorage||{})},
-      stats:{...state.stats,...(remote.achievements?.stats||{})},daily:{...state.daily,...(remote.achievements?.daily||{})},
-      position:{...state.position,...(remote.position||{})},lastSaved:remoteSaved,version: 620
+      stats:{...state.stats,...(remote.achievements?.stats||{})},daily:{...state.daily,...(remote.achievements?.daily||{})},learning:{...state.learning,...(remote.achievements?.learning||{}),subjectXP:{...state.learning.subjectXP,...(remote.achievements?.learning?.subjectXP||{})},lessons:{...state.learning.lessons,...(remote.achievements?.learning?.lessons||{})}},
+      position:{...state.position,...(remote.position||{})},lastSaved:remoteSaved,version: 622
     };
     state=normalizeState(merged);state.profile.nameConfirmed=true;state.multiplayer.room='mundo-publico';
     safeLocalSet(STORAGE_KEY,JSON.stringify(state));window.OTTHOS_DB?.save?.(state).catch(()=>{});updatePlayerNameUI();updateHUD();updateLobbyStats();toast('Progresso recuperado do Firebase.','good',2300);return true;
@@ -341,7 +341,7 @@
       : '<p>No Chrome, abra o menu ⋮ e escolha <b>Instalar aplicativo</b> ou <b>Adicionar à tela inicial</b>.</p>');
   }
   if (els.installBtn) els.installBtn.onclick = installApp;
-  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=613').catch(console.warn));
+  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=622').catch(console.warn));
   updateInstallUI();
 
 
@@ -351,7 +351,7 @@
     {id:'jump',icon:'⬆',title:'Pula-pula',target:12,reward:70,xp:45,label:n=>`${Math.floor(n)}/12 pulos`},
     {id:'collect',icon:'💎',title:'Caçador de Tesouros',target:5,reward:95,xp:60,label:n=>`${Math.floor(n)}/5 itens coletados`},
     {id:'talk',icon:'💬',title:'Amigo da Vizinhança',target:3,reward:80,xp:50,label:n=>`${Math.floor(n)}/3 conversas`},
-    {id:'cook',icon:'🍳',title:'Chef do Otthos',target:1,reward:75,xp:45,label:n=>`${Math.floor(n)}/1 refeição`},
+    {id:'cook',icon:'🍳',title:'Chef da Vila',target:1,reward:75,xp:45,label:n=>`${Math.floor(n)}/1 refeição`},
     {id:'race',icon:'🏁',title:'Competidor',target:1,reward:130,xp:80,label:n=>`${Math.floor(n)}/1 corrida concluída`}
   ];
   function localDateKey(){const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
@@ -366,123 +366,105 @@
   }
   function updateDailyBadge(){if(!els.dailyBtn)return;ensureDailyChallenges();const ready=state.daily.quests.filter(q=>!q.claimed&&q.progress>=q.target).length;els.dailyBtn.classList.toggle('reward-ready',ready>0);const span=$('span',els.dailyBtn);if(span)span.textContent=ready?`Prêmio ${ready}`:'Desafios';}
   function claimDailyQuest(index){const q=state.daily.quests[index],def=dailyDefinition(q?.id);if(!q||!def||q.claimed||q.progress<q.target)return;q.claimed=true;addCoins(q.reward);addXP(q.xp);addReputation(3);beep(980,90);vibrate(30);toast(`Desafio concluído! +${q.reward} moedas`,'good',2200);saveState(true);openDailyChallenges();}
-  const LEARNING_UNITS=[
-    {id:'vida',title:'Vida na Vila',icon:'🏡',color:'#35b96f',lessons:[
-      {id:'vida-1',title:'Primeiros passos',questions:[
-        ['Qual botão abre uma interação próxima?',['AÇÃO','PODER','MAPA'],0],['O que recupera energia?',['Dormir','Pular','Dirigir'],0],['Como recuperar fome?',['Comer','Correr','Construir'],0],['Para conhecer um vizinho, o melhor é...',['Conversar','Atacar','Ignorar'],0],['Onde o progresso é salvo?',['No celular e na nuvem','Só na tela','Não é salvo'],0]
-      ]},
-      {id:'vida-2',title:'Necessidades',questions:[
-        ['Qual necessidade melhora ao tomar banho?',['Higiene','Energia','Dinheiro'],0],['Diversão pode aumentar ao...',['Dançar','Ficar parado','Perder corrida'],0],['Energia muito baixa deixa o Otthos...',['Mais lento','Mais rico','Gigante'],0],['Uma refeição ajuda principalmente na...',['Fome','Casa','Reputação'],0],['Dormir é uma ação encontrada...',['Na cama','Na oficina','No mapa'],0]
-      ]},
-      {id:'vida-3',title:'Minha evolução',questions:[
-        ['XP serve para...',['Subir de nível','Trancar ruas','Apagar itens'],0],['Moedas podem ser ganhas ao...',['Completar tarefas','Fechar o jogo','Cair na água'],0],['Reputação melhora ao...',['Ajudar e concluir missões','Brigar sempre','Ignorar todos'],0],['Medalhas registram...',['Conquistas','Erros de rede','Somente casas'],0],['Desafios diários dão...',['Recompensas','Banimento','Perda de progresso'],0]
-      ]}
-    ]},
-    {id:'cidade',title:'Cidade e Segurança',icon:'🚦',color:'#3186e8',lessons:[
-      {id:'cidade-1',title:'Pelas ruas',questions:[
-        ['Para chegar a um local, você deve seguir...',['A rota do GPS','Qualquer parede','A água'],0],['No minimapa, o triângulo representa...',['O jogador','Uma casa','Um inimigo'],0],['O carrinho deve circular preferencialmente...',['Pelas ruas','Dentro das casas','Sobre os telhados'],0],['Ao encontrar obstáculo na rota...',['Siga o novo caminho','Feche o jogo','Ignore colisões'],0],['O botão de câmera ◎ faz...',['Recentraliza','Compra casa','Abre chat'],0]
-      ]},
-      {id:'cidade-2',title:'Veículos',questions:[
-        ['Dentro do veículo, Correr vira...',['Turbo','Dormir','Construir'],0],['Para sair do carrinho use...',['AÇÃO','MAPA','MINI'],0],['A buzina serve para...',['Avisar','Comprar','Salvar'],0],['Alta velocidade exige...',['Mais controle','Fechar os olhos','Ignorar curvas'],0],['O veículo permite fazer...',['Entregas','Banho','Quiz'],0]
-      ]},
-      {id:'cidade-3',title:'Exploração',questions:[
-        ['O Vale dos Cristais tem...',['Desafios de plataforma','Somente camas','Nenhuma atividade'],0],['Cristais podem ser...',['Coletados e presenteados','Apagados apenas','Usados como senha'],0],['O mapa completo mostra...',['Locais e rotas','Somente moedas','A câmera do celular'],0],['Explorar ajuda a encontrar...',['Recursos e missões','Erros','Senhas'],0],['Ao chegar ao destino o GPS...',['Avisa você','Apaga a casa','Reinicia o jogo'],0]
-      ]}
-    ]},
-    {id:'construir',title:'Construção Criativa',icon:'🧱',color:'#e88a2e',lessons:[
-      {id:'construir-1',title:'Recursos',questions:[
-        ['Para construir você coleta...',['Madeira e pedra','Somente água','Somente XP'],0],['A ponte quebrada usa...',['Materiais','Chat','Nome público'],0],['O inventário mostra...',['Itens disponíveis','Jogadores banidos','Somente câmera'],0],['Recursos aparecem...',['Pelo mundo','Só no menu online','Fora do jogo'],0],['Construir consome...',['Itens do inventário','Nome do jogador','Nível do Firebase'],0]
-      ]},
-      {id:'construir-2',title:'Minha casa',questions:[
-        ['Uma casa trancada permite entrada de...',['Proprietário autorizado','Qualquer pessoa','Nenhum dono'],0],['O dono pode...',['Trancar e destrancar','Apagar outros jogadores','Mudar o Firebase'],0],['Móveis ficam associados...',['À casa','À rua','Ao minimapa'],0],['Uma casa disponível pode ser...',['Comprada','Duplicada infinitamente','Ignorada pelo banco'],0],['A compra online deve usar...',['Transação','Somente animação','Screenshot'],0]
-      ]},
-      {id:'construir-3',title:'Arquiteto Otthos',questions:[
-        ['Antes de colocar um bloco é bom...',['Ver a posição','Fechar a câmera','Sair da conta'],0],['Uma cerca serve para...',['Delimitar espaço','Aumentar fome','Enviar chat'],0],['Decoração melhora...',['A personalização','A latência','O UID'],0],['Salvar após construir protege...',['As alterações','Os inimigos','O sinal 4G'],0],['Criatividade combina com...',['Planejamento','Apagar tudo','Copiar senha'],0]
-      ]}
-    ]},
-    {id:'social',title:'Amizade e Multiplayer',icon:'🌐',color:'#9b55db',lessons:[
-      {id:'social-1',title:'Mundo online',questions:[
-        ['Cada celular recebe no Firebase...',['Um UID próprio','O mesmo personagem','Nenhum usuário'],0],['O nome público serve para...',['Identificar jogadores','Substituir senha privada','Apagar chat'],0],['O indicador online mostra...',['Jogadores conectados','Somente moedas','Casas vazias'],0],['O chat público permite...',['Enviar texto','Controlar outro celular','Alterar regras'],0],['Ao desconectar, a presença deve...',['Ser removida','Ficar para sempre','Virar moeda'],0]
-      ]},
-      {id:'social-2',title:'Boas interações',questions:[
-        ['Um presente deve ser enviado para...',['Outro jogador','Você mesmo sempre','Uma rua'],0],['Antes de trocar itens é importante...',['Confirmar a ação','Desligar internet','Apagar inventário'],0],['Acenar é uma interação...',['Amigável','De construção','De direção'],0],['Um desafio online deve mostrar...',['Quem convidou','Chave privada','Senha do banco'],0],['Respeitar outros jogadores deixa o mundo...',['Mais divertido','Offline','Sem casas'],0]
-      ]},
-      {id:'social-3',title:'Mestre da Comunidade',questions:[
-        ['Uma regra segura permite cada usuário gravar...',['Os próprios dados','Tudo de todos','Nenhum dado'],0],['A leitura da lista de presença precisa ser liberada...',['No nó da lista','Apenas no filho','No CSS'],0],['Chat de voz deve guardar no RTDB...',['A URL e metadados','O áudio bruto inteiro','A senha'],0],['Economia protegida futuramente usa...',['Servidor/Cloud Functions','Somente localStorage','Imagem PNG'],0],['Multiplayer divertido precisa de...',['Interação e persistência','Só personagens parados','Uma única tela'],0]
-      ]}
-    ]}
+  const EDUCATION_SUBJECTS={
+    math:{id:'math',title:'Matemática Kids',icon:'🔢',color:'#27b36a',description:'Contagem, soma, subtração, padrões e lógica.'},
+    portuguese:{id:'portuguese',title:'Português Kids',icon:'📚',color:'#7b5ce6',description:'Letras, sílabas, palavras e frases.'},
+    english:{id:'english',title:'English Kids',icon:'🌎',color:'#168de2',description:'Palavras, imagens, sons e expressões.'}
+  };
+  const WORD_BANK=[
+    {pt:'CASA',en:'HOUSE',emoji:'🏠',syllables:['CA','SA']},{pt:'GATO',en:'CAT',emoji:'🐱',syllables:['GA','TO']},{pt:'BOLA',en:'BALL',emoji:'⚽',syllables:['BO','LA']},{pt:'SOL',en:'SUN',emoji:'☀️',syllables:['SOL']},{pt:'LIVRO',en:'BOOK',emoji:'📘',syllables:['LI','VRO']},{pt:'ÁGUA',en:'WATER',emoji:'💧',syllables:['Á','GUA']},{pt:'CARRO',en:'CAR',emoji:'🚗',syllables:['CAR','RO']},{pt:'CACHORRO',en:'DOG',emoji:'🐶',syllables:['CA','CHOR','RO']},{pt:'MAÇÃ',en:'APPLE',emoji:'🍎',syllables:['MA','ÇÃ']},{pt:'PEIXE',en:'FISH',emoji:'🐟',syllables:['PEI','XE']},{pt:'PÁSSARO',en:'BIRD',emoji:'🐦',syllables:['PÁS','SA','RO']},{pt:'LEITE',en:'MILK',emoji:'🥛',syllables:['LEI','TE']}
   ];
-  function allLearningLessons(){return LEARNING_UNITS.flatMap((unit,unitIndex)=>unit.lessons.map((lesson,lessonIndex)=>({...lesson,unit,unitIndex,lessonIndex})));}
-  function lessonRecord(id){return state.learning.lessons[id]||{completed:false,stars:0,best:0,attempts:0};}
-  function lessonUnlocked(index){return index===0||!!lessonRecord(allLearningLessons()[index-1].id).completed;}
-  function learningSummary(){const lessons=allLearningLessons(),done=lessons.filter(l=>lessonRecord(l.id).completed).length;return{done,total:lessons.length,pct:Math.round(done/lessons.length*100)};}
+  const SUBJECT_LEVELS={
+    math:[['Contagem divertida','Conte objetos e escolha o número.'],['Somas rápidas','Junte quantidades.'],['Subtração kids','Descubra quanto sobrou.'],['Complete a sequência','Encontre o número que falta.'],['Compare números','Maior, menor ou igual.'],['Desafio misto','Misture tudo o que aprendeu.']],
+    portuguese:[['Primeira letra','Descubra como a palavra começa.'],['Imagem e palavra','Ligue a imagem ao nome.'],['Vogal perdida','Complete a palavra.'],['Monte a palavra','Coloque as sílabas na ordem.'],['Frase correta','Escolha a frase que faz sentido.'],['Desafio de leitura','Misture letras, palavras e frases.']],
+    english:[['Picture words','Ligue imagem e palavra em inglês.'],['Português → English','Encontre a tradução.'],['Listen and choose','Ouça e escolha a palavra.'],['Missing letter','Complete a palavra em inglês.'],['Useful phrases','Aprenda frases simples.'],['English challenge','Misture tudo o que aprendeu.']]
+  };
+  function seeded(seed){let s=(Number(seed)||1)>>>0;return()=>((s=(s*1664525+1013904223)>>>0)/4294967296);}
+  function shuffled(values,rand=Math.random){return [...values].sort(()=>rand()-.5);}
+  function choiceSet(answer,candidates,rand){const pool=shuffled([...new Set(candidates.filter(x=>String(x)!==String(answer)))],rand).slice(0,3);return shuffled([answer,...pool],rand);}
+  function mathRound(level,rand,index){
+    const emoji=['🍎','⭐','🚗','🐟'][Math.floor(rand()*4)];
+    if(level===1){const n=1+Math.floor(rand()*9);return{kind:'choice',visual:emoji.repeat(n),prompt:'Quantos objetos aparecem?',answer:String(n),options:choiceSet(String(n),[n-2,n-1,n+1,n+2].filter(x=>x>0).map(String),rand)};}
+    if(level===2){const a=1+Math.floor(rand()*8),b=1+Math.floor(rand()*7),ans=a+b;return{kind:'choice',visual:`${emoji.repeat(a)} + ${emoji.repeat(b)}`,prompt:`Quanto é ${a} + ${b}?`,answer:String(ans),options:choiceSet(String(ans),[ans-2,ans-1,ans+1,ans+2].map(String),rand)};}
+    if(level===3){const a=5+Math.floor(rand()*10),b=1+Math.floor(rand()*Math.min(8,a)),ans=a-b;return{kind:'choice',visual:`${a} − ${b}`,prompt:'Quanto sobrou?',answer:String(ans),options:choiceSet(String(ans),[ans-2,ans-1,ans+1,ans+2].filter(x=>x>=0).map(String),rand)};}
+    if(level===4){const start=1+Math.floor(rand()*5),step=1+Math.floor(rand()*3),seq=[start,start+step,'?',start+step*3],ans=start+step*2;return{kind:'choice',visual:seq.join('  •  '),prompt:'Qual número completa a sequência?',answer:String(ans),options:choiceSet(String(ans),[ans-step,ans+step,ans+2,ans-1].map(String),rand)};}
+    if(level===5){const a=1+Math.floor(rand()*20),b=1+Math.floor(rand()*20),ans=a===b?'=':a>b?'>':'<';return{kind:'choice',visual:`${a}  ?  ${b}`,prompt:'Escolha o sinal correto.',answer:ans,options:['>','<','=']};}
+    return mathRound(1+Math.floor(rand()*5),rand,index);
+  }
+  function portugueseRound(level,rand,index){
+    const word=WORD_BANK[Math.floor(rand()*WORD_BANK.length)];
+    if(level===1){const ans=word.pt[0];return{kind:'choice',visual:word.emoji,prompt:`Com qual letra começa ${word.pt}?`,answer:ans,options:choiceSet(ans,['A','B','C','G','L','M','P','S','T'],rand)};}
+    if(level===2){return{kind:'choice',visual:word.emoji,prompt:'Qual é o nome desta imagem?',answer:word.pt,options:choiceSet(word.pt,WORD_BANK.map(w=>w.pt),rand)};}
+    if(level===3){const positions=[...word.pt].map((c,i)=>/[AEIOUÁÉÍÓÚÃÕ]/.test(c)?i:-1).filter(i=>i>=0),pos=positions[Math.floor(rand()*positions.length)]??1,ans=word.pt[pos],masked=[...word.pt];masked[pos]='_';return{kind:'choice',visual:word.emoji,prompt:`Complete: ${masked.join('')}`,answer:ans,options:choiceSet(ans,['A','E','I','O','U'],rand)};}
+    if(level===4){return{kind:'sequence',visual:word.emoji,prompt:'Toque nas sílabas para montar a palavra.',answer:word.syllables.join(''),tokens:shuffled(word.syllables,rand),displayAnswer:word.pt};}
+    if(level===5){const correct=`O ${word.pt.toLowerCase()} aparece na imagem.`;return{kind:'choice',visual:word.emoji,prompt:'Qual frase está escrita corretamente?',answer:correct,options:shuffled([correct,`A ${word.pt.toLowerCase()} aparecem na imagem.`,`Os ${word.pt.toLowerCase()} aparece na imagem.`],rand)};}
+    return portugueseRound(1+Math.floor(rand()*5),rand,index);
+  }
+  function englishRound(level,rand,index){
+    const word=WORD_BANK[Math.floor(rand()*WORD_BANK.length)];
+    if(level===1){return{kind:'choice',visual:word.emoji,prompt:'Choose the English word.',answer:word.en,options:choiceSet(word.en,WORD_BANK.map(w=>w.en),rand),speak:word.en};}
+    if(level===2){return{kind:'choice',visual:word.pt,prompt:`Como se diz “${word.pt.toLowerCase()}” em inglês?`,answer:word.en,options:choiceSet(word.en,WORD_BANK.map(w=>w.en),rand),speak:word.en};}
+    if(level===3){return{kind:'choice',visual:'🔊',prompt:'Ouça e escolha a palavra.',answer:word.en,options:choiceSet(word.en,WORD_BANK.map(w=>w.en),rand),speak:word.en,autoSpeak:true};}
+    if(level===4){const pos=Math.floor(rand()*word.en.length),ans=word.en[pos],masked=[...word.en];masked[pos]='_';return{kind:'choice',visual:word.emoji,prompt:`Complete: ${masked.join('')}`,answer:ans,options:choiceSet(ans,'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),rand),speak:word.en};}
+    if(level===5){const phrases=[['HELLO','Olá'],['THANK YOU','Obrigado'],['GOOD MORNING','Bom dia'],['PLEASE','Por favor'],['GOODBYE','Tchau']],pair=phrases[Math.floor(rand()*phrases.length)];return{kind:'choice',visual:'💬',prompt:`Qual é o significado de “${pair[0]}”?`,answer:pair[1],options:choiceSet(pair[1],phrases.map(p=>p[1]),rand),speak:pair[0]};}
+    return englishRound(1+Math.floor(rand()*5),rand,index);
+  }
+  function generateEducationRounds(subject,level=1,seed=Date.now(),count=5){const rand=seeded(seed+level*997),maker=subject==='math'?mathRound:subject==='portuguese'?portugueseRound:englishRound;return Array.from({length:count},(_,i)=>maker(level,rand,i));}
+  function subjectLevelRecord(subject,level){return state.learning.lessons[`${subject}-${level}`]||{completed:false,stars:0,best:0,attempts:0};}
+  function subjectUnlocked(subject,level){return level===1||subjectLevelRecord(subject,level-1).completed;}
+  function educationSummary(){let done=0,total=0;for(const id of Object.keys(EDUCATION_SUBJECTS))for(let l=1;l<=6;l++){total++;if(subjectLevelRecord(id,l).completed)done++;}return{done,total,pct:Math.round(done/total*100)};}
+  function speakKidWord(text){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(String(text));u.lang='en-US';u.rate=.78;u.pitch=1.08;speechSynthesis.speak(u);}catch{}}
   function dailyChallengesHtml(){ensureDailyChallenges();return state.daily.quests.map((q,i)=>{const d=dailyDefinition(q.id),pct=clamp(q.progress/q.target*100,0,100),ready=q.progress>=q.target&&!q.claimed;return`<article class="daily-card ${ready?'ready':''} ${q.claimed?'claimed':''}"><div class="daily-icon">${d.icon}</div><div><b>${d.title}</b><span>${d.label(q.progress)}</span><div class="daily-progress"><i style="width:${pct}%"></i></div><small>${q.reward} moedas • ${q.xp} XP</small></div><button data-daily-claim="${i}" ${ready?'':'disabled'}>${q.claimed?'✓':ready?'Receber':'Em andamento'}</button></article>`}).join('');}
-  function openChallengeHub(tab='path'){
-    ensureDailyChallenges();const summary=learningSummary(),lessons=allLearningLessons();
-    const path=LEARNING_UNITS.map(unit=>`<section class="learning-unit" style="--unit:${unit.color}"><header><span>${unit.icon}</span><div><b>${unit.title}</b><small>${unit.lessons.filter(l=>lessonRecord(l.id).completed).length}/${unit.lessons.length} concluídas</small></div></header><div class="learning-path">${unit.lessons.map(lesson=>{const idx=lessons.findIndex(x=>x.id===lesson.id),rec=lessonRecord(lesson.id),unlocked=lessonUnlocked(idx);return`<button class="learning-node ${rec.completed?'done':''} ${unlocked?'':'locked'}" data-learning-lesson="${lesson.id}" ${unlocked?'':'disabled'}><i>${rec.completed?'✓':unlocked?'▶':'🔒'}</i><b>${lesson.title}</b><small>${rec.completed?`${rec.stars||1} estrela${rec.stars===1?'':'s'}`:'5 perguntas'}</small></button>`}).join('')}</div></section>`).join('');
-    openModal('Academia Otthos',`<div class="learning-top"><div><b>🔥 ${state.daily.streak||1}</b><small>sequência</small></div><div><b>👑 ${state.learning.crowns||0}</b><small>coroas</small></div><div><b>⭐ ${summary.pct}%</b><small>trilha</small></div></div><div class="learning-tabs"><button data-learning-tab="path" class="${tab==='path'?'active':''}">Trilha</button><button data-learning-tab="daily" class="${tab==='daily'?'active':''}">Diários</button></div><div class="learning-content">${tab==='path'?path:`<div class="daily-header"><b>Desafios de hoje</b><span>Complete atividades no mundo para receber prêmios.</span></div><div class="daily-list">${dailyChallengesHtml()}</div>`}</div>`,root=>{
-      $$('[data-learning-tab]',root).forEach(btn=>btn.onclick=()=>openChallengeHub(btn.dataset.learningTab));
-      $$('[data-learning-lesson]',root).forEach(btn=>btn.onclick=()=>startLearningLesson(btn.dataset.learningLesson));
-      $$('[data-daily-claim]',root).forEach(btn=>btn.onclick=()=>claimDailyQuest(Number(btn.dataset.dailyClaim)));
+  function educationSubjectHtml(subject){const s=EDUCATION_SUBJECTS[subject],levels=SUBJECT_LEVELS[subject];return`<section class="edu-subject" style="--edu:${s.color}"><header><span>${s.icon}</span><div><b>${s.title}</b><small>${s.description}</small></div></header><div class="edu-path">${levels.map((data,i)=>{const level=i+1,rec=subjectLevelRecord(subject,level),unlocked=subjectUnlocked(subject,level);return`<button class="edu-node ${rec.completed?'done':''} ${unlocked?'':'locked'}" data-edu-play="${subject}" data-edu-level="${level}" ${unlocked?'':'disabled'}><i>${rec.completed?'✓':unlocked?s.icon:'🔒'}</i><span><b>${level}. ${data[0]}</b><small>${rec.completed?`${'⭐'.repeat(rec.stars||1)} • recorde ${rec.best}/5`:data[1]}</small></span></button>`}).join('')}</div></section>`;}
+  function openEducationHub(tab='math'){
+    ensureDailyChallenges();const summary=educationSummary(),valid=(EDUCATION_SUBJECTS[tab]||tab==='multiplayer'||tab==='daily')?tab:'math';
+    const tabs=`<div class="edu-tabs"><button data-edu-tab="math" class="${valid==='math'?'active':''}">🔢 Matemática</button><button data-edu-tab="portuguese" class="${valid==='portuguese'?'active':''}">📚 Português</button><button data-edu-tab="english" class="${valid==='english'?'active':''}">🌎 English</button><button data-edu-tab="multiplayer" class="${valid==='multiplayer'?'active':''}">⚔️ Duelo</button><button data-edu-tab="daily" class="${valid==='daily'?'active':''}">🎯 Diários</button></div>`;
+    const startCards=`<div class="academy-start"><button data-academy-start="math"><span>🔢</span><b>Jogar Matemática</b><small>Contagem, soma e lógica</small></button><button data-academy-start="portuguese"><span>📚</span><b>Jogar Português</b><small>Letras, sílabas e leitura</small></button><button data-academy-start="english"><span>🌎</span><b>Jogar English</b><small>Imagens, palavras e áudio</small></button></div>`;
+    const multi=`<div class="edu-multiplayer-intro"><div>⚔️</div><h3>Duelo educativo em tempo real</h3><p>Escolha um jogador online, envie o convite e os dois recebem a mesma partida. O convite aparece na tela com <b>Aceitar e jogar</b>.</p><button class="btn primary xl" data-open-online>Escolher jogador online</button></div>`;
+    const content=valid==='daily'?`<div class="daily-header"><b>Desafios de hoje</b><span>Complete atividades dentro do mundo aberto.</span></div><div class="daily-list">${dailyChallengesHtml()}</div>`:valid==='multiplayer'?multi:`${startCards}${educationSubjectHtml(valid)}`;
+    openModal(`Academia Kids de ${playerDisplayName()}`,`<div class="academy-banner"><div>🎓</div><section><b>JOGOS KIDS</b><span>Aprenda jogando dentro do mundo aberto.</span></section></div><div class="learning-top"><div><b>🔥 ${state.daily.streak||1}</b><small>sequência</small></div><div><b>👑 ${state.learning.crowns||0}</b><small>coroas</small></div><div><b>⭐ ${summary.pct}%</b><small>trilha</small></div></div>${tabs}<div class="learning-content">${content}</div>`,root=>{
+      root.onclick=e=>{const tabBtn=e.target.closest('[data-edu-tab]'),playBtn=e.target.closest('[data-edu-play]'),startBtn=e.target.closest('[data-academy-start]'),claimBtn=e.target.closest('[data-daily-claim]'),onlineBtn=e.target.closest('[data-open-online]');if(tabBtn){openEducationHub(tabBtn.dataset.eduTab);return;}if(startBtn){startSoloEducationGame(startBtn.dataset.academyStart,1);return;}if(playBtn){startSoloEducationGame(playBtn.dataset.eduPlay,Number(playBtn.dataset.eduLevel));return;}if(claimBtn){claimDailyQuest(Number(claimBtn.dataset.dailyClaim));return;}if(onlineBtn){openSocialHub();}};
     });
   }
-  function openDailyChallenges(){openChallengeHub('daily');}
-  function startLearningLesson(lessonId){const lesson=allLearningLessons().find(l=>l.id===lessonId);if(!lesson)return;let step=0,hearts=3,correct=0,locked=false;const questions=lesson.questions.map(([text,options,correctIndex])=>{const shuffled=options.map((value,index)=>({value,correct:index===correctIndex})).sort(()=>Math.random()-.5);return[text,shuffled.map(x=>x.value),shuffled.findIndex(x=>x.correct)];}).sort(()=>Math.random()-.5);
-    const render=()=>{const q=questions[step],progress=Math.round(step/questions.length*100);openModal(lesson.title,`<div class="lesson-hud"><b>❤️ ${hearts}</b><div><i style="width:${progress}%"></i></div><b>${step+1}/${questions.length}</b></div><div class="lesson-question"><small>${lesson.unit.icon} ${lesson.unit.title}</small><h3>${q[0]}</h3></div><div class="lesson-options">${q[1].map((opt,i)=>`<button data-lesson-answer="${i}"><span>${String.fromCharCode(65+i)}</span>${opt}</button>`).join('')}</div><div id="lessonFeedback" class="lesson-feedback" hidden></div>`,root=>{$$('[data-lesson-answer]',root).forEach(btn=>btn.onclick=()=>{if(locked)return;locked=true;const choice=Number(btn.dataset.lessonAnswer),feedback=$('#lessonFeedback',root),buttons=$$('[data-lesson-answer]',root);buttons.forEach(b=>b.disabled=true);if(choice===q[2]){correct++;state.learning.totalCorrect++;btn.classList.add('correct');feedback.hidden=false;feedback.className='lesson-feedback good';feedback.innerHTML='<b>Correto!</b><span>Ótimo trabalho.</span>';beep(780,80);addXP(6);}else{hearts--;btn.classList.add('wrong');buttons[q[2]]?.classList.add('correct');feedback.hidden=false;feedback.className='lesson-feedback bad';feedback.innerHTML=`<b>Quase!</b><span>A resposta correta é: ${q[1][q[2]]}</span>`;beep(180,110,'sawtooth');}setTimeout(()=>{if(hearts<=0)return finishLearningLesson(lesson,correct,questions.length,false);step++;locked=false;if(step>=questions.length)finishLearningLesson(lesson,correct,questions.length,true);else render();},900);});});};render();}
-  function finishLearningLesson(lesson,correct,total,finished){const passed=finished&&correct>=Math.ceil(total*.6),stars=passed?(correct===total?3:correct>=total-1?2:1):0,old=lessonRecord(lesson.id);state.learning.lessons[lesson.id]={completed:old.completed||passed,stars:Math.max(old.stars||0,stars),best:Math.max(old.best||0,correct),attempts:(old.attempts||0)+1};state.learning.lastLesson=lesson.id;if(passed){state.learning.crowns+=(old.completed?0:1);if(correct===total)state.learning.perfectLessons++;const coins=35+stars*15;addCoins(coins);addXP(30+stars*10);awardMedal(correct===total?'Lição Perfeita':'Aluno da Academia');saveState(true);openModal('Lição concluída!',`<div class="lesson-result"><div>${correct===total?'🏆':'🎉'}</div><h3>${correct}/${total} corretas</h3><p>${'⭐'.repeat(stars)} Você ganhou ${coins} moedas.</p><button class="btn primary" data-learning-continue>Continuar na trilha</button></div>`,root=>$('[data-learning-continue]',root).onclick=()=>openChallengeHub('path'));}else{saveState(true);openModal('Tente novamente',`<div class="lesson-result"><div>💪</div><h3>${correct}/${total} corretas</h3><p>Você precisa acertar pelo menos 3 respostas. Seus corações acabaram, mas você pode repetir sem perder moedas.</p><button class="btn primary" data-learning-retry>Repetir lição</button><button class="btn" data-learning-path>Voltar à trilha</button></div>`,root=>{$('[data-learning-retry]',root).onclick=()=>startLearningLesson(lesson.id);$('[data-learning-path]',root).onclick=()=>openChallengeHub('path');});}}
+  function openChallengeHub(tab='math'){openEducationHub(tab==='path'?'math':tab);}
+  function openDailyChallenges(){openEducationHub('daily');}
+  function runEducationGame({subject,level=1,seed=Date.now(),rounds=5,multiplayer=false,opponent='',onFinish=null}){
+    const def=EDUCATION_SUBJECTS[subject]||EDUCATION_SUBJECTS.math,items=generateEducationRounds(subject,level,seed,rounds);let step=0,hearts=3,score=0,locked=false,sequence=[];const started=performance.now();
+    const complete=()=>{const elapsed=Math.round(performance.now()-started),result={score,total:items.length,elapsed,subject,level};if(onFinish)return onFinish(result);finishSoloEducationGame(result);};
+    const render=()=>{if(step>=items.length||hearts<=0)return complete();const q=items[step],progress=Math.round(step/items.length*100),speak=q.speak?`<button class="edu-speak" data-edu-speak>🔊 Ouvir</button>`:'';
+      const options=q.kind==='sequence'?`<div class="sequence-built" id="sequenceBuilt">${sequence.join('')||'Toque nas sílabas'}</div><div class="sequence-options">${q.tokens.map((t,i)=>`<button data-sequence-token="${i}">${t}</button>`).join('')}</div><div class="sequence-actions"><button data-sequence-clear>Limpar</button><button class="primary" data-sequence-check>Confirmar</button></div>`:`<div class="edu-options">${q.options.map((opt,i)=>`<button data-edu-answer="${escapeHtml(String(opt))}"><span>${String.fromCharCode(65+i)}</span>${escapeHtml(String(opt))}</button>`).join('')}</div>`;
+      openModal(multiplayer?`Duelo: ${def.title}`:`${def.title} • Nível ${level}`,`<div class="lesson-hud"><b>❤️ ${hearts}</b><div><i style="width:${progress}%"></i></div><b>${step+1}/${items.length}</b></div>${multiplayer?`<div class="duel-opponent">⚔️ contra <b>${escapeHtml(opponent)}</b></div>`:''}<div class="edu-question" style="--edu:${def.color}"><small>${def.icon} ${def.title}</small><div class="edu-visual">${q.visual}</div><h3>${q.prompt}</h3>${speak}</div>${options}<div id="eduFeedback" class="lesson-feedback" hidden></div>`,root=>{
+        if(q.autoSpeak)setTimeout(()=>speakKidWord(q.speak),180);$('[data-edu-speak]',root)?.addEventListener('click',()=>speakKidWord(q.speak));
+        const resolveAnswer=(answer,button=null)=>{if(locked)return;locked=true;const correct=String(answer).toUpperCase()===String(q.answer).toUpperCase(),feedback=$('#eduFeedback',root);if(correct){score++;state.learning.totalCorrect++;button?.classList.add('correct');feedback.hidden=false;feedback.className='lesson-feedback good';feedback.innerHTML='<b>Correto!</b><span>Continue assim.</span>';beep(780,80);addXP(5);}else{hearts--;button?.classList.add('wrong');feedback.hidden=false;feedback.className='lesson-feedback bad';feedback.innerHTML=`<b>Quase!</b><span>Resposta: ${escapeHtml(q.displayAnswer||q.answer)}</span>`;beep(180,110,'sawtooth');}setTimeout(()=>{step++;sequence=[];locked=false;render();},780);};
+        $$('[data-edu-answer]',root).forEach(btn=>btn.onclick=()=>resolveAnswer(btn.dataset.eduAnswer,btn));
+        $$('[data-sequence-token]',root).forEach(btn=>btn.onclick=()=>{if(locked||btn.disabled)return;sequence.push(q.tokens[Number(btn.dataset.sequenceToken)]);btn.disabled=true;$('#sequenceBuilt',root).textContent=sequence.join('');});
+        $('[data-sequence-clear]',root)?.addEventListener('click',()=>{sequence=[];render();});$('[data-sequence-check]',root)?.addEventListener('click',()=>resolveAnswer(sequence.join(''),$('[data-sequence-check]',root)));
+      });
+    };render();
+  }
+  function startSoloEducationGame(subject,level){try{closeChallengePrompt();runEducationGame({subject,level:Number(level)||1,seed:Date.now()});}catch(error){console.error('Academia Kids:',error);toast('Não foi possível abrir o jogo. Atualize a página.','bad',3000);}}
+  function finishSoloEducationGame(result){const passed=result.score>=3,stars=passed?(result.score===result.total?3:result.score>=4?2:1):0,key=`${result.subject}-${result.level}`,old=subjectLevelRecord(result.subject,result.level);state.learning.lessons[key]={completed:old.completed||passed,stars:Math.max(old.stars||0,stars),best:Math.max(old.best||0,result.score),attempts:(old.attempts||0)+1};state.learning.lastLesson=key;state.learning.subjectXP[result.subject]=(state.learning.subjectXP[result.subject]||0)+result.score*10;if(passed){state.learning.crowns+=(old.completed?0:1);if(result.score===result.total)state.learning.perfectLessons++;const coins=30+stars*18;addCoins(coins);addXP(25+stars*12);awardMedal(result.score===result.total?`${EDUCATION_SUBJECTS[result.subject].title} Perfeito`:`Aluno ${EDUCATION_SUBJECTS[result.subject].title}`);saveState(true);openModal('Fase concluída!',`<div class="lesson-result"><div>${result.score===result.total?'🏆':'🎉'}</div><h3>${result.score}/${result.total}</h3><p>${'⭐'.repeat(stars)} Você ganhou ${coins} moedas.</p><button class="btn primary" data-edu-continue>Continuar</button></div>`,root=>$('[data-edu-continue]',root).onclick=()=>openEducationHub(result.subject));}else{saveState(true);openModal('Treine mais um pouco',`<div class="lesson-result"><div>💪</div><h3>${result.score}/${result.total}</h3><p>Você precisa acertar pelo menos 3 atividades.</p><button class="btn primary" data-edu-retry>Tentar novamente</button><button class="btn" data-edu-back>Voltar</button></div>`,root=>{$('[data-edu-retry]',root).onclick=()=>startSoloEducationGame(result.subject,result.level);$('[data-edu-back]',root).onclick=()=>openEducationHub(result.subject);});}}
 
   function triggerEmote(type,npc=null){player.emoteType=type;player.emoteUntil=performance.now()+2200;if(npc){npc.emoteType=type;npc.emoteUntil=performance.now()+2200;}const msg={wave:'Acenou!',dance:'Hora da dança!',selfie:'Selfie da amizade!',highfive:'Toca aqui!'};toast(msg[type]||'Ação social!','good',1200);beep(type==='highfive'?820:620,55);vibrate(15);addXP(3);}
 
-  const quizQuestions = [
-    ['O que recupera energia?', ['Dormir na cama', 'Pular na lava', 'Fechar o jogo'], 0],
-    ['O que é necessário para construir?', ['Madeira e pedra', 'Apenas moedas', 'Nenhum item'], 0],
-    ['Como fazer amizade?', ['Conversando e ajudando', 'Batendo nos vizinhos', 'Ignorando todos'], 0],
-    ['Quem pode entrar em uma casa trancada?', ['O proprietário', 'Qualquer inimigo', 'Ninguém nunca'], 0],
-    ['Qual botão serve para interagir?', ['AÇÃO', 'PODER', 'MAPA'], 0],
-    ['Onde fica a aventura de plataformas?', ['No Vale dos Cristais', 'Dentro do menu', 'No céu invisível'], 0],
-    ['O que melhora a reputação?', ['Completar tarefas', 'Perder itens', 'Sair do mapa'], 0],
-    ['Qual item conserta a ponte?', ['Madeira e pedra', 'Televisão', 'Água'], 0],
-    ['O modo AR faz o quê?', ['Mostra o Otthos no mundo real', 'Apaga o progresso', 'Remove o 3D'], 0],
-    ['O que o Otthos pode fazer em casa?', ['Dormir, comer e se divertir', 'Somente ficar parado', 'Apenas lutar'], 0]
-  ];
-  function openQuiz() {
-    let index = Math.floor(Math.random() * quizQuestions.length), score = 0, answered = 0;
-    const render = () => {
-      const [q, options, correct] = quizQuestions[index];
-      openModal(`Quiz — ${score} ponto${score === 1 ? '' : 's'}`, `<h3>${q}</h3><div>${options.map((o, i) => `<button class="quiz-option" data-opt="${i}">${o}</button>`).join('')}</div>`, root => {
-        $$('[data-opt]', root).forEach(btn => btn.onclick = () => {
-          const choice = Number(btn.dataset.opt); answered++;
-          if (choice === correct) { score++; btn.classList.add('correct'); addXP(10); beep(760); }
-          else { btn.classList.add('wrong'); $$('[data-opt]', root)[correct].classList.add('correct'); beep(190, 100, 'sawtooth'); }
-          setTimeout(() => {
-            if (answered >= 5) {
-              awardMedal(score >= 4 ? 'Mestre do Quiz' : 'Aprendiz do Quiz');
-              addCoins(score * 8);
-              openModal('Resultado', `<h3>${score}/5</h3><p>Você ganhou ${score * 8} moedas.</p><div class="modal-actions"><button class="btn primary" data-close>Concluir</button></div>`, r => $('[data-close]', r).onclick = closeModal);
-            } else { index = (index + 1 + Math.floor(Math.random() * 3)) % quizQuestions.length; render(); }
-          }, 550);
-        });
-      });
-    };
-    render();
-  }
+  function openQuiz(){openEducationHub('math');}
 
   const talkAnswers = [
-    { keys: ['casa','moradia'], text: 'Você pode comprar casas, trancar as suas portas e usar cada cômodo. A Casa do Otthos já é sua.' },
+    { keys: ['casa','moradia'], text: 'Você pode comprar casas, trancar as suas portas e usar cada cômodo. A sua casa inicial já é sua.' },
     { keys: ['amigo','vizinho'], text: 'Converse com Nino, Luna, Teo, Bia e Maya. A amizade aumenta quando você fala e ajuda.' },
     { keys: ['construir','bloco'], text: 'Colete madeira e pedra. No botão Construir você escolhe blocos, cercas e decoração.' },
     { keys: ['emprego','trabalho'], text: 'A Garagem oferece entregas com o carrinho. Elas dão moedas e reputação.' },
     { keys: ['missão','objetivo'], text: 'Siga o cartão de missão no alto. Ele muda quando você completa cada objetivo.' },
     { keys: ['multiplayer'], text: 'O mundo online usa Firebase: jogadores aparecem em tempo real, conversam e mantêm nome e progresso salvos.' },
-    { keys: ['ar','realidade'], text: 'Use Realidade Aumentada para colocar o Otthos no chão do mundo real.' }
+    { keys: ['ar','realidade'], text: 'Use Realidade Aumentada para colocar seu personagem no chão do mundo real.' }
   ];
   function openTalk() {
-    openModal('Conversar com Otthos', `<p>Pergunte sobre casa, vizinhos, construção, trabalho, missões ou AR.</p><div class="talk-row"><input id="talkInput" placeholder="Digite sua pergunta"><button id="talkSend" class="btn primary">Perguntar</button></div><div id="talkAnswer" class="dialogue-box">Estou ouvindo!</div>`, root => {
+    openModal('Guia da Vila', `<p>Pergunte sobre casa, vizinhos, construção, trabalho, missões ou AR.</p><div class="talk-row"><input id="talkInput" placeholder="Digite sua pergunta"><button id="talkSend" class="btn primary">Perguntar</button></div><div id="talkAnswer" class="dialogue-box">Estou ouvindo!</div>`, root => {
       const input = $('#talkInput', root), answer = $('#talkAnswer', root);
       const send = () => {
         const value = input.value.toLowerCase().trim();
         const found = talkAnswers.find(row => row.keys.some(k => value.includes(k)));
-        answer.textContent = found ? found.text : 'Explore o mundo, entre nas casas e converse com os moradores. Cada atividade melhora sua vida e libera novas missões.';
+        answer.textContent = found ? playerText(found.text) : 'Explore o mundo, entre nas casas e converse com os moradores. Cada atividade melhora sua vida e libera novas missões.';
         input.value = '';
       };
       $('#talkSend', root).onclick = send;
@@ -510,33 +492,29 @@
     return `<section class="avatar-section"><h3>${title}</h3><div class="avatar-grid">${avatarCatalog[type].map(([id,name,icon]) => `<button class="avatar-option ${state.avatar[type]===id?'selected':''}" data-avatar-type="${type}" data-avatar-id="${id}"><b>${icon}</b><span>${name}</span></button>`).join('')}</div></section>`;
   }
   function openAvatarStudio() {
-    openModal('Meu Otthos', `<div class="avatar-summary"><div class="avatar-face"><i></i><i></i></div><div><b>Personalize seu personagem</b><span>Roupas e acessórios ficam salvos no celular.</span></div></div>${avatarChoiceGroup('outfit','Roupa')}${avatarChoiceGroup('hat','Chapéu')}${avatarChoiceGroup('accessory','Acessório')}<div class="modal-actions"><button class="btn primary" data-avatar-save>Salvar visual</button></div>`, root => {
+    openModal(`Meu ${playerDisplayName()}`, `<div class="avatar-summary"><div class="avatar-face"><i></i><i></i></div><div><b>Personalize seu personagem</b><span>Roupas e acessórios ficam salvos no celular.</span></div></div>${avatarChoiceGroup('outfit','Roupa')}${avatarChoiceGroup('hat','Chapéu')}${avatarChoiceGroup('accessory','Acessório')}<div class="modal-actions"><button class="btn primary" data-avatar-save>Salvar visual</button></div>`, root => {
       $$('[data-avatar-type]', root).forEach(btn => btn.onclick = () => {
         state.avatar[btn.dataset.avatarType] = btn.dataset.avatarId;
         $$(`[data-avatar-type="${btn.dataset.avatarType}"]`, root).forEach(x => x.classList.toggle('selected', x === btn));
         applyAvatarCustomization();
       });
-      $('[data-avatar-save]', root).onclick = () => { setFlag('customizedAvatar'); saveState(true); closeModal(); toast('Visual do Otthos salvo!', 'good'); };
+      $('[data-avatar-save]', root).onclick = () => { setFlag('customizedAvatar'); saveState(true); closeModal(); toast(`Visual de ${playerDisplayName()} salvo!`, 'good'); };
     });
   }
   function openLifePanel() {
     const c = state.career;
     const friendships = Object.entries(state.friendship).sort((a,b)=>b[1]-a[1]).map(([id,value])=>`<div class="friend-row"><span>${({nino:'Nino',luna:'Luna',teo:'Teo',bia:'Bia',maya:'Maya'})[id]||id}</span><b>${value}/100</b></div>`).join('');
-    openModal('Minha vida', `<div class="roleplay-card"><small>CARREIRA</small><h3>${c.title}</h3><p>Nível ${c.level} • ${c.xp} XP profissional • ${c.completed} trabalhos</p></div><div class="choice-grid"><button class="choice" data-life-avatar><b>👕 Meu Otthos</b><span>Roupas e acessórios</span></button><button class="choice" data-life-jobs><b>💼 Trabalhos</b><span>Ganhe moedas e reputação</span></button></div><h3>Amizades</h3><div class="friend-list">${friendships}</div>`, root => {
+    openModal('Minha vida', `<div class="roleplay-card"><small>CARREIRA</small><h3>${c.title}</h3><p>Nível ${c.level} • ${c.xp} XP profissional • ${c.completed} trabalhos</p></div><div class="choice-grid"><button class="choice" data-life-avatar><b>👕 Meu personagem</b><span>Roupas e acessórios</span></button><button class="choice" data-life-jobs><b>💼 Trabalhos</b><span>Ganhe moedas e reputação</span></button></div><h3>Amizades</h3><div class="friend-list">${friendships}</div>`, root => {
       $('[data-life-avatar]', root).onclick = openAvatarStudio;
       $('[data-life-jobs]', root).onclick = openJobCenter;
     });
   }
   const moldFiles = [
     ['athos_moldes_caneta_3d.png','Moldes para caneta 3D'],
-    ['athos_moldes_para_caneta_3d.png','Peças do Otthos'],
-    ['modelo-referencia-athos.png','Modelo de referência'],
-    ['modelo_referencia.png','Referência frontal'],
-    ['modelo_referencia_athos.png','Referência completa'],
-    ['moldes-athos-caneta-3d.png','Kit de moldes']
+    ['modelo-referencia-athos.png','Modelo de referência do personagem']
   ];
   function openMolds() {
-    openModal('Moldes 3D do Otthos', `<p>Abra a imagem em tamanho maior para usar como referência.</p><div class="mold-grid">${moldFiles.map(([file, title]) => `<a class="mold-card" href="./assets/moldes/${file}" target="_blank" rel="noopener"><img src="./assets/moldes/${file}" alt="${title}"><b>${title}</b></a>`).join('')}</div>`);
+    openModal(`Moldes 3D de ${playerDisplayName()}`, `<p>Abra a imagem em tamanho maior para usar como referência.</p><div class="mold-grid">${moldFiles.map(([file, title]) => `<a class="mold-card" href="./assets/moldes/${file}" target="_blank" rel="noopener"><img src="./assets/moldes/${file}" alt="${title}"><b>${title}</b></a>`).join('')}</div>`);
   }
   function openHow() {
     openModal('Como jogar', `<div class="choice-grid">
@@ -546,7 +524,7 @@
       <div class="choice"><b>◱ Mini</b><span>Entre em espaços pequenos e desafios especiais.</span></div>
       <div class="choice"><b>N Normal</b><span>Volta ao tamanho padrão.</span></div>
       <div class="choice"><b>⬡ Grande</b><span>Abra portões pesados e enfrente desafios fortes.</span></div>
-      <div class="choice"><b>↻ Girar</b><span>Executa o giro do Otthos.</span></div>
+      <div class="choice"><b>↻ Girar</b><span>Executa o giro do personagem.</span></div>
       <div class="choice"><b>⬆ Pular</b><span>Pulo rápido com peso. Use nas plataformas e corridas.</span></div>
       <div class="choice"><b>🔥 Poder</b><span>Lança fogo contra monstros de fantasia.</span></div>
       <div class="choice"><b>🏃 Ginásio</b><span>Dispute corridas e desafios pega-moedas com os vizinhos.</span></div>
@@ -560,7 +538,7 @@
     {
       id: 'home', title: 'Arrume sua casa', chapter: 'CAPÍTULO 1 — VIDA EM CASA', reward: { coins: 100, medal: 'Minha Primeira Casa' },
       steps: [
-        ['enteredHome', 'Entre na Casa do Otthos.'],
+        ['enteredHome', 'Entre na sua casa.'],
         ['slept', 'Durma na cama para recuperar energia.'],
         ['ateMeal', 'Prepare e coma uma refeição.'],
         ['talkedNeighbor', 'Converse com Nino na praça.']
@@ -599,7 +577,7 @@
       ]
     },
     {
-      id: 'roleplay', title: 'Construa sua história', chapter: 'CAPÍTULO 6 — ROLE PLAY', reward: { coins: 500, medal: 'Vida de Otthos' },
+      id: 'roleplay', title: 'Construa sua história', chapter: 'CAPÍTULO 6 — ROLE PLAY', reward: { coins: 500, medal: 'Minha Vida na Vila' },
       steps: [
         ['customizedAvatar', 'Escolha uma roupa e um acessório.'],
         ['completedJob', 'Conclua um trabalho da vila.'],
@@ -660,14 +638,16 @@
     const { chapter, stepIndex } = activeMission;
     els.missionChapter.textContent = chapter.chapter;
     els.missionTitle.textContent = chapter.title;
-    els.missionStep.textContent = stepIndex < chapter.steps.length ? chapter.steps[stepIndex][1] : 'Capítulo concluído!';
+    els.missionStep.textContent = stepIndex < chapter.steps.length ? playerText(chapter.steps[stepIndex][1]) : 'Capítulo concluído!';
     els.missionFill.style.width = `${Math.round((Math.min(stepIndex, chapter.steps.length) / chapter.steps.length) * 100)}%`;
   }
 
 
   function sanitizePlayerName(value){return String(value||'').replace(/[^\p{L}\p{N} _.-]/gu,'').replace(/\s+/g,' ').trim().slice(0,18);}
   function hasValidPlayerName(){const name=sanitizePlayerName(state.profile.name);return !!(state.profile.nameConfirmed&&name.length>=3);}
-  function updatePlayerNameUI(){const name=hasValidPlayerName()?state.profile.name:'Escolher nome';if(els.lobbyPlayerName)els.lobbyPlayerName.textContent=name;if(els.hudPlayerName)els.hudPlayerName.textContent=hasValidPlayerName()?state.profile.name:'Jogador';}
+  function playerDisplayName(){return hasValidPlayerName()?sanitizePlayerName(state.profile.name):'Jogador';}
+  function playerText(value=''){return String(value).replaceAll('Casa do Otthos',`Casa de ${playerDisplayName()}`).replaceAll('do Otthos',`de ${playerDisplayName()}`).replaceAll('o Otthos',playerDisplayName()).replaceAll('Otthos',playerDisplayName());}
+  function updatePlayerNameUI(){const name=hasValidPlayerName()?state.profile.name:'Escolher nome';if(els.lobbyPlayerName)els.lobbyPlayerName.textContent=name;if(els.hudPlayerName)els.hudPlayerName.textContent=hasValidPlayerName()?state.profile.name:'Jogador';const menu=$('#avatarMenuName'),quick=$('#avatarQuickName');if(menu)menu.textContent=`Meu ${playerDisplayName()}`;if(quick)quick.textContent=playerDisplayName();const homeLoc=MAP_LOCATIONS?.find?.(x=>x.id==='home');if(homeLoc)homeLoc.name=`Casa de ${playerDisplayName()}`;const homeHouse=world?.houses?.find?.(x=>x.id==='home');if(homeHouse)homeHouse.name=`Casa de ${playerDisplayName()}`;updateLocalPlayerNameLabel?.();}
   function applyPlayerName(name){const clean=sanitizePlayerName(name);if(clean.length<3){toast('Digite um nome com pelo menos 3 caracteres.','warn',2200);return false;}state.profile.name=clean;state.profile.nameConfirmed=true;state.multiplayer.displayName=clean;updatePlayerNameUI();saveState(true);window.OTTHOS_RTDB?.setDisplayName?.(clean);if(running)window.OTTHOS_RTDB?.publish?.({name:clean,x:player.x,y:player.y,z:player.z,r:player.facing,vehicle:!!player.vehicle,scaleMode:player.scaleMode,crouched:!!player.crouched,color:0x5ad8ff},true);return true;}
   function openPlayerNameModal(required=false,onSaved=null){
     const current=hasValidPlayerName()?state.profile.name:'';
@@ -748,7 +728,7 @@
   function routeSvgMarkup(points){const mapped=points.map(p=>worldToMap(p.x,p.z));return `<svg class="map-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polyline points="${mapped.map(p=>`${p.left},${p.top}`).join(' ')}"/></svg>`;}
 
   const MAP_LOCATIONS = [
-    { id:'home', name:'Casa do Otthos', icon:'🏠', x:0, z:18, navX:0, navZ:23.3, group:'Casa' },
+    { id:'home', name:`Casa de ${playerDisplayName()}`, icon:'🏠', x:0, z:18, navX:0, navZ:23.3, group:'Casa' },
     { id:'village', name:'Praça da Vila', icon:'🏘', x:0, z:0, group:'Vila' },
     { id:'blue', name:'Casa Azul', icon:'🏡', x:-25, z:17, navX:-25, navZ:22.3, group:'Casas' },
     { id:'pink', name:'Casa Rosa', icon:'🏡', x:25, z:17, navX:25, navZ:22.3, group:'Casas' },
@@ -762,7 +742,10 @@
     { id:'castle', name:'Castelo', icon:'🏰', x:88, z:62, group:'Aventura' },
     { id:'mini', name:'Passagem Mini', icon:'◱', x:-38, z:42, group:'Habilidades' },
     { id:'crouch', name:'Túnel Baixo', icon:'▼', x:-53, z:24, group:'Habilidades' },
-    { id:'giant', name:'Portão Grande', icon:'⬡', x:36, z:-35, group:'Habilidades' }
+    { id:'giant', name:'Portão Grande', icon:'⬡', x:36, z:-35, group:'Habilidades' },
+    { id:'edu-math', name:'Matemática Kids', icon:'🔢', x:22, z:-32, navX:18, navZ:-32, group:'Academia' },
+    { id:'edu-portuguese', name:'Português Kids', icon:'📚', x:22, z:-40, navX:18, navZ:-40, group:'Academia' },
+    { id:'edu-english', name:'English Kids', icon:'🌎', x:22, z:-48, navX:18, navZ:-48, group:'Academia' }
   ];
   function worldToMap(x,z){ return { left:clamp((x+116)/232*100,2.5,97.5), top:clamp((116-z)/232*100,2.5,97.5) }; }
   function mapDistance(point){ return Math.round(Math.hypot(player.x-point.x,player.z-point.z)); }
@@ -831,7 +814,9 @@
   }
 
 
-  els.quizBtn.onclick = openQuiz;
+  els.quizBtn.onclick = () => openEducationHub('math');
+  els.challengePromptAccept.onclick=()=>{if(promptChallengeId)acceptIncomingChallenge(promptChallengeId);else if(promptSessionId){const s=gameSessions.get(promptSessionId);if(s)launchSessionWithCountdown(s);}};
+  els.challengePromptDecline.onclick=()=>{if(promptChallengeId)declineIncomingChallenge(promptChallengeId);else closeChallengePrompt();};
   els.talkBtn.onclick = openTalk;
   els.collectionBtn.onclick = openCollection;
   els.avatarBtn.onclick = openAvatarStudio;
@@ -841,7 +826,7 @@
   els.avatarGameBtn.onclick = openLifePanel;
   els.inventoryBtn.onclick = openInventory;
   els.mapBtn.onclick = openMap;
-  els.dailyBtn.onclick = () => openChallengeHub('path');
+  els.dailyBtn.onclick = () => openEducationHub('math');
   els.onlineBtn.onclick = openSocialHub;
   els.gameSettingsBtn.onclick = () => openSettings(true);
   function syncMobilePanels(){document.body.classList.toggle('skills-open',!!state.ui.skillsOpen);document.body.classList.toggle('quick-open',!!state.ui.quickOpen);els.skillsToggleBtn?.classList.toggle('active',!!state.ui.skillsOpen);els.quickToggleBtn?.classList.toggle('active',!!state.ui.quickOpen);els.quickBar.hidden=!state.ui.quickOpen;}
@@ -1007,7 +992,7 @@
     player.crouched = typeof force === 'boolean' ? force : !player.crouched;
     state.abilities.crouched = player.crouched;
     updateAbilityUI(); saveState();
-    toast(player.crouched ? 'Otthos abaixou.' : 'Otthos levantou.', 'good');
+    toast(player.crouched ? `${playerDisplayName()} abaixou.` : `${playerDisplayName()} levantou.`, 'good');
   }
   function spinPlayer(){ if(!els.modal.hidden||paused||player.vehicle)return; player.spinUntil=performance.now()+720; addXP(1); beep(430,50,'sine'); }
   function updateAbilityUI(){
@@ -1172,6 +1157,7 @@
     });
     playerModel.traverse(o=>{if(o.isMesh)addVoxelOutline(o,0x111827,.44);});
     vehicleVisual.traverse(o=>{if(o.isMesh)addVoxelOutline(o,0x132238,.34);});
+    const ownLabel=new THREE.Sprite(new THREE.SpriteMaterial({map:multiplayerNameTexture(playerDisplayName()),transparent:true,depthWrite:false,depthTest:false}));ownLabel.position.set(0,3.65,0);ownLabel.scale.set(2.65,.66,1);ownLabel.renderOrder=1000;playerGroup.add(ownLabel);playerGroup.userData.nameLabel=ownLabel;playerGroup.userData.displayName=playerDisplayName();
   }
 
   function loadFaithfulAthosModel() {
@@ -1567,6 +1553,11 @@
     createPlayground(-8,-38);createFountain(0,-2);createPortalArch(88,51);createChallengeCube(36,1.3,-27,'◆','#ffd43b');createChallengeCube(66,1.3,-50,'★','#53d8ff');createChallengeCube(-43,1.3,35,'◈','#ff756f');createAwning(-22,-14,0xef4444,0);createAwning(22,-14,0x2563eb,0);createCommercialDistrict();
   }
 
+  function createLearningStation(id,subject,x,z,color,icon,label){
+    const g=new THREE.Group();g.position.set(x,0,z);worldGroup.add(g);premiumBox(2.5,.35,2.5,0x34485e,0,.18,0,g);premiumBox(1.7,2.1,1.2,color,0,1.35,0,g);const panel=new THREE.Mesh(new THREE.PlaneGeometry(1.25,1.25),new THREE.MeshStandardMaterial({map:iconTexture(icon,color,'#ffffff'),roughness:.35,emissive:new THREE.Color(color),emissiveIntensity:.12,side:THREE.DoubleSide}));panel.position.set(0,1.55,.63);g.add(panel);const beacon=new THREE.Mesh(new THREE.OctahedronGeometry(.34,0),mat(color,{emissive:color,emissiveIntensity:1.1}));beacon.position.y=2.75;g.add(beacon);registerInteractable({id:`learning-${id}`,type:'education',icon,label,x,z,radius:3,priority:130,action:()=>openEducationHub(subject)});world.landmarks.push(g);return g;
+  }
+  function createLearningPlaza(){createLearningStation('math','math',22,-32,0x27b36a,'＋','Jogar Matemática Kids');createLearningStation('portuguese','portuguese',22,-40,0x7b5ce6,'A','Jogar Português Kids');createLearningStation('english','english',22,-48,0x168de2,'E','Jogar English Kids');createSignpost(22,-27,'Academia Kids',Math.PI/2);}
+
   function buildWorld(){
     worldGroup=new THREE.Group();scene.add(worldGroup);
     const ground=stableBox(250,.3,250,materials.grass,0,-.15,0,worldGroup,0);ground.receiveShadow=false;
@@ -1574,7 +1565,7 @@
     scene.background=new THREE.Color(0xbfe4ff);scene.fog=new THREE.Fog(0xc8eaff,190,470);
     // roads
     createRoad(0,0,18,210);createRoad(0,0,210,18);createRoad(-55,-55,9,105);createRoad(55,48,9,92);
-    createDistrictVisuals();
+    createDistrictVisuals();createLearningPlaza();
     // water, bridge, lava/secret zone
     createWater(-72,52,92,18);createWater(-100,70,38,34);
     // bridge visual and fixed flag
@@ -1585,7 +1576,7 @@
     for(let i=0;i<18;i++)createRock(-44+(Math.random()-.5)*60,-95+(Math.random()-.5)*54,.7+Math.random()*.6,true);
     for(let i=0;i<80;i++)createFlower((Math.random()-.5)*190,(Math.random()-.5)*190,Math.random()>.5?0xff74c9:0xffdf55);
     // village houses
-    const home=createHouse({id:'home',name:'Casa do Otthos',x:0,z:18,color:0xc4843e,roofColor:0xd93a38});addHouseInterior(home,'home');
+    const home=createHouse({id:'home',name:`Casa de ${playerDisplayName()}`,x:0,z:18,color:0xc4843e,roofColor:0xd93a38});addHouseInterior(home,'home');
     const blue=createHouse({id:'blue',name:'Casa Azul',x:-25,z:17,color:0x4f9fd7,roofColor:0x225fa5,price:250});addHouseInterior(blue,'neighbor');
     const pink=createHouse({id:'pink',name:'Casa Rosa',x:25,z:17,color:0xe58aae,roofColor:0xb63871,price:420});addHouseInterior(pink,'neighbor');
     const cabin=createHouse({id:'cabin',name:'Cabana da Floresta',x:-88,z:-42,color:0x7e4a28,roofColor:0x4d2b1c,price:180});addHouseInterior(cabin,'neighbor');
@@ -1678,7 +1669,7 @@
   function openHomeChest(){
     const keys=[['wood','Madeira','🪵'],['stone','Pedra','🪨'],['food','Comida','🍎'],['water','Água','💧'],['crystals','Cristais','💎']];
     const rows=keys.map(([key,name,icon])=>`<div class="storage-row"><span>${icon} ${name}</span><b>Mochila ${state.inventory[key]||0} • Baú ${state.homeStorage[key]||0}</b><div><button data-store="${key}">Guardar 1</button><button data-take="${key}">Retirar 1</button></div></div>`).join('');
-    openModal('Baú da Casa do Otthos',`<p>Guarde recursos sem abrir o inventário geral.</p><div class="storage-list">${rows}</div>`,root=>{
+    openModal(`Baú da casa de ${playerDisplayName()}`,`<p>Guarde recursos sem abrir o inventário geral.</p><div class="storage-list">${rows}</div>`,root=>{
       $$('[data-store]',root).forEach(btn=>btn.onclick=()=>{const key=btn.dataset.store;if((state.inventory[key]||0)<=0){toast('Você não tem esse item.','warn');return;}state.inventory[key]--;state.homeStorage[key]=(state.homeStorage[key]||0)+1;saveState(true);openHomeChest();});
       $$('[data-take]',root).forEach(btn=>btn.onclick=()=>{const key=btn.dataset.take;if((state.homeStorage[key]||0)<=0){toast('O baú não tem esse item.','warn');return;}state.homeStorage[key]--;state.inventory[key]=(state.inventory[key]||0)+1;saveState(true);openHomeChest();});
     });
@@ -1690,7 +1681,7 @@
     }else if(type==='sofa'){
       player.sitUntil=performance.now()+2400;state.needs.fun=clamp(state.needs.fun+20,0,100);toast('Sentou no sofá.','good');addXP(5);
     }else if(type==='tv'){
-      player.sitUntil=performance.now()+3000;state.needs.fun=clamp(state.needs.fun+34,0,100);state.needs.energy=clamp(state.needs.energy-3,0,100);toast('Assistindo ao desenho do Otthos!','good');addXP(8);
+      player.sitUntil=performance.now()+3000;state.needs.fun=clamp(state.needs.fun+34,0,100);state.needs.energy=clamp(state.needs.energy-3,0,100);toast(`Assistindo ao desenho de ${playerDisplayName()}!`,'good');addXP(8);
     }else if(type==='fridge'){
       openModal('Geladeira',`<p>Comida disponível: <b>${state.inventory.food}</b></p><div class="modal-actions"><button class="btn primary" data-eat>Comer lanche</button><button class="btn" data-close>Fechar</button></div>`,root=>{
         $('[data-eat]',root).onclick=()=>{if(state.inventory.food<=0){toast('A geladeira está vazia.','warn');return;}state.inventory.food--;state.needs.hunger=clamp(state.needs.hunger+32,0,100);setFlag('ateMeal');addXP(12);saveState();closeModal();toast('Lanche delicioso!','good');};$('[data-close]',root).onclick=closeModal;
@@ -1745,7 +1736,7 @@
       <button class="choice" data-social="wave"><b>👋 Acenar</b><span>Animação social rápida</span></button>
       <button class="choice" data-social="dance"><b>🕺 Dançar</b><span>Aumenta diversão</span></button>
       <button class="choice" data-social="selfie"><b>📸 Tirar selfie</b><span>Guarde uma lembrança</span></button>
-      <button class="choice" data-social="follow"><b>👣 Seguir junto</b><span>O vizinho acompanha o Otthos</span></button>
+      <button class="choice" data-social="follow"><b>👣 Seguir junto</b><span>O vizinho acompanha você</span></button>
     </div>`,root=>{
       $$('[data-social]',root).forEach(btn=>btn.onclick=()=>{
         const action=btn.dataset.social;
@@ -1947,7 +1938,7 @@
     const specialIcon=$('b',els.specialBtn),specialLabel=$('span',els.specialBtn);
     if(specialIcon)specialIcon.textContent=player.vehicle?'📣':'🔥';
     if(specialLabel)specialLabel.textContent=player.vehicle?'Buzina':'Poder';
-    if(els.specialBtn)els.specialBtn.setAttribute('aria-label',player.vehicle?'Buzina do carro':'Poder do Otthos');
+    if(els.specialBtn)els.specialBtn.setAttribute('aria-label',player.vehicle?'Buzina do carro':`Poder de ${playerDisplayName()}`);
   }
   function vehicleHorn(){
     if(!player.vehicle||paused||!els.modal.hidden)return;
@@ -2319,29 +2310,47 @@
   }
 
   function updateNeeds(dt){
-    updateNeeds.acc=(updateNeeds.acc||0)+dt;if(updateNeeds.acc<1)return;const sec=updateNeeds.acc;updateNeeds.acc=0;state.needs.hunger=clamp(state.needs.hunger-sec*.065,0,100);state.needs.energy=clamp(state.needs.energy-sec*(player.vehicle?(sprintRequested()?.085:.035):(input.isSprinting?.16:.045)),0,100);state.needs.fun=clamp(state.needs.fun-sec*.025,0,100);state.needs.hygiene=clamp(state.needs.hygiene-sec*.028,0,100);if(state.needs.hunger<8&&Math.random()<.08)toast('Otthos está com fome.','warn');updateHUD();if(!updateNeeds.lastSave||performance.now()-updateNeeds.lastSave>10000){updateNeeds.lastSave=performance.now();saveState();}
+    updateNeeds.acc=(updateNeeds.acc||0)+dt;if(updateNeeds.acc<1)return;const sec=updateNeeds.acc;updateNeeds.acc=0;state.needs.hunger=clamp(state.needs.hunger-sec*.065,0,100);state.needs.energy=clamp(state.needs.energy-sec*(player.vehicle?(sprintRequested()?.085:.035):(input.isSprinting?.16:.045)),0,100);state.needs.fun=clamp(state.needs.fun-sec*.025,0,100);state.needs.hygiene=clamp(state.needs.hygiene-sec*.028,0,100);if(state.needs.hunger<8&&Math.random()<.08)toast(`${playerDisplayName()} está com fome.`,'warn');updateHUD();if(!updateNeeds.lastSave||performance.now()-updateNeeds.lastSave>10000){updateNeeds.lastSave=performance.now();saveState();}
   }
 
   let localChannel=null,lastPublish=0,lastPublishSnapshot=null,lastPublishHeartbeat=0;
 
   let multiplayerState={mode:'solo',connected:false,count:0,room:'mundo-publico',error:'',players:[]};const remotePresence=new Map();
-  const cloudHouses=new Map(),cloudChat=[];
+  const cloudHouses=new Map(),cloudChat=[],incomingChallenges=new Map(),gameSessions=new Map(),shownChallengeToasts=new Set(),shownGameResults=new Set();let activeMultiplayerGameId='',promptChallengeId='',promptSessionId='';
+  function multiplayerGameLabel(type){return type==='portuguese'?'Português Kids':type==='english'?'English Kids':'Matemática Kids';}
+  function pendingChallenges(){return [...incomingChallenges.values()].filter(c=>c.status==='pending');}
+  function readyGameSessions(){const uid=window.OTTHOS_RTDB?.uid;return [...gameSessions.values()].filter(s=>(s.fromUid===uid||s.toUid===uid)&&s.status==='active');}
+  function closeChallengePrompt(){if(!els.challengePrompt)return;els.challengePrompt.hidden=true;els.challengePrompt.classList.remove('ready','incoming');promptChallengeId='';promptSessionId='';els.challengePromptAccept.disabled=false;els.challengePromptDecline.disabled=false;}
+  function showIncomingChallengePrompt(c){if(!c||c.status!=='pending'||!els.challengePrompt)return;promptChallengeId=c.id;promptSessionId='';els.challengePrompt.classList.add('incoming');els.challengePrompt.classList.remove('ready');els.challengePromptKicker.textContent='NOVO DESAFIO';els.challengePromptTitle.textContent=`${c.fromName||'Jogador'} desafiou você`;els.challengePromptText.textContent=`${multiplayerGameLabel(c.type)} • toque em Aceitar e jogar`;els.challengePromptAccept.textContent='Aceitar e jogar';els.challengePromptDecline.textContent='Recusar';els.challengePrompt.hidden=false;}
+  function showReadySessionPrompt(s){if(!s||s.status!=='active'||!els.challengePrompt)return;const uid=window.OTTHOS_RTDB?.uid,mine=s.players?.[uid];if(mine?.finished)return;promptSessionId=s.id;promptChallengeId='';els.challengePrompt.classList.add('ready');els.challengePrompt.classList.remove('incoming');els.challengePromptKicker.textContent='PARTIDA PRONTA';els.challengePromptTitle.textContent=`Duelo de ${multiplayerGameLabel(s.type)}`;els.challengePromptText.textContent=`Contra ${sessionOpponentName(s)} • os dois jogarão as mesmas 5 atividades`;els.challengePromptAccept.textContent='Jogar agora';els.challengePromptDecline.textContent='Depois';els.challengePrompt.hidden=false;}
+  async function launchSessionWithCountdown(session){if(!session)return;closeChallengePrompt();closeModal();let count=3;const draw=()=>openModal(`Duelo: ${multiplayerGameLabel(session.type)}`,`<div class="duel-countdown"><small>Contra ${escapeHtml(sessionOpponentName(session))}</small><b>${count}</b><span>Prepare-se!</span></div>`,root=>{});draw();const timer=setInterval(()=>{count--;if(count<=0){clearInterval(timer);closeModal();startMultiplayerEducationGame(session);}else draw();},620);}
+  function updateOnlineAttention(){const count=pendingChallenges().length+readyGameSessions().filter(s=>!s.players?.[window.OTTHOS_RTDB?.uid]?.finished).length;els.onlineBtn?.classList.toggle('attention',count>0);if(els.onlineBtn){const span=$('span',els.onlineBtn);if(span)span.textContent=count?`Online ${count}`:'Online';}}
+  function challengeInboxHtml(){const list=pendingChallenges();return list.length?`<div class="challenge-inbox">${list.map(c=>`<article class="challenge-card"><div><b>⚔️ ${escapeHtml(c.fromName||'Jogador')}</b><span>Desafio: ${multiplayerGameLabel(c.type)}</span></div><div><button class="accept" data-accept-challenge="${c.id}">Aceitar e jogar</button><button data-decline-challenge="${c.id}">Recusar</button></div></article>`).join('')}</div>`:'<p class="empty-online">Nenhum convite pendente.</p>';}
+  function activeSessionsHtml(){const uid=window.OTTHOS_RTDB?.uid,list=readyGameSessions();return list.length?`<div class="challenge-inbox">${list.map(s=>{const other=s.fromUid===uid?s.toName||remotePresence.get(s.toUid)?.name||'Adversário':s.fromName||'Adversário',mine=s.players?.[uid];return`<article class="challenge-card ready"><div><b>🎮 ${multiplayerGameLabel(s.type)}</b><span>contra ${escapeHtml(other)}</span></div><button class="accept" data-play-session="${s.id}" ${mine?.finished?'disabled':''}>${mine?.finished?'Concluído':'Jogar agora'}</button></article>`}).join('')}</div>`:'';}
+  function bindChallengeCards(root=els.modalBody){$$('[data-accept-challenge]',root).forEach(btn=>btn.onclick=()=>acceptIncomingChallenge(btn.dataset.acceptChallenge));$$('[data-decline-challenge]',root).forEach(btn=>btn.onclick=()=>declineIncomingChallenge(btn.dataset.declineChallenge));$$('[data-play-session]',root).forEach(btn=>btn.onclick=()=>{const s=gameSessions.get(btn.dataset.playSession);if(s)launchSessionWithCountdown(s);});}
+  async function acceptIncomingChallenge(id){const c=incomingChallenges.get(id)||window.OTTHOS_RTDB?.getChallenges?.()?.[id];if(!c){toast('Convite não encontrado. Abra Online e tente novamente.','warn');return;}els.challengePromptAccept.disabled=true;els.challengePromptDecline.disabled=true;els.challengePromptAccept.textContent='Conectando...';const result=await window.OTTHOS_RTDB?.respondGameChallenge?.(id,true);if(!result?.ok){els.challengePromptAccept.disabled=false;els.challengePromptDecline.disabled=false;els.challengePromptAccept.textContent='Aceitar e jogar';toast(result?.error||'Não foi possível aceitar.','warn',3000);return;}c.status='accepted';incomingChallenges.set(id,c);const session=result.session||await window.OTTHOS_RTDB?.getGameSession?.(id);if(session){gameSessions.set(id,{id,...session});refreshOpenSocialHub();toast(`Desafio aceito: ${multiplayerGameLabel(c.type)}`,'good');launchSessionWithCountdown({id,...session});}else{closeChallengePrompt();toast('Desafio aceito. Toque em Online > Jogar agora.','good',2600);}updateOnlineAttention();}
+  async function declineIncomingChallenge(id){const c=incomingChallenges.get(id);if(!c)return;els.challengePromptAccept.disabled=true;els.challengePromptDecline.disabled=true;await window.OTTHOS_RTDB?.respondGameChallenge?.(id,false);c.status='declined';incomingChallenges.set(id,c);closeChallengePrompt();refreshOpenSocialHub();updateOnlineAttention();}
+  function highestUnlockedLevel(subject){let value=1;for(let level=2;level<=6;level++){if(subjectUnlocked(subject,level))value=level;}return value;}
+  function openChallengePicker(uid,name){openModal(`Desafiar ${name}`,`<p>Escolha o jogo. O outro jogador receberá um cartão na tela com <b>Aceitar e jogar</b>.</p><div class="challenge-picker"><button data-challenge-type="math"><span>🔢</span><b>Matemática Kids</b><small>Contagem, soma e lógica</small></button><button data-challenge-type="portuguese"><span>📚</span><b>Português Kids</b><small>Letras, sílabas e palavras</small></button><button data-challenge-type="english"><span>🌎</span><b>English Kids</b><small>Imagens, sons e palavras</small></button></div>`,root=>{$$('[data-challenge-type]',root).forEach(btn=>btn.onclick=async()=>{btn.disabled=true;btn.classList.add('sending');const result=await window.OTTHOS_RTDB?.sendGameChallenge?.(uid,btn.dataset.challengeType,highestUnlockedLevel(btn.dataset.challengeType),name);if(result?.ok){toast(`Convite enviado para ${name}. Aguardando resposta.`,'good',2600);closeModal();}else{btn.disabled=false;btn.classList.remove('sending');toast(result?.error||'Falha ao enviar desafio.','warn');}});});}
+  function sessionOpponentName(session){const uid=window.OTTHOS_RTDB?.uid;return session.fromUid===uid?(remotePresence.get(session.toUid)?.name||session.toName||'Adversário'):(session.fromName||'Adversário');}
+  function startMultiplayerEducationGame(session){if(!session||session.status!=='active'){toast('Esta partida ainda não está pronta.','warn');return;}if(activeMultiplayerGameId&&activeMultiplayerGameId!==session.id){toast('Termine a partida atual.','warn');return;}activeMultiplayerGameId=session.id;closeChallengePrompt();runEducationGame({subject:session.type,level:Number(session.level||1),seed:Number(session.seed)||Date.now(),rounds:Number(session.rounds||5),multiplayer:true,opponent:sessionOpponentName(session),onFinish:async result=>{state.learning.multiplayerPlayed=(state.learning.multiplayerPlayed||0)+1;const ok=await window.OTTHOS_RTDB?.submitGameResult?.(session.id,result);saveState(true);openModal(ok?'Resultado enviado':'Resultado salvo no aparelho',`<div class="lesson-result"><div>${ok?'⏳':'⚠️'}</div><h3>${result.score}/${result.total}</h3><p>${ok?`Aguardando ${escapeHtml(sessionOpponentName(session))} terminar.`:'A conexão caiu. Abra Online para reenviar ou jogar novamente.'}</p><button class="btn primary" data-open-online>Ver partidas online</button></div>`,root=>$('[data-open-online]',root).onclick=openSocialHub);activeMultiplayerGameId='';}});}
+  function maybeShowMultiplayerResult(session){const players=Object.values(session.players||{}),uid=window.OTTHOS_RTDB?.uid;if(players.length<2||!players.every(p=>p.finished)||shownGameResults.has(session.id))return;shownGameResults.add(session.id);const mine=session.players?.[uid],other=Object.entries(session.players||{}).find(([id])=>id!==uid)?.[1],won=mine&&other&&(mine.score>other.score||(mine.score===other.score&&mine.elapsed<other.elapsed)),draw=mine&&other&&mine.score===other.score&&mine.elapsed===other.elapsed;if(won){state.learning.multiplayerWins=(state.learning.multiplayerWins||0)+1;addCoins(80);addXP(60);}saveState(true);openModal(draw?'Empate!':won?'Você venceu!':'Partida concluída',`<div class="duel-result"><div>${draw?'🤝':won?'🏆':'🎮'}</div><h3>${mine?.score||0} × ${other?.score||0}</h3><p>${escapeHtml(playerDisplayName())} • ${escapeHtml(sessionOpponentName(session))}</p><small>${won?'Você ganhou 80 moedas e 60 XP.':'Continue treinando e desafie novamente.'}</small><button class="btn primary" data-duel-close>Continuar no mundo</button></div>`,root=>$('[data-duel-close]',root).onclick=closeModal);window.OTTHOS_RTDB?.closeGameSession?.(session.id);}
   function multiplayerStatusText(){if(multiplayerState.connected)return`Mundo público • ${multiplayerState.count||1} online`;if(window.OTTHOS_RTDB?.configured)return multiplayerState.error?`Offline: ${multiplayerState.error}`:'Conectando ao mundo público...';return'Firebase indisponível';}
   function updateMultiplayerBadge(){if(!els.multiplayerBadge)return;els.multiplayerBadge.classList.toggle('online',multiplayerState.connected);els.multiplayerBadge.classList.toggle('offline',!multiplayerState.connected);const label=$('span',els.multiplayerBadge);if(label)label.textContent=multiplayerState.connected?`${multiplayerState.count||1} online`:'Offline';}
   function onlinePlayers(){return [...remotePresence.entries()].map(([uid,data])=>{const ghost=world.ghosts.get(uid);return{uid,name:data.name||ghost?.userData?.displayName||'Jogador',distance:ghost?Math.hypot(player.x-ghost.position.x,player.z-ghost.position.z):Math.hypot(player.x-(data.x||0),player.z-(data.z||0))}}).sort((a,b)=>a.distance-b.distance);}
   function onlinePlayerListHtml(players=onlinePlayers()){return players.length?players.map(p=>`<button class="online-player-card" data-online-player="${p.uid}"><span>👤</span><b>${escapeHtml(p.name)}</b><small>${Math.round(p.distance)} m</small></button>`).join(''):'<p>Nenhum outro jogador apareceu ainda. Abra o jogo em outro celular usando o mesmo Firebase.</p>';}
   function bindOnlinePlayerCards(root=els.modalBody){$$('[data-online-player]',root).forEach(btn=>btn.onclick=()=>{const uid=btn.dataset.onlinePlayer,ghost=world.ghosts.get(uid);if(ghost)openRemotePlayerActions(uid,ghost);});}
-  function refreshOpenSocialHub(){if(els.modal.hidden||els.modalTitle.textContent!=='Mundo Online')return;const players=onlinePlayers(),status=$('#onlineStatusText',els.modalBody),count=$('#onlineCount',els.modalBody),list=$('#onlinePlayerList',els.modalBody),chat=$('#worldChatList',els.modalBody);if(status)status.textContent=multiplayerStatusText();if(count)count.textContent=`${players.length} além de você`;if(list){list.innerHTML=onlinePlayerListHtml(players);bindOnlinePlayerCards(els.modalBody);}if(chat){chat.innerHTML=cloudChat.slice(-30).map(m=>chatMessageHtml(m)).join('')||'<p>Envie a primeira mensagem.</p>';chat.scrollTop=chat.scrollHeight;}}
+  function refreshOpenSocialHub(){updateOnlineAttention();if(els.modal.hidden||els.modalTitle.textContent!=='Mundo Online')return;const players=onlinePlayers(),status=$('#onlineStatusText',els.modalBody),count=$('#onlineCount',els.modalBody),list=$('#onlinePlayerList',els.modalBody),chat=$('#worldChatList',els.modalBody),invites=$('#challengeInbox',els.modalBody),sessions=$('#activeGameSessions',els.modalBody);if(status)status.textContent=multiplayerStatusText();if(count)count.textContent=`${players.length} além de você`;if(list){list.innerHTML=onlinePlayerListHtml(players);bindOnlinePlayerCards(els.modalBody);}if(invites){invites.innerHTML=challengeInboxHtml();bindChallengeCards(els.modalBody);}if(sessions){sessions.innerHTML=activeSessionsHtml();bindChallengeCards(els.modalBody);}if(chat){chat.innerHTML=cloudChat.slice(-30).map(m=>chatMessageHtml(m)).join('')||'<p>Envie a primeira mensagem.</p>';chat.scrollTop=chat.scrollHeight;}}
   function openSocialHub(){
     const players=onlinePlayers(),messages=cloudChat.slice(-30);
-    openModal('Mundo Online',`<div class="online-status-card"><b id="onlineStatusText">${multiplayerStatusText()}</b><span>Todos entram automaticamente no mesmo mundo, sem escolher sala e sem senha.</span></div><div class="social-tabs"><b>Jogadores</b><small id="onlineCount">${players.length} além de você</small></div><div id="onlinePlayerList" class="online-player-list">${onlinePlayerListHtml(players)}</div><div class="social-tabs"><b>Chat do mundo</b><small>texto em tempo real</small></div><div id="worldChatList" class="world-chat-list">${messages.map(m=>chatMessageHtml(m)).join('')||'<p>Envie a primeira mensagem.</p>'}</div><div class="chat-compose"><input id="worldChatInput" maxlength="180" placeholder="Escreva uma mensagem..."><button data-send-world-chat>Enviar</button></div>`,root=>{
-      bindOnlinePlayerCards(root);
+    openModal('Mundo Online',`<div class="online-status-card"><b id="onlineStatusText">${multiplayerStatusText()}</b><span>Todos entram automaticamente no mesmo mundo, sem escolher sala e sem senha.</span></div><div class="social-tabs"><b>Convites de jogos</b><small>${pendingChallenges().length} pendente(s)</small></div><div id="challengeInbox">${challengeInboxHtml()}</div><div id="activeGameSessions">${activeSessionsHtml()}</div><div class="social-tabs"><b>Jogadores</b><small id="onlineCount">${players.length} além de você</small></div><div id="onlinePlayerList" class="online-player-list">${onlinePlayerListHtml(players)}</div><div class="social-tabs"><b>Chat do mundo</b><small>texto em tempo real</small></div><div id="worldChatList" class="world-chat-list">${messages.map(m=>chatMessageHtml(m)).join('')||'<p>Envie a primeira mensagem.</p>'}</div><div class="chat-compose"><input id="worldChatInput" maxlength="180" placeholder="Escreva uma mensagem..."><button data-send-world-chat>Enviar</button></div>`,root=>{
+      bindOnlinePlayerCards(root);bindChallengeCards(root);
       const send=()=>{const input=$('#worldChatInput',root),text=(input?.value||'').trim();if(!text)return;window.OTTHOS_RTDB?.sendChat?.(text);input.value='';};$('[data-send-world-chat]',root).onclick=send;$('#worldChatInput',root)?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();send();}});
     });
   }
   function escapeHtml(value=''){return String(value).replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]));}
   function chatMessageHtml(m){return`<article class="world-chat-message"><b>${escapeHtml(m.name||'Jogador')}</b><span>${escapeHtml(m.text||'')}</span></article>`;}
-  function openRemotePlayerActions(uid,ghost){const name=ghost.userData.displayName||'Jogador';openModal(name,`<p>Interaja com este jogador em tempo real.</p><div class="choice-grid"><button class="choice" data-player-action="wave"><b>👋 Acenar</b><span>Enviar saudação</span></button><button class="choice" data-player-action="highfive"><b>🙌 Toca aqui</b><span>Interação social</span></button><button class="choice" data-player-action="giftCoins"><b>🪙 Dar 10 moedas</b><span>Presente online</span></button><button class="choice" data-player-action="giftCrystal"><b>💎 Dar cristal</b><span>Usa 1 cristal</span></button><button class="choice" data-player-action="challenge"><b>🏁 Desafiar</b><span>Convite para corrida</span></button><button class="choice" data-player-action="message"><b>💬 Mencionar no chat</b><span>Abrir conversa pública</span></button></div>`,root=>{$$('[data-player-action]',root).forEach(btn=>btn.onclick=async()=>{const action=btn.dataset.playerAction;if(action==='message'){closeModal();openSocialHub();setTimeout(()=>{const input=$('#worldChatInput');if(input){input.value=`@${name} `;input.focus();}},100);return;}if(action==='giftCoins'){if(state.profile.coins<10){toast('Você não tem 10 moedas.','warn');return;}const ok=await window.OTTHOS_RTDB?.sendGift?.(uid,{type:'coins',amount:10});if(ok){addCoins(-10);toast(`Você presenteou ${name}.`,'good');}}else if(action==='giftCrystal'){if(state.inventory.crystals<1){toast('Você não tem cristal.','warn');return;}const ok=await window.OTTHOS_RTDB?.sendGift?.(uid,{type:'crystal',amount:1});if(ok){state.inventory.crystals--;saveState(true);toast(`Cristal enviado para ${name}.`,'good');}}else{window.OTTHOS_RTDB?.sendInteraction?.(uid,{type:action});triggerEmote(action==='highfive'?'highfive':'wave');toast(`Convite enviado para ${name}.`,'good');}closeModal();});});}
+  function openRemotePlayerActions(uid,ghost){const name=ghost.userData.displayName||'Jogador';openModal(name,`<p>Interaja com este jogador em tempo real.</p><div class="choice-grid"><button class="choice" data-player-action="wave"><b>👋 Acenar</b><span>Enviar saudação</span></button><button class="choice" data-player-action="highfive"><b>🙌 Toca aqui</b><span>Interação social</span></button><button class="choice" data-player-action="giftCoins"><b>🪙 Dar 10 moedas</b><span>Presente online</span></button><button class="choice" data-player-action="giftCrystal"><b>💎 Dar cristal</b><span>Usa 1 cristal</span></button><button class="choice" data-player-action="challenge"><b>⚔️ Desafiar</b><span>Matemática, Português ou English</span></button><button class="choice" data-player-action="message"><b>💬 Mencionar no chat</b><span>Abrir conversa pública</span></button></div>`,root=>{$$('[data-player-action]',root).forEach(btn=>btn.onclick=async()=>{const action=btn.dataset.playerAction;if(action==='message'){closeModal();openSocialHub();setTimeout(()=>{const input=$('#worldChatInput');if(input){input.value=`@${name} `;input.focus();}},100);return;}if(action==='giftCoins'){if(state.profile.coins<10){toast('Você não tem 10 moedas.','warn');return;}const ok=await window.OTTHOS_RTDB?.sendGift?.(uid,{type:'coins',amount:10});if(ok){addCoins(-10);toast(`Você presenteou ${name}.`,'good');}}else if(action==='giftCrystal'){if(state.inventory.crystals<1){toast('Você não tem cristal.','warn');return;}const ok=await window.OTTHOS_RTDB?.sendGift?.(uid,{type:'crystal',amount:1});if(ok){state.inventory.crystals--;saveState(true);toast(`Cristal enviado para ${name}.`,'good');}}else if(action==='challenge'){openChallengePicker(uid,name);return;}else{window.OTTHOS_RTDB?.sendInteraction?.(uid,{type:action});triggerEmote(action==='highfive'?'highfive':'wave');toast(`Interação enviada para ${name}.`,'good');}closeModal();});});}
   function nearestRemotePlayer(){let found=null,best=Infinity;for(const [uid,g] of world.ghosts){const d=Math.hypot(player.x-g.position.x,player.z-g.position.z);if(d<2.7&&d<best){best=d;found={uid,ghost:g};}}return found;}
   function openMultiplayerConfig(){openSocialHub();}
   function remotePlayerEvent(data){if(!data||data.uid===window.OTTHOS_RTDB?.uid)return;remotePresence.set(data.uid,data);let ghost=world.ghosts.get(data.uid);if(scene&&!ghost){ghost=createGhost(data.color||0x5ad8ff,data.name||'Jogador');world.ghosts.set(data.uid,ghost);}if(ghost){updateGhostName(ghost,data.name);ghost.userData.target=data;}refreshOpenSocialHub();}
@@ -2352,14 +2361,19 @@
   window.addEventListener('otthos:houses',e=>{cloudHouses.clear();for(const [id,data] of Object.entries(e.detail||{}))cloudHouses.set(id,data);reconcileCloudHouses();});
   window.addEventListener('otthos:chat',e=>{const m=e.detail;if(!m)return;cloudChat.push(m);if(cloudChat.length>60)cloudChat.shift();refreshOpenSocialHub();if(m.senderUid!==window.OTTHOS_RTDB?.uid)toast(`${m.name}: ${m.text}`,'good',2200);});
   window.addEventListener('otthos:gift',e=>{const gift=e.detail;if(!gift)return;if(gift.type==='coins'){state.profile.coins+=Number(gift.amount||0);}else if(gift.type==='crystal'){state.inventory.crystals=(state.inventory.crystals||0)+Number(gift.amount||1);}saveState(true);toast(`🎁 ${gift.senderName||'Jogador'} enviou um presente!`,'good',2600);});
-  window.addEventListener('otthos:interaction',e=>{const it=e.detail;if(!it)return;const sender=it.senderName||'Jogador';if(it.type==='challenge'){toast(`🏁 ${sender} desafiou você para uma corrida!`,'good',3200);}else if(it.type==='highfive'){triggerEmote('highfive');toast(`🙌 ${sender} fez toca aqui!`,'good',2200);}else{triggerEmote('wave');toast(`👋 ${sender} acenou para você.`,'good',2200);}});
+  window.addEventListener('otthos:interaction',e=>{const it=e.detail;if(!it)return;const sender=it.senderName||'Jogador';if(it.type==='challengeAccepted'){toast(`🎮 ${sender} aceitou seu desafio! Abra Online para jogar.`,'good',3400);}else if(it.type==='challengeDeclined'){toast(`${sender} recusou o desafio.`,'warn',2400);}else if(it.type==='highfive'){triggerEmote('highfive');toast(`🙌 ${sender} fez toca aqui!`,'good',2200);}else{triggerEmote('wave');toast(`👋 ${sender} acenou para você.`,'good',2200);}});
+  window.addEventListener('otthos:challenge',e=>{const c=e.detail;if(!c)return;incomingChallenges.set(c.id,c);updateOnlineAttention();refreshOpenSocialHub();if(c.status==='pending'){showIncomingChallengePrompt(c);if(!shownChallengeToasts.has(c.id)){shownChallengeToasts.add(c.id);toast(`⚔️ ${c.fromName||'Jogador'} enviou ${multiplayerGameLabel(c.type)}!`,'good',3400);}}});
+  window.addEventListener('otthos:challenge-removed',e=>{incomingChallenges.delete(e.detail?.id);updateOnlineAttention();refreshOpenSocialHub();});
+  window.addEventListener('otthos:game-session',e=>{const s=e.detail;if(!s)return;gameSessions.set(s.id,s);updateOnlineAttention();refreshOpenSocialHub();if(s.status==='active'){const mine=s.players?.[window.OTTHOS_RTDB?.uid];if(!mine?.finished&&!activeMultiplayerGameId)showReadySessionPrompt(s);maybeShowMultiplayerResult(s);}});
+  window.addEventListener('otthos:game-session-removed',e=>{gameSessions.delete(e.detail?.id);updateOnlineAttention();refreshOpenSocialHub();});
   window.addEventListener('otthos:rtdb-ready',()=>{if(running||hasValidPlayerName())window.OTTHOS_RTDB?.connect?.({name:state.profile.name||'Jogador'});});
 
   function initLocalMultiplayer(){
-    if(typeof BroadcastChannel==='function'){localChannel=new BroadcastChannel('otthos-life-world-v620');localChannel.onmessage=e=>{const data=e.data;if(!data||data.id===state.profile.playerId)return;if(data.type==='leave'){const ghost=world.ghosts.get(data.id);if(ghost){scene.remove(ghost);world.ghosts.delete(data.id);}return;}remotePlayerEvent({...data,uid:data.id});};window.addEventListener('beforeunload',()=>localChannel?.postMessage({type:'leave',id:state.profile.playerId}));}
+    if(typeof BroadcastChannel==='function'){localChannel=new BroadcastChannel('otthos-life-world-v622');localChannel.onmessage=e=>{const data=e.data;if(!data||data.id===state.profile.playerId)return;if(data.type==='leave'){const ghost=world.ghosts.get(data.id);if(ghost){scene.remove(ghost);world.ghosts.delete(data.id);}return;}remotePlayerEvent({...data,uid:data.id});};window.addEventListener('beforeunload',()=>localChannel?.postMessage({type:'leave',id:state.profile.playerId}));}
     window.OTTHOS_MULTIPLAYER={version:5,playerId:state.profile.playerId,mode:window.OTTHOS_RTDB?.configured?'firebase-public-world':'local-preview',connect:()=>window.OTTHOS_RTDB?.connect?.({name:state.profile.name||'Jogador'})||true,publish:payload=>{localChannel?.postMessage(payload);window.OTTHOS_RTDB?.publish?.(payload);},adapter:window.OTTHOS_RTDB?.configured?'Firebase Realtime Database':'BroadcastChannel'};updateMultiplayerBadge();if(window.OTTHOS_RTDB?.configured&&hasValidPlayerName())window.OTTHOS_RTDB.connect({name:state.profile.name||'Jogador'});
   }
   function multiplayerNameTexture(name){const c=document.createElement('canvas');c.width=512;c.height=128;const ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);ctx.fillStyle='rgba(5,18,34,.88)';ctx.strokeStyle='rgba(255,255,255,.92)';ctx.lineWidth=8;const r=30;ctx.beginPath();if(ctx.roundRect)ctx.roundRect(8,8,c.width-16,c.height-16,r);else ctx.rect(8,8,c.width-16,c.height-16);ctx.fill();ctx.stroke();ctx.fillStyle='#fff';ctx.font='900 48px system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(sanitizePlayerName(name)||'Jogador',c.width/2,c.height/2+2);const tex=new THREE.CanvasTexture(c);tex.minFilter=THREE.LinearFilter;tex.magFilter=THREE.LinearFilter;tex.generateMipmaps=false;return tex;}
+  function updateLocalPlayerNameLabel(){if(!playerGroup?.userData?.nameLabel)return;const clean=playerDisplayName();if(playerGroup.userData.displayName===clean)return;const label=playerGroup.userData.nameLabel,old=label.material.map;label.material.map=multiplayerNameTexture(clean);label.material.needsUpdate=true;old?.dispose?.();playerGroup.userData.displayName=clean;}
   function updateGhostName(ghost,name){const clean=sanitizePlayerName(name)||'Jogador';if(ghost.userData.displayName===clean)return;ghost.userData.displayName=clean;if(ghost.userData.nameLabel){const old=ghost.userData.nameLabel.material.map;ghost.userData.nameLabel.material.map=multiplayerNameTexture(clean);ghost.userData.nameLabel.material.needsUpdate=true;old?.dispose?.();}}
   function createGhost(color,name='Jogador'){const g=new THREE.Group();box(.82,1.18,.58,color,0,1.25,0,g);box(.72,.72,.72,0x111217,0,2.24,0,g);const leftArm=box(.22,1,.25,0xff9a24,-.58,1.28,0,g),rightArm=box(.22,1,.25,0xff9a24,.58,1.28,0,g),leftLeg=box(.25,1,.28,0x20242b,-.22,.34,0,g),rightLeg=box(.25,1,.28,0x20242b,.22,.34,0,g);box(.12,.1,.04,0xff3344,-.14,2.27,.38,g);box(.12,.1,.04,0xff3344,.14,2.27,.38,g);const label=new THREE.Sprite(new THREE.SpriteMaterial({map:multiplayerNameTexture(name),transparent:true,depthWrite:false,depthTest:false}));label.position.set(0,3.05,0);label.scale.set(2.75,.69,1);label.renderOrder=999;g.add(label);g.userData.nameLabel=label;g.userData.displayName=sanitizePlayerName(name)||'Jogador';g.userData.limbs={leftArm,rightArm,leftLeg,rightLeg};g.userData.phase=Math.random()*6.28;scene.add(g);return g;}
   function updateMultiplayer(dt){
@@ -2424,7 +2438,7 @@
 
   function openPauseMenu(){
     if(!running||pauseMenuOpen)return;
-    paused=true;pauseMenuOpen=true;if(engineAudio)stopEngineSound();openModal('Jogo pausado',`<div class="choice-grid"><button class="choice" data-resume><b>▶ Continuar</b><span>Voltar ao mundo</span></button><button class="choice" data-life><b>👤 Minha vida</b><span>Carreira, amizades e visual</span></button><button class="choice" data-home><b>🏠 Casa</b><span>Voltar para a Casa do Otthos</span></button><button class="choice" data-menu><b>↩ Menu inicial</b><span>Salvar e sair</span></button></div>`,root=>{
+    paused=true;pauseMenuOpen=true;if(engineAudio)stopEngineSound();openModal('Jogo pausado',`<div class="choice-grid"><button class="choice" data-resume><b>▶ Continuar</b><span>Voltar ao mundo</span></button><button class="choice" data-life><b>👤 Minha vida</b><span>Carreira, amizades e visual</span></button><button class="choice" data-home><b>🏠 Casa</b><span>Voltar para minha casa</span></button><button class="choice" data-menu><b>↩ Menu inicial</b><span>Salvar e sair</span></button></div>`,root=>{
       $('[data-resume]',root).onclick=()=>closeModal();
       $('[data-life]',root).onclick=()=>{pauseMenuOpen=false;paused=false;closeModal();if(player.vehicle)startEngineSound();openLifePanel();};
       $('[data-home]',root).onclick=()=>{pauseMenuOpen=false;paused=false;closeModal();returnHome();};
@@ -2470,7 +2484,7 @@
 
   // Public test/audit API
   window.OTTHOS_TEST_API={
-    version:'V620_ONLINE_LEARNING_PATH',
+    version:'V622_EDU_DUELS_FIXED',
     performance:()=>({fps:+perf.fps.toFixed(1),tier:qualityTier(),requested:requestedQuality(),dpr:renderer?.getPixelRatio?.()||0,drawCalls:renderer?.info?.render?.calls||0,triangles:renderer?.info?.render?.triangles||0}),
     getState:()=>JSON.parse(JSON.stringify(state)),
     getGame:()=>({running,paused,currentHouse:currentHouse?.id||null,cameraMode,player:{...player},objects:{houses:world.houses.length,npcs:world.npcs.length,enemies:world.enemies.length,interactables:world.interactables.length,builds:world.builds.length}}),
@@ -2531,7 +2545,9 @@
     sceneStability:()=>({critical:world.criticalSurfaces.length,hiddenCritical:world.criticalSurfaces.filter(m=>m&&!m.visible).length,frustumCulledCritical:world.criticalSurfaces.filter(m=>m?.frustumCulled).length,staticRenderObjects:world.staticRenderObjects||0,frustumEnabledStatic:(()=>{let n=0;worldGroup?.traverse?.(o=>{if((o.isMesh||o.isLine||o.isSprite)&&o.frustumCulled)n++;});return n;})(),mobile:perf.mobile,shadows:!!renderer?.shadowMap?.enabled}),
     mobileLayout:()=>({portrait:document.body.classList.contains('ui-portrait'),landscape:document.body.classList.contains('ui-landscape'),tiny:document.body.classList.contains('ui-tiny'),skillsOpen:!!state.ui.skillsOpen,quickOpen:!!state.ui.quickOpen}),
     playerIdentity:()=>({name:state.profile.name,confirmed:!!state.profile.nameConfirmed}),
-    multiplayer:()=>({local:window.OTTHOS_MULTIPLAYER||null,cloud:window.OTTHOS_RTDB?.status?.()||multiplayerState})
+    education:()=>({subjects:Object.keys(EDUCATION_SUBJECTS),summary:educationSummary(),learning:JSON.parse(JSON.stringify(state.learning)),stations:MAP_LOCATIONS.filter(x=>x.group==='Academia')}),
+    educationRounds:(subject='math',level=1,seed=123)=>generateEducationRounds(subject,Number(level)||1,Number(seed)||123,5),
+    multiplayer:()=>({local:window.OTTHOS_MULTIPLAYER||null,cloud:window.OTTHOS_RTDB?.status?.()||multiplayerState,challenges:pendingChallenges(),sessions:[...gameSessions.values()]})
   };
 
   updateLobbyStats();evaluateMissions();updateInstallUI();
