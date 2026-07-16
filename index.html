@@ -8,10 +8,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Otthos Life World</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=623" />
+  <link rel="manifest" href="./manifest.webmanifest?v=624" />
   <link rel="icon" href="./icons/favicon.png" />
   <link rel="apple-touch-icon" href="./icons/icon-192.png" />
-  <link rel="stylesheet" href="./style.css?v=623" />
+  <link rel="stylesheet" href="./style.css?v=624" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script>
     // Visualizador/AR verdadeiramente sob demanda: não baixa model-viewer nem athos.glb no boot.
@@ -43,9 +43,9 @@
       <header class="brand-card">
         <div class="brand-avatar" aria-hidden="true"><span></span><span></span></div>
         <div>
-          <p class="eyebrow">MUNDO DE AVENTURA, VIDA E CRIAÇÃO</p>
+          <p class="eyebrow">AVENTURA • AMIGOS • CRIAÇÃO</p>
           <h1>OTTHOS LIFE WORLD</h1>
-          <p>Explore, cuide da sua casa, faça amigos, construa, cumpra missões e viva suas próprias aventuras.</p>
+          <p>Explore, jogue e crie seu próprio mundo.</p>
         </div>
       </header>
 
@@ -54,21 +54,21 @@
           <div id="viewerShell" class="viewer-shell">
             <div id="viewerPlaceholder" class="viewer-placeholder">
               <div class="viewer-placeholder-mark" aria-hidden="true">🔥</div>
-              <strong>Otthos 3D e Realidade Aumentada</strong>
-              <span id="viewerStatus">Carregue somente quando quiser usar o visualizador.</span>
-              <button id="viewerLoadBtn" class="btn primary" type="button">Carregar visualizador 3D</button>
+              <strong>Otthos em 3D</strong>
+              <span id="viewerStatus">Abra somente quando quiser.</span>
+              <button id="viewerLoadBtn" class="btn primary" type="button">Abrir 3D / AR</button>
             </div>
             <model-viewer id="nativeViewer" src="./athos.glb" alt="Otthos 3D" camera-controls interaction-prompt="none" ar ar-modes="scene-viewer webxr quick-look" ar-placement="floor" ar-scale="fixed" shadow-intensity="1.2" exposure="1.05" environment-image="neutral" hidden>
               <button id="insideArBtn" slot="ar-button" class="floating-ar-btn" type="button">📱 Ver em AR</button>
             </model-viewer>
           </div>
           <div class="hero-copy">
-            <span class="badge">JOGO COMPLETO</span>
-            <h2>Seu mundo começa na Vila do Sol</h2>
-            <p>Casa própria, vizinhos, atividades, desafios, construção, veículos infantis e aventuras em um mundo aberto contínuo.</p>
+            <span class="badge">MUNDO ABERTO</span>
+            <h2>Vila do Sol</h2>
+            <p>Explore, aprenda e jogue com seus amigos.</p>
             <div class="hero-actions">
-              <button id="playBtn" class="btn primary xl" type="button">▶ ENTRAR NO MUNDO</button>
-              <button id="continueBtn" class="btn xl" type="button">↻ CONTINUAR</button>
+              <button id="playBtn" class="btn primary xl" type="button">▶ JOGAR</button>
+              <button id="continueBtn" class="btn xl" type="button">CONTINUAR</button>
             </div>
           </div>
         </section>
@@ -84,17 +84,16 @@
             <div><small>MEDALHAS</small><strong id="lobbyMedals">0</strong></div>
           </div>
           <div class="menu-grid">
-            <button id="installBtn" class="menu-tile install" type="button"><b>⬇</b><span>Instalar aplicativo</span></button>
-            <button id="arBtn" class="menu-tile" type="button"><b>📱</b><span>Realidade aumentada</span></button>
-            <button id="quizBtn" class="menu-tile academy-tile" type="button"><b>🎓</b><span>Academia Kids</span><small>Matemática • Português • Inglês</small></button>
-            <button id="talkBtn" class="menu-tile" type="button"><b>💬</b><span>Conversar</span></button>
+            <button id="installBtn" class="menu-tile install" type="button"><b>⬇</b><span>Instalar</span></button>
+            <button id="arBtn" class="menu-tile" type="button"><b>📱</b><span>3D / AR</span></button>
+            <button id="quizBtn" class="menu-tile academy-tile" type="button"><b>🎓</b><span>Academia</span><small>Matemática • Português • Inglês</small></button>
             <button id="collectionBtn" class="menu-tile" type="button"><b>🏅</b><span>Coleção</span></button>
-            <button id="avatarBtn" class="menu-tile" type="button"><b>👕</b><span>Meu personagem</span></button>
+            <button id="avatarBtn" class="menu-tile" type="button"><b>👕</b><span>Personagem</span></button>
             <button id="moldsBtn" class="menu-tile" type="button"><b>🧩</b><span>Moldes 3D</span></button>
-            <button id="howBtn" class="menu-tile" type="button"><b>❓</b><span>Como jogar</span></button>
-            <button id="settingsBtn" class="menu-tile" type="button"><b>⚙</b><span>Configurações</span></button>
+            <button id="howBtn" class="menu-tile" type="button"><b>❓</b><span>Ajuda</span></button>
+            <button id="settingsBtn" class="menu-tile" type="button"><b>⚙</b><span>Config.</span></button>
           </div>
-          <p id="installHint" class="install-hint">Você pode instalar o Otthos como aplicativo no celular.</p>
+          <p id="installHint" class="install-hint">Instale para jogar em tela cheia.</p>
         </aside>
       </main>
       <footer>Powered by thIAguinho Soluções Digitais</footer>
@@ -192,9 +191,9 @@
 
   </div>
 
-  <script src="./assets/js/save-db.js?v=623"></script>
-  <script src="./firebase-config.js?v=623"></script>
-  <script type="module" src="./assets/js/multiplayer-rtdb.js?v=623"></script>
-  <script src="./app.js?v=623"></script>
+  <script src="./assets/js/save-db.js?v=624"></script>
+  <script src="./firebase-config.js?v=624"></script>
+  <script type="module" src="./assets/js/multiplayer-rtdb.js?v=624"></script>
+  <script src="./app.js?v=624"></script>
 </body>
 </html>

@@ -1,9 +1,11 @@
-OTTHOS V623 — SUBSTITUA SOMENTE ESTES ARQUIVOS
+OTTHOS V624 - SOMENTE ARQUIVOS ALTERADOS
 
-app.js
-index.html
-style.css
-sw.js
-manifest.webmanifest
-assets/js/multiplayer-rtdb.js
-firebase-database.rules.json
+Substitua:
+- app.js
+- index.html
+- style.css
+- sw.js
+- manifest.webmanifest
+
+Não altere Firebase nem outros arquivos.
+Abra com ?v=624

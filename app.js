@@ -8,8 +8,8 @@
   const lerpAngle = (a, b, t) => { let d=((b-a+Math.PI)%(Math.PI*2))-Math.PI; if(d<-Math.PI)d+=Math.PI*2; return a+d*t; };
   const distance2D = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
   const uid = () => (crypto.randomUUID ? crypto.randomUUID() : `p-${Date.now()}-${Math.random().toString(16).slice(2)}`);
-  const STORAGE_KEY = 'otthos_life_world_roleplay_v623';
-  const LEGACY_STORAGE_KEYS = ['otthos_life_world_roleplay_v622','otthos_life_world_roleplay_v621','otthos_life_world_roleplay_v620','otthos_life_world_roleplay_v619','otthos_life_world_roleplay_v618','otthos_life_world_roleplay_v617','otthos_life_world_roleplay_v616','otthos_life_world_roleplay_v615','otthos_life_world_roleplay_v614','otthos_life_world_roleplay_v613','otthos_life_world_roleplay_v612','otthos_life_world_roleplay_v611','otthos_life_world_roleplay_v610','otthos_life_world_roleplay_v609','otthos_life_world_roleplay_v608','otthos_life_world_roleplay_v607','otthos_life_world_roleplay_v606','otthos_life_world_roleplay_v605','otthos_life_world_roleplay_v604','otthos_life_world_roleplay_v603','otthos_life_world_roleplay_v602','otthos_life_world_roleplay_v601','otthos_life_world_complete_v600'];
+  const STORAGE_KEY = 'otthos_life_world_roleplay_v624';
+  const LEGACY_STORAGE_KEYS = ['otthos_life_world_roleplay_v623','otthos_life_world_roleplay_v622','otthos_life_world_roleplay_v621','otthos_life_world_roleplay_v620','otthos_life_world_roleplay_v619','otthos_life_world_roleplay_v618','otthos_life_world_roleplay_v617','otthos_life_world_roleplay_v616','otthos_life_world_roleplay_v615','otthos_life_world_roleplay_v614','otthos_life_world_roleplay_v613','otthos_life_world_roleplay_v612','otthos_life_world_roleplay_v611','otthos_life_world_roleplay_v610','otthos_life_world_roleplay_v609','otthos_life_world_roleplay_v608','otthos_life_world_roleplay_v607','otthos_life_world_roleplay_v606','otthos_life_world_roleplay_v605','otthos_life_world_roleplay_v604','otthos_life_world_roleplay_v603','otthos_life_world_roleplay_v602','otthos_life_world_roleplay_v601','otthos_life_world_complete_v600'];
   const safeLocalGet = key => { try { return window.localStorage?.getItem(key) ?? null; } catch { return null; } };
   const safeLocalSet = (key, value) => { try { window.localStorage?.setItem(key, value); return true; } catch { return false; } };
   const safeLocalRemove = key => { try { window.localStorage?.removeItem(key); return true; } catch { return false; } };
@@ -17,7 +17,7 @@
   const els = {
     lobby: $('#lobby'), game: $('#game'), stage: $('#stage'), screenTint: $('#screenTint'),
     playBtn: $('#playBtn'), continueBtn: $('#continueBtn'), installBtn: $('#installBtn'), installHint: $('#installHint'),
-    arBtn: $('#arBtn'), quizBtn: $('#quizBtn'), talkBtn: $('#talkBtn'), collectionBtn: $('#collectionBtn'), avatarBtn: $('#avatarBtn'), moldsBtn: $('#moldsBtn'), howBtn: $('#howBtn'), settingsBtn: $('#settingsBtn'),
+    arBtn: $('#arBtn'), quizBtn: $('#quizBtn'), collectionBtn: $('#collectionBtn'), avatarBtn: $('#avatarBtn'), moldsBtn: $('#moldsBtn'), howBtn: $('#howBtn'), settingsBtn: $('#settingsBtn'),
     lobbyLevel: $('#lobbyLevel'), lobbyCoins: $('#lobbyCoins'), lobbyRep: $('#lobbyRep'), lobbyMedals: $('#lobbyMedals'), lobbyPlayerName: $('#lobbyPlayerName'), profileNameBtn: $('#profileNameBtn'),
     hudLevel: $('#hudLevel'), xpFill: $('#xpFill'), xpText: $('#xpText'), hudCoins: $('#hudCoins'), hudPlayerName: $('#hudPlayerName'),
     needHunger: $('#needHunger'), needEnergy: $('#needEnergy'), needFun: $('#needFun'), needHygiene: $('#needHygiene'),
@@ -33,7 +33,7 @@
   };
 
   const defaultState = () => ({
-    version: 623,
+    version: 624,
     profile: { playerId: uid(), name: '', nameConfirmed: false, level: 1, xp: 0, coins: 500, reputation: 0 },
     needs: { hunger: 92, energy: 92, fun: 86, hygiene: 88 },
     inventory: { wood: 0, stone: 0, food: 2, water: 2, crystals: 0, blocks: 4, fences: 2, keys: 0 },
@@ -78,7 +78,7 @@
     return {
       ...fresh,
       ...saved,
-      version: 623,
+      version: 624,
       profile: { ...fresh.profile, ...(saved.profile || {}) },
       needs: { ...fresh.needs, ...(saved.needs || {}) },
       inventory: { ...fresh.inventory, ...(saved.inventory || {}) },
@@ -172,7 +172,7 @@
 
   function cloudProgressPayload(){
     return {
-      version: 623,lastSaved:Number(state.lastSaved||Date.now()),
+      version: 624,lastSaved:Number(state.lastSaved||Date.now()),
       profile:{name:state.profile.name||'Jogador',coins:state.profile.coins||0,xp:state.profile.xp||0,level:state.profile.level||1,reputation:state.profile.reputation||0},
       inventory:{...state.inventory},medals:[...(state.medals||[])],flags:{...state.flags},houses:{...state.houses},races:{...state.races},
       avatar:{...state.avatar},abilities:{...state.abilities},builds:[...(state.builds||[])],homeStorage:{...state.homeStorage},
@@ -194,7 +194,7 @@
       avatar:{...state.avatar,...(remote.avatar||{})},abilities:{...state.abilities,...(remote.abilities||{})},
       builds:Array.isArray(remote.builds)?remote.builds:state.builds,homeStorage:{...state.homeStorage,...(remote.homeStorage||{})},
       stats:{...state.stats,...(remote.achievements?.stats||{})},daily:{...state.daily,...(remote.achievements?.daily||{})},learning:{...state.learning,...(remote.achievements?.learning||{}),subjectXP:{...state.learning.subjectXP,...(remote.achievements?.learning?.subjectXP||{})},lessons:{...state.learning.lessons,...(remote.achievements?.learning?.lessons||{})}},
-      position:{...state.position,...(remote.position||{})},lastSaved:remoteSaved,version: 623
+      position:{...state.position,...(remote.position||{})},lastSaved:remoteSaved,version: 624
     };
     state=normalizeState(merged);state.profile.nameConfirmed=true;state.multiplayer.room='mundo-publico';
     safeLocalSet(STORAGE_KEY,JSON.stringify(state));window.OTTHOS_DB?.save?.(state).catch(()=>{});updatePlayerNameUI();updateHUD();updateLobbyStats();toast('Progresso recuperado do Firebase.','good',2300);return true;
@@ -449,28 +449,6 @@
 
   function openQuiz(){openEducationHub('math');}
 
-  const talkAnswers = [
-    { keys: ['casa','moradia'], text: 'Você pode comprar casas, trancar as suas portas e usar cada cômodo. A sua casa inicial já é sua.' },
-    { keys: ['amigo','vizinho'], text: 'Converse com Nino, Luna, Teo, Bia e Maya. A amizade aumenta quando você fala e ajuda.' },
-    { keys: ['construir','bloco'], text: 'Colete madeira e pedra. No botão Construir você escolhe blocos, cercas e decoração.' },
-    { keys: ['emprego','trabalho'], text: 'A Garagem oferece entregas com o carrinho. Elas dão moedas e reputação.' },
-    { keys: ['missão','objetivo'], text: 'Siga o cartão de missão no alto. Ele muda quando você completa cada objetivo.' },
-    { keys: ['multiplayer'], text: 'O mundo online usa Firebase: jogadores aparecem em tempo real, conversam e mantêm nome e progresso salvos.' },
-    { keys: ['ar','realidade'], text: 'Use Realidade Aumentada para colocar seu personagem no chão do mundo real.' }
-  ];
-  function openTalk() {
-    openModal('Guia da Vila', `<p>Pergunte sobre casa, vizinhos, construção, trabalho, missões ou AR.</p><div class="talk-row"><input id="talkInput" placeholder="Digite sua pergunta"><button id="talkSend" class="btn primary">Perguntar</button></div><div id="talkAnswer" class="dialogue-box">Estou ouvindo!</div>`, root => {
-      const input = $('#talkInput', root), answer = $('#talkAnswer', root);
-      const send = () => {
-        const value = input.value.toLowerCase().trim();
-        const found = talkAnswers.find(row => row.keys.some(k => value.includes(k)));
-        answer.textContent = found ? playerText(found.text) : 'Explore o mundo, entre nas casas e converse com os moradores. Cada atividade melhora sua vida e libera novas missões.';
-        input.value = '';
-      };
-      $('#talkSend', root).onclick = send;
-      input.onkeydown = e => { if (e.key === 'Enter') send(); };
-    });
-  }
 
   function openCollection() {
     const medals = state.medals.length ? state.medals.map(m => `<div class="inventory-item"><b>🏅</b><span>${m}</span></div>`).join('') : '<p>Nenhuma medalha ainda. Complete missões, quiz e desafios.</p>';
@@ -748,7 +726,7 @@
     { id:'edu-english', name:'English Kids', icon:'🌎', x:22, z:-48, navX:18, navZ:-48, group:'Academia' }
   ];
   function worldToMap(x,z){ return { left:clamp((x+116)/232*100,2.5,97.5), top:clamp((116-z)/232*100,2.5,97.5) }; }
-  function mapDistance(point){ return Math.round(Math.hypot(player.x-point.x,player.z-point.z)); }
+  function mapDistance(point){ return Math.round(Math.hypot(player.x-(point.navX??point.x),player.z-(point.navZ??point.z))); }
   function setWaypoint(id){
     const point=MAP_LOCATIONS.find(p=>p.id===id);if(!point)return;
     state.waypoint={id:point.id,name:point.name,x:point.x,z:point.z,navX:point.navX??point.x,navZ:point.navZ??point.z,arrived:false};world.routePath=buildRoutePoints(player,state.waypoint);
@@ -757,10 +735,12 @@
   function clearWaypoint(){ state.waypoint=null; updateWaypointMarker(); updateNavigation(0,true); saveState(true); closeModal(); toast('Destino removido.','good'); }
   function openMap(){
     const pp=worldToMap(player.x,player.z),angleDeg=(Math.PI-(player.facing||0))*180/Math.PI,activeId=state.waypoint?.id||'',route=state.waypoint?(world.routePath.length?world.routePath:buildRoutePoints(player,state.waypoint)):[],routeInfo=state.waypoint?routeProgressInfo(route,player):null;
-    const markers=MAP_LOCATIONS.map(loc=>{const pos=worldToMap(loc.navX??loc.x,loc.navZ??loc.z),active=loc.id===activeId?' active':'';return `<button class="map-marker clean${active}" style="left:${pos.left}%;top:${pos.top}%" data-waypoint="${loc.id}" aria-label="${loc.name}" title="${loc.name}"><b>${loc.icon}</b><span>${loc.name}</span></button>`;}).join('');
-    const destinations=[...MAP_LOCATIONS].sort((a,b)=>mapDistance(a)-mapDistance(b)).map(loc=>`<button class="map-destination ${loc.id===activeId?'active':''}" data-waypoint="${loc.id}"><b>${loc.icon} ${loc.name}</b><span>${mapDistance(loc)} m • ${loc.group}</span></button>`).join('');
-    const current=state.waypoint?`<div class="gps-current"><small>DESTINO ATUAL</small><b>${state.waypoint.name}</b><span>${Math.round(routeInfo.remaining)} m • ${routeInfo.instruction}</span><button class="btn danger" data-clear-waypoint>Cancelar rota</button></div>`:`<div class="gps-current empty"><b>Escolha um destino</b><span>O GPS seguirá ruas e caminhos do cenário.</span></div>`;
-    openModal('GPS da Vila do Sol',`<div class="map-layout v617"><div><div class="world-map clean-map"><i class="map-road horizontal"></i><i class="map-road vertical"></i><i class="map-road west"></i><i class="map-road east"></i><i class="map-river"></i><div class="map-region forest">FLORESTA</div><div class="map-region city">VILA</div><div class="map-region adventure">AVENTURA</div>${route.length?routeSvgMarkup(route):''}${markers}<span class="player-dot" style="left:${pp.left}%;top:${pp.top}%;--player-angle:${angleDeg}deg"><i></i><b>VOCÊ</b></span><span class="map-north">N</span></div>${current}</div><aside class="map-sidebar"><h3>Destinos</h3><p>Escolha pela lista. O nome não fica cobrindo o mapa.</p><div class="map-destinations all">${destinations}</div></aside></div>`,root=>{$$('[data-waypoint]',root).forEach(btn=>btn.onclick=()=>setWaypoint(btn.dataset.waypoint));$('[data-clear-waypoint]',root)?.addEventListener('click',clearWaypoint);});els.modal.classList.add('map-modal');
+    const landmarkIds=new Set(['home','village','shop','garage','gym','castle']);
+    const visibleLocations=MAP_LOCATIONS.filter(loc=>landmarkIds.has(loc.id)||loc.id===activeId);
+    const markers=visibleLocations.map(loc=>{const pos=worldToMap(loc.navX??loc.x,loc.navZ??loc.z),active=loc.id===activeId?' active':'';return `<button class="map-marker clean${active}" style="left:${pos.left}%;top:${pos.top}%" data-waypoint="${loc.id}" aria-label="${loc.name}" title="${loc.name}"><b>${loc.icon}</b><span>${loc.name}</span></button>`;}).join('');
+    const grouped=[...new Set(MAP_LOCATIONS.map(x=>x.group))].map(group=>{const items=MAP_LOCATIONS.filter(x=>x.group===group).sort((a,b)=>mapDistance(a)-mapDistance(b)).map(loc=>`<button class="map-destination ${loc.id===activeId?'active':''}" data-waypoint="${loc.id}"><b>${loc.icon}<em>${loc.name}</em></b><span>${mapDistance(loc)} m</span></button>`).join('');return `<section class="map-destination-group"><h4>${group}</h4><div>${items}</div></section>`;}).join('');
+    const current=state.waypoint?`<div class="gps-current"><small>ROTA ATUAL</small><b>${state.waypoint.name}</b><span>${Math.round(routeInfo.remaining)} m • ${routeInfo.instruction}</span><button class="btn danger" data-clear-waypoint>Cancelar</button></div>`:`<div class="gps-current empty"><b>Para onde vamos?</b><span>Escolha um lugar na lista.</span></div>`;
+    openModal('Mapa',`<div class="map-layout v624"><div class="map-main"><div class="world-map clean-map"><i class="map-road horizontal"></i><i class="map-road vertical"></i><i class="map-road west"></i><i class="map-road east"></i><i class="map-river"></i><div class="map-region forest">FLORESTA</div><div class="map-region city">VILA</div><div class="map-region adventure">AVENTURA</div>${route.length?routeSvgMarkup(route):''}${markers}<span class="player-dot" style="left:${pp.left}%;top:${pp.top}%;--player-angle:${angleDeg}deg"><i></i><b>VOCÊ</b></span><span class="map-north">N</span></div>${current}</div><aside class="map-sidebar"><h3>Escolha um lugar</h3><div class="map-destinations grouped">${grouped}</div></aside></div>`,root=>{$$('[data-waypoint]',root).forEach(btn=>btn.onclick=()=>setWaypoint(btn.dataset.waypoint));$('[data-clear-waypoint]',root)?.addEventListener('click',clearWaypoint);});els.modal.classList.add('map-modal');
   }
 
 
@@ -817,7 +797,6 @@
   els.quizBtn.onclick = () => openEducationHub('math');
   els.challengePromptAccept.onclick=()=>{if(promptChallengeId)acceptIncomingChallenge(promptChallengeId);else if(promptSessionId){const s=gameSessions.get(promptSessionId);if(s)launchSessionWithCountdown(s);}};
   els.challengePromptDecline.onclick=()=>{if(promptChallengeId)declineIncomingChallenge(promptChallengeId);else closeChallengePrompt();};
-  els.talkBtn.onclick = openTalk;
   els.collectionBtn.onclick = openCollection;
   els.avatarBtn.onclick = openAvatarStudio;
   els.moldsBtn.onclick = openMolds;
@@ -2024,6 +2003,8 @@
     const sizeChanged=Math.abs(w-perf.lastRenderW)>2||Math.abs(h-perf.lastRenderH)>2;const chromeJitter=running&&Math.abs(w-perf.lastRenderW)<=2&&Math.abs(h-perf.lastRenderH)<58;
     if(sizeChanged&&!chromeJitter){camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false);perf.lastRenderW=w;perf.lastRenderH=h;}
     const landscape=w>h,portrait=!landscape,short=landscape&&h<560,narrow=portrait&&w<390,tiny=h<620||w<350;
+    const orientationChanged=resize._landscape!==undefined&&resize._landscape!==landscape;resize._landscape=landscape;
+    if(orientationChanged){state.ui.quickOpen=false;state.ui.skillsOpen=false;state.ui.needsOpen=false;state.ui.missionOpen=false;els.game?.classList.remove('needs-expanded');els.missionCard?.classList.remove('expanded');}
     const action=landscape?clamp(h*(short?.105:.112),42,58):clamp(w*(narrow?.145:.155),50,64);
     const joy=landscape?clamp(h*(short?.205:.22),82,108):clamp(w*(narrow?.265:.28),96,124);
     const skillGap=landscape?clamp(h*.009,4,6):clamp(w*.012,4,6);
@@ -2436,7 +2417,7 @@
 
   async function startGame(resetPosition=false){
     await dbReady;if(!hasValidPlayerName()){openPlayerNameModal(true,()=>startGame(resetPosition));return;}closeModal();showScreen('game');
-    state.ui.quickOpen=false;state.ui.skillsOpen=false;syncMobilePanels();els.game.classList.toggle('needs-expanded',!!state.ui.needsOpen);els.missionCard.classList.toggle('expanded',!!state.ui.missionOpen);if(!scene){if(!initThree()){showScreen('lobby');return;}setupControls();}else{applyAvatarCustomization();}
+    state.ui.quickOpen=false;state.ui.skillsOpen=false;state.ui.needsOpen=false;state.ui.missionOpen=false;syncMobilePanels();els.game.classList.remove('needs-expanded');els.missionCard.classList.remove('expanded');if(!scene){if(!initThree()){showScreen('lobby');return;}setupControls();}else{applyAvatarCustomization();}
     if(resetPosition){player.x=0;player.z=8;player.y=0;}else restorePosition();player.scaleMode=state.abilities?.scaleMode||'normal';player.crouched=!!state.abilities?.crouched;updateAbilityUI();running=true;paused=false;clock.start();evaluateMissions();updateHUD();updateContext(true);updateNavigation(0,true);resize(true);cancelAnimationFrame(raf);gameLoop();toast('Bem-vindo à Vila do Sol!','good',2200);
   }
   function stopGame(){
@@ -2492,7 +2473,7 @@
 
   // Public test/audit API
   window.OTTHOS_TEST_API={
-    version:'V623_RESULTS_SOCIAL_CHAT',
+    version:'V624_MOBILE_UI_CLEAN_MAP',
     performance:()=>({fps:+perf.fps.toFixed(1),tier:qualityTier(),requested:requestedQuality(),dpr:renderer?.getPixelRatio?.()||0,drawCalls:renderer?.info?.render?.calls||0,triangles:renderer?.info?.render?.triangles||0}),
     getState:()=>JSON.parse(JSON.stringify(state)),
     getGame:()=>({running,paused,currentHouse:currentHouse?.id||null,cameraMode,player:{...player},objects:{houses:world.houses.length,npcs:world.npcs.length,enemies:world.enemies.length,interactables:world.interactables.length,builds:world.builds.length}}),

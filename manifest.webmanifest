@@ -1,8 +1,8 @@
 {
-  "name": "Otthos Life World V623",
+  "name": "Otthos Life World V624",
   "short_name": "Otthos RP",
-  "description": "Mundo social com vencedores registrados, ações de dançar e brincar, histórico de duelos e controle do chat.",
-  "start_url": "./index.html?v=623",
+  "description": "Interface mobile limpa e responsiva em retrato e paisagem, mapa legível e menus infantis simplificados.",
+  "start_url": "./index.html?v=624",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
