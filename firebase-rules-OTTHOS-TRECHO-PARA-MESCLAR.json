@@ -1,0 +1,15 @@
+{
+  "otthosMultiplayer": {
+    "rooms": {
+      "$room": {
+        "players": {
+          "$uid": {
+            ".read": "auth != null",
+            ".write": "auth != null && auth.uid === $uid",
+            ".validate": "!newData.exists() || (newData.hasChildren(['name','x','y','z','r','updatedAt']) && newData.child('name').isString() && newData.child('name').val().length <= 24 && newData.child('x').isNumber() && newData.child('y').isNumber() && newData.child('z').isNumber() && newData.child('r').isNumber())"
+          }
+        }
+      }
+    }
+  }
+}

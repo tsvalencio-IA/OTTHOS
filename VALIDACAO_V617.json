@@ -1,0 +1,38 @@
+{
+  "version": 617,
+  "indexeddb_schema": 610,
+  "syntax": {
+    "app.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "sw.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "assets/js/save-db.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "assets/js/multiplayer-rtdb.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "F12_TESTE_OTTHOS_V617_FLUIDEZ_RENDER_GPS.js": {
+      "ok": true,
+      "stderr": ""
+    }
+  },
+  "duplicate_ids": [],
+  "fixes": {
+    "daily_save_throttle": true,
+    "road_graph_navigation": true,
+    "fixed_north_minimap": true,
+    "session_render_tier": true,
+    "lod_hysteresis": true,
+    "firebase_config_embedded": true,
+    "rtdb_write_coalescing": true
+  },
+  "live_webgl_test": false,
+  "live_firebase_test": false
+}

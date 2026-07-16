@@ -1,0 +1,9 @@
+OTTHOS V617
+
+app.js: OK
+sw.js: OK
+assets/js/save-db.js: OK
+assets/js/multiplayer-rtdb.js: OK
+F12_TESTE_OTTHOS_V617_FLUIDEZ_RENDER_GPS.js: OK
+IDs duplicados: 0
+WebGL/Firebase real: dependem do teste publicado.
