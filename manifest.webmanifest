@@ -1,8 +1,8 @@
 {
-  "name": "Otthos Life World V617",
+  "name": "Otthos Life World V618",
   "short_name": "Otthos RP",
-  "description": "Mundo aberto voxel com render estável, GPS por ruas, ações, desafios e multiplayer Firebase otimizado.",
-  "start_url": "./index.html?v=617",
+  "description": "Jogo mobile voxel com cenário estável, minimapa orientado corretamente, HUD responsiva para retrato e paisagem e nomes públicos no multiplayer Firebase.",
+  "start_url": "./index.html?v=618",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",

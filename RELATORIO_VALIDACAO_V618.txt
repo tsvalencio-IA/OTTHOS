@@ -1,0 +1,8 @@
+OTTHOS V618
+
+app.js: OK
+sw.js: OK
+assets/js/multiplayer-rtdb.js: OK
+assets/js/save-db.js: OK
+F12_TESTE_OTTHOS_V618_MOBILE_CENARIO_MAPA_NOMES.js: OK
+CSS: OK

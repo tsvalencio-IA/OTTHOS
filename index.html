@@ -8,10 +8,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Otthos Life World</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=617" />
+  <link rel="manifest" href="./manifest.webmanifest?v=618" />
   <link rel="icon" href="./icons/favicon.png" />
   <link rel="apple-touch-icon" href="./icons/icon-192.png" />
-  <link rel="stylesheet" href="./style.css?v=617" />
+  <link rel="stylesheet" href="./style.css?v=618" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script>
     // Visualizador/AR verdadeiramente sob demanda: não baixa model-viewer nem athos.glb no boot.
@@ -74,6 +74,9 @@
         </section>
 
         <aside class="panel menu-panel">
+          <button id="profileNameBtn" class="profile-name-card" type="button">
+            <b>👤</b><span><small>JOGADOR</small><strong id="lobbyPlayerName">Escolher nome</strong></span><i>Editar</i>
+          </button>
           <div class="profile-strip">
             <div class="profile-level"><small>NÍVEL</small><strong id="lobbyLevel">1</strong></div>
             <div><small>MOEDAS</small><strong id="lobbyCoins">500</strong></div>
@@ -104,7 +107,7 @@
       <header class="game-hud">
         <div class="identity-box">
           <div class="mini-avatar"><i></i><i></i><span id="hudLevel">1</span></div>
-          <div class="xp-block"><b>XP</b><div><span id="xpFill"></span></div><small id="xpText">0 / 1000</small></div>
+          <div class="xp-block"><small id="hudPlayerName" class="hud-player-name">Jogador</small><b>XP</b><div><span id="xpFill"></span></div><small id="xpText">0 / 1000</small></div>
         </div>
         <button id="needsToggleBtn" class="needs-summary" type="button" aria-label="Mostrar necessidades">❤️</button>
         <div class="needs-box" aria-label="Necessidades">
@@ -148,6 +151,7 @@
 
       <div id="joystick" class="joystick" aria-label="Joystick"><div class="joystick-ring"><i id="joystickKnob"></i></div></div>
 
+      <button id="skillsToggleBtn" class="skills-toggle" type="button" aria-label="Abrir habilidades"><b>⚡</b><span>Habilidades</span></button>
       <div class="secondary-actions" aria-label="Habilidades do Otthos">
         <button id="crouchBtn" class="skill-btn crouch" type="button"><b>▼</b><span>Abaixar</span></button>
         <button id="miniBtn" class="skill-btn mini" type="button"><b>◱</b><span>Mini</span></button>
@@ -178,9 +182,9 @@
 
   </div>
 
-  <script src="./assets/js/save-db.js?v=617"></script>
-  <script src="./firebase-config.js?v=617"></script>
-  <script type="module" src="./assets/js/multiplayer-rtdb.js?v=617"></script>
-  <script src="./app.js?v=617"></script>
+  <script src="./assets/js/save-db.js?v=618"></script>
+  <script src="./firebase-config.js?v=618"></script>
+  <script type="module" src="./assets/js/multiplayer-rtdb.js?v=618"></script>
+  <script src="./app.js?v=618"></script>
 </body>
 </html>

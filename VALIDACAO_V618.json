@@ -1,0 +1,40 @@
+{
+  "version": 618,
+  "indexeddb_schema": 610,
+  "syntax": {
+    "app.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "sw.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "assets/js/multiplayer-rtdb.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "assets/js/save-db.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "F12_TESTE_OTTHOS_V618_MOBILE_CENARIO_MAPA_NOMES.js": {
+      "ok": true,
+      "stderr": ""
+    }
+  },
+  "duplicate_ids": [],
+  "css_braces_ok": true,
+  "features": {
+    "critical_surfaces": true,
+    "runtime_visibility_pop_removed": true,
+    "minimap_orientation_fixed": true,
+    "mobile_portrait_landscape_layout": true,
+    "mandatory_player_name": true,
+    "full_remote_name_tag": true,
+    "firebase_config_preserved": true
+  },
+  "browser_visual_test": "required on device",
+  "minimap_orientation_formula": "Math.PI - player.facing",
+  "diagnostics_api": true
+}
