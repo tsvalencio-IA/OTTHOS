@@ -372,3 +372,11 @@ body.ui-tiny .round span,body.ui-tiny .skill-btn span,body.ui-tiny .skills-toggl
 
 /* V618 panel collision guards */
 .multiplayer-badge{pointer-events:auto}.mission-card.expanded~.quick-toggle,.mission-card.expanded~.quick-bar,.mission-card.expanded~.mini-nav{opacity:0!important;pointer-events:none!important}body.quick-open .camera-controls{opacity:0!important;pointer-events:none!important}
+
+
+/* V619 — mundo público social */
+.online-status-card{display:flex;flex-direction:column;gap:5px;padding:12px;border-radius:14px;background:linear-gradient(135deg,#073c6b,#0b7a70);margin-bottom:12px}.online-status-card span{font-size:11px;color:#d9fbff}
+.social-tabs{display:flex;justify-content:space-between;align-items:center;margin:12px 0 7px}.social-tabs small{color:#9fc4da}.online-player-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:8px}.online-player-card{display:grid;grid-template-columns:32px 1fr;gap:4px 8px;text-align:left;padding:10px;border-radius:12px;background:#10283d;border:1px solid #3e6a87}.online-player-card span{grid-row:1/3;font-size:24px}.online-player-card small{color:#9fc4da}
+.world-chat-list{max-height:220px;overflow:auto;display:flex;flex-direction:column;gap:7px;padding:8px;background:#071522;border-radius:12px}.world-chat-message{display:flex;flex-direction:column;gap:2px;padding:7px 9px;border-radius:10px;background:#12304a}.world-chat-message b{font-size:11px;color:#61e6ff}.world-chat-message span{font-size:12px}.chat-compose{display:grid;grid-template-columns:1fr auto;gap:7px;margin-top:8px}.chat-compose input{min-width:0;padding:11px;border-radius:11px;background:#071522;border:1px solid #53708b;color:#fff}.chat-compose button{padding:0 14px;border-radius:11px;background:#1679d3;font-weight:900}
+#onlineBtn{position:relative}#onlineBtn::after{content:'';position:absolute;right:7px;top:7px;width:7px;height:7px;border-radius:50%;background:#36e875;box-shadow:0 0 8px #36e875}
+@media(max-width:420px){.online-player-list{grid-template-columns:1fr}.world-chat-list{max-height:180px}}

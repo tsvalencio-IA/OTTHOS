@@ -1,20 +1,24 @@
-# OTTHOS LIFE WORLD V618 — MOBILE ESTÁVEL
+# OTTHOS LIFE WORLD V619 — MUNDO SOCIAL PERSISTENTE
 
-Base: V617.
+Base: V618.
 
-## Correções
-- piso, ruas, calçadas, meio-fio, água e lava marcados como superfícies críticas sem frustum culling;
-- nenhuma geometria do cenário muda de visibilidade pela distância do jogador;
-- sombras dinâmicas desativadas no celular para evitar popping e aliviar GPU;
-- renderer em highp;
-- minimapa com ícone corrigido: a ponta mostra a mesma direção real do personagem;
-- seta do GPS e instruções esquerda/direita corrigidas;
-- HUD mobile redesenhada automaticamente em retrato e paisagem;
-- habilidades viraram gaveta recolhível, preservando todos os botões;
-- minimapa, missão, câmera, joystick e ações ocupam setores diferentes;
-- cada jogador precisa definir um nome de 3 a 18 caracteres antes de entrar;
-- nome aparece no HUD e completo acima dos jogadores remotos;
-- Firebase e chaves já preservados.
+## Implementado
+- todos os jogadores entram automaticamente no mesmo mundo público;
+- autenticação anônima sem senha;
+- nome salvo localmente e no Firebase;
+- progresso, moedas, XP, conquistas, inventário, casas, avatar e construções sincronizados;
+- presença e personagens remotos em tempo real;
+- chat público de texto;
+- acenar, toca-aqui, desafio e presentes entre jogadores;
+- casas exclusivas no Firebase, com compra transacional e porta trancada/destrancada;
+- sociedade de NPCs com conversas, presentes, humor, brigas e desafios locais;
+- frustum culling desativado em todo o cenário estático para impedir ruas/prédios desaparecendo ao caminhar;
+- câmera ampliada e viewport estabilizado.
 
-## Observação
-O IndexedDB continua schema 610. O estado e cache são V618.
+## Limitações honestas
+- voz ainda não foi incluída: precisa de Firebase Storage/Cloudinary e regras de upload;
+- autenticação anônima preserva o usuário no mesmo navegador/app. Se limpar os dados ou trocar de aparelho, o UID muda;
+- economia ainda é controlada pelo cliente. Para impedir trapaça comercialmente, será necessário backend/Cloud Functions.
+
+## Firebase
+Ative Authentication Anônimo e mescle `firebase-rules-OTTHOS-TRECHO-PARA-MESCLAR.json` nas regras existentes sem apagar outros sistemas.

@@ -1,0 +1,43 @@
+{
+  "version": 619,
+  "indexeddb_schema": 610,
+  "syntax": {
+    "app.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "sw.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "assets/js/save-db.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "assets/js/multiplayer-rtdb.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "F12_TESTE_OTTHOS_V619_MUNDO_SOCIAL.js": {
+      "ok": true,
+      "stderr": ""
+    }
+  },
+  "duplicate_ids": [],
+  "features": {
+    "public_world": true,
+    "anonymous_auth": true,
+    "cloud_progress": true,
+    "text_chat": true,
+    "gifts": true,
+    "exclusive_houses": true,
+    "npc_society": true,
+    "static_frustum_disabled": true,
+    "all_world_frustum_disabled": true
+  },
+  "limitations": [
+    "voice_not_implemented",
+    "anonymous_uid_changes_if_app_data_is_cleared",
+    "client_authoritative_economy"
+  ]
+}

@@ -1,13 +1,48 @@
 {
-  "otthosMultiplayer": {
-    "rooms": {
-      "$room": {
-        "players": {
-          "$uid": {
-            ".read": "auth != null",
-            ".write": "auth != null && auth.uid === $uid",
-            ".validate": "!newData.exists() || (newData.hasChildren(['name','x','y','z','r','updatedAt']) && newData.child('name').isString() && newData.child('name').val().length <= 24 && newData.child('x').isNumber() && newData.child('y').isNumber() && newData.child('z').isNumber() && newData.child('r').isNumber())"
+  "otthosWorld": {
+    "users": {
+      "$uid": {
+        "profile": {
+          ".read": "auth != null",
+          ".write": "auth != null && auth.uid === $uid"
+        },
+        "progress": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null && auth.uid === $uid"
+        },
+        "inbox": {
+          "$giftId": {
+            ".read": "auth != null && auth.uid === $uid",
+            ".write": "auth != null && (auth.uid === $uid || (!data.exists() && newData.child('senderUid').val() === auth.uid))"
           }
+        },
+        "interactions": {
+          "$eventId": {
+            ".read": "auth != null && auth.uid === $uid",
+            ".write": "auth != null && (auth.uid === $uid || (!data.exists() && newData.child('senderUid').val() === auth.uid))"
+          }
+        }
+      }
+    },
+    "publicWorld": {
+      "presence": {
+        "$uid": {
+          ".read": "auth != null",
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      },
+      "chat": {
+        ".read": "auth != null",
+        "$messageId": {
+          ".write": "auth != null && !data.exists() && newData.child('senderUid').val() === auth.uid",
+          ".validate": "newData.hasChildren(['senderUid','name','text','createdAt']) && newData.child('text').isString() && newData.child('text').val().length <= 180"
+        }
+      },
+      "houses": {
+        ".read": "auth != null",
+        "$houseId": {
+          ".write": "auth != null && ((!data.exists() && newData.child('ownerUid').val() === auth.uid) || (data.child('ownerUid').val() === auth.uid && newData.child('ownerUid').val() === auth.uid))",
+          ".validate": "newData.hasChildren(['ownerUid','ownerName','name','locked','updatedAt'])"
         }
       }
     }
