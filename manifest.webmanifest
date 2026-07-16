@@ -1,16 +1,31 @@
 {
-  "name": "Otthos Roleplay Life World V612",
+  "name": "Otthos Life World V615",
   "short_name": "Otthos RP",
-  "description": "Simulador de vida infantil em mundo aberto 3D com casas, vizinhos, veículos, desafios, construção, AR, quiz e progresso automático no celular.",
-  "start_url": "./index.html?v=612",
+  "description": "Mundo aberto voxel premium com performance adaptativa, controles imediatos, escalas responsivas, casas, veículos, missões e construção.",
+  "start_url": "./index.html?v=615",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#07101e",
   "theme_color": "#0c1b33",
   "icons": [
-    {"src":"./icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
-    {"src":"./icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
   ],
-  "categories": ["games","kids","education","entertainment"]
+  "categories": [
+    "games",
+    "kids",
+    "education",
+    "entertainment"
+  ]
 }

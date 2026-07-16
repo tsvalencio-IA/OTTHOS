@@ -163,7 +163,7 @@ body.modal-open .stage{pointer-events:none!important}
  linear-gradient(180deg,#62c9ff 0 15%,#78d363 15% 100%)}
 .map-road.diagonal{left:20%;top:25%;width:64%;height:6%;transform:rotate(42deg);transform-origin:center}
 .map-route{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none;overflow:visible}
-.map-route line{stroke:#fff237;stroke-width:1.35;stroke-dasharray:3 2;filter:drop-shadow(0 0 2px #000);vector-effect:non-scaling-stroke}
+.map-route line,.map-route polyline{stroke:#fff237;stroke-width:1.35;stroke-dasharray:3 2;filter:drop-shadow(0 0 2px #000);vector-effect:non-scaling-stroke}
 .map-marker{z-index:4;min-width:64px;max-width:92px;padding:4px 6px}
 .map-marker small{font-size:7px;color:#9ee9ff;font-weight:900}
 .player-dot{z-index:8;width:22px;height:22px}
@@ -210,3 +210,97 @@ body.modal-open .stage{pointer-events:none!important}
 /* V612 — visualizador 3D/AR sob demanda, sem competir com o jogo no carregamento inicial. */
 .viewer-placeholder{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px;text-align:center;color:#071522;background:radial-gradient(circle at 50% 24%,rgba(255,255,255,.82),rgba(118,220,244,.72) 46%,rgba(45,124,140,.52));}
 .viewer-placeholder[hidden]{display:none!important}.viewer-placeholder-mark{display:grid;place-items:center;width:86px;height:86px;border-radius:28px;background:#071522;color:#fff;font-size:42px;box-shadow:0 16px 36px #07152244}.viewer-placeholder strong{font-size:clamp(18px,2vw,26px)}.viewer-placeholder span{max-width:340px;font-weight:700;color:#17344b}.viewer-placeholder button:disabled{opacity:.65;cursor:wait}.viewer-shell model-viewer[hidden]{display:none!important}.viewer-shell.viewer-ready model-viewer{display:block}
+
+
+/* =========================================================
+   V613 — GAMEPLAY COMERCIAL + DIREÇÃO DE ARTE OFICIAL
+   ========================================================= */
+:root{--nav-w:176px}
+.run{grid-column:1;grid-row:1;background:radial-gradient(circle at 34% 25%,#d8f7ff,#2cc6e8 50%,#087b9b 88%)}
+.run.active{filter:brightness(1.18);transform:translateY(2px);box-shadow:0 5px 0 rgba(0,0,0,.3)}
+.mini-nav{position:absolute;z-index:44;left:calc(14px + var(--safe-left));bottom:calc(26px + var(--safe-bottom) + var(--joy));width:var(--nav-w);height:118px;border-radius:18px;overflow:hidden;padding:0;background:#10243b;border:3px solid rgba(255,255,255,.8);box-shadow:0 9px 0 rgba(0,0,0,.3),0 14px 25px rgba(0,0,0,.22);text-align:left}
+.mini-nav canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.95}
+.mini-nav-copy{position:absolute;left:7px;right:30px;bottom:6px;padding:4px 7px;border-radius:9px;background:rgba(5,17,31,.88);display:flex;flex-direction:column}
+.mini-nav-copy b{font-size:10px}.mini-nav-copy small{font-size:7px;color:#b9edff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini-nav>i{position:absolute;right:8px;top:8px;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#116fd7;color:#fff;font-style:normal;font-size:18px;box-shadow:0 3px 0 #07396e;transform-origin:center}
+.mini-nav.active{border-color:#5ff3ff}.mini-nav.active>i{animation:navPulse .8s infinite alternate}@keyframes navPulse{to{filter:brightness(1.45)}}
+.camera-controls{position:absolute;z-index:49;right:calc(22px + var(--safe-right) + (var(--action) * 2) + var(--gap));bottom:calc(17px + var(--safe-bottom));display:flex;gap:6px}
+.camera-controls button{width:38px;height:38px;border-radius:12px;background:linear-gradient(180deg,rgba(36,75,110,.96),rgba(9,27,46,.96));border:2px solid rgba(255,255,255,.72);box-shadow:0 5px 0 rgba(0,0,0,.3);font-size:20px;font-weight:900}
+body.modal-open .mini-nav,body.modal-open .camera-controls{visibility:hidden!important;pointer-events:none!important}
+.map-route polyline{fill:none;stroke:#57f3ff;stroke-width:1.5;stroke-dasharray:3 1.5;filter:drop-shadow(0 0 3px #006e8c);vector-effect:non-scaling-stroke}
+.game-hud,.mission-card,.quick-toggle,.quick-bar,.context-prompt,.mini-nav,.camera-controls,.primary-actions,.secondary-actions{transition:opacity .18s ease,transform .18s ease}
+.vehicle-badge{background:linear-gradient(180deg,rgba(14,62,92,.96),rgba(7,30,50,.96));border-color:#5de8ff}
+.stage canvas{filter:saturate(1.06) contrast(1.025)}
+@media (orientation:landscape){
+ .mini-nav{width:158px;height:96px;bottom:calc(18px + var(--safe-bottom) + var(--joy))}
+ .camera-controls{right:calc(19px + var(--safe-right) + (var(--action) * 2) + var(--gap))}
+}
+@media (orientation:landscape) and (max-height:520px){
+ :root{--nav-w:134px}
+ .mini-nav{width:134px;height:78px;bottom:calc(8px + var(--safe-bottom) + var(--joy))}
+ .mini-nav-copy{display:none}.mini-nav>i{width:24px;height:24px;font-size:14px}
+ .camera-controls{right:calc(12px + var(--safe-right) + (var(--action) * 2) + var(--gap));bottom:calc(8px + var(--safe-bottom))}
+ .camera-controls button{width:32px;height:32px;font-size:16px}
+}
+@media (orientation:portrait){
+ .mini-nav{width:150px;height:104px;bottom:calc(24px + var(--safe-bottom) + var(--joy))}
+ .camera-controls{right:calc(12px + var(--safe-right));top:calc(250px + var(--safe-top));bottom:auto;flex-direction:column}
+ .camera-controls button{width:36px;height:36px}
+}
+@media (max-width:390px) and (orientation:portrait){
+ .mini-nav{width:132px;height:90px}.mini-nav-copy small{display:none}
+}
+
+
+/* V614 — direção de arte voxel comercial e controle corrigido */
+:root{--panel-edge:#69d8ff;--panel-deep:#081b30;--panel-mid:#143657}
+.game-hud,.mission-card,.quick-toggle,.quick-bar,.context-prompt,.mini-nav,.camera-controls button,.primary-actions .round,.secondary-actions button{border-color:rgba(255,255,255,.86)!important;box-shadow:0 6px 0 rgba(4,15,28,.58),0 11px 24px rgba(0,0,0,.24)!important}
+.game-hud,.mission-card{background:linear-gradient(180deg,rgba(16,52,83,.94),rgba(5,24,43,.94))!important;backdrop-filter:blur(7px)}
+.mission-card{border-left:5px solid #48e7ff!important}.mission-title{letter-spacing:.01em}.stage canvas{filter:saturate(1.16) contrast(1.055) brightness(1.015)}
+.mini-nav{border-width:4px;background:#0b2139}.mini-nav.active{box-shadow:0 7px 0 rgba(0,45,73,.75),0 0 20px rgba(80,237,255,.7)!important}
+.primary-actions .round b{filter:drop-shadow(0 2px 0 rgba(0,0,0,.25))}.run{background:radial-gradient(circle at 34% 24%,#c8fbff,#19c8ec 48%,#08799d 90%)!important}
+.context-prompt{background:linear-gradient(180deg,rgba(11,38,64,.96),rgba(4,20,36,.96))!important;border:3px solid #62e8ff!important}
+.world-map{background:linear-gradient(#6cc8ff 0 19%,#77d85d 19% 100%)!important;border:4px solid #d6f6ff!important;box-shadow:inset 0 0 0 4px rgba(12,50,72,.22)}
+.map-region{font-weight:1000;text-shadow:0 2px 0 rgba(0,0,0,.28)}.map-route polyline{stroke:#4ff5ff!important;stroke-width:2.2!important;filter:drop-shadow(0 0 5px #005e89)}
+.modal-card{background:linear-gradient(180deg,#12385d,#071a2d)!important;border:3px solid #75e8ff!important}.modal-card .btn{border:2px solid rgba(255,255,255,.55)}
+@media (orientation:landscape){.mission-card{max-width:min(46vw,650px)}.mini-nav{left:calc(12px + var(--safe-left));}}
+
+
+/* =========================================================
+   V615 — PERFORMANCE ADAPTATIVA + ESCALAS RESPONSIVAS
+   ========================================================= */
+:root{--ui-scale:1;--vvh:100dvh;--vvw:100vw}
+.game-hud{transform-origin:top left}.currency-box{transform-origin:top right}.mission-card{transform-origin:top center}
+body.ui-compact .game-hud{gap:4px}
+body.ui-compact .identity-box{padding:5px 7px}
+body.ui-compact .mini-avatar{width:clamp(42px,9vh,54px);height:clamp(42px,9vh,54px)}
+body.ui-compact .xp-block{min-width:clamp(92px,20vw,132px)}
+body.ui-compact .mission-card{padding:6px 9px;grid-template-columns:36px 1fr}
+body.ui-compact .mission-icon{width:31px;height:31px;font-size:18px}
+body.ui-compact .mission-card strong{font-size:12px}
+body.ui-compact .mission-card p{font-size:9px;margin:0 0 2px}
+body.ui-compact .quick-toggle{transform:scale(.9);transform-origin:top right}
+body.ui-short .mini-nav{height:68px!important;width:120px!important;bottom:calc(7px + var(--safe-bottom) + var(--joy))!important}
+body.ui-short .mini-nav-copy{display:none!important}
+body.ui-short .camera-controls{bottom:calc(5px + var(--safe-bottom))!important;gap:4px!important}
+body.ui-short .camera-controls button{width:30px!important;height:30px!important;font-size:15px!important}
+body.ui-short .secondary-actions{left:calc(var(--joy) + 18px + var(--safe-left))!important;bottom:calc(5px + var(--safe-bottom))!important}
+body.ui-short .primary-actions{right:calc(7px + var(--safe-right))!important;bottom:calc(6px + var(--safe-bottom))!important}
+body.ui-short .context-prompt{max-width:36vw;bottom:calc(4px + var(--safe-bottom))!important;padding:5px 8px!important}
+body.ui-short .context-prompt span{font-size:8px}
+body.ui-narrow .secondary-actions{width:calc(100vw - 18px);justify-content:center}
+body.ui-narrow .mini-nav{left:calc(8px + var(--safe-left));width:120px;height:82px}
+body.ui-narrow .camera-controls{right:calc(6px + var(--safe-right));top:calc(220px + var(--safe-top))}
+body[data-render-tier="balanced"] .stage canvas{filter:saturate(1.12) contrast(1.04) brightness(1.01)}
+body[data-render-tier="low"] .stage canvas{filter:saturate(1.08) contrast(1.025)}
+body[data-render-tier="low"] .mini-nav{box-shadow:0 5px 0 rgba(0,0,0,.28)!important}
+.round,.skill-btn,.camera-controls button,.quick-toggle,.quick-bar button{will-change:transform;touch-action:manipulation}
+#actionBtn:active,#jumpBtn:active,#specialBtn:active,#runBtn:active,.skill-btn:active{transform:translateY(3px) scale(.97)!important;transition:none!important}
+@media (orientation:portrait) and (max-height:680px){
+ .mission-card{top:calc(96px + var(--safe-top))!important}.quick-toggle{top:calc(155px + var(--safe-top))!important}.quick-bar{top:calc(205px + var(--safe-top))!important}
+ .camera-controls{top:calc(205px + var(--safe-top))!important}
+}
+@media (orientation:landscape) and (max-width:760px){
+ .needs-box{display:none}.needs-summary{display:grid!important}.currency-box{padding:5px 8px}.hud-coins{font-size:18px}
+ .mission-card{width:min(330px,42vw)!important}.quick-bar{max-width:36vw!important}
+}

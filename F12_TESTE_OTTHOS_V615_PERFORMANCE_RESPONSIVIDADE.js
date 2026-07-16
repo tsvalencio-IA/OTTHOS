@@ -1,0 +1,13 @@
+(async()=>{
+'use strict';const api=window.OTTHOS_TEST_API,results=[],wait=ms=>new Promise(r=>setTimeout(r,ms));const add=(n,o,d='')=>results.push({Teste:n,Status:o?'OK':'FALHOU',Detalhes:d});
+if(!api){console.error('OTTHOS_TEST_API ausente');return;}try{
+add('Versão V615',api.version==='V615_PERFORMANCE_RESPONSIVE',api.version);
+if(!api.getGame().running){document.querySelector('#continueBtn')?.click();await wait(1400);}
+const p0={...api.getGame().player};window.dispatchEvent(new KeyboardEvent('keydown',{code:'KeyW',key:'w',bubbles:true}));await wait(250);window.dispatchEvent(new KeyboardEvent('keyup',{code:'KeyW',key:'w',bubbles:true}));const p1=api.getGame().player;add('Resposta de movimento rápida',Math.hypot(p1.x-p0.x,p1.z-p0.z)>.35,`distância=${Math.hypot(p1.x-p0.x,p1.z-p0.z).toFixed(2)}`);
+const perf=api.performance();add('Performance API ativa',perf.fps>0&&perf.dpr>0,JSON.stringify(perf));
+const ids=['joystick','runBtn','actionBtn','jumpBtn','specialBtn','crouchBtn','miniBtn','normalBtn','giantBtn','spinBtn','miniNav','cameraControls'];const bad=[];for(const id of ids){const el=document.getElementById(id);if(!el){bad.push(id+' ausente');continue;}const r=el.getBoundingClientRect();if(r.left<-3||r.top<-3||r.right>innerWidth+3||r.bottom>innerHeight+3)bad.push(id+' fora');}add('Controles dentro da tela',bad.length===0,bad.join(', ')||`${innerWidth}x${innerHeight}`);
+const before=performance.now();api.setWaypoint?.('gym');await wait(300);add('Navegação continua ativa',!!api.map?.().waypoint,JSON.stringify(api.map?.().waypoint));api.clearWaypoint?.();
+add('Teste concluído sem travar',performance.now()-before<3000,`${Math.round(performance.now()-before)} ms`);
+}catch(e){add('Execução',false,e.stack||String(e));}
+const ok=results.filter(x=>x.Status==='OK').length,score=Math.round(ok/results.length*100);console.group(`OTTHOS V615 — ${score}%`);console.table(results);console.groupEnd();document.getElementById('v615-panel')?.remove();const p=document.createElement('div');p.id='v615-panel';p.style.cssText='position:fixed;inset:12px;z-index:2147483647;background:#071522f5;color:#fff;border:2px solid #5de1ff;border-radius:18px;padding:16px;overflow:auto;font:14px system-ui';p.innerHTML=`<button style="float:right" onclick="this.parentElement.remove()">Fechar</button><h2>V615 — ${score}%</h2><table style="width:100%">${results.map(x=>`<tr><td>${x.Teste}</td><td><b>${x.Status}</b></td><td>${x.Detalhes}</td></tr>`).join('')}</table>`;document.body.appendChild(p);
+})();

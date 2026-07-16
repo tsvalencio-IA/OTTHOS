@@ -1,0 +1,32 @@
+{
+  "version": 615,
+  "syntax": {
+    "app.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "sw.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "save-db.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "F12_TESTE_OTTHOS_V615_PERFORMANCE_RESPONSIVIDADE.js": {
+      "ok": true,
+      "stderr": ""
+    }
+  },
+  "duplicate_ids": [],
+  "required": [
+    "V615_PERFORMANCE_RESPONSIVE",
+    "samplePerformance",
+    "updateVisualLOD",
+    "qualityLabel",
+    "state.version = 615",
+    "input.x=lerp(input.x,input.targetX,Math.min(1,dt*34))"
+  ],
+  "files": 78,
+  "note": "Validação estrutural; FPS real depende do aparelho."
+}

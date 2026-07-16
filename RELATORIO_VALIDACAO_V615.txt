@@ -1,0 +1,5 @@
+app.js: OK
+sw.js: OK
+save-db.js: OK
+F12_TESTE_OTTHOS_V615_PERFORMANCE_RESPONSIVIDADE.js: OK
+IDs duplicados: 0
