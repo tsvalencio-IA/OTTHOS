@@ -22,29 +22,44 @@
               ".read": "auth != null && auth.uid === $uid",
               ".write": "auth != null && (auth.uid === $uid || (!data.exists() && newData.child('senderUid').val() === auth.uid))"
             }
+          },
+          "challenges": {
+            ".read": "auth != null && auth.uid === $uid",
+            "$challengeId": {
+              ".write": "auth != null && ((!data.exists() && newData.child('fromUid').val() === auth.uid && newData.child('toUid').val() === $uid) || auth.uid === $uid)",
+              ".validate": "!newData.exists() || (newData.hasChildren(['fromUid','fromName','toUid','type','seed','status','createdAt']) && newData.child('toUid').val() === $uid && newData.child('fromName').isString() && newData.child('fromName').val().length <= 24)"
+            }
           }
         }
       },
       "publicWorld": {
+        ".read": "auth != null",
         "presence": {
-          ".read": "auth != null",
           "$uid": {
             ".write": "auth != null && auth.uid === $uid",
             ".validate": "!newData.exists() || (newData.hasChildren(['name','x','y','z','r','updatedAt']) && newData.child('name').isString() && newData.child('name').val().length >= 3 && newData.child('name').val().length <= 24)"
           }
         },
         "chat": {
-          ".read": "auth != null",
           "$messageId": {
-            ".write": "auth != null && !data.exists() && newData.child('senderUid').val() === auth.uid",
-            ".validate": "newData.hasChildren(['senderUid','name','text','createdAt']) && newData.child('text').isString() && newData.child('text').val().length > 0 && newData.child('text').val().length <= 180"
-          }
+            ".write": "auth != null && ((!data.exists() && newData.child('senderUid').val() === auth.uid) || (data.exists() && !newData.exists() && data.child('senderUid').val() === auth.uid))",
+            ".validate": "!newData.exists() || (newData.hasChildren(['senderUid','name','text','createdAt']) && newData.child('senderUid').val() === auth.uid && newData.child('text').isString() && newData.child('text').val().length > 0 && newData.child('text').val().length <= 180)"
+          },
+          ".indexOn": [
+            "senderUid",
+            "createdAt"
+          ]
         },
         "houses": {
-          ".read": "auth != null",
           "$houseId": {
             ".write": "auth != null && ((!data.exists() && newData.child('ownerUid').val() === auth.uid) || (data.child('ownerUid').val() === auth.uid && newData.child('ownerUid').val() === auth.uid))",
             ".validate": "newData.hasChildren(['ownerUid','ownerName','name','locked','updatedAt'])"
+          }
+        },
+        "gameSessions": {
+          "$sessionId": {
+            ".write": "auth != null && ((!data.exists() && newData.child('fromUid').val() === auth.uid) || (data.exists() && (data.child('fromUid').val() === auth.uid || data.child('toUid').val() === auth.uid) && newData.child('fromUid').val() === data.child('fromUid').val() && newData.child('toUid').val() === data.child('toUid').val()))",
+            ".validate": "!newData.exists() || (newData.hasChildren(['fromUid','fromName','toUid','type','seed','status','createdAt']) && (newData.child('type').val() === 'math' || newData.child('type').val() === 'portuguese' || newData.child('type').val() === 'english'))"
           }
         }
       }

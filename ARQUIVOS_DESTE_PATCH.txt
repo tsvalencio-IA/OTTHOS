@@ -1,4 +1,4 @@
-OTTHOS V622 — substitua somente estes arquivos:
+OTTHOS V623 — SUBSTITUA SOMENTE ESTES ARQUIVOS
 
 app.js
 index.html
@@ -6,3 +6,4 @@ style.css
 sw.js
 manifest.webmanifest
 assets/js/multiplayer-rtdb.js
+firebase-database.rules.json
