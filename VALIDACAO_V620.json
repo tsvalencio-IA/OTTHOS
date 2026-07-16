@@ -1,0 +1,42 @@
+{
+  "version": 620,
+  "indexeddb_schema": 610,
+  "syntax": {
+    "app.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "sw.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "assets/js/multiplayer-rtdb.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "assets/js/save-db.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "F12_TESTE_OTTHOS_V620_ONLINE_ACADEMIA.js": {
+      "ok": true,
+      "stderr": ""
+    }
+  },
+  "duplicate_ids": [],
+  "service_worker_missing_refs": [],
+  "features": {
+    "online_button_fixed": true,
+    "challenge_button_fixed": true,
+    "presence_parent_read_rule": true,
+    "online_count_cache": true,
+    "social_panel_updates_without_resetting_input": true,
+    "learning_path": true,
+    "lessons": 12,
+    "questions": 60,
+    "answer_order_randomized": true
+  },
+  "browser_webgl_tested": false,
+  "firebase_two_devices_tested": false,
+  "note": "Firebase real com dois celulares requer publicar as regras V620."
+}

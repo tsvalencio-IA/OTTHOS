@@ -27,16 +27,17 @@
       },
       "publicWorld": {
         "presence": {
+          ".read": "auth != null",
           "$uid": {
-            ".read": "auth != null",
-            ".write": "auth != null && auth.uid === $uid"
+            ".write": "auth != null && auth.uid === $uid",
+            ".validate": "!newData.exists() || (newData.hasChildren(['name','x','y','z','r','updatedAt']) && newData.child('name').isString() && newData.child('name').val().length >= 3 && newData.child('name').val().length <= 24)"
           }
         },
         "chat": {
           ".read": "auth != null",
           "$messageId": {
             ".write": "auth != null && !data.exists() && newData.child('senderUid').val() === auth.uid",
-            ".validate": "newData.hasChildren(['senderUid','name','text','createdAt']) && newData.child('text').isString() && newData.child('text').val().length <= 180"
+            ".validate": "newData.hasChildren(['senderUid','name','text','createdAt']) && newData.child('text').isString() && newData.child('text').val().length > 0 && newData.child('text').val().length <= 180"
           }
         },
         "houses": {

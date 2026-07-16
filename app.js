@@ -8,8 +8,8 @@
   const lerpAngle = (a, b, t) => { let d=((b-a+Math.PI)%(Math.PI*2))-Math.PI; if(d<-Math.PI)d+=Math.PI*2; return a+d*t; };
   const distance2D = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
   const uid = () => (crypto.randomUUID ? crypto.randomUUID() : `p-${Date.now()}-${Math.random().toString(16).slice(2)}`);
-  const STORAGE_KEY = 'otthos_life_world_roleplay_v619';
-  const LEGACY_STORAGE_KEYS = ['otthos_life_world_roleplay_v618','otthos_life_world_roleplay_v617','otthos_life_world_roleplay_v616','otthos_life_world_roleplay_v615','otthos_life_world_roleplay_v614','otthos_life_world_roleplay_v613','otthos_life_world_roleplay_v612','otthos_life_world_roleplay_v611','otthos_life_world_roleplay_v610','otthos_life_world_roleplay_v609','otthos_life_world_roleplay_v608','otthos_life_world_roleplay_v607','otthos_life_world_roleplay_v606','otthos_life_world_roleplay_v605','otthos_life_world_roleplay_v604','otthos_life_world_roleplay_v603','otthos_life_world_roleplay_v602','otthos_life_world_roleplay_v601','otthos_life_world_complete_v600'];
+  const STORAGE_KEY = 'otthos_life_world_roleplay_v620';
+  const LEGACY_STORAGE_KEYS = ['otthos_life_world_roleplay_v619','otthos_life_world_roleplay_v618','otthos_life_world_roleplay_v617','otthos_life_world_roleplay_v616','otthos_life_world_roleplay_v615','otthos_life_world_roleplay_v614','otthos_life_world_roleplay_v613','otthos_life_world_roleplay_v612','otthos_life_world_roleplay_v611','otthos_life_world_roleplay_v610','otthos_life_world_roleplay_v609','otthos_life_world_roleplay_v608','otthos_life_world_roleplay_v607','otthos_life_world_roleplay_v606','otthos_life_world_roleplay_v605','otthos_life_world_roleplay_v604','otthos_life_world_roleplay_v603','otthos_life_world_roleplay_v602','otthos_life_world_roleplay_v601','otthos_life_world_complete_v600'];
   const safeLocalGet = key => { try { return window.localStorage?.getItem(key) ?? null; } catch { return null; } };
   const safeLocalSet = (key, value) => { try { window.localStorage?.setItem(key, value); return true; } catch { return false; } };
   const safeLocalRemove = key => { try { window.localStorage?.removeItem(key); return true; } catch { return false; } };
@@ -33,7 +33,7 @@
   };
 
   const defaultState = () => ({
-    version: 619,
+    version: 620,
     profile: { playerId: uid(), name: '', nameConfirmed: false, level: 1, xp: 0, coins: 500, reputation: 0 },
     needs: { hunger: 92, energy: 92, fun: 86, hygiene: 88 },
     inventory: { wood: 0, stone: 0, food: 2, water: 2, crystals: 0, blocks: 4, fences: 2, keys: 0 },
@@ -61,6 +61,7 @@
     settings: { sound: true, quality: 'auto', autoTier: 'balanced', vibration: true, cameraZoom: 0, joystickNatural: true },
     stats: { walked:0, driven:0, jumps:0, collected:0, talks:0, cooked:0, races:0, actions:0 },
     daily: { date:'', streak:0, lastDate:'', quests:[] },
+    learning: { crowns:0, totalCorrect:0, lessons:{}, lastLesson:'', perfectLessons:0 },
     multiplayer: { enabled:true, room:'mundo-publico', displayName:'', cloudUid:'', cloudReady:false },
     npcSociety: { lastEvent:0, houses:{}, friendships:{}, moods:{} },
     lastSaved: Date.now()
@@ -77,7 +78,7 @@
     return {
       ...fresh,
       ...saved,
-      version: 619,
+      version: 620,
       profile: { ...fresh.profile, ...(saved.profile || {}) },
       needs: { ...fresh.needs, ...(saved.needs || {}) },
       inventory: { ...fresh.inventory, ...(saved.inventory || {}) },
@@ -88,6 +89,7 @@
       settings: { ...fresh.settings, ...(saved.settings || {}), quality: Number(saved.version||0)<615 && (saved.settings?.quality||'high')==='high' ? 'auto' : ((saved.settings?.quality)||fresh.settings.quality) },
       stats: { ...fresh.stats, ...(saved.stats || {}) },
       daily: { ...fresh.daily, ...(saved.daily || {}), quests:Array.isArray(saved.daily?.quests)?saved.daily.quests:[] },
+      learning: { ...fresh.learning, ...(saved.learning || {}), lessons:{...fresh.learning.lessons,...(saved.learning?.lessons||{})} },
       multiplayer: { ...fresh.multiplayer, ...(saved.multiplayer || {}), room:'mundo-publico' },
       npcSociety: { ...fresh.npcSociety, ...(saved.npcSociety || {}), houses:{...fresh.npcSociety.houses,...(saved.npcSociety?.houses||{})}, friendships:{...fresh.npcSociety.friendships,...(saved.npcSociety?.friendships||{})}, moods:{...fresh.npcSociety.moods,...(saved.npcSociety?.moods||{})} },
       avatar: { ...fresh.avatar, ...(saved.avatar || {}) },
@@ -170,7 +172,7 @@
 
   function cloudProgressPayload(){
     return {
-      version:619,lastSaved:Number(state.lastSaved||Date.now()),
+      version: 620,lastSaved:Number(state.lastSaved||Date.now()),
       profile:{name:state.profile.name||'Jogador',coins:state.profile.coins||0,xp:state.profile.xp||0,level:state.profile.level||1,reputation:state.profile.reputation||0},
       inventory:{...state.inventory},medals:[...(state.medals||[])],flags:{...state.flags},houses:{...state.houses},races:{...state.races},
       avatar:{...state.avatar},abilities:{...state.abilities},builds:[...(state.builds||[])],homeStorage:{...state.homeStorage},
@@ -192,7 +194,7 @@
       avatar:{...state.avatar,...(remote.avatar||{})},abilities:{...state.abilities,...(remote.abilities||{})},
       builds:Array.isArray(remote.builds)?remote.builds:state.builds,homeStorage:{...state.homeStorage,...(remote.homeStorage||{})},
       stats:{...state.stats,...(remote.achievements?.stats||{})},daily:{...state.daily,...(remote.achievements?.daily||{})},
-      position:{...state.position,...(remote.position||{})},lastSaved:remoteSaved,version:619
+      position:{...state.position,...(remote.position||{})},lastSaved:remoteSaved,version: 620
     };
     state=normalizeState(merged);state.profile.nameConfirmed=true;state.multiplayer.room='mundo-publico';
     safeLocalSet(STORAGE_KEY,JSON.stringify(state));window.OTTHOS_DB?.save?.(state).catch(()=>{});updatePlayerNameUI();updateHUD();updateLobbyStats();toast('Progresso recuperado do Firebase.','good',2300);return true;
@@ -364,7 +366,71 @@
   }
   function updateDailyBadge(){if(!els.dailyBtn)return;ensureDailyChallenges();const ready=state.daily.quests.filter(q=>!q.claimed&&q.progress>=q.target).length;els.dailyBtn.classList.toggle('reward-ready',ready>0);const span=$('span',els.dailyBtn);if(span)span.textContent=ready?`Prêmio ${ready}`:'Desafios';}
   function claimDailyQuest(index){const q=state.daily.quests[index],def=dailyDefinition(q?.id);if(!q||!def||q.claimed||q.progress<q.target)return;q.claimed=true;addCoins(q.reward);addXP(q.xp);addReputation(3);beep(980,90);vibrate(30);toast(`Desafio concluído! +${q.reward} moedas`,'good',2200);saveState(true);openDailyChallenges();}
-  function openDailyChallenges(){ensureDailyChallenges();const rows=state.daily.quests.map((q,i)=>{const d=dailyDefinition(q.id),pct=clamp(q.progress/q.target*100,0,100),ready=q.progress>=q.target&&!q.claimed;return`<article class="daily-card ${ready?'ready':''} ${q.claimed?'claimed':''}"><div class="daily-icon">${d.icon}</div><div><b>${d.title}</b><span>${d.label(q.progress)}</span><div class="daily-progress"><i style="width:${pct}%"></i></div><small>${q.reward} moedas • ${q.xp} XP</small></div><button data-daily-claim="${i}" ${ready?'':'disabled'}>${q.claimed?'✓':ready?'Receber':'Em andamento'}</button></article>`}).join('');openModal('Desafios Diários',`<div class="daily-header"><b>🔥 Sequência: ${state.daily.streak} dia${state.daily.streak===1?'':'s'}</b><span>Complete os desafios para evoluir mais rápido.</span></div><div class="daily-list">${rows}</div>`,root=>{$$('[data-daily-claim]',root).forEach(btn=>btn.onclick=()=>claimDailyQuest(Number(btn.dataset.dailyClaim)));});}
+  const LEARNING_UNITS=[
+    {id:'vida',title:'Vida na Vila',icon:'🏡',color:'#35b96f',lessons:[
+      {id:'vida-1',title:'Primeiros passos',questions:[
+        ['Qual botão abre uma interação próxima?',['AÇÃO','PODER','MAPA'],0],['O que recupera energia?',['Dormir','Pular','Dirigir'],0],['Como recuperar fome?',['Comer','Correr','Construir'],0],['Para conhecer um vizinho, o melhor é...',['Conversar','Atacar','Ignorar'],0],['Onde o progresso é salvo?',['No celular e na nuvem','Só na tela','Não é salvo'],0]
+      ]},
+      {id:'vida-2',title:'Necessidades',questions:[
+        ['Qual necessidade melhora ao tomar banho?',['Higiene','Energia','Dinheiro'],0],['Diversão pode aumentar ao...',['Dançar','Ficar parado','Perder corrida'],0],['Energia muito baixa deixa o Otthos...',['Mais lento','Mais rico','Gigante'],0],['Uma refeição ajuda principalmente na...',['Fome','Casa','Reputação'],0],['Dormir é uma ação encontrada...',['Na cama','Na oficina','No mapa'],0]
+      ]},
+      {id:'vida-3',title:'Minha evolução',questions:[
+        ['XP serve para...',['Subir de nível','Trancar ruas','Apagar itens'],0],['Moedas podem ser ganhas ao...',['Completar tarefas','Fechar o jogo','Cair na água'],0],['Reputação melhora ao...',['Ajudar e concluir missões','Brigar sempre','Ignorar todos'],0],['Medalhas registram...',['Conquistas','Erros de rede','Somente casas'],0],['Desafios diários dão...',['Recompensas','Banimento','Perda de progresso'],0]
+      ]}
+    ]},
+    {id:'cidade',title:'Cidade e Segurança',icon:'🚦',color:'#3186e8',lessons:[
+      {id:'cidade-1',title:'Pelas ruas',questions:[
+        ['Para chegar a um local, você deve seguir...',['A rota do GPS','Qualquer parede','A água'],0],['No minimapa, o triângulo representa...',['O jogador','Uma casa','Um inimigo'],0],['O carrinho deve circular preferencialmente...',['Pelas ruas','Dentro das casas','Sobre os telhados'],0],['Ao encontrar obstáculo na rota...',['Siga o novo caminho','Feche o jogo','Ignore colisões'],0],['O botão de câmera ◎ faz...',['Recentraliza','Compra casa','Abre chat'],0]
+      ]},
+      {id:'cidade-2',title:'Veículos',questions:[
+        ['Dentro do veículo, Correr vira...',['Turbo','Dormir','Construir'],0],['Para sair do carrinho use...',['AÇÃO','MAPA','MINI'],0],['A buzina serve para...',['Avisar','Comprar','Salvar'],0],['Alta velocidade exige...',['Mais controle','Fechar os olhos','Ignorar curvas'],0],['O veículo permite fazer...',['Entregas','Banho','Quiz'],0]
+      ]},
+      {id:'cidade-3',title:'Exploração',questions:[
+        ['O Vale dos Cristais tem...',['Desafios de plataforma','Somente camas','Nenhuma atividade'],0],['Cristais podem ser...',['Coletados e presenteados','Apagados apenas','Usados como senha'],0],['O mapa completo mostra...',['Locais e rotas','Somente moedas','A câmera do celular'],0],['Explorar ajuda a encontrar...',['Recursos e missões','Erros','Senhas'],0],['Ao chegar ao destino o GPS...',['Avisa você','Apaga a casa','Reinicia o jogo'],0]
+      ]}
+    ]},
+    {id:'construir',title:'Construção Criativa',icon:'🧱',color:'#e88a2e',lessons:[
+      {id:'construir-1',title:'Recursos',questions:[
+        ['Para construir você coleta...',['Madeira e pedra','Somente água','Somente XP'],0],['A ponte quebrada usa...',['Materiais','Chat','Nome público'],0],['O inventário mostra...',['Itens disponíveis','Jogadores banidos','Somente câmera'],0],['Recursos aparecem...',['Pelo mundo','Só no menu online','Fora do jogo'],0],['Construir consome...',['Itens do inventário','Nome do jogador','Nível do Firebase'],0]
+      ]},
+      {id:'construir-2',title:'Minha casa',questions:[
+        ['Uma casa trancada permite entrada de...',['Proprietário autorizado','Qualquer pessoa','Nenhum dono'],0],['O dono pode...',['Trancar e destrancar','Apagar outros jogadores','Mudar o Firebase'],0],['Móveis ficam associados...',['À casa','À rua','Ao minimapa'],0],['Uma casa disponível pode ser...',['Comprada','Duplicada infinitamente','Ignorada pelo banco'],0],['A compra online deve usar...',['Transação','Somente animação','Screenshot'],0]
+      ]},
+      {id:'construir-3',title:'Arquiteto Otthos',questions:[
+        ['Antes de colocar um bloco é bom...',['Ver a posição','Fechar a câmera','Sair da conta'],0],['Uma cerca serve para...',['Delimitar espaço','Aumentar fome','Enviar chat'],0],['Decoração melhora...',['A personalização','A latência','O UID'],0],['Salvar após construir protege...',['As alterações','Os inimigos','O sinal 4G'],0],['Criatividade combina com...',['Planejamento','Apagar tudo','Copiar senha'],0]
+      ]}
+    ]},
+    {id:'social',title:'Amizade e Multiplayer',icon:'🌐',color:'#9b55db',lessons:[
+      {id:'social-1',title:'Mundo online',questions:[
+        ['Cada celular recebe no Firebase...',['Um UID próprio','O mesmo personagem','Nenhum usuário'],0],['O nome público serve para...',['Identificar jogadores','Substituir senha privada','Apagar chat'],0],['O indicador online mostra...',['Jogadores conectados','Somente moedas','Casas vazias'],0],['O chat público permite...',['Enviar texto','Controlar outro celular','Alterar regras'],0],['Ao desconectar, a presença deve...',['Ser removida','Ficar para sempre','Virar moeda'],0]
+      ]},
+      {id:'social-2',title:'Boas interações',questions:[
+        ['Um presente deve ser enviado para...',['Outro jogador','Você mesmo sempre','Uma rua'],0],['Antes de trocar itens é importante...',['Confirmar a ação','Desligar internet','Apagar inventário'],0],['Acenar é uma interação...',['Amigável','De construção','De direção'],0],['Um desafio online deve mostrar...',['Quem convidou','Chave privada','Senha do banco'],0],['Respeitar outros jogadores deixa o mundo...',['Mais divertido','Offline','Sem casas'],0]
+      ]},
+      {id:'social-3',title:'Mestre da Comunidade',questions:[
+        ['Uma regra segura permite cada usuário gravar...',['Os próprios dados','Tudo de todos','Nenhum dado'],0],['A leitura da lista de presença precisa ser liberada...',['No nó da lista','Apenas no filho','No CSS'],0],['Chat de voz deve guardar no RTDB...',['A URL e metadados','O áudio bruto inteiro','A senha'],0],['Economia protegida futuramente usa...',['Servidor/Cloud Functions','Somente localStorage','Imagem PNG'],0],['Multiplayer divertido precisa de...',['Interação e persistência','Só personagens parados','Uma única tela'],0]
+      ]}
+    ]}
+  ];
+  function allLearningLessons(){return LEARNING_UNITS.flatMap((unit,unitIndex)=>unit.lessons.map((lesson,lessonIndex)=>({...lesson,unit,unitIndex,lessonIndex})));}
+  function lessonRecord(id){return state.learning.lessons[id]||{completed:false,stars:0,best:0,attempts:0};}
+  function lessonUnlocked(index){return index===0||!!lessonRecord(allLearningLessons()[index-1].id).completed;}
+  function learningSummary(){const lessons=allLearningLessons(),done=lessons.filter(l=>lessonRecord(l.id).completed).length;return{done,total:lessons.length,pct:Math.round(done/lessons.length*100)};}
+  function dailyChallengesHtml(){ensureDailyChallenges();return state.daily.quests.map((q,i)=>{const d=dailyDefinition(q.id),pct=clamp(q.progress/q.target*100,0,100),ready=q.progress>=q.target&&!q.claimed;return`<article class="daily-card ${ready?'ready':''} ${q.claimed?'claimed':''}"><div class="daily-icon">${d.icon}</div><div><b>${d.title}</b><span>${d.label(q.progress)}</span><div class="daily-progress"><i style="width:${pct}%"></i></div><small>${q.reward} moedas • ${q.xp} XP</small></div><button data-daily-claim="${i}" ${ready?'':'disabled'}>${q.claimed?'✓':ready?'Receber':'Em andamento'}</button></article>`}).join('');}
+  function openChallengeHub(tab='path'){
+    ensureDailyChallenges();const summary=learningSummary(),lessons=allLearningLessons();
+    const path=LEARNING_UNITS.map(unit=>`<section class="learning-unit" style="--unit:${unit.color}"><header><span>${unit.icon}</span><div><b>${unit.title}</b><small>${unit.lessons.filter(l=>lessonRecord(l.id).completed).length}/${unit.lessons.length} concluídas</small></div></header><div class="learning-path">${unit.lessons.map(lesson=>{const idx=lessons.findIndex(x=>x.id===lesson.id),rec=lessonRecord(lesson.id),unlocked=lessonUnlocked(idx);return`<button class="learning-node ${rec.completed?'done':''} ${unlocked?'':'locked'}" data-learning-lesson="${lesson.id}" ${unlocked?'':'disabled'}><i>${rec.completed?'✓':unlocked?'▶':'🔒'}</i><b>${lesson.title}</b><small>${rec.completed?`${rec.stars||1} estrela${rec.stars===1?'':'s'}`:'5 perguntas'}</small></button>`}).join('')}</div></section>`).join('');
+    openModal('Academia Otthos',`<div class="learning-top"><div><b>🔥 ${state.daily.streak||1}</b><small>sequência</small></div><div><b>👑 ${state.learning.crowns||0}</b><small>coroas</small></div><div><b>⭐ ${summary.pct}%</b><small>trilha</small></div></div><div class="learning-tabs"><button data-learning-tab="path" class="${tab==='path'?'active':''}">Trilha</button><button data-learning-tab="daily" class="${tab==='daily'?'active':''}">Diários</button></div><div class="learning-content">${tab==='path'?path:`<div class="daily-header"><b>Desafios de hoje</b><span>Complete atividades no mundo para receber prêmios.</span></div><div class="daily-list">${dailyChallengesHtml()}</div>`}</div>`,root=>{
+      $$('[data-learning-tab]',root).forEach(btn=>btn.onclick=()=>openChallengeHub(btn.dataset.learningTab));
+      $$('[data-learning-lesson]',root).forEach(btn=>btn.onclick=()=>startLearningLesson(btn.dataset.learningLesson));
+      $$('[data-daily-claim]',root).forEach(btn=>btn.onclick=()=>claimDailyQuest(Number(btn.dataset.dailyClaim)));
+    });
+  }
+  function openDailyChallenges(){openChallengeHub('daily');}
+  function startLearningLesson(lessonId){const lesson=allLearningLessons().find(l=>l.id===lessonId);if(!lesson)return;let step=0,hearts=3,correct=0,locked=false;const questions=lesson.questions.map(([text,options,correctIndex])=>{const shuffled=options.map((value,index)=>({value,correct:index===correctIndex})).sort(()=>Math.random()-.5);return[text,shuffled.map(x=>x.value),shuffled.findIndex(x=>x.correct)];}).sort(()=>Math.random()-.5);
+    const render=()=>{const q=questions[step],progress=Math.round(step/questions.length*100);openModal(lesson.title,`<div class="lesson-hud"><b>❤️ ${hearts}</b><div><i style="width:${progress}%"></i></div><b>${step+1}/${questions.length}</b></div><div class="lesson-question"><small>${lesson.unit.icon} ${lesson.unit.title}</small><h3>${q[0]}</h3></div><div class="lesson-options">${q[1].map((opt,i)=>`<button data-lesson-answer="${i}"><span>${String.fromCharCode(65+i)}</span>${opt}</button>`).join('')}</div><div id="lessonFeedback" class="lesson-feedback" hidden></div>`,root=>{$$('[data-lesson-answer]',root).forEach(btn=>btn.onclick=()=>{if(locked)return;locked=true;const choice=Number(btn.dataset.lessonAnswer),feedback=$('#lessonFeedback',root),buttons=$$('[data-lesson-answer]',root);buttons.forEach(b=>b.disabled=true);if(choice===q[2]){correct++;state.learning.totalCorrect++;btn.classList.add('correct');feedback.hidden=false;feedback.className='lesson-feedback good';feedback.innerHTML='<b>Correto!</b><span>Ótimo trabalho.</span>';beep(780,80);addXP(6);}else{hearts--;btn.classList.add('wrong');buttons[q[2]]?.classList.add('correct');feedback.hidden=false;feedback.className='lesson-feedback bad';feedback.innerHTML=`<b>Quase!</b><span>A resposta correta é: ${q[1][q[2]]}</span>`;beep(180,110,'sawtooth');}setTimeout(()=>{if(hearts<=0)return finishLearningLesson(lesson,correct,questions.length,false);step++;locked=false;if(step>=questions.length)finishLearningLesson(lesson,correct,questions.length,true);else render();},900);});});};render();}
+  function finishLearningLesson(lesson,correct,total,finished){const passed=finished&&correct>=Math.ceil(total*.6),stars=passed?(correct===total?3:correct>=total-1?2:1):0,old=lessonRecord(lesson.id);state.learning.lessons[lesson.id]={completed:old.completed||passed,stars:Math.max(old.stars||0,stars),best:Math.max(old.best||0,correct),attempts:(old.attempts||0)+1};state.learning.lastLesson=lesson.id;if(passed){state.learning.crowns+=(old.completed?0:1);if(correct===total)state.learning.perfectLessons++;const coins=35+stars*15;addCoins(coins);addXP(30+stars*10);awardMedal(correct===total?'Lição Perfeita':'Aluno da Academia');saveState(true);openModal('Lição concluída!',`<div class="lesson-result"><div>${correct===total?'🏆':'🎉'}</div><h3>${correct}/${total} corretas</h3><p>${'⭐'.repeat(stars)} Você ganhou ${coins} moedas.</p><button class="btn primary" data-learning-continue>Continuar na trilha</button></div>`,root=>$('[data-learning-continue]',root).onclick=()=>openChallengeHub('path'));}else{saveState(true);openModal('Tente novamente',`<div class="lesson-result"><div>💪</div><h3>${correct}/${total} corretas</h3><p>Você precisa acertar pelo menos 3 respostas. Seus corações acabaram, mas você pode repetir sem perder moedas.</p><button class="btn primary" data-learning-retry>Repetir lição</button><button class="btn" data-learning-path>Voltar à trilha</button></div>`,root=>{$('[data-learning-retry]',root).onclick=()=>startLearningLesson(lesson.id);$('[data-learning-path]',root).onclick=()=>openChallengeHub('path');});}}
+
   function triggerEmote(type,npc=null){player.emoteType=type;player.emoteUntil=performance.now()+2200;if(npc){npc.emoteType=type;npc.emoteUntil=performance.now()+2200;}const msg={wave:'Acenou!',dance:'Hora da dança!',selfie:'Selfie da amizade!',highfive:'Toca aqui!'};toast(msg[type]||'Ação social!','good',1200);beep(type==='highfive'?820:620,55);vibrate(15);addXP(3);}
 
   const quizQuestions = [
@@ -407,7 +473,7 @@
     { keys: ['construir','bloco'], text: 'Colete madeira e pedra. No botão Construir você escolhe blocos, cercas e decoração.' },
     { keys: ['emprego','trabalho'], text: 'A Garagem oferece entregas com o carrinho. Elas dão moedas e reputação.' },
     { keys: ['missão','objetivo'], text: 'Siga o cartão de missão no alto. Ele muda quando você completa cada objetivo.' },
-    { keys: ['multiplayer'], text: 'A base já possui identidade de jogador e sincronização local de teste. O servidor online entra na próxima conexão de backend.' },
+    { keys: ['multiplayer'], text: 'O mundo online usa Firebase: jogadores aparecem em tempo real, conversam e mantêm nome e progresso salvos.' },
     { keys: ['ar','realidade'], text: 'Use Realidade Aumentada para colocar o Otthos no chão do mundo real.' }
   ];
   function openTalk() {
@@ -775,6 +841,8 @@
   els.avatarGameBtn.onclick = openLifePanel;
   els.inventoryBtn.onclick = openInventory;
   els.mapBtn.onclick = openMap;
+  els.dailyBtn.onclick = () => openChallengeHub('path');
+  els.onlineBtn.onclick = openSocialHub;
   els.gameSettingsBtn.onclick = () => openSettings(true);
   function syncMobilePanels(){document.body.classList.toggle('skills-open',!!state.ui.skillsOpen);document.body.classList.toggle('quick-open',!!state.ui.quickOpen);els.skillsToggleBtn?.classList.toggle('active',!!state.ui.skillsOpen);els.quickToggleBtn?.classList.toggle('active',!!state.ui.quickOpen);els.quickBar.hidden=!state.ui.quickOpen;}
   els.quickToggleBtn.onclick = () => { state.ui.quickOpen = !state.ui.quickOpen;if(state.ui.quickOpen)state.ui.skillsOpen=false;syncMobilePanels();saveState(); };
@@ -783,7 +851,7 @@
   const toggleMission = () => { state.ui.missionOpen = !state.ui.missionOpen; els.missionCard.classList.toggle('expanded', state.ui.missionOpen); saveState(); };
   els.missionCard.onclick = toggleMission;
   els.missionCard.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleMission(); } };
-  [els.avatarGameBtn,els.inventoryBtn,els.buildBtn,els.mapBtn,els.gameSettingsBtn].forEach(btn => btn?.addEventListener('click', () => { state.ui.quickOpen=false; els.quickBar.hidden=true; els.quickToggleBtn.classList.remove('active'); }));
+  [els.avatarGameBtn,els.inventoryBtn,els.buildBtn,els.mapBtn,els.dailyBtn,els.onlineBtn,els.gameSettingsBtn].forEach(btn => btn?.addEventListener('click', () => { state.ui.quickOpen=false; els.quickBar.hidden=true; els.quickToggleBtn.classList.remove('active'); }));
   async function ensureModelViewerReady({activateAR=false}={}) {
     if (!els.nativeViewer || !window.loadModelViewerLib) throw new Error('Visualizador indisponível');
     if (els.viewerStatus) els.viewerStatus.textContent = 'Carregando visualizador 3D…';
@@ -1955,7 +2023,7 @@
     initMaterials();
     scene.add(new THREE.HemisphereLight(0xe8f8ff,0x314923,.9));sunLight=new THREE.DirectionalLight(0xffe5a9,1.14);sunLight.position.set(32,46,24);sunLight.castShadow=qualityTier()!=='low'&&!perf.mobile;sunLight.shadow.mapSize.set(qualityTier()==='high'?1024:768,qualityTier()==='high'?1024:768);sunLight.shadow.camera.left=-80;sunLight.shadow.camera.right=80;sunLight.shadow.camera.top=80;sunLight.shadow.camera.bottom=-80;sunLight.shadow.camera.far=160;sunLight.shadow.bias=-.0015;scene.add(sunLight);
     const fill=new THREE.DirectionalLight(0xbfe0ff,.28);fill.position.set(-28,20,-18);scene.add(fill); // preenchimento barato (sem sombra) para suavizar o lado escuro dos objetos
-    createPlayerModel();playerModel.position.y=playerModel.userData.baseY;applyAvatarCustomization();buildWorld();reconcileCloudHouses();lockStableSceneVisibility();freezeWorldFrustumCulling();restorePosition();initLocalMultiplayer();applyQuality();applyAdaptiveRenderSettings(true);resize(true);return true;
+    createPlayerModel();playerModel.position.y=playerModel.userData.baseY;applyAvatarCustomization();buildWorld();reconcileCloudHouses();lockStableSceneVisibility();freezeWorldFrustumCulling();restorePosition();initLocalMultiplayer();for(const [remoteUid,data] of remotePresence)remotePlayerEvent({uid:remoteUid,...data});applyQuality();applyAdaptiveRenderSettings(true);resize(true);return true;
   }
   function applyQuality(){ if(!renderer)return;applyAdaptiveRenderSettings(); }
   function resize(force=false){
@@ -2256,15 +2324,18 @@
 
   let localChannel=null,lastPublish=0,lastPublishSnapshot=null,lastPublishHeartbeat=0;
 
-  let multiplayerState={mode:'solo',connected:false,count:0,room:'mundo-publico',error:'',players:[]};
+  let multiplayerState={mode:'solo',connected:false,count:0,room:'mundo-publico',error:'',players:[]};const remotePresence=new Map();
   const cloudHouses=new Map(),cloudChat=[];
   function multiplayerStatusText(){if(multiplayerState.connected)return`Mundo público • ${multiplayerState.count||1} online`;if(window.OTTHOS_RTDB?.configured)return multiplayerState.error?`Offline: ${multiplayerState.error}`:'Conectando ao mundo público...';return'Firebase indisponível';}
   function updateMultiplayerBadge(){if(!els.multiplayerBadge)return;els.multiplayerBadge.classList.toggle('online',multiplayerState.connected);els.multiplayerBadge.classList.toggle('offline',!multiplayerState.connected);const label=$('span',els.multiplayerBadge);if(label)label.textContent=multiplayerState.connected?`${multiplayerState.count||1} online`:'Offline';}
-  function onlinePlayers(){return [...world.ghosts.entries()].map(([uid,g])=>({uid,name:g.userData.displayName||'Jogador',distance:Math.hypot(player.x-g.position.x,player.z-g.position.z)})).sort((a,b)=>a.distance-b.distance);}
+  function onlinePlayers(){return [...remotePresence.entries()].map(([uid,data])=>{const ghost=world.ghosts.get(uid);return{uid,name:data.name||ghost?.userData?.displayName||'Jogador',distance:ghost?Math.hypot(player.x-ghost.position.x,player.z-ghost.position.z):Math.hypot(player.x-(data.x||0),player.z-(data.z||0))}}).sort((a,b)=>a.distance-b.distance);}
+  function onlinePlayerListHtml(players=onlinePlayers()){return players.length?players.map(p=>`<button class="online-player-card" data-online-player="${p.uid}"><span>👤</span><b>${escapeHtml(p.name)}</b><small>${Math.round(p.distance)} m</small></button>`).join(''):'<p>Nenhum outro jogador apareceu ainda. Abra o jogo em outro celular usando o mesmo Firebase.</p>';}
+  function bindOnlinePlayerCards(root=els.modalBody){$$('[data-online-player]',root).forEach(btn=>btn.onclick=()=>{const uid=btn.dataset.onlinePlayer,ghost=world.ghosts.get(uid);if(ghost)openRemotePlayerActions(uid,ghost);});}
+  function refreshOpenSocialHub(){if(els.modal.hidden||els.modalTitle.textContent!=='Mundo Online')return;const players=onlinePlayers(),status=$('#onlineStatusText',els.modalBody),count=$('#onlineCount',els.modalBody),list=$('#onlinePlayerList',els.modalBody),chat=$('#worldChatList',els.modalBody);if(status)status.textContent=multiplayerStatusText();if(count)count.textContent=`${players.length} além de você`;if(list){list.innerHTML=onlinePlayerListHtml(players);bindOnlinePlayerCards(els.modalBody);}if(chat){chat.innerHTML=cloudChat.slice(-30).map(m=>chatMessageHtml(m)).join('')||'<p>Envie a primeira mensagem.</p>';chat.scrollTop=chat.scrollHeight;}}
   function openSocialHub(){
     const players=onlinePlayers(),messages=cloudChat.slice(-30);
-    openModal('Mundo Online',`<div class="online-status-card"><b>${multiplayerStatusText()}</b><span>Todos entram automaticamente no mesmo mundo, sem escolher sala e sem senha.</span></div><div class="social-tabs"><b>Jogadores</b><small>${players.length} além de você</small></div><div class="online-player-list">${players.length?players.map(p=>`<button class="online-player-card" data-online-player="${p.uid}"><span>👤</span><b>${escapeHtml(p.name)}</b><small>${Math.round(p.distance)} m</small></button>`).join(''):'<p>Nenhum outro jogador apareceu ainda. Abra o jogo em outro celular usando o mesmo Firebase.</p>'}</div><div class="social-tabs"><b>Chat do mundo</b><small>texto em tempo real</small></div><div id="worldChatList" class="world-chat-list">${messages.map(m=>chatMessageHtml(m)).join('')||'<p>Envie a primeira mensagem.</p>'}</div><div class="chat-compose"><input id="worldChatInput" maxlength="180" placeholder="Escreva uma mensagem..."><button data-send-world-chat>Enviar</button></div>`,root=>{
-      $$('[data-online-player]',root).forEach(btn=>btn.onclick=()=>{const uid=btn.dataset.onlinePlayer,ghost=world.ghosts.get(uid);if(ghost)openRemotePlayerActions(uid,ghost);});
+    openModal('Mundo Online',`<div class="online-status-card"><b id="onlineStatusText">${multiplayerStatusText()}</b><span>Todos entram automaticamente no mesmo mundo, sem escolher sala e sem senha.</span></div><div class="social-tabs"><b>Jogadores</b><small id="onlineCount">${players.length} além de você</small></div><div id="onlinePlayerList" class="online-player-list">${onlinePlayerListHtml(players)}</div><div class="social-tabs"><b>Chat do mundo</b><small>texto em tempo real</small></div><div id="worldChatList" class="world-chat-list">${messages.map(m=>chatMessageHtml(m)).join('')||'<p>Envie a primeira mensagem.</p>'}</div><div class="chat-compose"><input id="worldChatInput" maxlength="180" placeholder="Escreva uma mensagem..."><button data-send-world-chat>Enviar</button></div>`,root=>{
+      bindOnlinePlayerCards(root);
       const send=()=>{const input=$('#worldChatInput',root),text=(input?.value||'').trim();if(!text)return;window.OTTHOS_RTDB?.sendChat?.(text);input.value='';};$('[data-send-world-chat]',root).onclick=send;$('#worldChatInput',root)?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();send();}});
     });
   }
@@ -2273,19 +2344,19 @@
   function openRemotePlayerActions(uid,ghost){const name=ghost.userData.displayName||'Jogador';openModal(name,`<p>Interaja com este jogador em tempo real.</p><div class="choice-grid"><button class="choice" data-player-action="wave"><b>👋 Acenar</b><span>Enviar saudação</span></button><button class="choice" data-player-action="highfive"><b>🙌 Toca aqui</b><span>Interação social</span></button><button class="choice" data-player-action="giftCoins"><b>🪙 Dar 10 moedas</b><span>Presente online</span></button><button class="choice" data-player-action="giftCrystal"><b>💎 Dar cristal</b><span>Usa 1 cristal</span></button><button class="choice" data-player-action="challenge"><b>🏁 Desafiar</b><span>Convite para corrida</span></button><button class="choice" data-player-action="message"><b>💬 Mencionar no chat</b><span>Abrir conversa pública</span></button></div>`,root=>{$$('[data-player-action]',root).forEach(btn=>btn.onclick=async()=>{const action=btn.dataset.playerAction;if(action==='message'){closeModal();openSocialHub();setTimeout(()=>{const input=$('#worldChatInput');if(input){input.value=`@${name} `;input.focus();}},100);return;}if(action==='giftCoins'){if(state.profile.coins<10){toast('Você não tem 10 moedas.','warn');return;}const ok=await window.OTTHOS_RTDB?.sendGift?.(uid,{type:'coins',amount:10});if(ok){addCoins(-10);toast(`Você presenteou ${name}.`,'good');}}else if(action==='giftCrystal'){if(state.inventory.crystals<1){toast('Você não tem cristal.','warn');return;}const ok=await window.OTTHOS_RTDB?.sendGift?.(uid,{type:'crystal',amount:1});if(ok){state.inventory.crystals--;saveState(true);toast(`Cristal enviado para ${name}.`,'good');}}else{window.OTTHOS_RTDB?.sendInteraction?.(uid,{type:action});triggerEmote(action==='highfive'?'highfive':'wave');toast(`Convite enviado para ${name}.`,'good');}closeModal();});});}
   function nearestRemotePlayer(){let found=null,best=Infinity;for(const [uid,g] of world.ghosts){const d=Math.hypot(player.x-g.position.x,player.z-g.position.z);if(d<2.7&&d<best){best=d;found={uid,ghost:g};}}return found;}
   function openMultiplayerConfig(){openSocialHub();}
-  function remotePlayerEvent(data){if(!data||data.uid===window.OTTHOS_RTDB?.uid)return;let ghost=world.ghosts.get(data.uid);if(!ghost){ghost=createGhost(data.color||0x5ad8ff,data.name||'Jogador');world.ghosts.set(data.uid,ghost);}updateGhostName(ghost,data.name);ghost.userData.uid=data.uid;ghost.userData.target=data;multiplayerState.count=Math.max(1,Number(data.count||world.ghosts.size+1));updateMultiplayerBadge();}
-  window.addEventListener('otthos:mp-status',e=>{multiplayerState={...multiplayerState,...e.detail,room:'mundo-publico'};state.multiplayer.cloudUid=e.detail?.uid||state.multiplayer.cloudUid;state.multiplayer.cloudReady=!!e.detail?.connected;updateMultiplayerBadge();});
+  function remotePlayerEvent(data){if(!data||data.uid===window.OTTHOS_RTDB?.uid)return;remotePresence.set(data.uid,data);let ghost=world.ghosts.get(data.uid);if(scene&&!ghost){ghost=createGhost(data.color||0x5ad8ff,data.name||'Jogador');world.ghosts.set(data.uid,ghost);}if(ghost){updateGhostName(ghost,data.name);ghost.userData.target=data;}refreshOpenSocialHub();}
+  window.addEventListener('otthos:mp-status',e=>{multiplayerState={...multiplayerState,...e.detail};state.multiplayer.cloudReady=!!multiplayerState.connected;if(e.detail?.uid)state.multiplayer.cloudUid=e.detail.uid;if(Array.isArray(e.detail?.players)){remotePresence.clear();e.detail.players.filter(p=>p.uid!==window.OTTHOS_RTDB?.uid).forEach(p=>remotePresence.set(p.uid,p));}updateMultiplayerBadge();refreshOpenSocialHub();});
   window.addEventListener('otthos:mp-player',e=>remotePlayerEvent(e.detail));
-  window.addEventListener('otthos:mp-leave',e=>{const id=e.detail?.uid,ghost=world.ghosts.get(id);if(ghost){scene?.remove(ghost);world.ghosts.delete(id);}multiplayerState.count=Math.max(1,world.ghosts.size+1);updateMultiplayerBadge();});
+  window.addEventListener('otthos:mp-leave',e=>{const id=e.detail?.uid;remotePresence.delete(id);const ghost=world.ghosts.get(id);if(ghost){scene?.remove(ghost);world.ghosts.delete(id);}multiplayerState.count=Math.max(1,remotePresence.size+1);updateMultiplayerBadge();refreshOpenSocialHub();});
   window.addEventListener('otthos:cloud-profile',e=>mergeCloudProgress(e.detail?.progress));
   window.addEventListener('otthos:houses',e=>{cloudHouses.clear();for(const [id,data] of Object.entries(e.detail||{}))cloudHouses.set(id,data);reconcileCloudHouses();});
-  window.addEventListener('otthos:chat',e=>{const m=e.detail;if(!m)return;cloudChat.push(m);if(cloudChat.length>60)cloudChat.shift();if(m.senderUid!==window.OTTHOS_RTDB?.uid)toast(`${m.name}: ${m.text}`,'good',2200);});
+  window.addEventListener('otthos:chat',e=>{const m=e.detail;if(!m)return;cloudChat.push(m);if(cloudChat.length>60)cloudChat.shift();refreshOpenSocialHub();if(m.senderUid!==window.OTTHOS_RTDB?.uid)toast(`${m.name}: ${m.text}`,'good',2200);});
   window.addEventListener('otthos:gift',e=>{const gift=e.detail;if(!gift)return;if(gift.type==='coins'){state.profile.coins+=Number(gift.amount||0);}else if(gift.type==='crystal'){state.inventory.crystals=(state.inventory.crystals||0)+Number(gift.amount||1);}saveState(true);toast(`🎁 ${gift.senderName||'Jogador'} enviou um presente!`,'good',2600);});
   window.addEventListener('otthos:interaction',e=>{const it=e.detail;if(!it)return;const sender=it.senderName||'Jogador';if(it.type==='challenge'){toast(`🏁 ${sender} desafiou você para uma corrida!`,'good',3200);}else if(it.type==='highfive'){triggerEmote('highfive');toast(`🙌 ${sender} fez toca aqui!`,'good',2200);}else{triggerEmote('wave');toast(`👋 ${sender} acenou para você.`,'good',2200);}});
   window.addEventListener('otthos:rtdb-ready',()=>{if(running||hasValidPlayerName())window.OTTHOS_RTDB?.connect?.({name:state.profile.name||'Jogador'});});
 
   function initLocalMultiplayer(){
-    if(typeof BroadcastChannel==='function'){localChannel=new BroadcastChannel('otthos-life-world-v619');localChannel.onmessage=e=>{const data=e.data;if(!data||data.id===state.profile.playerId)return;if(data.type==='leave'){const ghost=world.ghosts.get(data.id);if(ghost){scene.remove(ghost);world.ghosts.delete(data.id);}return;}remotePlayerEvent({...data,uid:data.id});};window.addEventListener('beforeunload',()=>localChannel?.postMessage({type:'leave',id:state.profile.playerId}));}
+    if(typeof BroadcastChannel==='function'){localChannel=new BroadcastChannel('otthos-life-world-v620');localChannel.onmessage=e=>{const data=e.data;if(!data||data.id===state.profile.playerId)return;if(data.type==='leave'){const ghost=world.ghosts.get(data.id);if(ghost){scene.remove(ghost);world.ghosts.delete(data.id);}return;}remotePlayerEvent({...data,uid:data.id});};window.addEventListener('beforeunload',()=>localChannel?.postMessage({type:'leave',id:state.profile.playerId}));}
     window.OTTHOS_MULTIPLAYER={version:5,playerId:state.profile.playerId,mode:window.OTTHOS_RTDB?.configured?'firebase-public-world':'local-preview',connect:()=>window.OTTHOS_RTDB?.connect?.({name:state.profile.name||'Jogador'})||true,publish:payload=>{localChannel?.postMessage(payload);window.OTTHOS_RTDB?.publish?.(payload);},adapter:window.OTTHOS_RTDB?.configured?'Firebase Realtime Database':'BroadcastChannel'};updateMultiplayerBadge();if(window.OTTHOS_RTDB?.configured&&hasValidPlayerName())window.OTTHOS_RTDB.connect({name:state.profile.name||'Jogador'});
   }
   function multiplayerNameTexture(name){const c=document.createElement('canvas');c.width=512;c.height=128;const ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);ctx.fillStyle='rgba(5,18,34,.88)';ctx.strokeStyle='rgba(255,255,255,.92)';ctx.lineWidth=8;const r=30;ctx.beginPath();if(ctx.roundRect)ctx.roundRect(8,8,c.width-16,c.height-16,r);else ctx.rect(8,8,c.width-16,c.height-16);ctx.fill();ctx.stroke();ctx.fillStyle='#fff';ctx.font='900 48px system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(sanitizePlayerName(name)||'Jogador',c.width/2,c.height/2+2);const tex=new THREE.CanvasTexture(c);tex.minFilter=THREE.LinearFilter;tex.magFilter=THREE.LinearFilter;tex.generateMipmaps=false;return tex;}
@@ -2399,7 +2470,7 @@
 
   // Public test/audit API
   window.OTTHOS_TEST_API={
-    version:'V619_PUBLIC_WORLD_SOCIAL_CLOUD',
+    version:'V620_ONLINE_LEARNING_PATH',
     performance:()=>({fps:+perf.fps.toFixed(1),tier:qualityTier(),requested:requestedQuality(),dpr:renderer?.getPixelRatio?.()||0,drawCalls:renderer?.info?.render?.calls||0,triangles:renderer?.info?.render?.triangles||0}),
     getState:()=>JSON.parse(JSON.stringify(state)),
     getGame:()=>({running,paused,currentHouse:currentHouse?.id||null,cameraMode,player:{...player},objects:{houses:world.houses.length,npcs:world.npcs.length,enemies:world.enemies.length,interactables:world.interactables.length,builds:world.builds.length}}),

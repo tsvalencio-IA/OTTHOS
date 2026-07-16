@@ -1,8 +1,8 @@
 {
-  "name": "Otthos Life World V619",
+  "name": "Otthos Life World V620",
   "short_name": "Otthos RP",
-  "description": "Mundo aberto social com perfil persistente, mundo público, chat, presentes, casas exclusivas e personagens autônomos.",
-  "start_url": "./index.html?v=619",
+  "description": "Mundo social online com contagem correta de jogadores, chat e Academia Otthos em trilha de lições inspirada em apps de aprendizagem.",
+  "start_url": "./index.html?v=620",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
