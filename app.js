@@ -8,8 +8,9 @@
   const lerpAngle = (a, b, t) => { let d=((b-a+Math.PI)%(Math.PI*2))-Math.PI; if(d<-Math.PI)d+=Math.PI*2; return a+d*t; };
   const distance2D = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
   const uid = () => (crypto.randomUUID ? crypto.randomUUID() : `p-${Date.now()}-${Math.random().toString(16).slice(2)}`);
-  const STORAGE_KEY = 'otthos_life_world_roleplay_v624';
-  const LEGACY_STORAGE_KEYS = ['otthos_life_world_roleplay_v623','otthos_life_world_roleplay_v622','otthos_life_world_roleplay_v621','otthos_life_world_roleplay_v620','otthos_life_world_roleplay_v619','otthos_life_world_roleplay_v618','otthos_life_world_roleplay_v617','otthos_life_world_roleplay_v616','otthos_life_world_roleplay_v615','otthos_life_world_roleplay_v614','otthos_life_world_roleplay_v613','otthos_life_world_roleplay_v612','otthos_life_world_roleplay_v611','otthos_life_world_roleplay_v610','otthos_life_world_roleplay_v609','otthos_life_world_roleplay_v608','otthos_life_world_roleplay_v607','otthos_life_world_roleplay_v606','otthos_life_world_roleplay_v605','otthos_life_world_roleplay_v604','otthos_life_world_roleplay_v603','otthos_life_world_roleplay_v602','otthos_life_world_roleplay_v601','otthos_life_world_complete_v600'];
+  const APP_VERSION = 626;
+  const STORAGE_KEY = 'otthos_life_world_roleplay_v626';
+  const LEGACY_STORAGE_KEYS = ['otthos_life_world_roleplay_v625','otthos_life_world_roleplay_v624','otthos_life_world_roleplay_v623','otthos_life_world_roleplay_v622','otthos_life_world_roleplay_v621','otthos_life_world_roleplay_v620','otthos_life_world_roleplay_v619','otthos_life_world_roleplay_v618','otthos_life_world_roleplay_v617','otthos_life_world_roleplay_v616','otthos_life_world_roleplay_v615','otthos_life_world_roleplay_v614','otthos_life_world_roleplay_v613','otthos_life_world_roleplay_v612','otthos_life_world_roleplay_v611','otthos_life_world_roleplay_v610','otthos_life_world_roleplay_v609','otthos_life_world_roleplay_v608','otthos_life_world_roleplay_v607','otthos_life_world_roleplay_v606','otthos_life_world_roleplay_v605','otthos_life_world_roleplay_v604','otthos_life_world_roleplay_v603','otthos_life_world_roleplay_v602','otthos_life_world_roleplay_v601','otthos_life_world_complete_v600'];
   const safeLocalGet = key => { try { return window.localStorage?.getItem(key) ?? null; } catch { return null; } };
   const safeLocalSet = (key, value) => { try { window.localStorage?.setItem(key, value); return true; } catch { return false; } };
   const safeLocalRemove = key => { try { window.localStorage?.removeItem(key); return true; } catch { return false; } };
@@ -33,10 +34,10 @@
   };
 
   const defaultState = () => ({
-    version: 624,
+    version: APP_VERSION,
     profile: { playerId: uid(), name: '', nameConfirmed: false, level: 1, xp: 0, coins: 500, reputation: 0 },
     needs: { hunger: 92, energy: 92, fun: 86, hygiene: 88 },
-    inventory: { wood: 0, stone: 0, food: 2, water: 2, crystals: 0, blocks: 4, fences: 2, keys: 0 },
+    inventory: { wood: 0, stone: 0, food: 2, water: 2, crystals: 0, blocks: 4, fences: 2, keys: 0, fishingRod: 1, bait: 5, rawFish: 0, cookedFish: 0, forestResources: 0 },
     homeStorage: { wood: 0, stone: 0, food: 0, water: 0, crystals: 0 },
     houses: {
       home: { owned: true, locked: false, home: true },
@@ -63,6 +64,12 @@
     daily: { date:'', streak:0, lastDate:'', quests:[] },
     learning: { crowns:0, totalCorrect:0, lessons:{}, lastLesson:'', perfectLessons:0, subjectXP:{math:0,portuguese:0,english:0}, multiplayerWins:0, multiplayerPlayed:0, matchHistory:[] },
     multiplayer: { enabled:true, room:'mundo-publico', displayName:'', cloudUid:'', cloudReady:false },
+    fishing: { catches: [], species: {}, lastAttempt: 0, cooperativeRewards: [] },
+    campfires: [],
+    boats: { activeBoatId: '', passengerOf: '', lastPosition: { x:-38, z:52, heading:0 } },
+    hunting: { lastAttempt: 0, tracksFound: 0, successful: 0, failed: 0, cooperativeRewards: [] },
+    houseExtensions: [],
+    multiplayerRequests: { lastSentAt: 0, completed: [] },
     npcSociety: { lastEvent:0, houses:{}, friendships:{}, moods:{} },
     lastSaved: Date.now()
   });
@@ -78,7 +85,7 @@
     return {
       ...fresh,
       ...saved,
-      version: 624,
+      version: APP_VERSION,
       profile: { ...fresh.profile, ...(saved.profile || {}) },
       needs: { ...fresh.needs, ...(saved.needs || {}) },
       inventory: { ...fresh.inventory, ...(saved.inventory || {}) },
@@ -91,6 +98,12 @@
       daily: { ...fresh.daily, ...(saved.daily || {}), quests:Array.isArray(saved.daily?.quests)?saved.daily.quests:[] },
       learning: { ...fresh.learning, ...(saved.learning || {}), subjectXP:{...fresh.learning.subjectXP,...(saved.learning?.subjectXP||{})}, lessons:{...fresh.learning.lessons,...(saved.learning?.lessons||{})}, matchHistory:Array.isArray(saved.learning?.matchHistory)?saved.learning.matchHistory:[] },
       multiplayer: { ...fresh.multiplayer, ...(saved.multiplayer || {}), room:'mundo-publico' },
+      fishing: { ...fresh.fishing, ...(saved.fishing || {}), catches:Array.isArray(saved.fishing?.catches)?saved.fishing.catches:[], species:{...fresh.fishing.species,...(saved.fishing?.species||{})}, cooperativeRewards:Array.isArray(saved.fishing?.cooperativeRewards)?saved.fishing.cooperativeRewards:[] },
+      campfires: Array.isArray(saved.campfires) ? saved.campfires : [],
+      boats: { ...fresh.boats, ...(saved.boats || {}), lastPosition:{...fresh.boats.lastPosition,...(saved.boats?.lastPosition||{})} },
+      hunting: { ...fresh.hunting, ...(saved.hunting || {}), cooperativeRewards:Array.isArray(saved.hunting?.cooperativeRewards)?saved.hunting.cooperativeRewards:[] },
+      houseExtensions: Array.isArray(saved.houseExtensions) ? saved.houseExtensions : [],
+      multiplayerRequests: { ...fresh.multiplayerRequests, ...(saved.multiplayerRequests || {}), completed:Array.isArray(saved.multiplayerRequests?.completed)?saved.multiplayerRequests.completed:[] },
       npcSociety: { ...fresh.npcSociety, ...(saved.npcSociety || {}), houses:{...fresh.npcSociety.houses,...(saved.npcSociety?.houses||{})}, friendships:{...fresh.npcSociety.friendships,...(saved.npcSociety?.friendships||{})}, moods:{...fresh.npcSociety.moods,...(saved.npcSociety?.moods||{})} },
       avatar: { ...fresh.avatar, ...(saved.avatar || {}) },
       career: { ...fresh.career, ...(saved.career || {}) },
@@ -148,7 +161,7 @@
   let saveTimer = 0;
   let lastSavePromise = Promise.resolve(true);
   function commitState() {
-    state.version = 621;
+    state.version = APP_VERSION;
     state.lastSaved = Date.now();
     const snapshot = JSON.parse(JSON.stringify(state));
     safeLocalSet(STORAGE_KEY, JSON.stringify(snapshot));
@@ -172,10 +185,10 @@
 
   function cloudProgressPayload(){
     return {
-      version: 624,lastSaved:Number(state.lastSaved||Date.now()),
+      version: APP_VERSION,lastSaved:Number(state.lastSaved||Date.now()),
       profile:{name:state.profile.name||'Jogador',coins:state.profile.coins||0,xp:state.profile.xp||0,level:state.profile.level||1,reputation:state.profile.reputation||0},
       inventory:{...state.inventory},medals:[...(state.medals||[])],flags:{...state.flags},houses:{...state.houses},races:{...state.races},
-      avatar:{...state.avatar},abilities:{...state.abilities},builds:[...(state.builds||[])],homeStorage:{...state.homeStorage},
+      avatar:{...state.avatar},abilities:{...state.abilities},builds:[...(state.builds||[])],homeStorage:{...state.homeStorage},fishing:{...state.fishing,catches:[...(state.fishing?.catches||[])],species:{...(state.fishing?.species||{})}},campfires:[...(state.campfires||[])],boats:{...state.boats,lastPosition:{...(state.boats?.lastPosition||{})}},hunting:{...state.hunting},houseExtensions:[...(state.houseExtensions||[])],
       achievements:{stats:{...state.stats},daily:{...state.daily,quests:[...(state.daily?.quests||[])]},learning:{...state.learning,subjectXP:{...state.learning.subjectXP},lessons:{...state.learning.lessons}}},position:{...state.position}
     };
   }
@@ -192,9 +205,9 @@
       inventory:{...state.inventory,...(remote.inventory||{})},medals:Array.isArray(remote.medals)?remote.medals:state.medals,
       flags:{...state.flags,...(remote.flags||{})},houses:{...state.houses,...(remote.houses||{})},races:{...state.races,...(remote.races||{})},
       avatar:{...state.avatar,...(remote.avatar||{})},abilities:{...state.abilities,...(remote.abilities||{})},
-      builds:Array.isArray(remote.builds)?remote.builds:state.builds,homeStorage:{...state.homeStorage,...(remote.homeStorage||{})},
+      builds:Array.isArray(remote.builds)?remote.builds:state.builds,homeStorage:{...state.homeStorage,...(remote.homeStorage||{})},fishing:{...state.fishing,...(remote.fishing||{}),catches:Array.isArray(remote.fishing?.catches)?remote.fishing.catches:state.fishing.catches,species:{...state.fishing.species,...(remote.fishing?.species||{})}},campfires:Array.isArray(remote.campfires)?remote.campfires:state.campfires,boats:{...state.boats,...(remote.boats||{}),lastPosition:{...state.boats.lastPosition,...(remote.boats?.lastPosition||{})}},hunting:{...state.hunting,...(remote.hunting||{})},houseExtensions:Array.isArray(remote.houseExtensions)?remote.houseExtensions:state.houseExtensions,
       stats:{...state.stats,...(remote.achievements?.stats||{})},daily:{...state.daily,...(remote.achievements?.daily||{})},learning:{...state.learning,...(remote.achievements?.learning||{}),subjectXP:{...state.learning.subjectXP,...(remote.achievements?.learning?.subjectXP||{})},lessons:{...state.learning.lessons,...(remote.achievements?.learning?.lessons||{})}},
-      position:{...state.position,...(remote.position||{})},lastSaved:remoteSaved,version: 624
+      position:{...state.position,...(remote.position||{})},lastSaved:remoteSaved,version: APP_VERSION
     };
     state=normalizeState(merged);state.profile.nameConfirmed=true;state.multiplayer.room='mundo-publico';
     safeLocalSet(STORAGE_KEY,JSON.stringify(state));window.OTTHOS_DB?.save?.(state).catch(()=>{});updatePlayerNameUI();updateHUD();updateLobbyStats();toast('Progresso recuperado do Firebase.','good',2300);return true;
@@ -276,6 +289,7 @@
     if (onReady) onReady(els.modalBody);
   }
   function closeModal() {
+    clearExtensionPreview();
     const resumePausedGame = pauseMenuOpen;
     els.modal.hidden = true;
     els.modal.classList.remove('map-modal');
@@ -341,7 +355,7 @@
       : '<p>No Chrome, abra o menu ⋮ e escolha <b>Instalar aplicativo</b> ou <b>Adicionar à tela inicial</b>.</p>');
   }
   if (els.installBtn) els.installBtn.onclick = installApp;
-  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=623').catch(console.warn));
+  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=626').catch(console.warn));
   updateInstallUI();
 
 
@@ -626,7 +640,7 @@
   function playerDisplayName(){return hasValidPlayerName()?sanitizePlayerName(state.profile.name):'Jogador';}
   function playerText(value=''){return String(value).replaceAll('Casa do Otthos',`Casa de ${playerDisplayName()}`).replaceAll('do Otthos',`de ${playerDisplayName()}`).replaceAll('o Otthos',playerDisplayName()).replaceAll('Otthos',playerDisplayName());}
   function updatePlayerNameUI(){const name=hasValidPlayerName()?state.profile.name:'Escolher nome';if(els.lobbyPlayerName)els.lobbyPlayerName.textContent=name;if(els.hudPlayerName)els.hudPlayerName.textContent=hasValidPlayerName()?state.profile.name:'Jogador';const menu=$('#avatarMenuName'),quick=$('#avatarQuickName');if(menu)menu.textContent=`Meu ${playerDisplayName()}`;if(quick)quick.textContent=playerDisplayName();const homeLoc=MAP_LOCATIONS?.find?.(x=>x.id==='home');if(homeLoc)homeLoc.name=`Casa de ${playerDisplayName()}`;const homeHouse=world?.houses?.find?.(x=>x.id==='home');if(homeHouse)homeHouse.name=`Casa de ${playerDisplayName()}`;updateLocalPlayerNameLabel?.();}
-  function applyPlayerName(name){const clean=sanitizePlayerName(name);if(clean.length<3){toast('Digite um nome com pelo menos 3 caracteres.','warn',2200);return false;}state.profile.name=clean;state.profile.nameConfirmed=true;state.multiplayer.displayName=clean;updatePlayerNameUI();saveState(true);window.OTTHOS_RTDB?.setDisplayName?.(clean);if(running)window.OTTHOS_RTDB?.publish?.({name:clean,x:player.x,y:player.y,z:player.z,r:player.facing,vehicle:!!player.vehicle,scaleMode:player.scaleMode,crouched:!!player.crouched,color:0x5ad8ff},true);return true;}
+  function applyPlayerName(name){const clean=sanitizePlayerName(name);if(clean.length<3){toast('Digite um nome com pelo menos 3 caracteres.','warn',2200);return false;}state.profile.name=clean;state.profile.nameConfirmed=true;state.multiplayer.displayName=clean;updatePlayerNameUI();saveState(true);window.OTTHOS_RTDB?.setDisplayName?.(clean);if(running)window.OTTHOS_RTDB?.publish?.({name:clean,x:player.x,y:player.y,z:player.z,r:player.facing,vehicle:!!player.vehicle,boating:!!player.boating,boatId:state.boats.activeBoatId||'',boatRole:player.boating?(player.boat.passengerOf?'passenger':'driver'):'',passengerOf:player.boat.passengerOf||'',boatPassengerUid:player.boat.passengerUid||'',scaleMode:player.scaleMode,crouched:!!player.crouched,color:0x5ad8ff},true);return true;}
   function openPlayerNameModal(required=false,onSaved=null){
     const current=hasValidPlayerName()?state.profile.name:'';
     openModal(required?'Escolha seu nome de jogador':'Nome do jogador',`<div class="player-name-modal"><div class="player-name-icon">👤</div><p>${required?'Antes de entrar, escolha o nome que aparecerá para os outros jogadores.':'Este nome aparece sobre seu personagem no multiplayer.'}</p><label class="field"><span>Nome público</span><input id="playerNameInput" maxlength="18" autocomplete="nickname" inputmode="text" value="${current.replace(/"/g,'&quot;')}" placeholder="Ex.: Thiago"></label><small>De 3 a 18 caracteres. Não use telefone, endereço ou informação pessoal sensível.</small><button class="btn primary xl" data-save-player-name>Salvar nome</button></div>`,root=>{const input=$('#playerNameInput',root),save=$('[data-save-player-name]',root);setTimeout(()=>input?.focus(),80);const submit=()=>{if(!applyPlayerName(input?.value))return;closeModal();toast(`Nome definido: ${state.profile.name}`,'good',1600);if(typeof onSaved==='function')onSaved();};save.onclick=submit;input?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submit();}});});
@@ -657,15 +671,9 @@
   function openInventory() {
     const inv = state.inventory;
     openModal('Inventário', `<div class="inventory-grid">
-      <div class="inventory-item"><b>🪵 ${inv.wood}</b><span>Madeira</span></div>
-      <div class="inventory-item"><b>🪨 ${inv.stone}</b><span>Pedra</span></div>
-      <div class="inventory-item"><b>🍎 ${inv.food}</b><span>Comida</span></div>
-      <div class="inventory-item"><b>💧 ${inv.water}</b><span>Água</span></div>
-      <div class="inventory-item"><b>💎 ${inv.crystals}</b><span>Cristais</span></div>
-      <div class="inventory-item"><b>🧱 ${inv.blocks}</b><span>Blocos</span></div>
-      <div class="inventory-item"><b>🪵 ${inv.fences}</b><span>Cercas</span></div>
-      <div class="inventory-item"><b>🪙 ${state.profile.coins}</b><span>Moedas</span></div>
-    </div>`);
+      <div class="inventory-item"><b>🪵 ${inv.wood}</b><span>Madeira</span></div><div class="inventory-item"><b>🪨 ${inv.stone}</b><span>Pedra</span></div><div class="inventory-item"><b>🍎 ${inv.food}</b><span>Comida</span></div><div class="inventory-item"><b>💧 ${inv.water}</b><span>Água</span></div><div class="inventory-item"><b>💎 ${inv.crystals}</b><span>Cristais</span></div><div class="inventory-item"><b>🧱 ${inv.blocks}</b><span>Blocos</span></div><div class="inventory-item"><b>🪵 ${inv.fences}</b><span>Cercas</span></div><div class="inventory-item"><b>🪙 ${state.profile.coins}</b><span>Moedas</span></div>
+      <div class="inventory-item"><b>🎣 ${inv.fishingRod||0}</b><span>Vara de pesca</span></div><div class="inventory-item"><b>🪱 ${inv.bait||0}</b><span>Iscas</span></div><div class="inventory-item"><b>🐟 ${inv.rawFish||0}</b><span>Peixe cru</span></div><div class="inventory-item"><b>🍽️ ${inv.cookedFish||0}</b><span>Peixe assado</span></div><div class="inventory-item"><b>🌿 ${inv.forestResources||0}</b><span>Recursos da floresta</span></div>
+    </div>${inv.cookedFish>0?'<div class="modal-actions"><button class="btn primary" data-eat-cooked>Comer peixe assado</button></div>':''}`,root=>{$('[data-eat-cooked]',root)?.addEventListener('click',()=>{if((state.inventory.cookedFish||0)<1)return;state.inventory.cookedFish--;state.needs.hunger=clamp(state.needs.hunger+32,0,100);state.needs.energy=clamp(state.needs.energy+6,0,100);saveState(true);updateHUD();toast('Peixe assado consumido.','good');openInventory();});});
   }
 
   const WORLD_MAP_ROADS=[{x:0,z:0,w:18,d:210},{x:0,z:0,w:210,d:18},{x:-55,z:-55,w:9,d:105},{x:55,z:48,w:9,d:92}];
@@ -713,7 +721,13 @@
     { id:'shop', name:'Mercadinho', icon:'🛒', x:-22, z:-18, navX:-22, navZ:-12.7, group:'Serviços' },
     { id:'workshop', name:'Oficina', icon:'🛠', x:22, z:-18, navX:22, navZ:-12.7, group:'Serviços' },
     { id:'forest', name:'Floresta', icon:'🌲', x:-88, z:-42, navX:-82, navZ:-35, group:'Exploração' },
-    { id:'lake', name:'Lago e Ponte', icon:'🌊', x:-22, z:50, navX:-18, navZ:46, group:'Exploração' },
+    { id:'lake', name:'Represa / Lago', icon:'🌊', x:-36, z:52, navX:-27, navZ:52, group:'Água e Natureza' },
+    { id:'pier', name:'Píer do Lago', icon:'🛶', x:-29, z:52, navX:-25, navZ:52, group:'Água e Natureza' },
+    { id:'fishing', name:'Área de Pesca', icon:'🎣', x:-31, z:45, navX:-25, navZ:45, group:'Água e Natureza' },
+    { id:'camp', name:'Acampamento', icon:'🔥', x:-70, z:-62, navX:-62, navZ:-55, group:'Floresta e Campo' },
+    { id:'hunt', name:'Área de Rastreamento', icon:'🐾', x:-98, z:-72, navX:-88, navZ:-65, group:'Floresta e Campo' },
+    { id:'cabin', name:'Cabana da Floresta', icon:'🛖', x:-88, z:-42, navX:-82, navZ:-35, group:'Floresta e Campo' },
+    { id:'home-extension', name:'Ampliação da Casa', icon:'🧰', x:9, z:24, navX:7, navZ:26, group:'Casa' },
     { id:'crystal', name:'Vale dos Cristais', icon:'💎', x:70, z:-60, group:'Desafios' },
     { id:'garage', name:'Garagem e Fazenda', icon:'🚗', x:52, z:48, navX:48, navZ:43, group:'Trabalho' },
     { id:'gym', name:'Ginásio', icon:'🏃', x:45, z:78, navX:45, navZ:84, group:'Desafios' },
@@ -727,6 +741,55 @@
   ];
   function worldToMap(x,z){ return { left:clamp((x+116)/232*100,2.5,97.5), top:clamp((116-z)/232*100,2.5,97.5) }; }
   function mapDistance(point){ return Math.round(Math.hypot(player.x-(point.navX??point.x),player.z-(point.navZ??point.z))); }
+  let mapSelectedId='';
+  function mapMarkerPlacements(locations,playerPoint,mapWidth=0,mapHeight=0){
+    const portrait=window.matchMedia?.('(orientation: portrait)')?.matches??(innerHeight>=innerWidth);
+    const lowLandscape=!portrait&&innerHeight<=600;
+    const width=Math.max(220,Number(mapWidth)||Math.min(760,Math.max(280,innerWidth-(portrait?24:300))));
+    const height=Math.max(150,Number(mapHeight)||Math.min(620,Math.max(180,innerHeight-(portrait?430:110))));
+    // Usa o maior diâmetro visual (selecionado/ativo), evitando colisão também após o toque.
+    const markerDiameter=portrait?36:(lowLandscape?34:38),safeGapPx=markerDiameter+4;
+    const gapX=safeGapPx/width*100,gapY=safeGapPx/height*100;
+    const playerGapX=(markerDiameter+15)/width*100,playerGapY=(markerDiameter+15)/height*100;
+    const edgeX=(markerDiameter/2+5)/width*100,edgeY=(markerDiameter/2+5)/height*100;
+    const minLeft=clamp(edgeX,3.5,11),maxLeft=100-minLeft,minTop=clamp(edgeY,4.5,16),maxTop=100-minTop;
+    const points=locations.map((loc,index)=>{const pos=worldToMap(loc.navX??loc.x,loc.navZ??loc.z);return{loc,index,originLeft:pos.left,originTop:pos.top,left:clamp(pos.left,minLeft,maxLeft),top:clamp(pos.top,minTop,maxTop)};});
+    const separate=(a,b,requiredX,requiredY,pushBoth=true)=>{
+      let dx=b.left-a.left,dy=b.top-a.top,nx=dx/requiredX,ny=dy/requiredY,d=Math.hypot(nx,ny);
+      if(d>=1)return false;
+      if(d<.001){const angle=((a.index+1)*2.399963229728653+(b.index+1)*.731);nx=Math.cos(angle);ny=Math.sin(angle);d=1;}
+      else{nx/=d;ny/=d;}
+      const force=(1-d)+(pushBoth?.018:.035),mx=nx*requiredX*force,my=ny*requiredY*force;
+      if(pushBoth){a.left-=mx*.5;a.top-=my*.5;b.left+=mx*.5;b.top+=my*.5;}
+      else{b.left+=mx;b.top+=my;}
+      return true;
+    };
+    const playerAnchor={index:-7,left:playerPoint.left,top:playerPoint.top};
+    for(let pass=0;pass<72;pass++){
+      let moved=false;
+      for(let i=0;i<points.length;i++)for(let j=i+1;j<points.length;j++)moved=separate(points[i],points[j],gapX,gapY,true)||moved;
+      for(const point of points){
+        moved=separate(playerAnchor,point,playerGapX,playerGapY,false)||moved;
+        // Atrai suavemente para a posição real, sem desfazer a separação obtida.
+        if(pass>38){point.left+=(point.originLeft-point.left)*.006;point.top+=(point.originTop-point.top)*.006;}
+        point.left=clamp(point.left,minLeft,maxLeft);point.top=clamp(point.top,minTop,maxTop);
+      }
+      if(!moved&&pass>10)break;
+    }
+    return points;
+  }
+  function applyMapMarkerPlacements(root,placements){
+    placements.forEach(({loc,left,top})=>{
+      const marker=$(`[data-map-marker="${loc.id}"]`,root);if(!marker)return;
+      marker.style.left=`${left.toFixed(2)}%`;marker.style.top=`${top.toFixed(2)}%`;
+      marker.dataset.labelX=left<18?'left':left>82?'right':'center';
+      marker.dataset.labelY=top>80?'above':'below';
+    });
+  }
+  function mapSelectionMarkup(id){
+    const loc=MAP_LOCATIONS.find(x=>x.id===id);if(!loc)return'<div class="map-selection empty"><b>Toque em um ícone</b><span>O nome aparecerá aqui antes de iniciar a rota.</span></div>';
+    return`<div class="map-selection"><b>${loc.icon} ${loc.name}</b><span>${mapDistance(loc)} m de distância</span><button class="btn primary compact" data-route-selected="${loc.id}">Ir para este local</button></div>`;
+  }
   function setWaypoint(id){
     const point=MAP_LOCATIONS.find(p=>p.id===id);if(!point)return;
     state.waypoint={id:point.id,name:point.name,x:point.x,z:point.z,navX:point.navX??point.x,navZ:point.navZ??point.z,arrived:false};world.routePath=buildRoutePoints(player,state.waypoint);
@@ -735,14 +798,24 @@
   function clearWaypoint(){ state.waypoint=null; updateWaypointMarker(); updateNavigation(0,true); saveState(true); closeModal(); toast('Destino removido.','good'); }
   function openMap(){
     const pp=worldToMap(player.x,player.z),angleDeg=(Math.PI-(player.facing||0))*180/Math.PI,activeId=state.waypoint?.id||'',route=state.waypoint?(world.routePath.length?world.routePath:buildRoutePoints(player,state.waypoint)):[],routeInfo=state.waypoint?routeProgressInfo(route,player):null;
-    const landmarkIds=new Set(['home','village','shop','garage','gym','castle']);
-    const visibleLocations=MAP_LOCATIONS.filter(loc=>landmarkIds.has(loc.id)||loc.id===activeId);
-    const markers=visibleLocations.map(loc=>{const pos=worldToMap(loc.navX??loc.x,loc.navZ??loc.z),active=loc.id===activeId?' active':'';return `<button class="map-marker clean${active}" style="left:${pos.left}%;top:${pos.top}%" data-waypoint="${loc.id}" aria-label="${loc.name}" title="${loc.name}"><b>${loc.icon}</b><span>${loc.name}</span></button>`;}).join('');
+    if(!mapSelectedId||!MAP_LOCATIONS.some(x=>x.id===mapSelectedId))mapSelectedId=activeId||'home';
+    const placements=mapMarkerPlacements(MAP_LOCATIONS,pp);
+    const markers=placements.map(({loc,left,top})=>{const active=loc.id===activeId?' active':'',selected=loc.id===mapSelectedId?' selected':'';return `<button class="map-marker clean${active}${selected}" style="left:${left.toFixed(2)}%;top:${top.toFixed(2)}%" data-map-marker="${loc.id}" aria-label="${loc.name}" title="${loc.name}"><b>${loc.icon}</b><span>${loc.name}</span></button>`;}).join('');
     const grouped=[...new Set(MAP_LOCATIONS.map(x=>x.group))].map(group=>{const items=MAP_LOCATIONS.filter(x=>x.group===group).sort((a,b)=>mapDistance(a)-mapDistance(b)).map(loc=>`<button class="map-destination ${loc.id===activeId?'active':''}" data-waypoint="${loc.id}"><b>${loc.icon}<em>${loc.name}</em></b><span>${mapDistance(loc)} m</span></button>`).join('');return `<section class="map-destination-group"><h4>${group}</h4><div>${items}</div></section>`;}).join('');
-    const current=state.waypoint?`<div class="gps-current"><small>ROTA ATUAL</small><b>${state.waypoint.name}</b><span>${Math.round(routeInfo.remaining)} m • ${routeInfo.instruction}</span><button class="btn danger" data-clear-waypoint>Cancelar</button></div>`:`<div class="gps-current empty"><b>Para onde vamos?</b><span>Escolha um lugar na lista.</span></div>`;
-    openModal('Mapa',`<div class="map-layout v624"><div class="map-main"><div class="world-map clean-map"><i class="map-road horizontal"></i><i class="map-road vertical"></i><i class="map-road west"></i><i class="map-road east"></i><i class="map-river"></i><div class="map-region forest">FLORESTA</div><div class="map-region city">VILA</div><div class="map-region adventure">AVENTURA</div>${route.length?routeSvgMarkup(route):''}${markers}<span class="player-dot" style="left:${pp.left}%;top:${pp.top}%;--player-angle:${angleDeg}deg"><i></i><b>VOCÊ</b></span><span class="map-north">N</span></div>${current}</div><aside class="map-sidebar"><h3>Escolha um lugar</h3><div class="map-destinations grouped">${grouped}</div></aside></div>`,root=>{$$('[data-waypoint]',root).forEach(btn=>btn.onclick=()=>setWaypoint(btn.dataset.waypoint));$('[data-clear-waypoint]',root)?.addEventListener('click',clearWaypoint);});els.modal.classList.add('map-modal');
+    const current=state.waypoint?`<div class="gps-current"><small>ROTA ATUAL</small><b>${state.waypoint.name}</b><span>${Math.round(routeInfo.remaining)} m • ${routeInfo.instruction}</span><button class="btn danger" data-clear-waypoint>Cancelar</button></div>`:`<div class="gps-current empty"><b>Para onde vamos?</b><span>Escolha um lugar no mapa ou na lista.</span></div>`;
+    openModal('Mapa',`<div class="map-layout v626"><div class="map-main"><div class="world-map clean-map"><i class="map-road horizontal"></i><i class="map-road vertical"></i><i class="map-road west"></i><i class="map-road east"></i><i class="map-river"></i><div class="map-region forest">FLORESTA</div><div class="map-region city">VILA</div><div class="map-region adventure">AVENTURA</div>${route.length?routeSvgMarkup(route):''}${markers}<span class="player-dot" style="left:${pp.left}%;top:${pp.top}%;--player-angle:${angleDeg}deg"><i></i><b>VOCÊ</b></span><span class="map-north">N</span></div>${current}<div id="mapSelection">${mapSelectionMarkup(mapSelectedId)}</div></div><aside class="map-sidebar"><h3>Escolha um lugar</h3><div class="map-destinations grouped">${grouped}</div></aside></div>`,root=>{
+      const refitMarkers=()=>{const map=$('.clean-map',root);if(!map)return;const rect=map.getBoundingClientRect();applyMapMarkerPlacements(root,mapMarkerPlacements(MAP_LOCATIONS,pp,rect.width,rect.height));};
+      requestAnimationFrame(()=>{refitMarkers();requestAnimationFrame(refitMarkers);});
+      $$('[data-waypoint]',root).forEach(btn=>btn.onclick=()=>setWaypoint(btn.dataset.waypoint));
+      $('[data-clear-waypoint]',root)?.addEventListener('click',clearWaypoint);
+      const selection=$('#mapSelection',root);
+      const bindRoute=()=>{$('[data-route-selected]',selection)?.addEventListener('click',e=>setWaypoint(e.currentTarget.dataset.routeSelected));};bindRoute();
+      $$('[data-map-marker]',root).forEach(btn=>btn.onclick=()=>{mapSelectedId=btn.dataset.mapMarker;$$('[data-map-marker]',root).forEach(x=>x.classList.toggle('selected',x.dataset.mapMarker===mapSelectedId));selection.innerHTML=mapSelectionMarkup(mapSelectedId);bindRoute();});
+    });els.modal.classList.add('map-modal');
   }
-
+  let mapResizeTimer=0;
+  function refreshOpenMapAfterResize(){if(els.modal.hidden||!els.modal.classList.contains('map-modal'))return;clearTimeout(mapResizeTimer);mapResizeTimer=setTimeout(()=>{if(!els.modal.hidden&&els.modal.classList.contains('map-modal'))openMap();},180);}
+  window.addEventListener('resize',refreshOpenMapAfterResize,{passive:true});window.addEventListener('orientationchange',refreshOpenMapAfterResize,{passive:true});
 
 
   let deferredSettingsRefresh = null;
@@ -795,8 +868,8 @@
 
 
   els.quizBtn.onclick = () => openEducationHub('math');
-  els.challengePromptAccept.onclick=()=>{if(promptChallengeId)acceptIncomingChallenge(promptChallengeId);else if(promptSessionId){const s=gameSessions.get(promptSessionId);if(s)launchSessionWithCountdown(s);}};
-  els.challengePromptDecline.onclick=()=>{if(promptChallengeId)declineIncomingChallenge(promptChallengeId);else closeChallengePrompt();};
+  els.challengePromptAccept.onclick=()=>{if(promptSocialRequestId)acceptIncomingSocialRequest(promptSocialRequestId);else if(promptChallengeId)acceptIncomingChallenge(promptChallengeId);else if(promptSessionId){const s=gameSessions.get(promptSessionId);if(s)launchSessionWithCountdown(s);}};
+  els.challengePromptDecline.onclick=()=>{if(promptSocialRequestId)declineIncomingSocialRequest(promptSocialRequestId);else if(promptChallengeId)declineIncomingChallenge(promptChallengeId);else closeChallengePrompt();};
   els.collectionBtn.onclick = openCollection;
   els.avatarBtn.onclick = openAvatarStudio;
   els.moldsBtn.onclick = openMolds;
@@ -861,7 +934,7 @@
   let scene, camera, renderer, clock, worldGroup, playerGroup, playerModel, playerMixer, avatarLayer, contactShadow, vehicleVisual, sunLight;
   let running = false, paused = false, pauseMenuOpen = false, raf = 0, cameraYaw = 0, cameraPitch = .38, cameraZoom = Number(state.settings?.cameraZoom || 0), cameraMode = 'openworld';
   let currentHouse = null, buildMode = null, currentContext = null, lastContextId = '', lastActionSource = 'none', actionLockedUntil = 0, activeRace = null, lastContextScanAt = 0, lastContextScanX = Infinity, lastContextScanZ = Infinity;
-  const player = { x: 0, y: 0, z: 8, vx: 0, vy: 0, vz: 0, facing: Math.PI, grounded: true, vehicle: false, sitUntil: 0, lastGrounded: 0, jumpBuffer: 0, attackUntil: 0, damageUntil: 0, scaleMode: state.abilities?.scaleMode || 'normal', crouched: !!state.abilities?.crouched, spinUntil: 0, preVehicleAbilities: null, hornUntil: 0, emoteUntil:0, emoteType:'', emoteSeq:0, car: { heading: Math.PI, speed: 0, steerVisual: 0, drift: 0, _prevSpeed: 0 } };
+  const player = { x: 0, y: 0, z: 8, vx: 0, vy: 0, vz: 0, facing: Math.PI, grounded: true, vehicle: false, sitUntil: 0, lastGrounded: 0, jumpBuffer: 0, attackUntil: 0, damageUntil: 0, scaleMode: state.abilities?.scaleMode || 'normal', crouched: !!state.abilities?.crouched, spinUntil: 0, preVehicleAbilities: null, hornUntil: 0, emoteUntil:0, emoteType:'', emoteSeq:0, boating:false, boat:{heading:0,speed:0,passengerOf:'',passengerUid:'',hostMissingAt:0}, car: { heading: Math.PI, speed: 0, steerVisual: 0, drift: 0, _prevSpeed: 0 } };
   const input = {
     x:0,z:0,targetX:0,targetZ:0,
     joyId:null,joyX:0,joyZ:0,
@@ -872,7 +945,7 @@
   };
   const world = {
     houses: [], npcs: [], interactables: [], enemies: [], fireballs: [], resources: [], crystals: [], platforms: [], colliders: [], hazards: [], builds: [], ghosts: new Map(),
-    bridgeParts: [], secretChest: null, vehicle: null, deliveryPoint: null, raceCoins: [], waypointMarker: null, gym: null, routeGuide: null, routeArrows: [], routeLastBuild: 0, routeLastX: Infinity, routeLastZ: Infinity, routePath: [], navCache: new Map(), landmarks: [], outlines: [], glows: [], criticalSurfaces: []
+    bridgeParts: [], secretChest: null, vehicle: null, deliveryPoint: null, raceCoins: [], waypointMarker: null, gym: null, routeGuide: null, routeArrows: [], routeLastBuild: 0, routeLastX: Infinity, routeLastZ: Infinity, routePath: [], navCache: new Map(), landmarks: [], outlines: [], glows: [], criticalSurfaces: [], boat:null, campfires:[], animals:[], houseExtensions:[], remoteCampfires:new Map(), remoteExtensions:new Map(), activityAcc:0
   };
   const textures = {};
   const materials = {};
@@ -1025,7 +1098,7 @@
   }
   function mat(color, opts = {}) { return new THREE.MeshStandardMaterial({ color, roughness: opts.roughness ?? .72, metalness: opts.metalness ?? .03, emissive: opts.emissive ?? 0x000000, emissiveIntensity: opts.emissiveIntensity ?? 0, transparent: !!opts.transparent, opacity: opts.opacity ?? 1, flatShading: opts.flatShading ?? true }); }
 
-  // V625: cache somente de geometrias e materiais visuais imutáveis.
+  // V626: cache somente de geometrias e materiais visuais imutáveis.
   // Reduz memória e tempo de criação sem alterar física, colisões ou IDs.
   const sharedGeometryCache={box:new Map(),cylinder:new Map()};
   const immutableVisualMaterials=new Map();
@@ -1606,6 +1679,81 @@
   }
   function createLearningPlaza(){createLearningStation('math','math',22,-32,0x27b36a,'＋','Jogar Matemática Kids');createLearningStation('portuguese','portuguese',22,-40,0x7b5ce6,'A','Jogar Português Kids');createLearningStation('english','english',22,-48,0x168de2,'E','Jogar English Kids');createSignpost(22,-27,'Academia Kids',Math.PI/2);}
 
+  const FISH_SPECIES=[
+    {name:'Tilápia',rarity:'comum',weight:44,min:.25,max:1.8,xp:16,coins:5},{name:'Lambari',rarity:'comum',weight:30,min:.08,max:.35,xp:10,coins:3},{name:'Traíra',rarity:'incomum',weight:16,min:.5,max:2.8,xp:28,coins:9},{name:'Pacu',rarity:'raro',weight:8,min:1.1,max:4.8,xp:44,coins:16},{name:'Dourado',rarity:'lendário',weight:2,min:2.0,max:7.2,xp:90,coins:35}
+  ];
+  let fishingSession=null,waterWarningAt=0,boatPanel=null,extensionPreview=null,extensionDraft=null;
+  const ROOM_SPECS={bedroom:{name:'Quarto',icon:'🛏️',color:0x4f8ed7,cost:{wood:8,stone:4,blocks:4}},living:{name:'Sala',icon:'🛋️',color:0xe4a044,cost:{wood:7,stone:4,blocks:5}},kitchen:{name:'Cozinha',icon:'🍳',color:0xe8d7bd,cost:{wood:7,stone:6,blocks:4}},bathroom:{name:'Banheiro',icon:'🚿',color:0x65c7df,cost:{wood:5,stone:8,blocks:4}},workroom:{name:'Oficina',icon:'🛠️',color:0x7f8c98,cost:{wood:8,stone:8,blocks:6}},porch:{name:'Varanda',icon:'🌤️',color:0xb77942,cost:{wood:10,stone:2,blocks:2}},storage:{name:'Depósito',icon:'📦',color:0x94633b,cost:{wood:9,stone:5,blocks:4}}};
+  function rectOverlap(a,b,pad=0){return Math.abs(a.x-b.x)<(a.w+b.w)/2+pad&&Math.abs(a.z-b.z)<(a.d+b.d)/2+pad;}
+  function insideWater(x,z,h){return Math.abs(x-h.x)<=h.w/2&&Math.abs(z-h.z)<=h.d/2;}
+  function waterAt(x,z){return(world.hazards||[]).find(h=>h.type==='water'&&insideWater(x,z,h));}
+  function isInsideLakeNavigable(x,z){return (x>=-113&&x<=-29&&z>=44&&z<=60)||(x>=-116&&x<=-82&&z>=55&&z<=84);}
+  function isNearFishingArea(){return player.boating||Math.hypot(player.x+28,player.z-45)<9||Math.hypot(player.x+27,player.z-57)<9;}
+  function resolveWaterWalking(prevX,prevZ){if(player.boating||player.vehicle||currentHouse)return;const h=waterAt(player.x,player.z);if(!h||groundHeightAt(player.x,player.z)>.24)return;player.x=prevX;player.z=prevZ;player.vx=player.vz=0;if(performance.now()-waterWarningAt>1700){waterWarningAt=performance.now();toast('A água é funda. Use o píer e o barco.','warn',1900);}}
+  function createBoatModel(){
+    const g=new THREE.Group();const hull=renderMat(0x7b3f20,{roughness:.72}),edge=renderMat(0xe3ad55,{roughness:.62}),seat=renderMat(0x374151,{roughness:.72});
+    premiumBox(2.4,.42,4.4,hull,0,.38,0,g);premiumBox(2.75,.25,3.85,edge,0,.67,0,g);premiumBox(1.85,.23,3.15,renderMat(0x2d6f8d,{roughness:.48}),0,.83,0,g);premiumBox(1.75,.25,.55,seat,0,1.02,-.65,g);premiumBox(1.75,.25,.55,seat,0,1.02,.72,g);premiumBox(.12,1.8,.12,0xd8c28d,.95,1.35,.1,g);premiumBox(1.45,.05,.72,0xf5f1df,.25,2.05,.1,g);g.position.set(-38,.1,52);worldGroup.add(g);world.boat={id:'lake-boat',group:g,x:-38,z:52,heading:0,driverUid:'',passengerUid:''};
+    registerInteractable({id:'lake-boat-entry',type:'boat',icon:'🛶',label:'Entrar no barco',radius:3.1,priority:180,getPos:()=>({x:world.boat?.group.position.x||-38,z:world.boat?.group.position.z||52}),action:enterBoat});
+  }
+  function ensureBoatPanel(){
+    if(boatPanel)return boatPanel;boatPanel=document.createElement('div');boatPanel.id='boatActivityPanel';boatPanel.className='boat-activity-panel';boatPanel.innerHTML='<button type="button" data-boat-fish>🎣<span>Pescar</span></button><button type="button" data-boat-exit>🏝️<span>Sair</span></button>';document.body.appendChild(boatPanel);boatPanel.querySelector('[data-boat-fish]').onclick=()=>startFishing('boat');boatPanel.querySelector('[data-boat-exit]').onclick=()=>exitBoat();return boatPanel;
+  }
+  function updateBoatPanel(){const panel=ensureBoatPanel();panel.hidden=!player.boating;if(player.boating){const passenger=!!player.boat.passengerOf;panel.querySelector('[data-boat-fish]').disabled=passenger;panel.querySelector('[data-boat-fish] span').textContent=passenger?'Passageiro':'Pescar';}}
+  async function enterBoat(){
+    if(player.boating)return;if(player.vehicle)exitVehicle(true);if(!world.boat)return;const p=world.boat.group.position;if(Math.hypot(player.x-p.x,player.z-p.z)>3.6){toast('Chegue perto do barco pelo píer.','warn');return;}const lock=await window.OTTHOS_RTDB?.claimBoat?.(world.boat.id);if(lock&&lock.ok===false){toast(lock.error||'O barco já está sendo usado por outro jogador.','warn',2800);return;}player.boating=true;player.boat.passengerOf='';player.boat.passengerUid='';player.boat.heading=world.boat.heading||0;player.boat.speed=0;player.x=p.x;player.z=p.z;player.y=.18;player.vx=player.vz=0;state.boats.activeBoatId=world.boat.id;state.boats.passengerOf='';updateBoatPanel();toast('Barco pronto. Use o manche para navegar.','good',2300);saveState(true);
+  }
+  function enterBoatAsPassenger(hostUid){
+    const ghost=world.ghosts.get(hostUid);if(!ghost){toast('O barco do jogador não está mais disponível.','warn');return false;}if(player.vehicle)exitVehicle(true);player.boating=true;player.boat.passengerOf=hostUid;player.boat.speed=0;player.x=ghost.position.x;player.z=ghost.position.z;state.boats.activeBoatId='lake-boat';state.boats.passengerOf=hostUid;updateBoatPanel();toast('Você entrou como passageiro. O motorista controla o barco.','good',2600);saveState(true);return true;
+  }
+  function validBoatExit(){return player.x>-31&&player.x<-24&&player.z>43&&player.z<61;}
+  function exitBoat(silent=false){
+    if(!player.boating)return false;if(!validBoatExit()&&!player.boat.passengerOf){if(!silent)toast('Aproxime o barco do píer para sair com segurança.','warn',2400);return false;}const passengerHost=player.boat.passengerOf,hostedPassenger=player.boat.passengerUid,wasPassenger=!!passengerHost;if(passengerHost)window.OTTHOS_RTDB?.sendInteraction?.(passengerHost,{type:'boatPassengerLeft'});else if(hostedPassenger)window.OTTHOS_RTDB?.sendInteraction?.(hostedPassenger,{type:'boatEnded'});player.boating=false;player.boat.passengerOf='';player.boat.passengerUid='';player.boat.speed=0;state.boats.passengerOf='';state.boats.activeBoatId='';if(!wasPassenger&&world.boat)window.OTTHOS_RTDB?.releaseBoat?.(world.boat.id);if(world.boat&&!wasPassenger){world.boat.group.position.set(player.x,.1,player.z);world.boat.heading=player.boat.heading;world.boat.group.rotation.y=player.boat.heading;}player.x=-24.7;player.z=clamp(player.z,45,59);player.y=0;player.vx=player.vz=0;updateBoatPanel();if(!silent)toast('Você saiu pelo píer.','good');saveState(true);return true;
+  }
+  function updateBoatPhysics(dt,ix,iz){
+    const boat=player.boat;if(boat.passengerOf){const ghost=world.ghosts.get(boat.passengerOf),target=ghost?.userData?.target;if(!ghost||!target){boat.hostMissingAt=boat.hostMissingAt||performance.now();if(performance.now()-boat.hostMissingAt>3500){toast('O motorista saiu. Você voltou ao píer.','warn');player.x=-24.7;player.z=52;exitBoat(true);}player.vx=player.vz=0;return;}boat.hostMissingAt=0;const tx=Number(target.x||ghost.position.x),tz=Number(target.z||ghost.position.z);player.vx=clamp((tx-player.x)*8,-18,18);player.vz=clamp((tz-player.z)*8,-18,18);boat.heading=Number(target.r||boat.heading);player.facing=boat.heading;return;}
+    boat.speed+=iz*8.2*dt;if(Math.abs(iz)<.05)boat.speed*=Math.pow(.12,dt);boat.speed=clamp(boat.speed,-3.2,8.4);boat.heading+=ix*(1.35/(1+Math.abs(boat.speed)*.08))*dt*(boat.speed<0?-1:1);player.vx=Math.sin(boat.heading)*boat.speed;player.vz=Math.cos(boat.heading)*boat.speed;player.facing=boat.heading;
+  }
+  function constrainBoat(prevX,prevZ){if(!player.boating)return;if(!isInsideLakeNavigable(player.x,player.z)){player.x=prevX;player.z=prevZ;player.boat.speed*=-.18;player.vx=player.vz=0;}if(world.boat){world.boat.group.position.set(player.x,.1,player.z);world.boat.group.rotation.y=player.boat.heading;world.boat.heading=player.boat.heading;}state.boats.lastPosition={x:+player.x.toFixed(2),z:+player.z.toFixed(2),heading:+player.boat.heading.toFixed(3)};}
+  function weightedFish(){let r=Math.random()*100;for(const fish of FISH_SPECIES){r-=fish.weight;if(r<=0)return fish;}return FISH_SPECIES[0];}
+  function startFishing(source='shore',options={}){
+    if(fishingSession){toast('Finalize a pesca atual primeiro.','warn');return;}if((state.inventory.fishingRod||0)<1){toast('Você precisa de uma vara de pesca.','warn');return;}if((state.inventory.bait||0)<1){toast('Você ficou sem isca.','warn');return;}if(source==='boat'&&!player.boating){toast('Entre no barco primeiro.','warn');return;}if(source!=='boat'&&!isNearFishingArea()){toast('Pesque somente nos pontos marcados da margem.','warn');return;}const wait=Math.max(0,6500-(Date.now()-Number(state.fishing.lastAttempt||0)));if(wait>0){toast(`Aguarde ${Math.ceil(wait/1000)} s para tentar novamente.`,'warn');return;}
+    const token=uid();fishingSession={token,source,options};openModal(options.cooperative?'Pesca com amigo':'Pesca',`<div class="activity-card fishing-card"><div class="activity-icon">🎣</div><h3>${source==='boat'?'Pesca no barco':'Pesca na margem'}</h3><p data-fishing-status>Prepare a vara e lance a linha.</p><div class="activity-meter"><i data-fishing-meter></i></div><button class="btn primary xl" data-cast>Lançar linha</button><button class="btn good xl" data-pull hidden>Puxar agora!</button></div>`,root=>{
+      const status=$('[data-fishing-status]',root),cast=$('[data-cast]',root),pull=$('[data-pull]',root),meter=$('[data-fishing-meter]',root);cast.onclick=()=>{if(!fishingSession||fishingSession.token!==token)return;cast.disabled=true;state.inventory.bait--;state.fishing.lastAttempt=Date.now();saveState(true);status.textContent='Linha lançada... espere a fisgada.';meter.style.animation='fishingWait 2.4s linear forwards';const hookDelay=1300+Math.random()*1700;fishingSession.hookTimer=setTimeout(()=>{if(!fishingSession||fishingSession.token!==token||els.modal.hidden)return;status.textContent='Fisgada! Puxe antes que o peixe escape.';pull.hidden=false;beep(880,100,'sine');vibrate([35,35,55]);fishingSession.hookedAt=performance.now();fishingSession.escapeTimer=setTimeout(()=>{if(!fishingSession||fishingSession.token!==token)return;status.textContent='O peixe escapou. Tente novamente depois.';pull.hidden=true;state.hunting.failed+=0;fishingSession=null;},2600);},hookDelay);};pull.onclick=()=>{if(!fishingSession||fishingSession.token!==token)return;clearTimeout(fishingSession.escapeTimer);const reaction=performance.now()-Number(fishingSession.hookedAt||performance.now()),success=reaction<2300&&Math.random()<.86;pull.hidden=true;if(!success){status.textContent='A linha ficou frouxa e o peixe escapou.';fishingSession=null;saveState();return;}const fish=weightedFish(),size=+(fish.min+Math.random()*(fish.max-fish.min)).toFixed(2),catchId=uid();state.inventory.rawFish=(state.inventory.rawFish||0)+1;state.fishing.catches.push({id:catchId,species:fish.name,size,rarity:fish.rarity,caughtAt:Date.now(),source,cooperative:!!options.cooperative});state.fishing.catches=state.fishing.catches.slice(-200);state.fishing.species[fish.name]=(state.fishing.species[fish.name]||0)+1;let xp=fish.xp,coins=fish.coins;if(options.cooperative&&options.requestId&&!state.fishing.cooperativeRewards.includes(options.requestId)){state.fishing.cooperativeRewards.push(options.requestId);state.fishing.cooperativeRewards=state.fishing.cooperativeRewards.slice(-80);xp+=6;coins+=3;}addXP(xp);addCoins(coins);status.innerHTML=`<b>Você pescou ${fish.name}!</b><br>${size} kg • ${fish.rarity} • peixe cru adicionado ao inventário.`;beep(1040,130,'sine');vibrate([40,35,70]);fishingSession=null;saveState(true);};
+    });
+  }
+  function campfireAllowed(x,z){if(Math.hypot(x+70,z+62)>14)return false;if(waterAt(x,z))return false;if(WORLD_MAP_ROADS.some(r=>rectOverlap({x,z,w:3,d:3},r,.5)))return false;if(world.houses.some(h=>Math.hypot(x-h.x,z-h.z)<10))return false;return true;}
+  function spawnCampfire(data,remote=false){
+    if(!data?.id||world.campfires.some(x=>x.data.id===data.id))return;const g=new THREE.Group();g.position.set(data.x,0,data.z);worldGroup.add(g);for(const a of [-.55,.55]){const log=premiumCylinder(.18,1.6,0x76502d,a,.2,0,g,8);log.rotation.z=Math.PI/2;log.rotation.y=a>0?Math.PI/4:-Math.PI/4;}const flame=new THREE.Mesh(new THREE.ConeGeometry(.42,1.15,7),mat(0xff7a18,{emissive:0xff4a00,emissiveIntensity:1.4,transparent:true,opacity:.9}));flame.position.y=.9;g.add(flame);const record={data:{...data,remote},group:g,flame,interactable:null};record.interactable=registerInteractable({id:`campfire-${data.id}`,type:'campfire',icon:'🔥',label:'Usar fogueira',x:data.x,z:data.z,radius:3.2,priority:150,action:()=>openCampfire(data.id)});world.campfires.push(record);
+  }
+  function nearestActiveCampfire(radius=999){return world.campfires.filter(c=>!c.data.expired&&Number(c.data.expiresAt||0)>Date.now()).sort((a,b)=>distance2D(player,a.data)-distance2D(player,b.data)).find(c=>distance2D(player,c.data)<=radius)||null;}
+  async function buildCampfire(){const x=Math.round(player.x*2)/2,z=Math.round(player.z*2)/2;if(!campfireAllowed(x,z)){toast('Use a área demarcada do acampamento.','warn');return;}if((state.inventory.wood||0)<3){toast('Você precisa de 3 madeiras.','warn');return;}if(!(await confirmModal('Construir fogueira','Gastar 3 madeiras para montar a fogueira?','Construir','Cancelar')))return;state.inventory.wood-=3;const data={id:uid(),ownerId:state.profile.playerId,x,z,createdAt:Date.now(),expiresAt:Date.now()+10*60*1000,cooking:null};state.campfires.push(data);spawnCampfire(data);saveState(true);window.OTTHOS_RTDB?.syncCampfires?.(state.campfires);toast('Fogueira acesa com segurança.','good');}
+  function finishCampfireCooking(data,cookingId){if(!data?.cooking||data.cooking.id!==cookingId||data.cooking.collected)return;data.cooking.collected=true;data.cooking=null;state.inventory.cookedFish=(state.inventory.cookedFish||0)+1;saveState(true);window.OTTHOS_RTDB?.syncCampfires?.(state.campfires);toast('O peixe ficou assado!','good',2200);beep(740,100,'sine');}
+  function openCampfire(id){const record=world.campfires.find(c=>c.data.id===id),data=record?.data;if(!data||Number(data.expiresAt||0)<=Date.now()){toast('Esta fogueira já apagou.','warn');return;}const mine=!data.remote;openModal('Fogueira',`<div class="activity-card"><div class="activity-icon">🔥</div><h3>Fogueira do acampamento</h3><p>${data.cooking?'Peixe assando...':'Sente-se, cozinhe seu peixe ou convide um amigo.'}</p><div class="modal-actions"><button class="btn primary" data-cook ${!mine||data.cooking||state.inventory.rawFish<1?'disabled':''}>Assar 1 peixe cru</button><button class="btn" data-sit>Sentar ao redor</button><button class="btn good" data-eat ${state.inventory.cookedFish<1?'disabled':''}>Comer peixe assado</button></div></div>`,root=>{
+      $('[data-sit]',root).onclick=()=>{player.sitUntil=performance.now()+4500;state.needs.fun=clamp(state.needs.fun+8,0,100);closeModal();toast('Você descansou perto da fogueira.','good');};$('[data-eat]',root).onclick=()=>{if(state.inventory.cookedFish<1)return;state.inventory.cookedFish--;state.needs.hunger=clamp(state.needs.hunger+32,0,100);saveState(true);updateHUD();openCampfire(id);};$('[data-cook]',root).onclick=async()=>{if(!mine||data.cooking||state.inventory.rawFish<1)return;if(!(await confirmModal('Assar peixe','Usar 1 peixe cru nesta fogueira?','Assar','Cancelar')))return;state.inventory.rawFish--;const cookingId=uid();data.cooking={id:cookingId,startedAt:Date.now(),endsAt:Date.now()+5000,collected:false};saveState(true);window.OTTHOS_RTDB?.syncCampfires?.(state.campfires);toast('Peixe na grelha. Aguarde alguns segundos.','good');setTimeout(()=>finishCampfireCooking(data,cookingId),5100);};
+    });}
+  function openNearestCampfire(){const c=nearestActiveCampfire(12);if(c)openCampfire(c.data.id);else toast('A fogueira do amigo não está próxima ou já apagou.','warn');}
+  function openCampfireZone(){const c=nearestActiveCampfire(8);if(c)openCampfire(c.data.id);else openModal('Acampamento','<p>Esta é uma área segura para montar fogueira. Ela usa madeira real do inventário e apaga automaticamente.</p><div class="modal-actions"><button class="btn primary" data-build-fire>Construir fogueira</button></div>',root=>$('[data-build-fire]',root).onclick=()=>{closeModal();buildCampfire();});}
+  function createCampfireZone(){for(let i=0;i<9;i++){const a=i/9*Math.PI*2;premiumBox(.75,.3,.5,0x8b765e,-70+Math.cos(a)*2,.15,-62+Math.sin(a)*2);}createSignpost(-65,-57,'Acampamento',Math.PI*.25);registerInteractable({id:'campfire-zone',type:'campfire-zone',icon:'🔥',label:'Área de fogueira',x:-70,z:-62,radius:5,priority:145,action:openCampfireZone});}
+  function createForestAnimal(id,type,x,z,color){const g=new THREE.Group();g.position.set(x,0,z);worldGroup.add(g);premiumBox(1.25,.72,.55,color,0,.72,0,g);premiumBox(.55,.55,.5,color,0,1.25,.38,g);for(const ox of [-.42,.42])for(const oz of [-.18,.18])premiumBox(.16,.55,.16,0x5e432b,ox,.28,oz,g);if(type==='deer'){premiumBox(.08,.5,.08,0x5e432b,-.18,1.68,.4,g);premiumBox(.08,.5,.08,0x5e432b,.18,1.68,.4,g);}const animal={id,type,group:g,x,z,available:true,respawnAt:0};world.animals.push(animal);return animal;}
+  function startHunting(options={}){const cooldown=Math.max(0,20000-(Date.now()-Number(state.hunting.lastAttempt||0)));if(cooldown>0){toast(`A floresta precisa descansar por ${Math.ceil(cooldown/1000)} s.`,'warn');return;}if(Math.hypot(player.x+96,player.z+72)>28){toast('Siga as pegadas até a área de rastreamento.','warn');return;}state.hunting.lastAttempt=Date.now();state.hunting.tracksFound++;const trail=['Pegadas perto das pedras','Galhos mexidos à esquerda','Folhas amassadas perto da árvore'],correct=Math.floor(Math.random()*3);openModal(options.cooperative?'Rastreamento com amigo':'Rastreamento na floresta',`<div class="activity-card hunting-card"><div class="activity-icon">🐾</div><h3>Encontre o caminho do animal</h3><p>${trail[correct]}. Qual direção você seguirá?</p><div class="choice-grid"><button class="choice" data-track="0"><b>⬅️ Esquerda</b><span>Seguir pistas</span></button><button class="choice" data-track="1"><b>⬆️ Em frente</b><span>Seguir pistas</span></button><button class="choice" data-track="2"><b>➡️ Direita</b><span>Seguir pistas</span></button></div><small>Atividade infantil: sem sangue, sem atacar pessoas ou NPCs.</small></div>`,root=>{$$('[data-track]',root).forEach(btn=>btn.onclick=()=>{const picked=Number(btn.dataset.track),success=picked===correct&&Math.random()<.78;closeModal();if(success){state.hunting.successful++;state.inventory.forestResources=(state.inventory.forestResources||0)+1;state.inventory.food=(state.inventory.food||0)+1;let xp=26;if(options.cooperative&&options.requestId&&!state.hunting.cooperativeRewards.includes(options.requestId)){state.hunting.cooperativeRewards.push(options.requestId);state.hunting.cooperativeRewards=state.hunting.cooperativeRewards.slice(-80);xp+=7;}addXP(xp);toast('Rastreamento concluído! Recurso da floresta coletado sem violência.','good',2800);const animal=world.animals.find(a=>a.available);if(animal){animal.available=false;animal.group.visible=false;animal.respawnAt=Date.now()+45000;}}else{state.hunting.failed++;toast('As pistas terminaram. O animal escapou em segurança.','warn',2400);}saveState(true);});});}
+  function createHuntingArea(){createSignpost(-89,-65,'Rastreamento infantil',Math.PI*.3);for(const p of [[-93,-70],[-97,-73],[-101,-75],[-104,-70]]){const mark=premiumBox(.45,.05,.7,0x634b32,p[0],.04,p[1]);mark.rotation.y=Math.random()*Math.PI;}createForestAnimal('deer-1','deer',-105,-78,0xb67945);createForestAnimal('rabbit-1','rabbit',-88,-82,0xc8b7a3);registerInteractable({id:'hunting-trail',type:'hunting',icon:'🐾',label:'Seguir rastros',x:-96,z:-72,radius:6,priority:140,action:()=>startHunting()});}
+  function nearestOwnedHouseForExtension(){return world.houses.filter(h=>state.houses[h.id]?.owned&&!h.publicBuilding).sort((a,b)=>distance2D(player,a)-distance2D(player,b))[0];}
+  function extensionPlacement(house,side){const off=7.1;return side===0?{x:house.x+off,z:house.z,rotation:0}:side===1?{x:house.x,z:house.z+off,rotation:Math.PI/2}:side===2?{x:house.x-off,z:house.z,rotation:Math.PI}: {x:house.x,z:house.z-off,rotation:-Math.PI/2};}
+  function extensionValid(draft){const rect={x:draft.x,z:draft.z,w:5.4,d:5.4};if(Math.abs(draft.x)>111||Math.abs(draft.z)>111)return false;if(world.hazards.some(h=>rectOverlap(rect,h,.5)))return false;if(WORLD_MAP_ROADS.some(r=>rectOverlap(rect,r,.4)))return false;if(world.houseExtensions.some(e=>rectOverlap(rect,{x:e.data.x,z:e.data.z,w:5.4,d:5.4},.35)))return false;for(const h of world.houses){if(h.id===draft.houseId)continue;if(rectOverlap(rect,{x:h.x,z:h.z,w:9,d:7},.6))return false;}return true;}
+  function clearExtensionPreview(){if(extensionPreview&&worldGroup){worldGroup.remove(extensionPreview);extensionPreview.traverse?.(o=>{o.geometry?.dispose?.();if(o.material&&!Array.isArray(o.material))o.material.dispose?.();});}extensionPreview=null;extensionDraft=null;}
+  function renderExtensionPreview(){if(!extensionDraft)return;const d={...extensionDraft};if(extensionPreview&&worldGroup){worldGroup.remove(extensionPreview);extensionPreview.traverse?.(o=>{o.geometry?.dispose?.();if(o.material&&!Array.isArray(o.material))o.material.dispose?.();});}extensionPreview=null;extensionDraft=d;const spec=ROOM_SPECS[d.type]||ROOM_SPECS.storage,g=new THREE.Group();g.position.set(Number(d.x||0),0,Number(d.z||0));g.rotation.y=Number(d.rotation||0);worldGroup.add(g);const m=new THREE.MeshStandardMaterial({color:extensionValid(d)?0x62e58a:0xff5263,transparent:true,opacity:.4,roughness:.5});const floor=new THREE.Mesh(new THREE.BoxGeometry(5.2,.18,5.2),m);floor.position.y=.09;g.add(floor);for(const [x,z,w,dd]of [[0,-2.5,5.2,.16],[-2.5,0,.16,5.2],[2.5,0,.16,5.2]]){const wall=new THREE.Mesh(new THREE.BoxGeometry(w,2.8,dd),m);wall.position.set(x,1.4,z);g.add(wall);}extensionPreview=g;}
+  function spawnHouseExtension(data,remote=false){if(!data?.id||world.houseExtensions.some(x=>x.data.id===data.id))return;const spec=ROOM_SPECS[data.type]||ROOM_SPECS.storage,g=new THREE.Group();g.position.set(data.x,0,data.z);g.rotation.y=Number(data.rotation||0);worldGroup.add(g);premiumBox(5.2,.22,5.2,spec.color,0,.11,0,g);premiumBox(5.25,.32,.18,0xf1eadb,0,1.55,-2.51,g);premiumBox(.18,3.0,5.2,0xf1eadb,-2.51,1.5,0,g);premiumBox(.18,3.0,5.2,0xf1eadb,2.51,1.5,0,g);premiumBox(5.5,.35,5.5,shadeColor(spec.color,-20),0,3.12,0,g);premiumBox(1.35,2.25,.12,0x684329,0,1.12,2.53,g);registerPlatform(data.x,data.z,5.2,5.2,.23,{extensionId:data.id});const record={data:{...data,remote},group:g};world.houseExtensions.push(record);registerInteractable({id:`extension-${data.id}`,type:'house-extension',icon:spec.icon,label:`Usar ${spec.name}`,x:data.x,z:data.z,radius:3.3,priority:125,action:()=>{state.needs.fun=clamp(state.needs.fun+5,0,100);toast(`${spec.name} de ${data.ownerName||playerDisplayName()}.`,'good');}});}
+  function resourcesEnough(cost){return Object.entries(cost).every(([k,v])=>Number(state.inventory[k]||0)>=v);}
+  function costText(cost){return Object.entries(cost).map(([k,v])=>`${v} ${k==='wood'?'madeiras':k==='stone'?'pedras':'blocos'}`).join(' + ');}
+  function openHouseExtensionPlanner(type){const house=nearestOwnedHouseForExtension();if(!house||distance2D(player,house)>16){toast('Chegue perto de uma casa que você possui.','warn');return;}let side=0;const spec=ROOM_SPECS[type];const place=extensionPlacement(house,side);extensionDraft={id:uid(),houseId:house.id,type,side,...place,ownerId:state.profile.playerId,ownerName:playerDisplayName()};renderExtensionPreview();openModal(`Ampliar: ${spec.name}`,`<p>A prévia transparente aparece ao lado da casa. Ajuste o lado e a rotação antes de confirmar.</p><div class="extension-status" data-extension-status></div><div class="modal-actions"><button class="btn" data-side>Próximo lado</button><button class="btn" data-rotate>Girar</button><button class="btn primary" data-confirm-extension>Confirmar • ${costText(spec.cost)}</button><button class="btn danger" data-cancel-extension>Cancelar</button></div>`,root=>{const status=$('[data-extension-status]',root),update=()=>{const p=extensionPlacement(house,side);extensionDraft={...extensionDraft,side,x:p.x,z:p.z};renderExtensionPreview();status.textContent=extensionValid(extensionDraft)?'✓ Terreno válido':'⚠ Este local está bloqueado';status.className=`extension-status ${extensionValid(extensionDraft)?'good':'bad'}`;};update();$('[data-side]',root).onclick=()=>{side=(side+1)%4;update();};$('[data-rotate]',root).onclick=()=>{extensionDraft.rotation=(Number(extensionDraft.rotation||0)+Math.PI/2)%(Math.PI*2);renderExtensionPreview();};$('[data-cancel-extension]',root).onclick=closeModal;$('[data-confirm-extension]',root).onclick=()=>{if(!extensionValid(extensionDraft)){toast('Escolha um lado livre da casa.','warn');return;}if(!resourcesEnough(spec.cost)){toast(`Faltam recursos: ${costText(spec.cost)}.`,'warn',2600);return;}for(const[k,v]of Object.entries(spec.cost))state.inventory[k]-=v;const data={...extensionDraft,createdAt:Date.now()};state.houseExtensions.push(data);clearExtensionPreview();closeModal();spawnHouseExtension(data);saveState(true);window.OTTHOS_RTDB?.syncHouseExtensions?.(state.houseExtensions);toast(`${spec.name} construído sem alterar os cômodos antigos.`,'good',2800);};});}
+  function openHouseExtensionMenu(){openModal('Ampliação modular da casa',`<p>Escolha o novo cômodo. Os interiores e móveis existentes serão preservados.</p><div class="choice-grid">${Object.entries(ROOM_SPECS).map(([id,r])=>`<button class="choice" data-room="${id}"><b>${r.icon} ${r.name}</b><span>${costText(r.cost)}</span></button>`).join('')}</div>`,root=>{$$('[data-room]',root).forEach(btn=>btn.onclick=()=>{closeModal();openHouseExtensionPlanner(btn.dataset.room);});});}
+  function createLakeExpansion(){premiumBox(12,.32,3,materials.wood,-30,.34,52);registerPlatform(-30,52,12,3,.5,{pier:true});for(const z of [44.8,59.2])premiumBox(2.2,.35,.35,0xd7c7a0,-25.5,.25,z);createSignpost(-22,47,'Píer e Pesca',Math.PI/2);registerInteractable({id:'shore-fishing',type:'fishing',icon:'🎣',label:'Pescar na margem',x:-25.5,z:45,radius:3.2,priority:160,action:()=>startFishing('shore')});createBoatModel();}
+  function restoreLifeExpansion(){for(const c of state.campfires){if(Number(c.expiresAt||0)>Date.now())spawnCampfire(c);if(c.cooking&&Number(c.cooking.endsAt||0)<=Date.now())finishCampfireCooking(c,c.cooking.id);}for(const e of state.houseExtensions)spawnHouseExtension(e);}
+  function updateLifeActivities(dt){world.activityAcc+=dt;if(world.activityAcc<.5)return;world.activityAcc=0;const now=Date.now();for(const c of [...world.campfires]){if(c.flame)c.flame.scale.y=.85+Math.sin(performance.now()*.009+c.data.x)*.18;if(c.data.cooking&&Number(c.data.cooking.endsAt||0)<=now)finishCampfireCooking(c.data,c.data.cooking.id);if(Number(c.data.expiresAt||0)<=now){c.data.expired=true;c.interactable.disabled=true;worldGroup.remove(c.group);world.campfires=world.campfires.filter(x=>x!==c);if(!c.data.remote)state.campfires=state.campfires.filter(x=>x.id!==c.data.id);}}
+    for(const a of world.animals){if(!a.available&&a.respawnAt<=now){a.available=true;a.group.visible=true;}if(a.available){a.group.rotation.y+=Math.sin(performance.now()*.0005+a.x)*.004;}}
+    if(Math.random()<.08&&state.campfires.length!==world.campfires.filter(c=>!c.data.remote).length){saveState();window.OTTHOS_RTDB?.syncCampfires?.(state.campfires);}
+  }
+  function createLifeExpansionWorld(){createLakeExpansion();createCampfireZone();createHuntingArea();restoreLifeExpansion();applyCloudWorldObjects();}
   function buildWorld(){
     worldGroup=new THREE.Group();scene.add(worldGroup);
     const ground=stableBox(250,.3,250,materials.grass,0,-.15,0,worldGroup,0);ground.receiveShadow=false;
@@ -1637,6 +1785,7 @@
     // farm and garage
     createFenceLine(38,22,65,22,10);createFenceLine(65,22,65,43,8);for(let x=42;x<62;x+=4)for(let z=27;z<40;z+=4){box(2.8,.12,2.8,0x75451f,x,.06,z);box(.18,.55,.18,0x54c93e,x,.33,z);}
     createToyCar(52,48);registerInteractable({id:'job-board',type:'job',icon:'📦',label:'Central de trabalhos',x:49,z:45,radius:2.3,action:openJobCenter});world.deliveryPoint={x:65,z:54};
+    createLifeExpansionWorld();
     createAthleticsGym();createSizeChallenges();createWaypointMarker();
     // placas de bairro/orientação (somente decorativas, não alteram colisão nem interação)
     createSignpost(12,4,'Vila do Sol',Math.PI/2); createSignpost(-30,-5,'Mercado e Oficina',Math.PI/2);
@@ -2028,8 +2177,8 @@
   }
 
   function openBuildMenu(){
-    openModal('Construção Minecraft Kids',`<p>Você só pode construir perto das casas que possui e na praça de construção.</p><div class="choice-grid"><button class="choice" data-type="block"><b>🧱 Bloco</b><span>Custa 1 bloco</span></button><button class="choice" data-type="fence"><b>🪵 Cerca</b><span>Custa 1 cerca</span></button><button class="choice" data-type="lamp"><b>💡 Poste</b><span>1 madeira + 1 pedra</span></button><button class="choice" data-type="remove"><b>🧹 Remover</b><span>Remove sua construção mais próxima</span></button></div><div class="modal-actions"><button class="btn" data-cancel>Cancelar construção</button></div>`,root=>{
-      $$('[data-type]',root).forEach(btn=>btn.onclick=()=>{const type=btn.dataset.type;if(type==='remove'){removeNearestBuild();closeModal();return;}buildMode=type;els.buildTypeLabel.textContent=({block:'Bloco',fence:'Cerca',lamp:'Poste'})[type];els.buildBadge.hidden=false;closeModal();toast('Modo construção ativo. Use AÇÃO.','good');updateContext(true);});
+    openModal('Construção Minecraft Kids',`<p>Você só pode construir perto das casas que possui e na praça de construção.</p><div class="choice-grid"><button class="choice" data-type="block"><b>🧱 Bloco</b><span>Custa 1 bloco</span></button><button class="choice" data-type="fence"><b>🪵 Cerca</b><span>Custa 1 cerca</span></button><button class="choice" data-type="lamp"><b>💡 Poste</b><span>1 madeira + 1 pedra</span></button><button class="choice" data-type="extension"><b>🏠 Ampliar casa</b><span>Adicionar um cômodo modular</span></button><button class="choice" data-type="remove"><b>🧹 Remover</b><span>Remove sua construção mais próxima</span></button></div><div class="modal-actions"><button class="btn" data-cancel>Cancelar construção</button></div>`,root=>{
+      $$('[data-type]',root).forEach(btn=>btn.onclick=()=>{const type=btn.dataset.type;if(type==='remove'){removeNearestBuild();closeModal();return;}if(type==='extension'){openHouseExtensionMenu();return;}buildMode=type;els.buildTypeLabel.textContent=({block:'Bloco',fence:'Cerca',lamp:'Poste'})[type];els.buildBadge.hidden=false;closeModal();toast('Modo construção ativo. Use AÇÃO.','good');updateContext(true);});
       $('[data-cancel]',root).onclick=()=>{buildMode=null;els.buildBadge.hidden=true;closeModal();};
     });
   }
@@ -2088,11 +2237,13 @@
   function restorePosition(){
     const pos=state.position||{x:0,y:0,z:8,yaw:0};player.x=Number.isFinite(pos.x)?pos.x:0;player.z=Number.isFinite(pos.z)?pos.z:8;player.y=0;cameraYaw=Number.isFinite(pos.yaw)?pos.yaw:0;
     if(Math.abs(player.x)>110||Math.abs(player.z)>110){player.x=0;player.z=8;}
+    if(isInsideLakeNavigable(player.x,player.z)){player.x=-24.7;player.z=52;state.boats.activeBoatId='';state.boats.passengerOf='';}
   }
   function returnHome(){
+    if(player.boating){player.x=-24.7;player.z=52;exitBoat(true);}
     if(currentHouse)exitHouse();player.x=0;player.z=23;player.y=0;player.vx=player.vz=player.vy=0;cameraYaw=Math.PI;toast('Você voltou para casa.','good');savePlayerPosition(true);
   }
-  function savePlayerPosition(immediate=false){state.position={x:+player.x.toFixed(2),y:+player.y.toFixed(2),z:+player.z.toFixed(2),yaw:+cameraYaw.toFixed(3)};saveState(immediate);}
+  function savePlayerPosition(immediate=false){if(player.boating)state.boats.lastPosition={x:+player.x.toFixed(2),z:+player.z.toFixed(2),heading:+player.boat.heading.toFixed(3)};state.position={x:+player.x.toFixed(2),y:+player.y.toFixed(2),z:+player.z.toFixed(2),yaw:+cameraYaw.toFixed(3)};saveState(immediate);}
   const autoSaveInterval=setInterval(()=>{if(running){savePlayerPosition(true);}},8000);
   window.addEventListener('pagehide',()=>{if(running)savePlayerPosition(true);else commitState();});
   window.addEventListener('beforeunload',()=>{if(running)savePlayerPosition(true);else commitState();});
@@ -2159,8 +2310,8 @@
     input.x=0;input.z=0;input.targetX=0;input.targetZ=0;updateRunUI();
     if(els.joystickKnob)els.joystickKnob.style.transform='translate(-50%,-50%)';
   }
-  function canJump(){return !player.vehicle&&(player.grounded||performance.now()-player.lastGrounded<125);}
-  function requestJump(){if(!els.modal.hidden||paused||player.vehicle)return;player.jumpBuffer=performance.now()+150;if(canJump())doJump();}
+  function canJump(){return !player.vehicle&&!player.boating&&(player.grounded||performance.now()-player.lastGrounded<125);}
+  function requestJump(){if(!els.modal.hidden||paused||player.vehicle||player.boating)return;player.jumpBuffer=performance.now()+150;if(canJump())doJump();}
   function doJump(){if(!canJump())return;state.stats.jumps++;trackDaily('jump',1);player.vy=10.2;player.grounded=false;player.jumpBuffer=0;beep(540);vibrate(18);}
   function updatePlayer(dt){
     // Entrada é atualizada em todos os estados. O veículo tem prioridade absoluta:
@@ -2170,7 +2321,9 @@
     input.z=lerp(input.z,input.targetZ,Math.min(1,dt*34));
     const mag=Math.hypot(input.x,input.z);let ix=input.x,iz=input.z;if(mag>1){ix/=mag;iz/=mag;}
 
-    if(player.vehicle){
+    if(player.boating){
+      updateBoatPhysics(dt,ix,iz);
+    }else if(player.vehicle){
       updateVehiclePhysics(dt,ix,iz);
     }else if(performance.now()<player.sitUntil){
       player.vx*=.82;player.vz*=.82;
@@ -2182,14 +2335,14 @@
       const targetVx=(rightX*ix+forwardX*iz)*speed,targetVz=(rightZ*ix+forwardZ*iz)*speed;const accel=player.grounded?(wantsSprint?34:29):10;
       player.vx=lerp(player.vx,targetVx,Math.min(1,dt*accel));player.vz=lerp(player.vz,targetVz,Math.min(1,dt*accel));if(mag<.03){player.vx*=Math.pow(.0008,dt);player.vz*=Math.pow(.0008,dt);}
     }
-    const prevX=player.x,prevZ=player.z;player.x+=player.vx*dt;player.z+=player.vz*dt;player.x=clamp(player.x,-116,116);player.z=clamp(player.z,-116,116);resolveCollisions(prevX,prevZ);
-    const movedNow=Math.hypot(player.x-prevX,player.z-prevZ);if(movedNow>.001){if(player.vehicle){state.stats.driven+=movedNow;trackDaily('drive',movedNow);}else{state.stats.walked+=movedNow;trackDaily('walk',movedNow);}}
-    const ground=groundHeightAt(player.x,player.z);if(!player.grounded)player.vy-=31*dt;player.y+=player.vy*dt;
+    const prevX=player.x,prevZ=player.z;player.x+=player.vx*dt;player.z+=player.vz*dt;player.x=clamp(player.x,-116,116);player.z=clamp(player.z,-116,116);if(player.boating)constrainBoat(prevX,prevZ);else{resolveCollisions(prevX,prevZ);resolveWaterWalking(prevX,prevZ);}
+    const movedNow=Math.hypot(player.x-prevX,player.z-prevZ);if(movedNow>.001){if(player.vehicle||player.boating){state.stats.driven+=movedNow;trackDaily('drive',movedNow);}else{state.stats.walked+=movedNow;trackDaily('walk',movedNow);}}
+    const ground=player.boating?.78:groundHeightAt(player.x,player.z);if(!player.grounded)player.vy-=31*dt;player.y+=player.vy*dt;
     if(player.y<=ground&&player.vy<=0){const landed=!player.grounded&&player.vy<-4;player.y=ground;player.vy=0;player.grounded=true;player.lastGrounded=performance.now();if(landed){vibrate(20);beep(180,35,'sine');}}
     else if(player.y>ground+.03)player.grounded=false;
     if(player.jumpBuffer&&player.jumpBuffer>performance.now()&&canJump())doJump();
-    if(!player.vehicle&&Math.hypot(player.vx,player.vz)>.15)player.facing=Math.atan2(player.vx,player.vz);
-    playerGroup.position.set(player.x,player.y,player.z);playerGroup.rotation.y=performance.now()<player.spinUntil?player.facing+(1-(player.spinUntil-performance.now())/720)*Math.PI*4:player.facing;syncPlayerRootScale();contactShadow.position.set(player.x,ground+.025,player.z);const air=Math.max(0,player.y-ground);const ss=clamp(1-air*.08,.48,1);contactShadow.scale.setScalar(ss);contactShadow.material.opacity=clamp(.27-air*.035,.06,.27);vehicleVisual.visible=player.vehicle;
+    if(!player.vehicle&&!player.boating&&Math.hypot(player.vx,player.vz)>.15)player.facing=Math.atan2(player.vx,player.vz);
+    playerGroup.position.set(player.x,player.y,player.z);playerGroup.rotation.y=performance.now()<player.spinUntil?player.facing+(1-(player.spinUntil-performance.now())/720)*Math.PI*4:player.facing;syncPlayerRootScale();contactShadow.position.set(player.x,ground+.025,player.z);const air=Math.max(0,player.y-ground);const ss=clamp(1-air*.08,.48,1);contactShadow.scale.setScalar(ss);contactShadow.material.opacity=clamp(.27-air*.035,.06,.27);vehicleVisual.visible=player.vehicle;if(world.boat)world.boat.group.visible=true;updateBoatPanel();
     animatePlayer(dt);checkHazards();collectNearbyCrystals();updateContext();
   }
   function updateVehiclePhysics(dt,ix,iz){
@@ -2241,7 +2394,7 @@
     if(avatarLayer){avatarLayer.position.y=playerModel.position.y;avatarLayer.rotation.x=playerModel.rotation.x;avatarLayer.rotation.z=playerModel.rotation.z;}
   }
   function checkHazards(){
-    for(const h of world.hazards){if(Math.abs(player.x-h.x)<=h.w/2&&Math.abs(player.z-h.z)<=h.d/2&&player.y<.6){if(h.type==='water'){player.vx*=.9;player.vz*=.9;}else if(performance.now()>player.damageUntil){player.damageUntil=performance.now()+1200;state.needs.energy=clamp(state.needs.energy-18,0,100);toast('Cuidado com a lava!','bad');returnHome();}}}
+    for(const h of world.hazards){if(Math.abs(player.x-h.x)<=h.w/2&&Math.abs(player.z-h.z)<=h.d/2&&player.y<.6){if(h.type==='water'){if(!player.boating){player.vx*=.9;player.vz*=.9;}}else if(performance.now()>player.damageUntil){player.damageUntil=performance.now()+1200;state.needs.energy=clamp(state.needs.energy-18,0,100);toast('Cuidado com a lava!','bad');returnHome();}}}
   }
   function collectNearbyCrystals(){
     for(const c of world.crystals){if(c.got)continue;c.mesh.rotation.y+=.035;c.mesh.position.y=c.y+Math.sin(animTime*2+c.x)*.12;if(Math.hypot(player.x-c.x,player.z-c.z)<1.25&&Math.abs(player.y-c.mesh.position.y)<2){c.got=true;c.mesh.visible=false;state.inventory.crystals++;state.stats.collected++;trackDaily('collect',1);addXP(15);addCoins(5);toast('Cristal coletado!','good');beep(880);vibrate(20);evaluateMissions();checkActiveJob();saveState();}}
@@ -2321,17 +2474,18 @@
       desiredPos=new THREE.Vector3(player.x+Math.sin(orbit)*dist,player.y+height,player.z+Math.cos(orbit)*dist);look=new THREE.Vector3(player.x,player.y+1.15,player.z);camera.fov=portrait?54:50;
     }else{
       const portrait=innerHeight>innerWidth;const speed=Math.hypot(player.vx,player.vz);
-      if(player.vehicle&&!input.cameraDrag)cameraYaw=lerpAngle(cameraYaw,player.car.heading,Math.min(1,dt*3.2));
+      if((player.vehicle||player.boating)&&!input.cameraDrag)cameraYaw=lerpAngle(cameraYaw,player.vehicle?player.car.heading:player.boat.heading,Math.min(1,dt*3.2));
       const speedKick=clamp(Math.abs(player.vehicle?player.car.speed:speed)/9,0,1.6);
-      const dist=clamp((portrait?12.5:10.2)+(player.vehicle?3.4:0)+speedKick*1.6+cameraZoom,6.5,24);const height=clamp((portrait?6.6:5.4)+(player.vehicle?.4:0)+cameraPitch*2.2+cameraZoom*.16,3.5,12);
+      const dist=clamp((portrait?12.5:10.2)+(player.vehicle?3.4:player.boating?2.2:0)+speedKick*1.6+cameraZoom,6.5,24);const height=clamp((portrait?6.6:5.4)+(player.vehicle?.4:player.boating?.25:0)+cameraPitch*2.2+cameraZoom*.16,3.5,12);
       desiredPos=new THREE.Vector3(player.x-Math.sin(cameraYaw)*dist,player.y+height,player.z+Math.cos(cameraYaw)*dist);const visualHeight=1.4*playerScaleValue()*(player.crouched?.72:1);look=new THREE.Vector3(player.x+Math.sin(cameraYaw)*3.5,player.y+visualHeight,player.z-Math.cos(cameraYaw)*3.5);
-      camera.fov=(portrait?57:60)+speedKick*(player.vehicle?7:2);
+      camera.fov=(portrait?57:60)+speedKick*(player.vehicle?7:player.boating?4:2);
     }
     const t=1-Math.exp(-dt*7.5);camera.position.lerp(desiredPos,t);camera.lookAt(look);camera.updateProjectionMatrix();
   }
 
   function nearestInteractable(){
     if(activeRace)return null;
+    if(player.boating)return{id:'exit-boat',type:'boat',icon:'🛶',label:'Sair do barco no píer',radius:999,priority:999,action:exitBoat};
     if(player.vehicle)return{id:'exit-vehicle',type:'vehicle',icon:'🚗',label:'Sair do carrinho',radius:999,priority:999,action:exitVehicle};
     if(buildMode)return{id:'place-build',type:'build',icon:'🧱',label:'Colocar construção',radius:999,priority:999,action:placeBuild};
     const remote=nearestRemotePlayer();if(remote)return{id:`remote-${remote.uid}`,type:'remote-player',icon:'🌐',label:`Interagir: ${remote.ghost.userData.displayName||'Jogador'}`,radius:2.8,priority:980,x:remote.ghost.position.x,z:remote.ghost.position.z,action:()=>openRemotePlayerActions(remote.uid,remote.ghost)};
@@ -2362,27 +2516,56 @@
   }
 
   function updateNeeds(dt){
-    updateNeeds.acc=(updateNeeds.acc||0)+dt;if(updateNeeds.acc<1)return;const sec=updateNeeds.acc;updateNeeds.acc=0;state.needs.hunger=clamp(state.needs.hunger-sec*.065,0,100);state.needs.energy=clamp(state.needs.energy-sec*(player.vehicle?(sprintRequested()?.085:.035):(input.isSprinting?.16:.045)),0,100);state.needs.fun=clamp(state.needs.fun-sec*.025,0,100);state.needs.hygiene=clamp(state.needs.hygiene-sec*.028,0,100);if(state.needs.hunger<8&&Math.random()<.08)toast(`${playerDisplayName()} está com fome.`,'warn');updateHUD();if(!updateNeeds.lastSave||performance.now()-updateNeeds.lastSave>10000){updateNeeds.lastSave=performance.now();saveState();}
+    updateNeeds.acc=(updateNeeds.acc||0)+dt;if(updateNeeds.acc<1)return;const sec=updateNeeds.acc;updateNeeds.acc=0;state.needs.hunger=clamp(state.needs.hunger-sec*.065,0,100);state.needs.energy=clamp(state.needs.energy-sec*((player.vehicle||player.boating)?(sprintRequested()?.085:.035):(input.isSprinting?.16:.045)),0,100);state.needs.fun=clamp(state.needs.fun-sec*.025,0,100);state.needs.hygiene=clamp(state.needs.hygiene-sec*.028,0,100);if(state.needs.hunger<8&&Math.random()<.08)toast(`${playerDisplayName()} está com fome.`,'warn');updateHUD();if(!updateNeeds.lastSave||performance.now()-updateNeeds.lastSave>10000){updateNeeds.lastSave=performance.now();saveState();}
   }
 
   let localChannel=null,lastPublish=0,lastPublishSnapshot=null,lastPublishHeartbeat=0;
 
-  let multiplayerState={mode:'solo',connected:false,count:0,room:'mundo-publico',error:'',players:[]};const remotePresence=new Map();
-  const cloudHouses=new Map(),cloudChat=[],incomingChallenges=new Map(),gameSessions=new Map(),shownChallengeToasts=new Set(),shownGameResults=new Set();let activeMultiplayerGameId='',promptChallengeId='',promptSessionId='';
+  let multiplayerState={mode:'solo',connected:false,count:0,room:'mundo-publico',error:'',players:[]};const remotePresence=new Map();let pendingCloudCampfires={},pendingCloudExtensions={};
+  const cloudHouses=new Map(),cloudChat=[],incomingChallenges=new Map(),incomingSocialRequests=new Map(),gameSessions=new Map(),shownChallengeToasts=new Set(),shownSocialToasts=new Set(),shownGameResults=new Set();let activeMultiplayerGameId='',promptChallengeId='',promptSessionId='',promptSocialRequestId='';
   function multiplayerGameLabel(type){return type==='portuguese'?'Português Kids':type==='english'?'English Kids':'Matemática Kids';}
   function pendingChallenges(){return [...incomingChallenges.values()].filter(c=>c.status==='pending');}
   function readyGameSessions(){const uid=window.OTTHOS_RTDB?.uid;return [...gameSessions.values()].filter(s=>(s.fromUid===uid||s.toUid===uid)&&s.status==='active');}
-  function closeChallengePrompt(){if(!els.challengePrompt)return;els.challengePrompt.hidden=true;els.challengePrompt.classList.remove('ready','incoming');promptChallengeId='';promptSessionId='';els.challengePromptAccept.disabled=false;els.challengePromptDecline.disabled=false;}
-  function showIncomingChallengePrompt(c){if(!c||c.status!=='pending'||!els.challengePrompt)return;promptChallengeId=c.id;promptSessionId='';els.challengePrompt.classList.add('incoming');els.challengePrompt.classList.remove('ready');els.challengePromptKicker.textContent='NOVO DESAFIO';els.challengePromptTitle.textContent=`${c.fromName||'Jogador'} desafiou você`;els.challengePromptText.textContent=`${multiplayerGameLabel(c.type)} • toque em Aceitar e jogar`;els.challengePromptAccept.textContent='Aceitar e jogar';els.challengePromptDecline.textContent='Recusar';els.challengePrompt.hidden=false;}
-  function showReadySessionPrompt(s){if(!s||s.status!=='active'||!els.challengePrompt)return;const uid=window.OTTHOS_RTDB?.uid,mine=s.players?.[uid];if(mine?.finished)return;promptSessionId=s.id;promptChallengeId='';els.challengePrompt.classList.add('ready');els.challengePrompt.classList.remove('incoming');els.challengePromptKicker.textContent='PARTIDA PRONTA';els.challengePromptTitle.textContent=`Duelo de ${multiplayerGameLabel(s.type)}`;els.challengePromptText.textContent=`Contra ${sessionOpponentName(s)} • os dois jogarão as mesmas 5 atividades`;els.challengePromptAccept.textContent='Jogar agora';els.challengePromptDecline.textContent='Depois';els.challengePrompt.hidden=false;}
+  function closeChallengePrompt(){if(!els.challengePrompt)return;els.challengePrompt.hidden=true;els.challengePrompt.classList.remove('ready','incoming','social');promptChallengeId='';promptSessionId='';promptSocialRequestId='';els.challengePromptAccept.disabled=false;els.challengePromptDecline.disabled=false;}
+  function showIncomingChallengePrompt(c){if(!c||c.status!=='pending'||!els.challengePrompt)return;promptChallengeId=c.id;promptSessionId='';els.challengePrompt.classList.add('incoming');els.challengePrompt.classList.remove('ready','social');els.challengePromptKicker.textContent='NOVO DESAFIO';els.challengePromptTitle.textContent=`${c.fromName||'Jogador'} desafiou você`;els.challengePromptText.textContent=`${multiplayerGameLabel(c.type)} • toque em Aceitar e jogar`;els.challengePromptAccept.textContent='Aceitar e jogar';els.challengePromptDecline.textContent='Recusar';els.challengePrompt.hidden=false;}
+  function showReadySessionPrompt(s){if(!s||s.status!=='active'||!els.challengePrompt)return;const uid=window.OTTHOS_RTDB?.uid,mine=s.players?.[uid];if(mine?.finished)return;promptSessionId=s.id;promptChallengeId='';els.challengePrompt.classList.add('ready');els.challengePrompt.classList.remove('incoming','social');els.challengePromptKicker.textContent='PARTIDA PRONTA';els.challengePromptTitle.textContent=`Duelo de ${multiplayerGameLabel(s.type)}`;els.challengePromptText.textContent=`Contra ${sessionOpponentName(s)} • os dois jogarão as mesmas 5 atividades`;els.challengePromptAccept.textContent='Jogar agora';els.challengePromptDecline.textContent='Depois';els.challengePrompt.hidden=false;}
+  const SOCIAL_ACTION_LABELS={dance:'dançar',play:'brincar',highfive:'fazer toca aqui',hug:'dar um abraço',selfie:'tirar uma selfie',boatPassenger:'entrar no barco como passageiro',fishTogether:'pescar junto',campfireJoin:'participar da fogueira',huntTogether:'rastrear animais junto'};
+  function socialActionLabel(type){return SOCIAL_ACTION_LABELS[type]||'interagir';}
+  function socialRequestPending(){return[...incomingSocialRequests.values()].filter(r=>r.status==='pending'&&Number(r.expiresAt||0)>Date.now());}
+  function showIncomingSocialRequest(request){
+    if(!request||request.status!=='pending'||Number(request.expiresAt||0)<=Date.now()||!els.challengePrompt)return;
+    promptSocialRequestId=request.id;promptChallengeId='';promptSessionId='';els.challengePrompt.classList.add('incoming','social');els.challengePrompt.classList.remove('ready');els.challengePromptKicker.textContent='CONVITE MULTIPLAYER';els.challengePromptTitle.textContent=`${request.fromName||'Jogador'} quer ${socialActionLabel(request.actionType)}`;els.challengePromptText.textContent='Nada será executado antes da sua confirmação.';els.challengePromptAccept.textContent='Aceitar';els.challengePromptDecline.textContent='Recusar';els.challengePrompt.hidden=false;
+  }
+  async function sendSocialActionRequest(targetUid,targetName,actionType,extra={}){
+    if(actionType==='boatPassenger'&&(!player.boating||player.boat.passengerOf)){toast('Somente o motorista do barco pode convidar um passageiro.','warn',2500);return false;}
+    if(actionType==='boatPassenger'&&player.boat.passengerUid){toast('Este barco já tem um passageiro.','warn',2300);return false;}
+    const result=await window.OTTHOS_RTDB?.sendSocialRequest?.(targetUid,actionType,targetName,extra);if(result?.ok){state.multiplayerRequests.lastSentAt=Date.now();saveState();toast(`Convite enviado para ${targetName}.`,'good',2300);return true;}toast(result?.error||'Não foi possível enviar o convite.','warn',2600);return false;
+  }
+  function applyAcceptedSocialAction(actionType,context={}){
+    const rewardKey=String(context.requestId||'');if(rewardKey&&state.multiplayerRequests.completed.includes(rewardKey))return;
+    if(['dance','play','highfive','hug','selfie'].includes(actionType)){triggerEmote(actionType);if(actionType==='play')state.needs.fun=clamp(state.needs.fun+10,0,100);}
+    else if(actionType==='boatPassenger'){if(context.role==='passenger'||context.incoming)enterBoatAsPassenger(context.fromUid||context.partnerUid);else{player.boat.passengerUid=context.partnerUid||'';toast(`${context.partnerName||'Seu amigo'} entrou como passageiro.`,'good',2600);}}
+    else if(actionType==='fishTogether'){startFishing(player.boating?'boat':'shore',{cooperative:true,requestId:rewardKey,partnerName:context.partnerName||context.fromName||'amigo'});}
+    else if(actionType==='campfireJoin'){openNearestCampfire();}
+    else if(actionType==='huntTogether'){startHunting({cooperative:true,requestId:rewardKey,partnerName:context.partnerName||context.fromName||'amigo'});}
+    if(rewardKey){state.multiplayerRequests.completed.push(rewardKey);state.multiplayerRequests.completed=state.multiplayerRequests.completed.slice(-80);}saveState();
+  }
+  async function acceptIncomingSocialRequest(id){
+    const request=incomingSocialRequests.get(id);if(!request)return;els.challengePromptAccept.disabled=true;els.challengePromptDecline.disabled=true;const result=await window.OTTHOS_RTDB?.respondSocialRequest?.(id,'accepted');
+    if(result?.ok){closeChallengePrompt();applyAcceptedSocialAction(request.actionType,{incoming:true,role:request.actionType==='boatPassenger'?'passenger':'participant',requestId:id,fromUid:request.fromUid,fromName:request.fromName,partnerName:request.fromName});toast(`Convite de ${request.fromName||'Jogador'} aceito.`,'good',2200);setTimeout(()=>window.OTTHOS_RTDB?.completeSocialRequest?.(id),1800);}else{closeChallengePrompt();toast(result?.reason||result?.error||'O convite não pôde ser aceito.','warn',2600);}
+  }
+  async function declineIncomingSocialRequest(id){
+    const request=incomingSocialRequests.get(id);els.challengePromptAccept.disabled=true;els.challengePromptDecline.disabled=true;const result=await window.OTTHOS_RTDB?.respondSocialRequest?.(id,'declined');closeChallengePrompt();toast(request?`Convite de ${request.fromName||'Jogador'} recusado.`:(result?.error||'Convite recusado.'),'warn',1900);
+  }
   async function launchSessionWithCountdown(session){if(!session)return;closeChallengePrompt();closeModal();let count=3;const draw=()=>openModal(`Duelo: ${multiplayerGameLabel(session.type)}`,`<div class="duel-countdown"><small>Contra ${escapeHtml(sessionOpponentName(session))}</small><b>${count}</b><span>Prepare-se!</span></div>`,root=>{});draw();const timer=setInterval(()=>{count--;if(count<=0){clearInterval(timer);closeModal();startMultiplayerEducationGame(session);}else draw();},620);}
-  function updateOnlineAttention(){const count=pendingChallenges().length+readyGameSessions().filter(s=>!s.players?.[window.OTTHOS_RTDB?.uid]?.finished).length;els.onlineBtn?.classList.toggle('attention',count>0);if(els.onlineBtn){const span=$('span',els.onlineBtn);if(span)span.textContent=count?`Online ${count}`:'Online';}}
-  function challengeInboxHtml(){const list=pendingChallenges();return list.length?`<div class="challenge-inbox">${list.map(c=>`<article class="challenge-card"><div><b>⚔️ ${escapeHtml(c.fromName||'Jogador')}</b><span>Desafio: ${multiplayerGameLabel(c.type)}</span></div><div><button class="accept" data-accept-challenge="${c.id}">Aceitar e jogar</button><button data-decline-challenge="${c.id}">Recusar</button></div></article>`).join('')}</div>`:'<p class="empty-online">Nenhum convite pendente.</p>';}
+  function updateOnlineAttention(){const count=pendingChallenges().length+socialRequestPending().length+readyGameSessions().filter(s=>!s.players?.[window.OTTHOS_RTDB?.uid]?.finished).length;els.onlineBtn?.classList.toggle('attention',count>0);if(els.onlineBtn){const span=$('span',els.onlineBtn);if(span)span.textContent=count?`Online ${count}`:'Online';}}
+  function challengeInboxHtml(){const list=pendingChallenges();return list.length?`<div class="challenge-inbox">${list.map(c=>`<article class="challenge-card"><div><b>⚔️ ${escapeHtml(c.fromName||'Jogador')}</b><span>Desafio: ${multiplayerGameLabel(c.type)}</span></div><div><button class="accept" data-accept-challenge="${c.id}">Aceitar e jogar</button><button data-decline-challenge="${c.id}">Recusar</button></div></article>`).join('')}</div>`:'<p class="empty-online">Nenhum convite educativo pendente.</p>';}
+  function socialRequestInboxHtml(){const list=socialRequestPending();return list.length?`<div class="challenge-inbox social-inbox">${list.map(r=>`<article class="challenge-card social"><div><b>🤝 ${escapeHtml(r.fromName||'Jogador')}</b><span>Quer ${escapeHtml(socialActionLabel(r.actionType))}</span></div><div><button class="accept" data-accept-social="${r.id}">Aceitar</button><button data-decline-social="${r.id}">Recusar</button></div></article>`).join('')}</div>`:'<p class="empty-online">Nenhuma solicitação social pendente.</p>';}
   function completedGameSessions(){const uid=window.OTTHOS_RTDB?.uid;return [...gameSessions.values()].filter(s=>s.status==='completed'&&s.result&&(s.fromUid===uid||s.toUid===uid)).sort((a,b)=>Number(b.completedAt||b.result?.completedAt||0)-Number(a.completedAt||a.result?.completedAt||0)).slice(0,20);}
   function rememberMatchResult(session){if(!session?.result)return null;const list=state.learning.matchHistory||(state.learning.matchHistory=[]),existing=list.find(x=>x.id===session.id);if(existing)return existing;const uid=window.OTTHOS_RTDB?.uid,r=session.result,mine=session.players?.[uid]||{},other=Object.entries(session.players||{}).find(([id])=>id!==uid)?.[1]||{};const entry={id:session.id,type:session.type,opponent:sessionOpponentName(session),myScore:Number(mine.score||0),otherScore:Number(other.score||0),won:!r.draw&&r.winnerUid===uid,draw:!!r.draw,winnerName:r.winnerName||'',completedAt:Number(session.completedAt||r.completedAt||Date.now()),rewarded:false};list.unshift(entry);state.learning.matchHistory=list.slice(0,20);return entry;}
   function duelHistoryHtml(){const sessions=completedGameSessions();return sessions.length?`<div class="duel-history">${sessions.map(s=>{const r=s.result,uid=window.OTTHOS_RTDB?.uid,mine=s.players?.[uid]||{},other=Object.entries(s.players||{}).find(([id])=>id!==uid)?.[1]||{},won=!r.draw&&r.winnerUid===uid;return`<article class="duel-history-card ${won?'won':r.draw?'draw':'lost'}"><span>${r.draw?'🤝':won?'🏆':'🎮'}</span><div><b>${r.draw?'Empate':`Vencedor: ${escapeHtml(r.winnerName||'Jogador')}`}</b><small>${multiplayerGameLabel(s.type)} • ${Number(mine.score||0)} × ${Number(other.score||0)} contra ${escapeHtml(sessionOpponentName(s))}</small></div></article>`}).join('')}</div>`:'<p class="empty-online">Nenhum duelo concluído ainda.</p>';}
   function activeSessionsHtml(){const uid=window.OTTHOS_RTDB?.uid,list=readyGameSessions();return list.length?`<div class="challenge-inbox">${list.map(s=>{const other=s.fromUid===uid?s.toName||remotePresence.get(s.toUid)?.name||'Adversário':s.fromName||'Adversário',mine=s.players?.[uid];return`<article class="challenge-card ready"><div><b>🎮 ${multiplayerGameLabel(s.type)}</b><span>contra ${escapeHtml(other)}</span></div><button class="accept" data-play-session="${s.id}" ${mine?.finished?'disabled':''}>${mine?.finished?'Concluído':'Jogar agora'}</button></article>`}).join('')}</div>`:'';}
-  function bindChallengeCards(root=els.modalBody){$$('[data-accept-challenge]',root).forEach(btn=>btn.onclick=()=>acceptIncomingChallenge(btn.dataset.acceptChallenge));$$('[data-decline-challenge]',root).forEach(btn=>btn.onclick=()=>declineIncomingChallenge(btn.dataset.declineChallenge));$$('[data-play-session]',root).forEach(btn=>btn.onclick=()=>{const s=gameSessions.get(btn.dataset.playSession);if(s)launchSessionWithCountdown(s);});}
+  function bindChallengeCards(root=els.modalBody){$$('[data-accept-challenge]',root).forEach(btn=>btn.onclick=()=>acceptIncomingChallenge(btn.dataset.acceptChallenge));$$('[data-decline-challenge]',root).forEach(btn=>btn.onclick=()=>declineIncomingChallenge(btn.dataset.declineChallenge));$$('[data-accept-social]',root).forEach(btn=>btn.onclick=()=>acceptIncomingSocialRequest(btn.dataset.acceptSocial));$$('[data-decline-social]',root).forEach(btn=>btn.onclick=()=>declineIncomingSocialRequest(btn.dataset.declineSocial));$$('[data-play-session]',root).forEach(btn=>btn.onclick=()=>{const s=gameSessions.get(btn.dataset.playSession);if(s)launchSessionWithCountdown(s);});}
   async function acceptIncomingChallenge(id){const c=incomingChallenges.get(id)||window.OTTHOS_RTDB?.getChallenges?.()?.[id];if(!c){toast('Convite não encontrado. Abra Online e tente novamente.','warn');return;}els.challengePromptAccept.disabled=true;els.challengePromptDecline.disabled=true;els.challengePromptAccept.textContent='Conectando...';const result=await window.OTTHOS_RTDB?.respondGameChallenge?.(id,true);if(!result?.ok){els.challengePromptAccept.disabled=false;els.challengePromptDecline.disabled=false;els.challengePromptAccept.textContent='Aceitar e jogar';toast(result?.error||'Não foi possível aceitar.','warn',3000);return;}c.status='accepted';incomingChallenges.set(id,c);const session=result.session||await window.OTTHOS_RTDB?.getGameSession?.(id);if(session){gameSessions.set(id,{id,...session});refreshOpenSocialHub();toast(`Desafio aceito: ${multiplayerGameLabel(c.type)}`,'good');launchSessionWithCountdown({id,...session});}else{closeChallengePrompt();toast('Desafio aceito. Toque em Online > Jogar agora.','good',2600);}updateOnlineAttention();}
   async function declineIncomingChallenge(id){const c=incomingChallenges.get(id);if(!c)return;els.challengePromptAccept.disabled=true;els.challengePromptDecline.disabled=true;await window.OTTHOS_RTDB?.respondGameChallenge?.(id,false);c.status='declined';incomingChallenges.set(id,c);closeChallengePrompt();refreshOpenSocialHub();updateOnlineAttention();}
   function highestUnlockedLevel(subject){let value=1;for(let level=2;level<=6;level++){if(subjectUnlocked(subject,level))value=level;}return value;}
@@ -2395,10 +2578,10 @@
   function onlinePlayers(){return [...remotePresence.entries()].map(([uid,data])=>{const ghost=world.ghosts.get(uid);return{uid,name:data.name||ghost?.userData?.displayName||'Jogador',distance:ghost?Math.hypot(player.x-ghost.position.x,player.z-ghost.position.z):Math.hypot(player.x-(data.x||0),player.z-(data.z||0))}}).sort((a,b)=>a.distance-b.distance);}
   function onlinePlayerListHtml(players=onlinePlayers()){return players.length?players.map(p=>`<button class="online-player-card" data-online-player="${p.uid}"><span>👤</span><b>${escapeHtml(p.name)}</b><small>${Math.round(p.distance)} m</small></button>`).join(''):'<p>Nenhum outro jogador apareceu ainda. Abra o jogo em outro celular usando o mesmo Firebase.</p>';}
   function bindOnlinePlayerCards(root=els.modalBody){$$('[data-online-player]',root).forEach(btn=>btn.onclick=()=>{const uid=btn.dataset.onlinePlayer,ghost=world.ghosts.get(uid);if(ghost)openRemotePlayerActions(uid,ghost);});}
-  function refreshOpenSocialHub(){updateOnlineAttention();if(els.modal.hidden||els.modalTitle.textContent!=='Mundo Online')return;const players=onlinePlayers(),status=$('#onlineStatusText',els.modalBody),count=$('#onlineCount',els.modalBody),list=$('#onlinePlayerList',els.modalBody),chat=$('#worldChatList',els.modalBody),invites=$('#challengeInbox',els.modalBody),sessions=$('#activeGameSessions',els.modalBody),history=$('#duelHistory',els.modalBody);if(status)status.textContent=multiplayerStatusText();if(count)count.textContent=`${players.length} além de você`;if(list){list.innerHTML=onlinePlayerListHtml(players);bindOnlinePlayerCards(els.modalBody);}if(invites){invites.innerHTML=challengeInboxHtml();bindChallengeCards(els.modalBody);}if(sessions){sessions.innerHTML=activeSessionsHtml();bindChallengeCards(els.modalBody);}if(history)history.innerHTML=duelHistoryHtml();if(chat){chat.innerHTML=cloudChat.slice(-30).map(m=>chatMessageHtml(m)).join('')||'<p>Envie a primeira mensagem.</p>';chat.scrollTop=chat.scrollHeight;}}
+  function refreshOpenSocialHub(){updateOnlineAttention();if(els.modal.hidden||els.modalTitle.textContent!=='Mundo Online')return;const players=onlinePlayers(),status=$('#onlineStatusText',els.modalBody),count=$('#onlineCount',els.modalBody),list=$('#onlinePlayerList',els.modalBody),chat=$('#worldChatList',els.modalBody),socialInvites=$('#socialRequestInbox',els.modalBody),invites=$('#challengeInbox',els.modalBody),sessions=$('#activeGameSessions',els.modalBody),history=$('#duelHistory',els.modalBody);if(status)status.textContent=multiplayerStatusText();if(count)count.textContent=`${players.length} além de você`;if(list){list.innerHTML=onlinePlayerListHtml(players);bindOnlinePlayerCards(els.modalBody);}if(socialInvites){socialInvites.innerHTML=socialRequestInboxHtml();bindChallengeCards(els.modalBody);}if(invites){invites.innerHTML=challengeInboxHtml();bindChallengeCards(els.modalBody);}if(sessions){sessions.innerHTML=activeSessionsHtml();bindChallengeCards(els.modalBody);}if(history)history.innerHTML=duelHistoryHtml();if(chat){chat.innerHTML=cloudChat.slice(-30).map(m=>chatMessageHtml(m)).join('')||'<p>Envie a primeira mensagem.</p>';chat.scrollTop=chat.scrollHeight;}}
   function openSocialHub(){
     const players=onlinePlayers(),messages=cloudChat.slice(-30);
-    openModal('Mundo Online',`<div class="online-status-card"><b id="onlineStatusText">${multiplayerStatusText()}</b><span>Todos entram automaticamente no mesmo mundo, sem escolher sala e sem senha.</span></div><div class="social-tabs"><b>Convites de jogos</b><small>${pendingChallenges().length} pendente(s)</small></div><div id="challengeInbox">${challengeInboxHtml()}</div><div id="activeGameSessions">${activeSessionsHtml()}</div><div class="social-tabs"><b>Histórico de duelos</b><small>vencedores registrados</small></div><div id="duelHistory">${duelHistoryHtml()}</div><div class="social-tabs"><b>Jogadores</b><small id="onlineCount">${players.length} além de você</small></div><div id="onlinePlayerList" class="online-player-list">${onlinePlayerListHtml(players)}</div><div class="social-tabs chat-title-row"><b>Chat do mundo</b><small>texto em tempo real</small></div><div id="worldChatList" class="world-chat-list">${messages.map(m=>chatMessageHtml(m)).join('')||'<p>Envie a primeira mensagem.</p>'}</div><div class="chat-compose"><input id="worldChatInput" maxlength="180" placeholder="Escreva uma mensagem..."><button data-send-world-chat>Enviar</button></div><div class="chat-history-actions"><button data-clear-local-chat>Limpar desta tela</button><button class="danger" data-delete-own-chat>Apagar minhas mensagens</button></div>`,root=>{
+    openModal('Mundo Online',`<div class="online-status-card"><b id="onlineStatusText">${multiplayerStatusText()}</b><span>Todos entram automaticamente no mesmo mundo, sem escolher sala e sem senha.</span></div><div class="social-tabs"><b>Solicitações sociais</b><small>${socialRequestPending().length} pendente(s)</small></div><div id="socialRequestInbox">${socialRequestInboxHtml()}</div><div class="social-tabs"><b>Convites de jogos</b><small>${pendingChallenges().length} pendente(s)</small></div><div id="challengeInbox">${challengeInboxHtml()}</div><div id="activeGameSessions">${activeSessionsHtml()}</div><div class="social-tabs"><b>Histórico de duelos</b><small>vencedores registrados</small></div><div id="duelHistory">${duelHistoryHtml()}</div><div class="social-tabs"><b>Jogadores</b><small id="onlineCount">${players.length} além de você</small></div><div id="onlinePlayerList" class="online-player-list">${onlinePlayerListHtml(players)}</div><div class="social-tabs chat-title-row"><b>Chat do mundo</b><small>texto em tempo real</small></div><div id="worldChatList" class="world-chat-list">${messages.map(m=>chatMessageHtml(m)).join('')||'<p>Envie a primeira mensagem.</p>'}</div><div class="chat-compose"><input id="worldChatInput" maxlength="180" placeholder="Escreva uma mensagem..."><button data-send-world-chat>Enviar</button></div><div class="chat-history-actions"><button data-clear-local-chat>Limpar desta tela</button><button class="danger" data-delete-own-chat>Apagar minhas mensagens</button></div>`,root=>{
       bindOnlinePlayerCards(root);bindChallengeCards(root);
       const send=()=>{const input=$('#worldChatInput',root),text=(input?.value||'').trim();if(!text)return;window.OTTHOS_RTDB?.sendChat?.(text);input.value='';};$('[data-send-world-chat]',root).onclick=send;$('#worldChatInput',root)?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();send();}});
       $('[data-clear-local-chat]',root).onclick=()=>{state.social.chatHiddenBefore=Date.now();cloudChat.length=0;saveState(true);refreshOpenSocialHub();toast('Histórico ocultado neste aparelho.','good');};
@@ -2407,27 +2590,59 @@
   }
   function escapeHtml(value=''){return String(value).replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]));}
   function chatMessageHtml(m){return`<article class="world-chat-message"><b>${escapeHtml(m.name||'Jogador')}</b><span>${escapeHtml(m.text||'')}</span></article>`;}
-  function openRemotePlayerActions(uid,ghost){const name=ghost.userData.displayName||'Jogador';openModal(name,`<p>Interaja com este jogador em tempo real.</p><div class="choice-grid remote-social-grid"><button class="choice" data-player-action="wave"><b>👋 Acenar</b><span>Enviar saudação</span></button><button class="choice" data-player-action="dance"><b>🕺 Dançar juntos</b><span>Os dois fazem a dança</span></button><button class="choice" data-player-action="play"><b>🎈 Brincar</b><span>Aumenta a diversão</span></button><button class="choice" data-player-action="highfive"><b>🙌 Toca aqui</b><span>Interação social</span></button><button class="choice" data-player-action="hug"><b>🤗 Abraçar</b><span>Gesto de amizade</span></button><button class="choice" data-player-action="selfie"><b>📸 Selfie</b><span>Foto simbólica juntos</span></button><button class="choice" data-player-action="giftCoins"><b>🪙 Dar 10 moedas</b><span>Presente online</span></button><button class="choice" data-player-action="giftCrystal"><b>💎 Dar cristal</b><span>Usa 1 cristal</span></button><button class="choice" data-player-action="challenge"><b>⚔️ Desafiar</b><span>Matemática, Português ou English</span></button><button class="choice" data-player-action="message"><b>💬 Mencionar no chat</b><span>Abrir conversa pública</span></button></div>`,root=>{$$('[data-player-action]',root).forEach(btn=>btn.onclick=async()=>{const action=btn.dataset.playerAction;if(action==='message'){closeModal();openSocialHub();setTimeout(()=>{const input=$('#worldChatInput');if(input){input.value=`@${name} `;input.focus();}},100);return;}if(action==='giftCoins'){if(state.profile.coins<10){toast('Você não tem 10 moedas.','warn');return;}const ok=await window.OTTHOS_RTDB?.sendGift?.(uid,{type:'coins',amount:10});if(ok){addCoins(-10);toast(`Você presenteou ${name}.`,'good');}}else if(action==='giftCrystal'){if(state.inventory.crystals<1){toast('Você não tem cristal.','warn');return;}const ok=await window.OTTHOS_RTDB?.sendGift?.(uid,{type:'crystal',amount:1});if(ok){state.inventory.crystals--;saveState(true);toast(`Cristal enviado para ${name}.`,'good');}}else if(action==='challenge'){openChallengePicker(uid,name);return;}else{const social=['wave','dance','play','highfive','hug','selfie'].includes(action)?action:'wave';const ok=await window.OTTHOS_RTDB?.sendInteraction?.(uid,{type:social});if(ok){triggerEmote(social);if(social==='play')state.needs.fun=clamp(state.needs.fun+10,0,100);saveState();toast(`Ação enviada para ${name}.`,'good');}}closeModal();});});}
+  function openRemotePlayerActions(uid,ghost){
+    const name=ghost.userData.displayName||'Jogador',nearLake=isNearFishingArea()||player.boating,nearCamp=nearestActiveCampfire(8),nearHunt=Math.hypot(player.x+96,player.z+72)<25;
+    const cooperative=`${player.boating&&!player.boat.passengerOf&&!player.boat.passengerUid?'<button class="choice" data-player-action="boatPassenger"><b>🛶 Passageiro</b><span>Convidar para o seu barco</span></button>':''}${nearLake?'<button class="choice" data-player-action="fishTogether"><b>🎣 Pescar juntos</b><span>Cada jogador recebe o próprio peixe</span></button>':''}${nearCamp?'<button class="choice" data-player-action="campfireJoin"><b>🔥 Fogueira</b><span>Convidar para sentar e cozinhar</span></button>':''}${nearHunt?'<button class="choice" data-player-action="huntTogether"><b>🐾 Rastrear juntos</b><span>Atividade infantil sem violência</span></button>':''}`;
+    openModal(name,`<p>Interaja com este jogador em tempo real. Ações conjuntas só começam depois que ele aceitar.</p><div class="choice-grid remote-social-grid"><button class="choice" data-player-action="wave"><b>👋 Acenar</b><span>Saudação imediata</span></button><button class="choice" data-player-action="dance"><b>🕺 Dançar juntos</b><span>Requer aceite</span></button><button class="choice" data-player-action="play"><b>🎈 Brincar</b><span>Requer aceite</span></button><button class="choice" data-player-action="highfive"><b>🙌 Toca aqui</b><span>Requer aceite</span></button><button class="choice" data-player-action="hug"><b>🤗 Abraçar</b><span>Requer aceite</span></button><button class="choice" data-player-action="selfie"><b>📸 Selfie</b><span>Requer aceite</span></button>${cooperative}<button class="choice" data-player-action="giftCoins"><b>🪙 Dar 10 moedas</b><span>Presente online</span></button><button class="choice" data-player-action="giftCrystal"><b>💎 Dar cristal</b><span>Usa 1 cristal</span></button><button class="choice" data-player-action="challenge"><b>⚔️ Desafiar</b><span>Matemática, Português ou English</span></button><button class="choice" data-player-action="message"><b>💬 Mencionar no chat</b><span>Abrir conversa pública</span></button></div>`,root=>{$$('[data-player-action]',root).forEach(btn=>btn.onclick=async()=>{
+      const action=btn.dataset.playerAction;if(action==='message'){closeModal();openSocialHub();setTimeout(()=>{const input=$('#worldChatInput');if(input){input.value=`@${name} `;input.focus();}},100);return;}
+      if(action==='giftCoins'){if(state.profile.coins<10){toast('Você não tem 10 moedas.','warn');return;}const ok=await window.OTTHOS_RTDB?.sendGift?.(uid,{type:'coins',amount:10});if(ok){addCoins(-10);toast(`Você presenteou ${name}.`,'good');}}
+      else if(action==='giftCrystal'){if(state.inventory.crystals<1){toast('Você não tem cristal.','warn');return;}const ok=await window.OTTHOS_RTDB?.sendGift?.(uid,{type:'crystal',amount:1});if(ok){state.inventory.crystals--;saveState(true);toast(`Cristal enviado para ${name}.`,'good');}}
+      else if(action==='challenge'){openChallengePicker(uid,name);return;}
+      else if(action==='wave'){const ok=await window.OTTHOS_RTDB?.sendInteraction?.(uid,{type:'wave'});if(ok){triggerEmote('wave');toast(`Você acenou para ${name}.`,'good');}}
+      else{await sendSocialActionRequest(uid,name,action,{boatId:state.boats.activeBoatId||'',campfireId:nearCamp?.data?.id||''});}
+      closeModal();
+    });});
+  }
   function nearestRemotePlayer(){let found=null,best=Infinity;for(const [uid,g] of world.ghosts){const d=Math.hypot(player.x-g.position.x,player.z-g.position.z);if(d<2.7&&d<best){best=d;found={uid,ghost:g};}}return found;}
   function openMultiplayerConfig(){openSocialHub();}
+  function applyCloudWorldObjects(){
+    if(!worldGroup)return;const me=window.OTTHOS_RTDB?.uid||'';
+    const fireItems=[];for(const[ownerUid,items]of Object.entries(pendingCloudCampfires||{}))if(ownerUid!==me)for(const item of Object.values(items||{}))if(item&&Number(item.expiresAt||0)>Date.now())fireItems.push({...item,ownerUid});
+    const fireKeys=new Set(fireItems.map(x=>x.id));for(const c of [...world.campfires])if(c.data.remote&&!fireKeys.has(c.data.id)){c.interactable.disabled=true;worldGroup.remove(c.group);world.campfires=world.campfires.filter(x=>x!==c);}fireItems.forEach(item=>spawnCampfire(item,true));
+    const extensionItems=[];for(const[ownerUid,items]of Object.entries(pendingCloudExtensions||{}))if(ownerUid!==me)for(const item of Object.values(items||{}))if(item)extensionItems.push({...item,ownerUid});
+    const extensionKeys=new Set(extensionItems.map(x=>x.id));for(const e of [...world.houseExtensions])if(e.data.remote&&!extensionKeys.has(e.data.id)){worldGroup.remove(e.group);world.houseExtensions=world.houseExtensions.filter(x=>x!==e);const it=world.interactables.find(x=>x.id===`extension-${e.data.id}`);if(it)it.disabled=true;}extensionItems.forEach(item=>spawnHouseExtension(item,true));
+  }
   function remotePlayerEvent(data){if(!data||data.uid===window.OTTHOS_RTDB?.uid)return;remotePresence.set(data.uid,data);let ghost=world.ghosts.get(data.uid);if(scene&&!ghost){ghost=createGhost(data.color||0x5ad8ff,data.name||'Jogador');world.ghosts.set(data.uid,ghost);}if(ghost){updateGhostName(ghost,data.name);ghost.userData.target=data;}refreshOpenSocialHub();}
   window.addEventListener('otthos:mp-status',e=>{multiplayerState={...multiplayerState,...e.detail};state.multiplayer.cloudReady=!!multiplayerState.connected;if(e.detail?.uid)state.multiplayer.cloudUid=e.detail.uid;if(Array.isArray(e.detail?.players)){remotePresence.clear();e.detail.players.filter(p=>p.uid!==window.OTTHOS_RTDB?.uid).forEach(p=>remotePresence.set(p.uid,p));}updateMultiplayerBadge();refreshOpenSocialHub();});
   window.addEventListener('otthos:mp-player',e=>remotePlayerEvent(e.detail));
-  window.addEventListener('otthos:mp-leave',e=>{const id=e.detail?.uid;remotePresence.delete(id);const ghost=world.ghosts.get(id);if(ghost){scene?.remove(ghost);world.ghosts.delete(id);}multiplayerState.count=Math.max(1,remotePresence.size+1);updateMultiplayerBadge();refreshOpenSocialHub();});
+  window.addEventListener('otthos:mp-leave',e=>{const id=e.detail?.uid;remotePresence.delete(id);if(player.boat.passengerUid===id)player.boat.passengerUid='';const ghost=world.ghosts.get(id);if(ghost){scene?.remove(ghost);world.ghosts.delete(id);}multiplayerState.count=Math.max(1,remotePresence.size+1);updateMultiplayerBadge();refreshOpenSocialHub();});
   window.addEventListener('otthos:cloud-profile',e=>mergeCloudProgress(e.detail?.progress));
+  window.addEventListener('otthos:campfires-cloud',e=>{pendingCloudCampfires=e.detail||{};applyCloudWorldObjects();});
+  window.addEventListener('otthos:extensions-cloud',e=>{pendingCloudExtensions=e.detail||{};applyCloudWorldObjects();});
   window.addEventListener('otthos:houses',e=>{cloudHouses.clear();for(const [id,data] of Object.entries(e.detail||{}))cloudHouses.set(id,data);reconcileCloudHouses();});
   window.addEventListener('otthos:chat',e=>{const m=e.detail;if(!m||Number(m.createdAt||0)<=Number(state.social.chatHiddenBefore||0))return;const existing=cloudChat.findIndex(x=>x.id===m.id);if(existing>=0)cloudChat[existing]=m;else cloudChat.push(m);cloudChat.sort((a,b)=>Number(a.createdAt||0)-Number(b.createdAt||0));while(cloudChat.length>60)cloudChat.shift();refreshOpenSocialHub();if(m.senderUid!==window.OTTHOS_RTDB?.uid)toast(`${m.name}: ${m.text}`,'good',2200);});
   window.addEventListener('otthos:chat-removed',e=>{const id=e.detail?.id,index=cloudChat.findIndex(m=>m.id===id);if(index>=0)cloudChat.splice(index,1);refreshOpenSocialHub();});
   window.addEventListener('otthos:gift',e=>{const gift=e.detail;if(!gift)return;if(gift.type==='coins'){state.profile.coins+=Number(gift.amount||0);}else if(gift.type==='crystal'){state.inventory.crystals=(state.inventory.crystals||0)+Number(gift.amount||1);}saveState(true);toast(`🎁 ${gift.senderName||'Jogador'} enviou um presente!`,'good',2600);});
-  window.addEventListener('otthos:interaction',e=>{const it=e.detail;if(!it)return;const sender=it.senderName||'Jogador';if(it.type==='challengeAccepted'){toast(`🎮 ${sender} aceitou seu desafio! Abra Online para jogar.`,'good',3400);}else if(it.type==='challengeDeclined'){toast(`${sender} recusou o desafio.`,'warn',2400);}else{const social=['wave','dance','play','highfive','hug','selfie'].includes(it.type)?it.type:'wave',labels={wave:`👋 ${sender} acenou para você.`,dance:`🕺 ${sender} chamou você para dançar!`,play:`🎈 ${sender} começou uma brincadeira!`,highfive:`🙌 ${sender} fez toca aqui!`,hug:`🤗 ${sender} enviou um abraço!`,selfie:`📸 ${sender} tirou uma selfie com você!`};triggerEmote(social);if(social==='play')state.needs.fun=clamp(state.needs.fun+10,0,100);toast(labels[social],'good',2400);}});
+  window.addEventListener('otthos:interaction',e=>{const it=e.detail;if(!it)return;const sender=it.senderName||'Jogador';
+    if(it.type==='boatPassengerLeft'){player.boat.passengerUid='';toast(`${sender} saiu do barco.`,'warn',1900);}
+    else if(it.type==='boatEnded'){if(player.boating&&player.boat.passengerOf===it.senderUid)exitBoat(true);toast('O motorista encerrou o passeio de barco.','warn',2300);}
+    else if(it.type==='challengeAccepted')toast(`🎮 ${sender} aceitou seu desafio! Abra Online para jogar.`,'good',3400);
+    else if(it.type==='challengeDeclined')toast(`${sender} recusou o desafio.`,'warn',2400);
+    else if(it.type==='socialRequestResult'){
+      const status=it.status||'',action=it.actionType||'';if(status==='accepted'){toast(`✅ ${sender} aceitou ${socialActionLabel(action)}.`,'good',2600);applyAcceptedSocialAction(action,{requestId:it.requestId,partnerName:sender,partnerUid:it.senderUid,role:'host'});}else if(status==='declined')toast(`${sender} recusou o convite.`,'warn',2300);else toast(it.extra?.reason||'O convite foi cancelado ou expirou.','warn',2500);
+    }else{const social=it.type==='wave'?'wave':'wave';triggerEmote(social);toast(`👋 ${sender} acenou para você.`,'good',2200);}
+  });
+  window.addEventListener('otthos:social-request',e=>{const r=e.detail;if(!r)return;incomingSocialRequests.set(r.id,r);updateOnlineAttention();refreshOpenSocialHub();if(r.status==='pending'&&Number(r.expiresAt||0)>Date.now()){showIncomingSocialRequest(r);if(!shownSocialToasts.has(r.id)){shownSocialToasts.add(r.id);toast(`🤝 ${r.fromName||'Jogador'} quer ${socialActionLabel(r.actionType)}.`,'good',3000);}}else if(promptSocialRequestId===r.id)closeChallengePrompt();});
+  window.addEventListener('otthos:social-request-removed',e=>{incomingSocialRequests.delete(e.detail?.id);if(promptSocialRequestId===e.detail?.id)closeChallengePrompt();updateOnlineAttention();refreshOpenSocialHub();});
+  setInterval(()=>window.OTTHOS_RTDB?.expireSocialRequests?.(),10000);
   window.addEventListener('otthos:challenge',e=>{const c=e.detail;if(!c)return;incomingChallenges.set(c.id,c);updateOnlineAttention();refreshOpenSocialHub();if(c.status==='pending'){showIncomingChallengePrompt(c);if(!shownChallengeToasts.has(c.id)){shownChallengeToasts.add(c.id);toast(`⚔️ ${c.fromName||'Jogador'} enviou ${multiplayerGameLabel(c.type)}!`,'good',3400);}}});
   window.addEventListener('otthos:challenge-removed',e=>{incomingChallenges.delete(e.detail?.id);updateOnlineAttention();refreshOpenSocialHub();});
   window.addEventListener('otthos:game-session',e=>{const s=e.detail;if(!s)return;gameSessions.set(s.id,s);updateOnlineAttention();refreshOpenSocialHub();if(s.status==='active'){const mine=s.players?.[window.OTTHOS_RTDB?.uid];if(!mine?.finished&&!activeMultiplayerGameId)showReadySessionPrompt(s);}if(s.status==='active'||s.status==='completed')maybeShowMultiplayerResult(s);});
   window.addEventListener('otthos:game-session-removed',e=>{gameSessions.delete(e.detail?.id);updateOnlineAttention();refreshOpenSocialHub();});
-  window.addEventListener('otthos:rtdb-ready',()=>{if(running||hasValidPlayerName())window.OTTHOS_RTDB?.connect?.({name:state.profile.name||'Jogador'});});
+  window.addEventListener('otthos:rtdb-ready',async()=>{if(running||hasValidPlayerName()){const ok=await window.OTTHOS_RTDB?.connect?.({name:state.profile.name||'Jogador'});if(ok){window.OTTHOS_RTDB?.syncCampfires?.(state.campfires);window.OTTHOS_RTDB?.syncHouseExtensions?.(state.houseExtensions);}}});
 
   function initLocalMultiplayer(){
-    if(typeof BroadcastChannel==='function'){localChannel=new BroadcastChannel('otthos-life-world-v623');localChannel.onmessage=e=>{const data=e.data;if(!data||data.id===state.profile.playerId)return;if(data.type==='leave'){const ghost=world.ghosts.get(data.id);if(ghost){scene.remove(ghost);world.ghosts.delete(data.id);}return;}remotePlayerEvent({...data,uid:data.id});};window.addEventListener('beforeunload',()=>localChannel?.postMessage({type:'leave',id:state.profile.playerId}));}
+    if(typeof BroadcastChannel==='function'){localChannel=new BroadcastChannel('otthos-life-world-v626');localChannel.onmessage=e=>{const data=e.data;if(!data||data.id===state.profile.playerId)return;if(data.type==='leave'){const ghost=world.ghosts.get(data.id);if(ghost){scene.remove(ghost);world.ghosts.delete(data.id);}return;}remotePlayerEvent({...data,uid:data.id});};window.addEventListener('beforeunload',()=>localChannel?.postMessage({type:'leave',id:state.profile.playerId}));}
     window.OTTHOS_MULTIPLAYER={version:5,playerId:state.profile.playerId,mode:window.OTTHOS_RTDB?.configured?'firebase-public-world':'local-preview',connect:()=>window.OTTHOS_RTDB?.connect?.({name:state.profile.name||'Jogador'})||true,publish:payload=>{localChannel?.postMessage(payload);window.OTTHOS_RTDB?.publish?.(payload);},adapter:window.OTTHOS_RTDB?.configured?'Firebase Realtime Database':'BroadcastChannel'};updateMultiplayerBadge();if(window.OTTHOS_RTDB?.configured&&hasValidPlayerName())window.OTTHOS_RTDB.connect({name:state.profile.name||'Jogador'});
   }
   function multiplayerNameTexture(name){const c=document.createElement('canvas');c.width=512;c.height=128;const ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);ctx.fillStyle='rgba(5,18,34,.88)';ctx.strokeStyle='rgba(255,255,255,.92)';ctx.lineWidth=8;const r=30;ctx.beginPath();if(ctx.roundRect)ctx.roundRect(8,8,c.width-16,c.height-16,r);else ctx.rect(8,8,c.width-16,c.height-16);ctx.fill();ctx.stroke();ctx.fillStyle='#fff';ctx.font='900 48px system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(sanitizePlayerName(name)||'Jogador',c.width/2,c.height/2+2);const tex=new THREE.CanvasTexture(c);tex.minFilter=THREE.LinearFilter;tex.magFilter=THREE.LinearFilter;tex.generateMipmaps=false;return tex;}
@@ -2435,8 +2650,8 @@
   function updateGhostName(ghost,name){const clean=sanitizePlayerName(name)||'Jogador';if(ghost.userData.displayName===clean)return;ghost.userData.displayName=clean;if(ghost.userData.nameLabel){const old=ghost.userData.nameLabel.material.map;ghost.userData.nameLabel.material.map=multiplayerNameTexture(clean);ghost.userData.nameLabel.material.needsUpdate=true;old?.dispose?.();}}
   function createGhost(color,name='Jogador'){const g=new THREE.Group();box(.82,1.18,.58,color,0,1.25,0,g);box(.72,.72,.72,0x111217,0,2.24,0,g);const leftArm=box(.22,1,.25,0xff9a24,-.58,1.28,0,g),rightArm=box(.22,1,.25,0xff9a24,.58,1.28,0,g),leftLeg=box(.25,1,.28,0x20242b,-.22,.34,0,g),rightLeg=box(.25,1,.28,0x20242b,.22,.34,0,g);box(.12,.1,.04,0xff3344,-.14,2.27,.38,g);box(.12,.1,.04,0xff3344,.14,2.27,.38,g);const label=new THREE.Sprite(new THREE.SpriteMaterial({map:multiplayerNameTexture(name),transparent:true,depthWrite:false,depthTest:false}));label.position.set(0,3.05,0);label.scale.set(2.75,.69,1);label.renderOrder=999;g.add(label);g.userData.nameLabel=label;g.userData.displayName=sanitizePlayerName(name)||'Jogador';g.userData.limbs={leftArm,rightArm,leftLeg,rightLeg};g.userData.phase=Math.random()*6.28;scene.add(g);return g;}
   function updateMultiplayer(dt){
-    const now=performance.now(),payload={type:'position',id:state.profile.playerId,name:state.profile.name||'Jogador',x:+player.x.toFixed(2),y:+player.y.toFixed(2),z:+player.z.toFixed(2),r:+player.facing.toFixed(3),vehicle:!!player.vehicle,scaleMode:player.scaleMode,crouched:!!player.crouched,emoteType:player.emoteType||'',emoteSeq:Number(player.emoteSeq||0),color:0x5ad8ff};
-    const changed=!lastPublishSnapshot||Math.hypot(payload.x-lastPublishSnapshot.x,payload.z-lastPublishSnapshot.z)>.06||Math.abs(payload.r-lastPublishSnapshot.r)>.025||payload.vehicle!==lastPublishSnapshot.vehicle||payload.scaleMode!==lastPublishSnapshot.scaleMode||payload.crouched!==lastPublishSnapshot.crouched||payload.emoteSeq!==lastPublishSnapshot.emoteSeq;
+    const now=performance.now(),payload={type:'position',id:state.profile.playerId,name:state.profile.name||'Jogador',x:+player.x.toFixed(2),y:+player.y.toFixed(2),z:+player.z.toFixed(2),r:+player.facing.toFixed(3),vehicle:!!player.vehicle,boating:!!player.boating,boatId:state.boats.activeBoatId||'',boatRole:player.boating?(player.boat.passengerOf?'passenger':'driver'):'',passengerOf:player.boat.passengerOf||'',boatPassengerUid:player.boat.passengerUid||'',scaleMode:player.scaleMode,crouched:!!player.crouched,emoteType:player.emoteType||'',emoteSeq:Number(player.emoteSeq||0),color:0x5ad8ff};
+    const changed=!lastPublishSnapshot||Math.hypot(payload.x-lastPublishSnapshot.x,payload.z-lastPublishSnapshot.z)>.06||Math.abs(payload.r-lastPublishSnapshot.r)>.025||payload.vehicle!==lastPublishSnapshot.vehicle||payload.boating!==lastPublishSnapshot.boating||payload.boatRole!==lastPublishSnapshot.boatRole||payload.boatPassengerUid!==lastPublishSnapshot.boatPassengerUid||payload.scaleMode!==lastPublishSnapshot.scaleMode||payload.crouched!==lastPublishSnapshot.crouched||payload.emoteSeq!==lastPublishSnapshot.emoteSeq;
     if((changed&&now-lastPublish>240)||now-lastPublishHeartbeat>2200){lastPublish=now;lastPublishHeartbeat=now;lastPublishSnapshot=payload;localChannel?.postMessage(payload);window.OTTHOS_RTDB?.publish?.(payload);}
     for(const ghost of world.ghosts.values()){const t=ghost.userData.target;if(!t)continue;ghost.position.x=lerp(ghost.position.x,t.x,Math.min(1,dt*8));ghost.position.y=lerp(ghost.position.y,t.y,Math.min(1,dt*8));ghost.position.z=lerp(ghost.position.z,t.z,Math.min(1,dt*8));ghost.rotation.y=lerpAngle(ghost.rotation.y,t.r||0,Math.min(1,dt*8));if(Number(t.emoteSeq||0)!==Number(ghost.userData.lastEmoteSeq||0)){ghost.userData.lastEmoteSeq=Number(t.emoteSeq||0);ghost.userData.emoteType=t.emoteType||'';ghost.userData.emoteUntil=performance.now()+2600;}const moving=Math.hypot(ghost.position.x-t.x,ghost.position.z-t.z)>.03,walk=moving?Math.sin(animTime*9+ghost.userData.phase)*.45:0,emote=performance.now()<Number(ghost.userData.emoteUntil||0)?ghost.userData.emoteType:'';if(ghost.userData.limbs){const l=ghost.userData.limbs;l.leftArm.rotation.x=emote==='dance'?-1.35:emote==='play'?-1.9:emote==='hug'?-1.45:walk;l.rightArm.rotation.x=emote==='wave'?-2.2:emote==='highfive'?-2.5:emote==='dance'?-1.35:emote==='play'?-1.9:emote==='hug'?-1.45:-walk;l.leftArm.rotation.z=emote==='dance'?1.0:emote==='play'?.55:emote==='hug'?-.48:0;l.rightArm.rotation.z=emote==='dance'?-1.0:emote==='play'?-.55:emote==='hug'?.48:0;l.leftLeg.rotation.x=-walk*.75;l.rightLeg.rotation.x=walk*.75;}ghost.scale.setScalar(t.scaleMode==='mini'?.58:t.scaleMode==='giant'?1.42:1);}
   }
@@ -2445,7 +2660,7 @@
     if(!running)return;raf=requestAnimationFrame(gameLoop);const dt=Math.min(.033,clock.getDelta());samplePerformance(dt);
     if(!paused){
       pollGamepad();updatePlayer(dt);updateVehicleFX(dt);updateFX(dt);updateFireballs(dt);updateRace(dt);updateNeeds(dt);updateCamera(dt);updateNavigation(dt);updateVisualLOD(dt);
-      perf.aiAcc+=dt;if(perf.aiAcc>=1/30){const step=perf.aiAcc;perf.aiAcc=0;updateNPCs(step);updateNpcSociety(step);updateEnemies(step);updateMultiplayer(step);}
+      perf.aiAcc+=dt;if(perf.aiAcc>=1/30){const step=perf.aiAcc;perf.aiAcc=0;updateNPCs(step);updateNpcSociety(step);updateEnemies(step);updateMultiplayer(step);updateLifeActivities(step);}
       perf.cloudAcc+=dt;if(perf.cloudAcc>=1/15){const step=perf.cloudAcc;perf.cloudAcc=0;updateClouds(step);}
     }
     renderer.setScissorTest(false);renderer.setViewport(0,0,renderer.domElement.width,renderer.domElement.height);renderer.autoClear=true;renderer.render(scene,camera);
@@ -2490,7 +2705,7 @@
     if(resetPosition){player.x=0;player.z=8;player.y=0;}else restorePosition();player.scaleMode=state.abilities?.scaleMode||'normal';player.crouched=!!state.abilities?.crouched;updateAbilityUI();running=true;paused=false;clock.start();evaluateMissions();updateHUD();updateContext(true);updateNavigation(0,true);resize(true);cancelAnimationFrame(raf);gameLoop();toast('Bem-vindo à Vila do Sol!','good',2200);
   }
   function stopGame(){
-    if(player.vehicle)exitVehicle(true);running=false;paused=false;pauseMenuOpen=false;cancelAnimationFrame(raf);stopEngineSound();savePlayerPosition(true);showScreen('lobby');updateLobbyStats();
+    if(player.boating){player.x=-24.7;player.z=52;exitBoat(true);}if(player.vehicle)exitVehicle(true);running=false;paused=false;pauseMenuOpen=false;cancelAnimationFrame(raf);stopEngineSound();savePlayerPosition(true);showScreen('lobby');updateLobbyStats();
   }
   els.playBtn.onclick=()=>startGame(true);els.continueBtn.onclick=()=>startGame(false);
 
@@ -2542,7 +2757,7 @@
 
   // Public test/audit API
   window.OTTHOS_TEST_API={
-    version:'V625_RENDER_VOXEL_PREMIUM_SAFE',
+    version:'V626_LIFE_EXPANSION_SAFE',
     performance:()=>({fps:+perf.fps.toFixed(1),tier:qualityTier(),requested:requestedQuality(),dpr:renderer?.getPixelRatio?.()||0,drawCalls:renderer?.info?.render?.calls||0,triangles:renderer?.info?.render?.triangles||0}),
     getState:()=>JSON.parse(JSON.stringify(state)),
     getGame:()=>({running,paused,currentHouse:currentHouse?.id||null,cameraMode,player:{...player},objects:{houses:world.houses.length,npcs:world.npcs.length,enemies:world.enemies.length,interactables:world.interactables.length,builds:world.builds.length}}),
@@ -2605,7 +2820,12 @@
     playerIdentity:()=>({name:state.profile.name,confirmed:!!state.profile.nameConfirmed}),
     education:()=>({subjects:Object.keys(EDUCATION_SUBJECTS),summary:educationSummary(),learning:JSON.parse(JSON.stringify(state.learning)),stations:MAP_LOCATIONS.filter(x=>x.group==='Academia')}),
     educationRounds:(subject='math',level=1,seed=123)=>generateEducationRounds(subject,Number(level)||1,Number(seed)||123,5),
-    multiplayer:()=>({local:window.OTTHOS_MULTIPLAYER||null,cloud:window.OTTHOS_RTDB?.status?.()||multiplayerState,challenges:pendingChallenges(),sessions:[...gameSessions.values()]})
+    lifeExpansion:()=>({boating:player.boating,boat:{...player.boat},fishing:JSON.parse(JSON.stringify(state.fishing)),campfires:JSON.parse(JSON.stringify(state.campfires)),hunting:JSON.parse(JSON.stringify(state.hunting)),houseExtensions:JSON.parse(JSON.stringify(state.houseExtensions)),animals:world.animals.map(a=>({id:a.id,type:a.type,available:a.available}))}),
+    startFishing:(source='shore')=>startFishing(source),
+    buildCampfire,
+    startHunting:()=>startHunting(),
+    openHouseExtensionMenu,
+    multiplayer:()=>({local:window.OTTHOS_MULTIPLAYER||null,cloud:window.OTTHOS_RTDB?.status?.()||multiplayerState,challenges:pendingChallenges(),socialRequests:socialRequestPending(),sessions:[...gameSessions.values()]})
   };
 
   updateLobbyStats();evaluateMissions();updateInstallUI();

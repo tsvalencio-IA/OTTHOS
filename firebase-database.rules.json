@@ -20,7 +20,8 @@
           "interactions": {
             "$eventId": {
               ".read": "auth != null && auth.uid === $uid",
-              ".write": "auth != null && (auth.uid === $uid || (!data.exists() && newData.child('senderUid').val() === auth.uid))"
+              ".write": "auth != null && (auth.uid === $uid || (!data.exists() && newData.child('senderUid').val() === auth.uid))",
+              ".validate": "!newData.exists() || (newData.hasChildren(['senderUid','senderName','type','createdAt']) && newData.child('senderUid').isString() && newData.child('senderName').isString() && newData.child('senderName').val().length <= 24 && newData.child('type').isString() && newData.child('type').val().length <= 32)"
             }
           },
           "challenges": {
@@ -28,6 +29,13 @@
             "$challengeId": {
               ".write": "auth != null && ((!data.exists() && newData.child('fromUid').val() === auth.uid && newData.child('toUid').val() === $uid) || auth.uid === $uid)",
               ".validate": "!newData.exists() || (newData.hasChildren(['fromUid','fromName','toUid','type','seed','status','createdAt']) && newData.child('toUid').val() === $uid && newData.child('fromName').isString() && newData.child('fromName').val().length <= 24)"
+            }
+          },
+          "socialRequests": {
+            "$requestId": {
+              ".read": "auth != null && auth.uid === $uid",
+              ".write": "auth != null && ((!data.exists() && auth.uid !== $uid && newData.child('fromUid').val() === auth.uid && newData.child('toUid').val() === $uid && newData.child('status').val() === 'pending') || (data.exists() && auth.uid === $uid && (!newData.exists() || (newData.child('fromUid').val() === data.child('fromUid').val() && newData.child('toUid').val() === data.child('toUid').val() && newData.child('fromName').val() === data.child('fromName').val() && newData.child('toName').val() === data.child('toName').val() && newData.child('actionType').val() === data.child('actionType').val() && newData.child('room').val() === data.child('room').val() && newData.child('createdAtClient').val() === data.child('createdAtClient').val() && newData.child('expiresAt').val() === data.child('expiresAt').val() && ((data.child('status').val() === 'pending' && (newData.child('status').val() === 'accepted' || newData.child('status').val() === 'declined' || newData.child('status').val() === 'expired' || newData.child('status').val() === 'cancelled')) || (data.child('status').val() === 'accepted' && newData.child('status').val() === 'completed'))))))",
+              ".validate": "!newData.exists() || (newData.hasChildren(['fromUid','fromName','toUid','toName','actionType','room','status','createdAt','createdAtClient','expiresAt']) && newData.child('fromUid').isString() && newData.child('toUid').isString() && newData.child('fromUid').val() !== newData.child('toUid').val() && newData.child('toUid').val() === $uid && newData.child('fromName').isString() && newData.child('fromName').val().length >= 1 && newData.child('fromName').val().length <= 24 && newData.child('toName').isString() && newData.child('toName').val().length <= 24 && newData.child('room').val() === 'mundo-publico' && newData.child('expiresAt').isNumber() && newData.child('createdAtClient').isNumber() && newData.child('expiresAt').val() > newData.child('createdAtClient').val() && newData.child('expiresAt').val() - newData.child('createdAtClient').val() <= 45000 && (newData.child('actionType').val() === 'dance' || newData.child('actionType').val() === 'play' || newData.child('actionType').val() === 'highfive' || newData.child('actionType').val() === 'hug' || newData.child('actionType').val() === 'selfie' || newData.child('actionType').val() === 'boatPassenger' || newData.child('actionType').val() === 'fishTogether' || newData.child('actionType').val() === 'campfireJoin' || newData.child('actionType').val() === 'huntTogether') && (newData.child('status').val() === 'pending' || newData.child('status').val() === 'accepted' || newData.child('status').val() === 'declined' || newData.child('status').val() === 'expired' || newData.child('status').val() === 'cancelled' || newData.child('status').val() === 'completed'))"
             }
           }
         }
@@ -37,7 +45,7 @@
         "presence": {
           "$uid": {
             ".write": "auth != null && auth.uid === $uid",
-            ".validate": "!newData.exists() || (newData.hasChildren(['name','x','y','z','r','updatedAt']) && newData.child('name').isString() && newData.child('name').val().length >= 3 && newData.child('name').val().length <= 24)"
+            ".validate": "!newData.exists() || (newData.hasChildren(['name','x','y','z','r','updatedAt']) && newData.child('name').isString() && newData.child('name').val().length >= 3 && newData.child('name').val().length <= 24 && (!newData.child('room').exists() || newData.child('room').val() === 'mundo-publico') && (!newData.child('boatRole').exists() || newData.child('boatRole').val() === '' || newData.child('boatRole').val() === 'driver' || newData.child('boatRole').val() === 'passenger'))"
           }
         },
         "chat": {
@@ -60,6 +68,31 @@
           "$sessionId": {
             ".write": "auth != null && ((!data.exists() && newData.child('fromUid').val() === auth.uid) || (data.exists() && (data.child('fromUid').val() === auth.uid || data.child('toUid').val() === auth.uid) && newData.child('fromUid').val() === data.child('fromUid').val() && newData.child('toUid').val() === data.child('toUid').val()))",
             ".validate": "!newData.exists() || (newData.hasChildren(['fromUid','fromName','toUid','type','seed','status','createdAt']) && (newData.child('type').val() === 'math' || newData.child('type').val() === 'portuguese' || newData.child('type').val() === 'english'))"
+          }
+        },
+        "boats": {
+          ".read": "auth != null",
+          "$boatId": {
+            ".write": "auth != null && ((!data.exists() && newData.child('driverUid').val() === auth.uid) || (data.exists() && data.child('driverUid').val() === auth.uid && (!newData.exists() || newData.child('driverUid').val() === auth.uid)) || (data.exists() && data.child('updatedAt').isNumber() && data.child('updatedAt').val() < now - 20000 && newData.child('driverUid').val() === auth.uid))",
+            ".validate": "!newData.exists() || (newData.hasChildren(['boatId','driverUid','driverName','room','claimedAt','updatedAt','updatedAtClient']) && newData.child('boatId').val() === $boatId && newData.child('driverUid').val() === auth.uid && newData.child('driverName').isString() && newData.child('driverName').val().length >= 1 && newData.child('driverName').val().length <= 24 && newData.child('room').val() === 'mundo-publico' && newData.child('claimedAt').isNumber() && newData.child('updatedAt').isNumber() && newData.child('updatedAtClient').isNumber())"
+          }
+        },
+        "campfires": {
+          ".read": "auth != null",
+          "$ownerUid": {
+            ".write": "auth != null && auth.uid === $ownerUid",
+            "$campfireId": {
+              ".validate": "!newData.exists() || (newData.hasChildren(['id','ownerUid','ownerName','x','z','createdAt','expiresAt','updatedAt']) && newData.child('id').val() === $campfireId && newData.child('ownerUid').val() === $ownerUid && newData.child('ownerName').isString() && newData.child('ownerName').val().length <= 24 && newData.child('x').isNumber() && newData.child('z').isNumber() && newData.child('expiresAt').isNumber())"
+            }
+          }
+        },
+        "houseExtensions": {
+          ".read": "auth != null",
+          "$ownerUid": {
+            ".write": "auth != null && auth.uid === $ownerUid",
+            "$extensionId": {
+              ".validate": "!newData.exists() || (newData.hasChildren(['id','ownerUid','ownerName','houseId','type','x','z','rotation','createdAt','updatedAt']) && newData.child('id').val() === $extensionId && newData.child('ownerUid').val() === $ownerUid && newData.child('ownerName').isString() && newData.child('ownerName').val().length <= 24 && newData.child('x').isNumber() && newData.child('z').isNumber() && newData.child('rotation').isNumber() && (newData.child('type').val() === 'bedroom' || newData.child('type').val() === 'living' || newData.child('type').val() === 'kitchen' || newData.child('type').val() === 'bathroom' || newData.child('type').val() === 'workroom' || newData.child('type').val() === 'porch' || newData.child('type').val() === 'storage'))"
+            }
           }
         }
       }
