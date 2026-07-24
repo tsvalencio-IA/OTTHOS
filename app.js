@@ -8,9 +8,9 @@
   const lerpAngle = (a, b, t) => { let d=((b-a+Math.PI)%(Math.PI*2))-Math.PI; if(d<-Math.PI)d+=Math.PI*2; return a+d*t; };
   const distance2D = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
   const uid = () => (crypto.randomUUID ? crypto.randomUUID() : `p-${Date.now()}-${Math.random().toString(16).slice(2)}`);
-  const APP_VERSION = 626;
-  const STORAGE_KEY = 'otthos_life_world_roleplay_v626';
-  const LEGACY_STORAGE_KEYS = ['otthos_life_world_roleplay_v625','otthos_life_world_roleplay_v624','otthos_life_world_roleplay_v623','otthos_life_world_roleplay_v622','otthos_life_world_roleplay_v621','otthos_life_world_roleplay_v620','otthos_life_world_roleplay_v619','otthos_life_world_roleplay_v618','otthos_life_world_roleplay_v617','otthos_life_world_roleplay_v616','otthos_life_world_roleplay_v615','otthos_life_world_roleplay_v614','otthos_life_world_roleplay_v613','otthos_life_world_roleplay_v612','otthos_life_world_roleplay_v611','otthos_life_world_roleplay_v610','otthos_life_world_roleplay_v609','otthos_life_world_roleplay_v608','otthos_life_world_roleplay_v607','otthos_life_world_roleplay_v606','otthos_life_world_roleplay_v605','otthos_life_world_roleplay_v604','otthos_life_world_roleplay_v603','otthos_life_world_roleplay_v602','otthos_life_world_roleplay_v601','otthos_life_world_complete_v600'];
+  const APP_VERSION = 627;
+  const STORAGE_KEY = 'otthos_life_world_roleplay_v627';
+  const LEGACY_STORAGE_KEYS = ['otthos_life_world_roleplay_v626','otthos_life_world_roleplay_v625','otthos_life_world_roleplay_v624','otthos_life_world_roleplay_v623','otthos_life_world_roleplay_v622','otthos_life_world_roleplay_v621','otthos_life_world_roleplay_v620','otthos_life_world_roleplay_v619','otthos_life_world_roleplay_v618','otthos_life_world_roleplay_v617','otthos_life_world_roleplay_v616','otthos_life_world_roleplay_v615','otthos_life_world_roleplay_v614','otthos_life_world_roleplay_v613','otthos_life_world_roleplay_v612','otthos_life_world_roleplay_v611','otthos_life_world_roleplay_v610','otthos_life_world_roleplay_v609','otthos_life_world_roleplay_v608','otthos_life_world_roleplay_v607','otthos_life_world_roleplay_v606','otthos_life_world_roleplay_v605','otthos_life_world_roleplay_v604','otthos_life_world_roleplay_v603','otthos_life_world_roleplay_v602','otthos_life_world_roleplay_v601','otthos_life_world_complete_v600'];
   const safeLocalGet = key => { try { return window.localStorage?.getItem(key) ?? null; } catch { return null; } };
   const safeLocalSet = (key, value) => { try { window.localStorage?.setItem(key, value); return true; } catch { return false; } };
   const safeLocalRemove = key => { try { window.localStorage?.removeItem(key); return true; } catch { return false; } };
@@ -71,6 +71,8 @@
     houseExtensions: [],
     multiplayerRequests: { lastSentAt: 0, completed: [] },
     npcSociety: { lastEvent:0, houses:{}, friendships:{}, moods:{} },
+    metro: { ridesTotal: 0, lastStation: '' },
+    bus: { ridesTotal: 0, lastStop: '' },
     lastSaved: Date.now()
   });
 
@@ -105,6 +107,8 @@
       houseExtensions: Array.isArray(saved.houseExtensions) ? saved.houseExtensions : [],
       multiplayerRequests: { ...fresh.multiplayerRequests, ...(saved.multiplayerRequests || {}), completed:Array.isArray(saved.multiplayerRequests?.completed)?saved.multiplayerRequests.completed:[] },
       npcSociety: { ...fresh.npcSociety, ...(saved.npcSociety || {}), houses:{...fresh.npcSociety.houses,...(saved.npcSociety?.houses||{})}, friendships:{...fresh.npcSociety.friendships,...(saved.npcSociety?.friendships||{})}, moods:{...fresh.npcSociety.moods,...(saved.npcSociety?.moods||{})} },
+      metro: { ...fresh.metro, ...(saved.metro || {}) },
+      bus: { ...fresh.bus, ...(saved.bus || {}) },
       avatar: { ...fresh.avatar, ...(saved.avatar || {}) },
       career: { ...fresh.career, ...(saved.career || {}) },
       social: { ...fresh.social, ...(saved.social || {}) },
@@ -739,7 +743,19 @@
     { id:'giant', name:'Portão Grande', icon:'⬡', x:36, z:-35, group:'Habilidades' },
     { id:'edu-math', name:'Matemática Kids', icon:'🔢', x:22, z:-32, navX:18, navZ:-32, group:'Academia' },
     { id:'edu-portuguese', name:'Português Kids', icon:'📚', x:22, z:-40, navX:18, navZ:-40, group:'Academia' },
-    { id:'edu-english', name:'English Kids', icon:'🌎', x:22, z:-48, navX:18, navZ:-48, group:'Academia' }
+    { id:'edu-english', name:'English Kids', icon:'🌎', x:22, z:-48, navX:18, navZ:-48, group:'Academia' },
+    { id:'metro-vila',    name:'Estação Metrô — Vila', icon:'🚇', x:0,   z:-5,  navX:0,  navZ:-1,  group:'Metrô' },
+    { id:'metro-lago',    name:'Estação Metrô — Lago', icon:'🚇', x:-55, z:52,  navX:-55,navZ:56,  group:'Metrô' },
+    { id:'metro-castelo', name:'Estação Metrô — Castelo', icon:'🚇', x:88,  z:48,  navX:88, navZ:52,  group:'Metrô' },
+    { id:'metro-floresta',name:'Estação Metrô — Floresta', icon:'🚇', x:-88, z:-55, navX:-88,navZ:-51, group:'Metrô' },
+    { id:'metro-ginasio', name:'Estação Metrô — Ginásio', icon:'🚇', x:45,  z:65,  navX:45, navZ:69,  group:'Metrô' },
+    { id:'metro-centro',  name:'Estação Metrô — Centro', icon:'🚇', x:0,   z:-55, navX:0,  navZ:-51, group:'Metrô' },
+    { id:'stop-vila',    name:'Parada Ônibus — Vila', icon:'🚌', x:8,   z:0,   navX:8,  navZ:4,   group:'Ônibus' },
+    { id:'stop-mercado', name:'Parada Ônibus — Mercado', icon:'🚌', x:-22, z:-28, navX:-22,navZ:-24, group:'Ônibus' },
+    { id:'stop-lago',    name:'Parada Ônibus — Lago', icon:'🚌', x:-28, z:48,  navX:-28,navZ:52,  group:'Ônibus' },
+    { id:'stop-ginasio', name:'Parada Ônibus — Ginásio', icon:'🚌', x:45,  z:70,  navX:45, navZ:74,  group:'Ônibus' },
+    { id:'stop-castelo', name:'Parada Ônibus — Castelo', icon:'🚌', x:75,  z:55,  navX:75, navZ:59,  group:'Ônibus' },
+    { id:'stop-floresta',name:'Parada Ônibus — Floresta', icon:'🚌', x:-72, z:-42, navX:-72,navZ:-38, group:'Ônibus' }
   ];
   function worldToMap(x,z){ return { left:clamp((x+116)/232*100,2.5,97.5), top:clamp((116-z)/232*100,2.5,97.5) }; }
   function mapDistance(point){ return Math.round(Math.hypot(player.x-(point.navX??point.x),player.z-(point.navZ??point.z))); }
@@ -885,7 +901,10 @@
   els.gameSettingsBtn.onclick = () => openSettings(true);
   function syncMobilePanels(){document.body.classList.toggle('skills-open',!!state.ui.skillsOpen);document.body.classList.toggle('quick-open',!!state.ui.quickOpen);els.skillsToggleBtn?.classList.toggle('active',!!state.ui.skillsOpen);els.quickToggleBtn?.classList.toggle('active',!!state.ui.quickOpen);els.quickBar.hidden=!state.ui.quickOpen;}
   els.quickToggleBtn.onclick = () => { state.ui.quickOpen = !state.ui.quickOpen;if(state.ui.quickOpen)state.ui.skillsOpen=false;syncMobilePanels();saveState(); };
-  els.skillsToggleBtn.onclick=()=>{state.ui.skillsOpen=!state.ui.skillsOpen;if(state.ui.skillsOpen)state.ui.quickOpen=false;syncMobilePanels();saveState();};
+  els.skillsToggleBtn.onclick=()=>{
+    if(running&&!paused&&els.modal.hidden){openSkillsPanel();return;}
+    state.ui.skillsOpen=!state.ui.skillsOpen;if(state.ui.skillsOpen)state.ui.quickOpen=false;syncMobilePanels();saveState();
+  };
   els.needsToggleBtn.onclick = () => { state.ui.needsOpen = !state.ui.needsOpen; els.game.classList.toggle('needs-expanded', state.ui.needsOpen); saveState(); };
   const toggleMission = () => { state.ui.missionOpen = !state.ui.missionOpen; els.missionCard.classList.toggle('expanded', state.ui.missionOpen); saveState(); };
   els.missionCard.onclick = toggleMission;
@@ -947,7 +966,8 @@
   };
   const world = {
     houses: [], npcs: [], interactables: [], enemies: [], fireballs: [], resources: [], crystals: [], platforms: [], colliders: [], hazards: [], builds: [], ghosts: new Map(),
-    bridgeParts: [], secretChest: null, vehicle: null, deliveryPoint: null, raceCoins: [], waypointMarker: null, gym: null, routeGuide: null, routeArrows: [], routeLastBuild: 0, routeLastX: Infinity, routeLastZ: Infinity, routePath: [], navCache: new Map(), landmarks: [], outlines: [], glows: [], criticalSurfaces: [], boat:null, campfires:[], animals:[], houseExtensions:[], remoteCampfires:new Map(), remoteExtensions:new Map(), activityAcc:0
+    bridgeParts: [], secretChest: null, vehicle: null, deliveryPoint: null, raceCoins: [], waypointMarker: null, gym: null, routeGuide: null, routeArrows: [], routeLastBuild: 0, routeLastX: Infinity, routeLastZ: Infinity, routePath: [], navCache: new Map(), landmarks: [], outlines: [], glows: [], criticalSurfaces: [], boat:null, campfires:[], animals:[], houseExtensions:[], remoteCampfires:new Map(), remoteExtensions:new Map(), activityAcc:0,
+    metroStations: [], buses: [], extraVehicles: [], npcVehicles: []
   };
   const textures = {};
   const materials = {};
@@ -1556,6 +1576,580 @@
     world.vehicle={x,z,group};registerInteractable({id:'toy-car',type:'vehicle',icon:'🚗',label:'Entrar no carro',x,z,radius:2.4,action:()=>enterVehicle()});
   }
 
+  // ============================================================
+  // V627 — SISTEMA DE METRÔ, ÔNIBUS, VEÍCULOS EXTRAS E BOTS
+  // ============================================================
+
+  // --- DEFINIÇÃO DAS ESTAÇÕES DE METRÔ ---
+  const METRO_STATIONS = [
+    { id:'metro-vila',    name:'Estação Vila do Sol',   x:0,    z:-5,   color:0xf59e0b, lineColor:0xfbbf24 },
+    { id:'metro-lago',    name:'Estação Lago',          x:-55,  z:52,   color:0x3b82f6, lineColor:0x60a5fa },
+    { id:'metro-castelo', name:'Estação Castelo',       x:88,   z:48,   color:0x8b5cf6, lineColor:0xa78bfa },
+    { id:'metro-floresta',name:'Estação Floresta',      x:-88,  z:-55,  color:0x22c55e, lineColor:0x4ade80 },
+    { id:'metro-ginasio', name:'Estação Ginásio',       x:45,   z:65,   color:0xef4444, lineColor:0xf87171 },
+    { id:'metro-centro',  name:'Estação Centro',        x:0,    z:-55,  color:0x06b6d4, lineColor:0x22d3ee }
+  ];
+
+  function createMetroStation(stationDef) {
+    const { id, name, x, z, color, lineColor } = stationDef;
+    const g = new THREE.Group(); g.position.set(x, 0, z); worldGroup.add(g);
+    // Plataforma
+    const platform = box(8, .35, 5, renderMat(0x374151,{roughness:.82}), 0, .175, 0, g);
+    // Paredes laterais
+    box(8, 2.8, .22, renderMat(color,{roughness:.68}), 0, 1.4, -2.5, g);
+    box(8, 2.8, .22, renderMat(color,{roughness:.68}), 0, 1.4, 2.5, g);
+    // Teto
+    box(8.4, .22, 5.4, renderMat(0x1e293b,{roughness:.75}), 0, 2.9, 0, g);
+    // Pilares
+    for(const px of [-3.5, 3.5]) {
+      box(.3, 2.8, .3, renderMat(0x94a3b8,{roughness:.7}), px, 1.4, -2.5, g);
+      box(.3, 2.8, .3, renderMat(0x94a3b8,{roughness:.7}), px, 1.4, 2.5, g);
+    }
+    // Faixa colorida da linha
+    box(8, .18, 5, renderMat(lineColor,{emissive:lineColor,emissiveIntensity:.35,roughness:.3}), 0, .36, 0, g);
+    // Placa com nome
+    const signMat = renderMat(color,{emissive:color,emissiveIntensity:.55,roughness:.3});
+    box(4.5, .9, .12, signMat, 0, 2.2, -2.45, g);
+    // Luz de plataforma
+    addGlow(x, 2.5, z, lineColor, 8);
+    // Escada de acesso (visual)
+    for(let s=0;s<4;s++) box(2.2, .18, .6, renderMat(0x475569,{roughness:.85}), 0, .18+s*.22, 2.8+s*.6, g);
+    // Trilhos (visuais)
+    box(8, .08, .12, renderMat(0x9ca3af,{metalness:.55,roughness:.4}), 0, .06, -1.2, g);
+    box(8, .08, .12, renderMat(0x9ca3af,{metalness:.55,roughness:.4}), 0, .06, 1.2, g);
+    // Dormentes
+    for(let dx=-3.5;dx<=3.5;dx+=1.4) box(.18,.1,2.8,renderMat(0x5c3d2e,{roughness:.9}),dx,.04,0,g);
+    // Trem visual (decorativo, estático na estação)
+    const trainG = new THREE.Group(); trainG.position.set(-1.5, .35, 0); g.add(trainG);
+    box(5.5, 1.85, 2.1, renderMat(color,{roughness:.52,metalness:.18}), 0, .95, 0, trainG);
+    box(5.5, .28, 2.2, renderMat(0x1e293b,{roughness:.65}), 0, 1.98, 0, trainG);
+    for(const wx of [-2,-.5,1,2.5]) { box(.08,1.0,1.8,renderMat(0x93c5fd,{roughness:.12,metalness:.35,transparent:true,opacity:.78}),wx,1.0,0,trainG); }
+    box(.22,.9,.22,renderMat(0xf59e0b,{emissive:0xf59e0b,emissiveIntensity:.8}),2.78,.65,0,trainG);
+    box(.22,.9,.22,renderMat(0xf59e0b,{emissive:0xf59e0b,emissiveIntensity:.8}),-2.78,.65,0,trainG);
+    g.traverse(o=>{if(o.isMesh)addVoxelOutline(o,0x0f172a,.28);});
+    const station = { id, name, x, z, group:g, color, lineColor };
+    world.metroStations.push(station);
+    registerInteractable({
+      id: `metro-${id}`, type:'metro', icon:'🚇', label:`Embarcar no metrô — ${name}`,
+      x, z, radius:4.5, priority:220,
+      action: () => openMetroMenu(station)
+    });
+    return station;
+  }
+
+  function openMetroMenu(fromStation) {
+    const others = METRO_STATIONS.filter(s => s.id !== fromStation.id);
+    const opts = others.map(s => `<button class="choice" data-metro-dest="${s.id}"><b>🚇 ${s.name}</b><span>Linha direta — 5 moedas</span></button>`).join('');
+    openModal(`🚇 ${fromStation.name}`, `<p>Escolha o destino. O metrô conecta todos os bairros da Vila do Sol.</p><div class="choice-grid">${opts}</div>`, root => {
+      $$('[data-metro-dest]', root).forEach(btn => btn.onclick = () => {
+        const destId = btn.dataset.metroDest;
+        const dest = METRO_STATIONS.find(s => s.id === destId);
+        if (!dest) return;
+        if (state.profile.coins < 5) { toast('Você precisa de 5 moedas para o metrô.', 'warn'); return; }
+        addCoins(-5);
+        state.metro.ridesTotal = (state.metro.ridesTotal || 0) + 1;
+        state.metro.lastStation = destId;
+        player.x = dest.x; player.z = dest.z + 4.5; player.y = 0;
+        player.vx = player.vz = player.vy = 0;
+        closeModal();
+        toast(`🚇 Chegou em ${dest.name}!`, 'good', 2400);
+        beep(660, 90, 'sine'); beep(880, 70, 'sine');
+        addXP(8); saveState(true);
+        setFlag('usedMetro');
+      });
+    });
+  }
+
+  function buildMetroSystem() {
+    for (const stDef of METRO_STATIONS) createMetroStation(stDef);
+    // Linha visual no chão (trilho externo)
+    const linePoints = [
+      {x:0,z:-5},{x:0,z:-55},{x:-55,z:-55},{x:-88,z:-55},
+      {x:-55,z:52},{x:0,z:-5},{x:45,z:65},{x:88,z:48}
+    ];
+    for(let i=1;i<linePoints.length;i++){
+      const a=linePoints[i-1],b=linePoints[i];
+      const mx=(a.x+b.x)/2,mz=(a.z+b.z)/2;
+      const len=Math.hypot(b.x-a.x,b.z-a.z);
+      const ang=Math.atan2(b.x-a.x,b.z-a.z);
+      const rail=box(len,.06,.14,renderMat(0x6b7280,{metalness:.5,roughness:.45}),mx,.04,mz);
+      rail.rotation.y=ang;
+    }
+  }
+
+  // --- SISTEMA DE ÔNIBUS ---
+  const BUS_STOPS = [
+    { id:'stop-vila',    name:'Parada Vila do Sol',    x:8,    z:0,    route:'A' },
+    { id:'stop-mercado', name:'Parada Mercado',        x:-22,  z:-28,  route:'A' },
+    { id:'stop-lago',    name:'Parada Lago',           x:-28,  z:48,   route:'B' },
+    { id:'stop-ginasio', name:'Parada Ginásio',        x:45,   z:70,   route:'B' },
+    { id:'stop-castelo', name:'Parada Castelo',        x:75,   z:55,   route:'C' },
+    { id:'stop-floresta',name:'Parada Floresta',       x:-72,  z:-42,  route:'C' }
+  ];
+
+  function createBusStop(stopDef) {
+    const { id, name, x, z, route } = stopDef;
+    const g = new THREE.Group(); g.position.set(x, 0, z); worldGroup.add(g);
+    // Poste
+    box(.14, 3.2, .14, renderMat(0x475569,{roughness:.7}), 0, 1.6, 0, g);
+    // Placa
+    const routeColor = route==='A'?0x22c55e:route==='B'?0x3b82f6:0xf59e0b;
+    box(1.6, .7, .1, renderMat(routeColor,{emissive:routeColor,emissiveIntensity:.4,roughness:.4}), 0, 3.0, 0, g);
+    // Banco
+    box(1.4, .25, .5, renderMat(0x7c3aed,{roughness:.72}), 0, .45, .4, g);
+    box(.1, .8, .5, renderMat(0x5b21b6,{roughness:.72}), -.65, .65, .4, g);
+    box(.1, .8, .5, renderMat(0x5b21b6,{roughness:.72}), .65, .65, .4, g);
+    g.traverse(o=>{if(o.isMesh)addVoxelOutline(o,0x0f172a,.25);});
+    registerInteractable({
+      id: `bus-stop-${id}`, type:'bus', icon:'🚌', label:`Embarcar no ônibus — ${name} (Linha ${route})`,
+      x, z, radius:3.5, priority:200,
+      action: () => openBusMenu({ id, name, x, z, route })
+    });
+    return { id, name, x, z, route, group:g };
+  }
+
+  function openBusMenu(fromStop) {
+    const sameRoute = BUS_STOPS.filter(s => s.route === fromStop.route && s.id !== fromStop.id);
+    const otherRoutes = BUS_STOPS.filter(s => s.route !== fromStop.route);
+    const makeOpt = (s, price) => `<button class="choice" data-bus-dest="${s.id}" data-bus-price="${price}"><b>🚌 ${s.name}</b><span>Linha ${s.route} — ${price} moedas</span></button>`;
+    const opts = sameRoute.map(s=>makeOpt(s,3)).join('') + otherRoutes.map(s=>makeOpt(s,6)).join('');
+    openModal(`🚌 ${fromStop.name} — Linha ${fromStop.route}`, `<p>Escolha o destino. Mesma linha: 3 moedas. Outra linha: 6 moedas.</p><div class="choice-grid">${opts}</div>`, root => {
+      $$('[data-bus-dest]', root).forEach(btn => btn.onclick = () => {
+        const destId = btn.dataset.busDest;
+        const price = Number(btn.dataset.busPrice);
+        const dest = BUS_STOPS.find(s => s.id === destId);
+        if (!dest) return;
+        if (state.profile.coins < price) { toast(`Você precisa de ${price} moedas.`, 'warn'); return; }
+        addCoins(-price);
+        state.bus.ridesTotal = (state.bus.ridesTotal || 0) + 1;
+        state.bus.lastStop = destId;
+        player.x = dest.x + 1.5; player.z = dest.z + 2; player.y = 0;
+        player.vx = player.vz = player.vy = 0;
+        closeModal();
+        toast(`🚌 Chegou em ${dest.name}!`, 'good', 2200);
+        beep(440, 80, 'square'); addXP(5); saveState(true);
+        setFlag('usedBus');
+      });
+    });
+  }
+
+  function createBusModel(x, z, color=0xf59e0b) {
+    const g = new THREE.Group(); g.position.set(x, 0, z); worldGroup.add(g);
+    const body = renderMat(color,{roughness:.52,metalness:.12});
+    const dark = renderMat(0x1e293b,{roughness:.65});
+    const glass = renderMat(0x93c5fd,{roughness:.12,metalness:.3,transparent:true,opacity:.8});
+    box(2.2, 2.2, 5.8, body, 0, 1.1, 0, g);
+    box(2.3, .3, 6.0, dark, 0, 2.25, 0, g);
+    for(const wx of [-1.1,1.1]) {
+      box(.08, 1.1, 1.4, glass, wx, 1.4, -.8, g);
+      box(.08, 1.1, 1.4, glass, wx, 1.4, .8, g);
+      box(.08, 1.1, 1.0, glass, wx, 1.4, 2.2, g);
+    }
+    box(1.8, 1.2, .1, glass, 0, 1.4, 2.95, g);
+    const headlight = renderMat(0xfff9c4,{emissive:0xffd700,emissiveIntensity:.9,roughness:.2});
+    box(.45, .28, .1, headlight, -.65, 1.1, 2.96, g);
+    box(.45, .28, .1, headlight, .65, 1.1, 2.96, g);
+    const tail = renderMat(0xff3333,{emissive:0xff0000,emissiveIntensity:.6,roughness:.3});
+    box(.5, .28, .1, tail, -.65, 1.1, -2.96, g);
+    box(.5, .28, .1, tail, .65, 1.1, -2.96, g);
+    for(const p of [[-1.0,.28,2.0],[1.0,.28,2.0],[-1.0,.28,-2.0],[1.0,.28,-2.0]]) {
+      const w=cylinder(.38,.3,0x1a1a2e,p[0],p[1],p[2],g,14); w.rotation.z=Math.PI/2;
+      cylinder(.14,.32,0xd4a017,p[0],p[1],p[2],g,10).rotation.z=Math.PI/2;
+    }
+    g.traverse(o=>{if(o.isMesh)addVoxelOutline(o,0x0f172a,.26);});
+    return g;
+  }
+
+  function buildBusSystem() {
+    // Paradas
+    for (const stopDef of BUS_STOPS) createBusStop(stopDef);
+    // Ônibus visuais estáticos nas paradas (decorativos)
+    createBusModel(-22, -32, 0x22c55e);
+    createBusModel(45, 74, 0x3b82f6);
+    createBusModel(75, 59, 0xf59e0b);
+  }
+
+  // --- VEÍCULOS EXTRAS ESPALHADOS PELA CIDADE ---
+  function createBicycle(x, z, color=0x3b82f6) {
+    const g = new THREE.Group(); g.position.set(x, 0, z); worldGroup.add(g);
+    const frame = renderMat(color,{roughness:.55,metalness:.2});
+    const silver = renderMat(0xd1d5db,{roughness:.45,metalness:.35});
+    // Quadro
+    box(.08,.8,1.4,frame,0,.55,0,g);
+    box(.08,.55,.9,frame,0,.75,-.2,g);
+    // Guidão
+    box(.7,.08,.08,silver,0,1.0,.6,g);
+    box(.08,.35,.08,silver,0,.82,.6,g);
+    // Selim
+    box(.45,.08,.22,renderMat(0x1f2937,{roughness:.8}),0,1.05,-.5,g);
+    // Rodas
+    for(const wz of [-.6,.6]) {
+      const w=cylinder(.32,.06,0x1a1a2e,0,.32,wz,g,16); w.rotation.z=Math.PI/2;
+      cylinder(.08,.08,silver,0,.32,wz,g,8).rotation.z=Math.PI/2;
+    }
+    // Pedais
+    box(.06,.06,.5,silver,0,.45,0,g);
+    box(.35,.06,.06,silver,0,.45,.02,g);
+    g.traverse(o=>{if(o.isMesh)addVoxelOutline(o,0x0f172a,.22);});
+    return { group:g, x, z, type:'bicycle', color };
+  }
+
+  function createMotorcycle(x, z, color=0xef4444) {
+    const g = new THREE.Group(); g.position.set(x, 0, z); worldGroup.add(g);
+    const body = renderMat(color,{roughness:.45,metalness:.22});
+    const dark = renderMat(0x111827,{roughness:.6});
+    const chrome = renderMat(0xe5e7eb,{roughness:.28,metalness:.55});
+    // Corpo
+    box(1.0,.65,1.9,body,0,.65,0,g);
+    box(.8,.5,.9,body,0,1.05,.45,g);
+    box(.55,.35,.65,renderMat(0x1e293b,{roughness:.12,metalness:.35,transparent:true,opacity:.82}),0,1.12,.48,g);
+    // Guidão
+    box(.8,.08,.08,chrome,0,1.15,.9,g);
+    box(.08,.4,.08,chrome,0,.95,.9,g);
+    // Rodas
+    for(const wz of [-.75,.75]) {
+      const w=cylinder(.36,.18,dark,0,.36,wz,g,16); w.rotation.z=Math.PI/2;
+      cylinder(.1,.2,chrome,0,.36,wz,g,10).rotation.z=Math.PI/2;
+    }
+    // Escape
+    box(.08,.08,1.1,chrome,-.52,.45,-.1,g);
+    const headlight = renderMat(0xfff9c4,{emissive:0xffd700,emissiveIntensity:.85,roughness:.2});
+    box(.28,.2,.08,headlight,0,.95,.96,g);
+    g.traverse(o=>{if(o.isMesh)addVoxelOutline(o,0x0f172a,.24);});
+    return { group:g, x, z, type:'motorcycle', color };
+  }
+
+  function createSkateboard(x, z) {
+    const g = new THREE.Group(); g.position.set(x, 0, z); worldGroup.add(g);
+    box(.55,.07,1.6,renderMat(0x7c3aed,{roughness:.72}),0,.14,0,g);
+    box(.58,.04,1.65,renderMat(0x5b21b6,{roughness:.8}),0,.09,0,g);
+    for(const p of [[-.18,.08,.55],[.18,.08,.55],[-.18,.08,-.55],[.18,.08,-.55]]) {
+      cylinder(.1,.07,renderMat(0x374151,{roughness:.7}),p[0],p[1],p[2],g,8).rotation.z=Math.PI/2;
+    }
+    g.traverse(o=>{if(o.isMesh)addVoxelOutline(o,0x0f172a,.2);});
+    return { group:g, x, z, type:'skateboard' };
+  }
+
+  function buildExtraVehicles() {
+    // Bicicletas espalhadas
+    world.extraVehicles.push(createBicycle(12, 8, 0x3b82f6));
+    world.extraVehicles.push(createBicycle(-18, -22, 0xf97316));
+    world.extraVehicles.push(createBicycle(35, 20, 0x22c55e));
+    world.extraVehicles.push(createBicycle(-62, -38, 0xa855f7));
+    world.extraVehicles.push(createBicycle(55, 70, 0xec4899));
+    // Motos
+    world.extraVehicles.push(createMotorcycle(18, -8, 0xef4444));
+    world.extraVehicles.push(createMotorcycle(-30, 12, 0xf59e0b));
+    world.extraVehicles.push(createMotorcycle(65, 42, 0x06b6d4));
+    world.extraVehicles.push(createMotorcycle(-48, -28, 0x8b5cf6));
+    // Skates
+    world.extraVehicles.push(createSkateboard(5, 12));
+    world.extraVehicles.push(createSkateboard(-12, -5));
+    world.extraVehicles.push(createSkateboard(28, -15));
+    world.extraVehicles.push(createSkateboard(-35, 35));
+    // Registrar interações para cada veículo extra
+    world.extraVehicles.forEach((v, i) => {
+      const icon = v.type==='bicycle'?'🚲':v.type==='motorcycle'?'🏍':'🛹';
+      const label = v.type==='bicycle'?'Andar de bicicleta':v.type==='motorcycle'?'Andar de moto':'Andar de skate';
+      registerInteractable({
+        id:`extra-vehicle-${i}`, type:'extra-vehicle', icon, label,
+        x:v.x, z:v.z, radius:2.2, priority:175,
+        action:()=>rideExtraVehicle(v, i)
+      });
+    });
+  }
+
+  let activeExtraVehicle = null;
+  function rideExtraVehicle(v, idx) {
+    if (activeExtraVehicle) {
+      // Sair do veículo extra
+      const icon = activeExtraVehicle.type==='bicycle'?'🚲':activeExtraVehicle.type==='motorcycle'?'🏍':'🛹';
+      toast(`Você saiu da ${activeExtraVehicle.type==='bicycle'?'bicicleta':activeExtraVehicle.type==='motorcycle'?'moto':'skate'}.`, 'good');
+      activeExtraVehicle = null;
+      if(els.vehicleBadge) { els.vehicleBadge.hidden = true; }
+      return;
+    }
+    activeExtraVehicle = v;
+    player.x = v.x; player.z = v.z; player.y = 0;
+    const icon = v.type==='bicycle'?'🚲':v.type==='motorcycle'?'🏍':'🛹';
+    const label = v.type==='bicycle'?'bicicleta':v.type==='motorcycle'?'moto':'skate';
+    toast(`${icon} Você está andando de ${label}! Toque em AÇÃO para sair.`, 'good', 2600);
+    if(els.vehicleBadge) {
+      els.vehicleBadge.hidden = false;
+      els.vehicleBadge.textContent = `${icon} ${label.charAt(0).toUpperCase()+label.slice(1)} — AÇÃO para sair`;
+    }
+    addXP(5); setFlag('usedExtraVehicle');
+    // Registrar interação de saída
+    registerInteractable({
+      id:`exit-extra-vehicle-${idx}`, type:'extra-vehicle-exit', icon, label:`Sair da ${label}`,
+      x:v.x, z:v.z, radius:999, priority:999,
+      action:()=>rideExtraVehicle(v, idx)
+    });
+  }
+
+  // --- BOTS (NPCs) EM VEÍCULOS ---
+  function createNpcVehicle(npcId, type, x, z, color, routePoints) {
+    const g = new THREE.Group(); g.position.set(x, 0, z); worldGroup.add(g);
+    let vehicleGroup;
+    if (type === 'car') {
+      vehicleGroup = new THREE.Group(); g.add(vehicleGroup);
+      const chassis = renderMat(color,{roughness:.5,metalness:.16});
+      box(1.84,.36,2.56,chassis,0,.28,0,vehicleGroup);
+      box(1.72,.48,1.35,renderMat(shadeColor(color,20),{roughness:.4,metalness:.18}),0,.55,.55,vehicleGroup);
+      box(1.48,.46,.92,renderMat(0x0aa7b8,{roughness:.38,metalness:.22}),0,.78,-.48,vehicleGroup);
+      for(const p of [[-.84,.24,-.79],[.84,.24,-.79],[-.84,.24,.79],[.84,.24,.79]]){
+        cylinder(.34,.28,0x10151d,p[0],p[1],p[2],vehicleGroup,14).rotation.z=Math.PI/2;
+      }
+    } else if (type === 'bicycle') {
+      vehicleGroup = createBicycle(0, 0, color).group; g.add(vehicleGroup);
+      vehicleGroup.position.set(0,0,0);
+    } else if (type === 'motorcycle') {
+      vehicleGroup = createMotorcycle(0, 0, color).group; g.add(vehicleGroup);
+      vehicleGroup.position.set(0,0,0);
+    } else if (type === 'skateboard') {
+      vehicleGroup = createSkateboard(0, 0).group; g.add(vehicleGroup);
+      vehicleGroup.position.set(0,0,0);
+    }
+    // NPC driver (mini)
+    const npcColor = [0xffd84d,0xff72b6,0x54c7ff,0x8ee15c,0xa66bff][Math.floor(Math.random()*5)];
+    const npcG = new THREE.Group(); npcG.position.set(0,.9,0); g.add(npcG);
+    box(.6,.8,.45,renderMat(npcColor,{roughness:.68}),0,.4,0,npcG);
+    box(.52,.52,.52,renderMat(0xffd3a0,{roughness:.72}),0,1.0,0,npcG);
+    box(.54,.14,.5,renderMat(0x3b2415,{roughness:.8}),0,1.26,0,npcG);
+    const npcVehicle = { id:`npc-vehicle-${world.npcVehicles.length}`, npcId, type, group:g, x, z, heading:0, speed:type==='car'?4.5:type==='motorcycle'?3.5:type==='bicycle'?2.2:1.8, routePoints, routeIdx:0, phase:Math.random()*6.28 };
+    g.traverse(o=>{if(o.isMesh)addVoxelOutline(o,0x0f172a,.22);});
+    world.npcVehicles.push(npcVehicle);
+    return npcVehicle;
+  }
+
+  function buildNpcVehicles() {
+    // Carros de NPCs com rotas
+    createNpcVehicle('nino','car',8,8,0xffd84d,[{x:8,z:8},{x:8,z:-18},{x:-22,z:-18},{x:-22,z:8},{x:8,z:8}]);
+    createNpcVehicle('luna','car',-22,8,0xff72b6,[{x:-22,z:8},{x:0,z:8},{x:0,z:-18},{x:-22,z:-18},{x:-22,z:8}]);
+    createNpcVehicle('teo','motorcycle',22,8,0x54c7ff,[{x:22,z:8},{x:22,z:-18},{x:0,z:-18},{x:0,z:8},{x:22,z:8}]);
+    createNpcVehicle('bia','bicycle',-10,-10,0x8ee15c,[{x:-10,z:-10},{x:-10,z:8},{x:0,z:8},{x:0,z:-10},{x:-10,z:-10}]);
+    createNpcVehicle('maya','motorcycle',65,54,0xa66bff,[{x:65,z:54},{x:55,z:48},{x:45,z:54},{x:55,z:60},{x:65,z:54}]);
+    createNpcVehicle('extra1','bicycle',35,-15,0x22c55e,[{x:35,z:-15},{x:55,z:-15},{x:55,z:0},{x:35,z:0},{x:35,z:-15}]);
+    createNpcVehicle('extra2','skateboard',5,12,0xf97316,[{x:5,z:12},{x:15,z:12},{x:15,z:0},{x:5,z:0},{x:5,z:12}]);
+    createNpcVehicle('extra3','car',-55,52,0x06b6d4,[{x:-55,z:52},{x:-28,z:52},{x:-28,z:48},{x:-55,z:48},{x:-55,z:52}]);
+  }
+
+  function updateNpcVehicles(dt) {
+    for (const nv of world.npcVehicles) {
+      const route = nv.routePoints;
+      if (!route || route.length < 2) continue;
+      const target = route[nv.routeIdx % route.length];
+      const dx = target.x - nv.group.position.x;
+      const dz = target.z - nv.group.position.z;
+      const dist = Math.hypot(dx, dz);
+      if (dist < 1.2) {
+        nv.routeIdx = (nv.routeIdx + 1) % route.length;
+      } else {
+        const spd = nv.speed * dt;
+        nv.group.position.x += (dx / dist) * spd;
+        nv.group.position.z += (dz / dist) * spd;
+        nv.heading = Math.atan2(dx, dz);
+        nv.group.rotation.y = lerpAngle(nv.group.rotation.y, nv.heading, Math.min(1, dt * 5));
+      }
+      nv.group.position.y = groundHeightAt(nv.group.position.x, nv.group.position.z);
+    }
+  }
+
+  // ============================================================
+  // V627 — CASTELO MELHORADO
+  // ============================================================
+  function buildImprovedCastle() {
+    const cx = 88, cz = 62;
+    // Muralha principal
+    box(36, 5, 30, renderMat(0x64748b,{roughness:.88,flatShading:true}), cx, 2.5, cz);
+    // Pátio interno (vazio)
+    box(28, .3, 22, renderMat(0x4b5563,{roughness:.92}), cx, .15, cz);
+    // Torres nos cantos — mais detalhadas
+    const towerPositions = [[cx-18,cz-15],[cx+18,cz-15],[cx-18,cz+15],[cx+18,cz+15]];
+    for (const [tx, tz] of towerPositions) {
+      // Corpo da torre
+      box(6, 12, 6, renderMat(0x6b7280,{roughness:.85,flatShading:true}), tx, 6, tz);
+      // Ameias
+      for(let i=0;i<3;i++) {
+        box(1.4,1.8,1.4,renderMat(0x9ca3af,{roughness:.82}),tx-2.2+i*2.2,12.9,tz-3.1);
+        box(1.4,1.8,1.4,renderMat(0x9ca3af,{roughness:.82}),tx-2.2+i*2.2,12.9,tz+3.1);
+        box(1.4,1.8,1.4,renderMat(0x9ca3af,{roughness:.82}),tx-3.1,12.9,tz-2.2+i*2.2);
+        box(1.4,1.8,1.4,renderMat(0x9ca3af,{roughness:.82}),tx+3.1,12.9,tz-2.2+i*2.2);
+      }
+      // Janelas da torre
+      makeWindow(null, tx, 8, tz+3.1, 1.2, 1.4, 0xd1d5db, 0x93c5fd);
+      // Teto cônico
+      const cone = new THREE.Mesh(new THREE.ConeGeometry(3.8,4.5,8), renderMat(0x7f1d1d,{roughness:.75,flatShading:true}));
+      cone.position.set(tx, 14.5, tz); cone.frustumCulled=false; worldGroup.add(cone);
+      addVoxelOutline(cone, 0x0f172a, .28);
+      addGlow(tx, 13.5, tz, 0xff6b35, 5);
+    }
+    // Torre central — mais alta
+    box(8, 16, 8, renderMat(0x4b5563,{roughness:.88,flatShading:true}), cx, 8, cz);
+    // Ameias da torre central
+    for(let i=0;i<4;i++) {
+      box(1.6,2.2,1.6,renderMat(0x6b7280,{roughness:.8}),cx-3.6+i*2.4,17.1,cz-4.1);
+      box(1.6,2.2,1.6,renderMat(0x6b7280,{roughness:.8}),cx-3.6+i*2.4,17.1,cz+4.1);
+      box(1.6,2.2,1.6,renderMat(0x6b7280,{roughness:.8}),cx-4.1,17.1,cz-3.6+i*2.4);
+      box(1.6,2.2,1.6,renderMat(0x6b7280,{roughness:.8}),cx+4.1,17.1,cz-3.6+i*2.4);
+    }
+    // Teto da torre central
+    const mainCone = new THREE.Mesh(new THREE.ConeGeometry(5.2,6.5,8), renderMat(0x991b1b,{roughness:.72,flatShading:true}));
+    mainCone.position.set(cx, 22, cz); mainCone.frustumCulled=false; worldGroup.add(mainCone);
+    addVoxelOutline(mainCone, 0x0f172a, .3);
+    // Bandeira no topo
+    box(.14,4.5,.14,renderMat(0xd4a017,{roughness:.6,metalness:.3}),cx,25.5,cz);
+    box(2.2,.08,1.2,renderMat(0xdc2626,{emissive:0xb91c1c,emissiveIntensity:.45}),cx+1.1,27.5,cz);
+    // Portão de entrada
+    box(5,.3,1.2,renderMat(0x374151,{roughness:.85}),cx,0.15,cz-15.5);
+    const gateArch = new THREE.Mesh(new THREE.TorusGeometry(2.2,0.45,8,16,Math.PI), renderMat(0x4b5563,{roughness:.82}));
+    gateArch.position.set(cx,2.2,cz-15.5); gateArch.rotation.x=Math.PI/2; gateArch.frustumCulled=false; worldGroup.add(gateArch);
+    box(4.8,4.5,.5,renderMat(0x374151,{roughness:.88}),cx,2.25,cz-15.5);
+    // Portão (madeira)
+    box(2.1,3.8,.22,renderMat(0x7c3f00,{roughness:.82}),-1.05,1.9,cz-15.3);
+    box(2.1,3.8,.22,renderMat(0x7c3f00,{roughness:.82}),cx+1.05,1.9,cz-15.3);
+    // Fosso (visual)
+    box(44,.25,4,renderMat(0x1e40af,{roughness:.2,metalness:.1,transparent:true,opacity:.72}),cx,.12,cz-17.5);
+    // Ponte levadiça
+    box(5,.2,4,renderMat(0x92400e,{roughness:.82}),cx,.1,cz-16.5);
+    // Muros laterais com ameias
+    for(let i=0;i<6;i++) {
+      box(1.8,2,1.8,renderMat(0x9ca3af,{roughness:.82}),cx-18+i*7.2,5.5,cz-15.5);
+      box(1.8,2,1.8,renderMat(0x9ca3af,{roughness:.82}),cx-18+i*7.2,5.5,cz+15.5);
+    }
+    // Iluminação do castelo
+    addGlow(cx, 8, cz, 0xfbbf24, 18);
+    addGlow(cx, 18, cz, 0xff6b35, 12);
+    // Tocha nas torres
+    for(const [tx,tz] of towerPositions) addGlow(tx, 11, tz, 0xff7c2a, 6);
+    // Inimigos do castelo (reposicionados)
+    createEnemy('golem', cx-8, cz-10);
+    createEnemy('golem', cx+8, cz-10);
+    createEnemy('bat', cx, cz+8);
+    // Interação com o castelo
+    registerInteractable({
+      id:'castle-gate', type:'challenge', icon:'🏰', label:'Entrar no Castelo',
+      x:cx, z:cz-14, radius:4, priority:150,
+      action:()=>{
+        if(player.scaleMode!=='giant'&&state.defeated<3){
+          toast('Derrote 3 monstros e use GRANDE para entrar.','warn',2400);
+          return;
+        }
+        player.x=cx; player.z=cz-8; player.y=0;
+        setFlag('enteredCastle'); addXP(80); addCoins(50);
+        toast('🏰 Você entrou no Castelo! Derrote o Golem Guardião!','good',3000);
+        beep(220,120,'sawtooth');
+      }
+    });
+  }
+
+  // ============================================================
+  // V627 — SKILLS APRIMORADAS
+  // ============================================================
+  const SKILLS_V627 = [
+    { id:'dash',      icon:'💨', name:'Dash',         desc:'Impulso rápido para frente',        cost:0,   xpReq:0   },
+    { id:'shield',    icon:'🛡', name:'Escudo',       desc:'Bloqueia o próximo ataque inimigo', cost:30,  xpReq:50  },
+    { id:'double-jump',icon:'⬆⬆',name:'Duplo Salto', desc:'Salte novamente no ar',             cost:60,  xpReq:120 },
+    { id:'speed-boost',icon:'⚡', name:'Turbo',       desc:'Velocidade dobrada por 5 segundos', cost:50,  xpReq:200 },
+    { id:'magnet',    icon:'🧲', name:'Ímã',          desc:'Atrai cristais e moedas próximos',  cost:80,  xpReq:350 },
+    { id:'stealth',   icon:'👻', name:'Invisível',    desc:'Fique invisível por 4 segundos',    cost:100, xpReq:500 }
+  ];
+
+  function openSkillsPanel() {
+    const unlockedSkills = state.flags.unlockedSkills || [];
+    const opts = SKILLS_V627.map(sk => {
+      const unlocked = unlockedSkills.includes(sk.id) || sk.cost === 0;
+      const canUnlock = !unlocked && state.profile.coins >= sk.cost && state.profile.xp >= sk.xpReq;
+      const locked = !unlocked && !canUnlock;
+      return `<div class="choice ${unlocked?'active':locked?'locked':''}"><b>${sk.icon} ${sk.name}</b><span>${sk.desc}</span>${unlocked?'<small>✓ Desbloqueada</small>':canUnlock?`<button class="btn compact primary" data-unlock-skill="${sk.id}">Desbloquear — ${sk.cost} moedas</button>`:`<small>Requer ${sk.xpReq} XP e ${sk.cost} moedas</small>`}</div>`;
+    }).join('');
+    openModal('⚡ Habilidades Especiais', `<p>XP total: <b>${state.profile.xp}</b> • Moedas: <b>${state.profile.coins}</b></p><div class="choice-grid">${opts}</div>`, root => {
+      $$('[data-unlock-skill]', root).forEach(btn => btn.onclick = () => {
+        const skId = btn.dataset.unlockSkill;
+        const sk = SKILLS_V627.find(s => s.id === skId);
+        if (!sk || state.profile.coins < sk.cost || state.profile.xp < sk.xpReq) { toast('Requisitos não atendidos.', 'warn'); return; }
+        addCoins(-sk.cost);
+        if (!state.flags.unlockedSkills) state.flags.unlockedSkills = [];
+        state.flags.unlockedSkills.push(skId);
+        saveState(true); closeModal();
+        toast(`${sk.icon} Habilidade desbloqueada: ${sk.name}!`, 'good', 2400);
+        addXP(30);
+        openSkillsPanel();
+      });
+    });
+  }
+
+  function useSkill(skillId) {
+    const unlockedSkills = state.flags.unlockedSkills || [];
+    if (!unlockedSkills.includes(skillId) && skillId !== 'dash') { toast('Habilidade não desbloqueada.', 'warn'); return; }
+    const now = performance.now();
+    const cooldownKey = `skill_cd_${skillId}`;
+    if (now < (player[cooldownKey] || 0)) { toast('Habilidade em recarga.', 'warn', 900); return; }
+    if (skillId === 'dash') {
+      player[cooldownKey] = now + 1800;
+      const fx = Math.sin(player.facing), fz = Math.cos(player.facing);
+      player.vx += fx * 12; player.vz += fz * 12;
+      beep(480, 60, 'sine'); toast('💨 Dash!', 'good', 700);
+    } else if (skillId === 'shield') {
+      player[cooldownKey] = now + 8000;
+      player.shieldUntil = now + 3500;
+      beep(660, 80, 'square'); toast('🛡 Escudo ativado por 3,5s!', 'good', 1800);
+    } else if (skillId === 'double-jump') {
+      if (!player.grounded && !player.usedDoubleJump) {
+        player.usedDoubleJump = true;
+        player[cooldownKey] = now + 3000;
+        player.vy = 8.5; beep(780, 70, 'sine'); toast('⬆⬆ Duplo Salto!', 'good', 700);
+      }
+    } else if (skillId === 'speed-boost') {
+      player[cooldownKey] = now + 12000;
+      player.speedBoostUntil = now + 5000;
+      beep(880, 90, 'sine'); toast('⚡ Turbo ativado por 5s!', 'good', 1800);
+    } else if (skillId === 'magnet') {
+      player[cooldownKey] = now + 10000;
+      for(const c of world.crystals) {
+        if(!c.got && Math.hypot(player.x-c.x,player.z-c.z)<8) {
+          c.got=true; c.mesh.visible=false;
+          state.inventory.crystals++; addXP(15); addCoins(5);
+        }
+      }
+      beep(660, 80, 'square'); toast('🧲 Ímã: cristais coletados!', 'good', 2000);
+      saveState();
+    } else if (skillId === 'stealth') {
+      player[cooldownKey] = now + 15000;
+      player.stealthUntil = now + 4000;
+      if(playerModel) playerModel.traverse(o=>{if(o.isMesh)o.material.transparent=true;o.material&&(o.material.opacity=.18);});
+      setTimeout(()=>{ if(playerModel) playerModel.traverse(o=>{if(o.isMesh){o.material.transparent=false;o.material.opacity=1;}}); }, 4000);
+      beep(220, 100, 'sine'); toast('👻 Invisível por 4s!', 'good', 1800);
+    }
+  }
+
+  // ============================================================
+  // V627 — CO-OP EM VEÍCULOS (2 jogadores/bots)
+  // ============================================================
+  function enterVehicleAsPassenger(hostUid) {
+    if (player.vehicle) exitVehicle(true);
+    player.vehiclePassengerOf = hostUid;
+    player.vehicle = false; // passageiro não controla
+    toast('Você entrou como passageiro no carro!', 'good', 2600);
+    saveState(true);
+  }
+
+  function exitVehiclePassenger() {
+    if (!player.vehiclePassengerOf) return;
+    player.vehiclePassengerOf = '';
+    toast('Você saiu do carro.', 'good');
+    saveState(true);
+  }
+
+  async function inviteToVehicle(targetUid, targetName) {
+    if (!player.vehicle) { toast('Você precisa estar no carro para convidar.', 'warn'); return; }
+    const result = await sendSocialActionRequest(targetUid, targetName, 'vehiclePassenger', { x: player.x, z: player.z });
+    if (result) toast(`Convite de carona enviado para ${targetName}.`, 'good', 2200);
+  }
+
+  // Estender SOCIAL_ACTION_LABELS para veículo
+  // (será aplicado após a declaração original)
+
   function createWaypointMarker(){
     const group=new THREE.Group();
     const beam=box(.32,6,.32,0x38d8ff,0,3,0,group);beam.material.transparent=true;beam.material.opacity=.48;
@@ -1733,11 +2327,20 @@
   function cancelFishingSession(){clearFishingTimers();fishingSession=null;stopFishingVisual();}
   function ensureFishingModalStyle(){
     if(document.getElementById('otthosFishingModalStyle'))return;const style=document.createElement('style');style.id='otthosFishingModalStyle';style.textContent=`
-      .modal.fishing-modal{background:transparent!important;backdrop-filter:none!important;pointer-events:none!important;align-items:flex-start!important;justify-content:center!important;padding-top:clamp(155px,31dvh,285px)!important}
-      .modal.fishing-modal .modal-card{pointer-events:auto!important;width:min(360px,calc(100vw - 18px))!important;max-height:none!important;border-radius:18px!important;background:rgba(5,22,38,.92)!important;box-shadow:0 12px 32px rgba(0,0,0,.42)!important}
-      .modal.fishing-modal .modal-card>header{min-height:44px!important;padding:6px 10px!important}.modal.fishing-modal .modal-card>header h2{font-size:18px!important}.modal.fishing-modal .modal-card>header button{width:36px!important;height:36px!important}
-      .modal.fishing-modal .modal-body{padding:8px 10px 10px!important;max-height:none!important;overflow:visible!important}.modal.fishing-modal .activity-card{padding:0!important}.modal.fishing-modal .activity-card .activity-icon{display:none!important}.modal.fishing-modal .activity-card h3{margin:2px 0 4px!important;font-size:16px!important}.modal.fishing-modal .activity-card p{margin:4px 0!important;font-size:12px!important}.modal.fishing-modal .activity-meter{margin:7px 0!important;height:8px!important}.modal.fishing-modal .btn.xl{min-height:42px!important;padding:8px 12px!important;font-size:13px!important}
-      @media (orientation:landscape) and (max-height:560px){.modal.fishing-modal{align-items:flex-start!important;justify-content:flex-start!important;padding:72px 0 0 max(12px,env(safe-area-inset-left))!important}.modal.fishing-modal .modal-card{width:min(330px,45vw)!important}}
+      /* V627: modal de pesca compacto e limpo — sem excesso de texto na tela */
+      .modal.fishing-modal{background:transparent!important;backdrop-filter:none!important;pointer-events:none!important;align-items:flex-end!important;justify-content:center!important;padding-bottom:clamp(80px,14dvh,160px)!important}
+      .modal.fishing-modal .modal-card{pointer-events:auto!important;width:min(280px,calc(100vw - 24px))!important;max-height:none!important;border-radius:16px!important;background:rgba(5,22,38,.88)!important;box-shadow:0 8px 24px rgba(0,0,0,.38)!important}
+      .modal.fishing-modal .modal-card>header{min-height:36px!important;padding:4px 8px!important}.modal.fishing-modal .modal-card>header h2{font-size:15px!important}.modal.fishing-modal .modal-card>header button{width:32px!important;height:32px!important}
+      .modal.fishing-modal .modal-body{padding:6px 8px 8px!important;max-height:none!important;overflow:visible!important}
+      .modal.fishing-modal .activity-card{padding:0!important}
+      .modal.fishing-modal .activity-card .activity-icon{display:none!important}
+      .modal.fishing-modal .activity-card h3{margin:0 0 2px!important;font-size:14px!important}
+      .modal.fishing-modal .activity-card p{margin:2px 0!important;font-size:11px!important;opacity:.82!important;display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important;overflow:hidden!important}
+      .modal.fishing-modal .activity-meter{margin:5px 0!important;height:7px!important}
+      .modal.fishing-modal .btn.xl{min-height:38px!important;padding:6px 10px!important;font-size:12px!important}
+      /* Ocultar blocos de texto verbosos durante a pesca */
+      .modal.fishing-modal .fishing-species-list,.modal.fishing-modal .fishing-log,.modal.fishing-modal .fishing-stats-block{display:none!important}
+      @media (orientation:landscape) and (max-height:560px){.modal.fishing-modal{align-items:flex-end!important;justify-content:flex-start!important;padding:0 0 12px max(12px,env(safe-area-inset-left))!important}.modal.fishing-modal .modal-card{width:min(260px,42vw)!important}}
     `;document.head.appendChild(style);
   }
   function updateFishingVisual(){
@@ -1856,9 +2459,9 @@
     createSignpost(70,40,'Castelo',Math.PI*.7); createSignpost(-58,50,'Lago',Math.PI*.4);
     // platform challenge
     const coords=[[48,0,-48],[53,1.2,-55],[59,2.3,-61],[66,3.5,-67],[74,4.6,-72],[82,5.8,-76]];coords.forEach(([x,y,z],i)=>{createPlatform(x,y+.5,z,3.2,3.2,i%2?0x7a4ed0:0x3e9fd8);createCrystal(x,y+1.7,z,i===coords.length-1);});world.secretChest=createChest('secret',86,-78,true);
-    // castle and enemies
-    box(32,4,26,0x737f8c,88,2,62);box(36,1.2,3,0x9aa5b1,88,4.8,49);for(const x of [73,103])box(5,8,5,0x647180,x,4,62);
-    createEnemy('slime',48,-25);createEnemy('slime',58,-32);createEnemy('bat',72,-43);createEnemy('golem',82,48);createEnemy('slime',96,56);
+    // castle and enemies — V627: castelo melhorado
+    buildImprovedCastle();
+    createEnemy('slime',48,-25);createEnemy('slime',58,-32);createEnemy('bat',72,-43);createEnemy('slime',96,56);
     // crystals spread
     for(const p of [[12,1,-2],[-14,1,-8],[36,1,-15],[-45,1,18],[-63,1,-35],[78,1,15],[95,1,-20]])createCrystal(...p);
     // public interactables
@@ -1869,6 +2472,11 @@
     updateBridgeVisual();
     // boundaries mountains
     for(let i=0;i<34;i++){const a=i/34*Math.PI*2,r=118+Math.random()*10,x=Math.cos(a)*r,z=Math.sin(a)*r;box(12,12+Math.random()*16,12,0x6d7d8a,x,6,z);}
+    // V627: sistemas novos
+    buildMetroSystem();
+    buildBusSystem();
+    buildExtraVehicles();
+    buildNpcVehicles();
   }
 
   function collectResource(id){
@@ -2374,7 +2982,7 @@
     if(els.joystickKnob)els.joystickKnob.style.transform='translate(-50%,-50%)';
   }
   function canJump(){return !player.vehicle&&!player.boating&&(player.grounded||performance.now()-player.lastGrounded<125);}
-  function requestJump(){if(!els.modal.hidden||paused||player.vehicle||player.boating)return;player.jumpBuffer=performance.now()+150;if(canJump())doJump();}
+  function requestJump(){if(!els.modal.hidden||paused||player.vehicle||player.boating)return;player.jumpBuffer=performance.now()+150;if(canJump()){doJump();player.usedDoubleJump=false;}else if(!player.grounded&&(state.flags.unlockedSkills||[]).includes('double-jump')&&!player.usedDoubleJump){useSkill('double-jump');}}
   function doJump(){if(!canJump())return;state.stats.jumps++;trackDaily('jump',1);player.vy=10.2;player.grounded=false;player.jumpBuffer=0;beep(540);vibrate(18);}
   function updatePlayer(dt){
     // Entrada é atualizada em todos os estados. O veículo tem prioridade absoluta:
@@ -2394,14 +3002,15 @@
       const forwardX=Math.sin(cameraYaw),forwardZ=-Math.cos(cameraYaw),rightX=Math.cos(cameraYaw),rightZ=Math.sin(cameraYaw);
       const wantsSprint=sprintRequested()&&mag>.14&&!player.crouched&&state.needs.energy>4;input.isSprinting=wantsSprint;
       const needsPenalty=state.needs.energy<15?.72:state.needs.hunger<15?.82:1;const sizeSpeed=player.scaleMode==='mini'?1.12:player.scaleMode==='giant'?.84:1;
-      const speed=(wantsSprint?11.4:7.35)*needsPenalty*sizeSpeed*(player.crouched?.54:1);
+      const speedBoostMult=performance.now()<(player.speedBoostUntil||0)?1.72:1;
+      const speed=(wantsSprint?11.4:7.35)*needsPenalty*sizeSpeed*(player.crouched?.54:1)*speedBoostMult;
       const targetVx=(rightX*ix+forwardX*iz)*speed,targetVz=(rightZ*ix+forwardZ*iz)*speed;const accel=player.grounded?(wantsSprint?34:29):10;
       player.vx=lerp(player.vx,targetVx,Math.min(1,dt*accel));player.vz=lerp(player.vz,targetVz,Math.min(1,dt*accel));if(mag<.03){player.vx*=Math.pow(.0008,dt);player.vz*=Math.pow(.0008,dt);}
     }
     const prevX=player.x,prevZ=player.z;player.x+=player.vx*dt;player.z+=player.vz*dt;player.x=clamp(player.x,-116,116);player.z=clamp(player.z,-116,116);if(player.boating)constrainBoat(prevX,prevZ);else{resolveCollisions(prevX,prevZ);resolveWaterWalking(prevX,prevZ);}
     const movedNow=Math.hypot(player.x-prevX,player.z-prevZ);if(movedNow>.001){if(player.vehicle||player.boating){state.stats.driven+=movedNow;trackDaily('drive',movedNow);}else{state.stats.walked+=movedNow;trackDaily('walk',movedNow);}}
     const ground=player.boating?.78:groundHeightAt(player.x,player.z);if(!player.grounded)player.vy-=31*dt;player.y+=player.vy*dt;
-    if(player.y<=ground&&player.vy<=0){const landed=!player.grounded&&player.vy<-4;player.y=ground;player.vy=0;player.grounded=true;player.lastGrounded=performance.now();if(landed){vibrate(20);beep(180,35,'sine');}}
+    if(player.y<=ground&&player.vy<=0){const landed=!player.grounded&&player.vy<-4;player.y=ground;player.vy=0;player.grounded=true;player.lastGrounded=performance.now();player.usedDoubleJump=false;if(landed){vibrate(20);beep(180,35,'sine');}}
     else if(player.y>ground+.03)player.grounded=false;
     if(player.jumpBuffer&&player.jumpBuffer>performance.now()&&canJump())doJump();
     if(!player.vehicle&&!player.boating&&Math.hypot(player.vx,player.vz)>.15)player.facing=Math.atan2(player.vx,player.vz);
@@ -2447,7 +3056,7 @@
     if(avatarLayer){avatarLayer.position.y=playerModel.position.y;avatarLayer.rotation.x=playerModel.rotation.x;avatarLayer.rotation.z=playerModel.rotation.z;}
   }
   function checkHazards(){
-    for(const h of world.hazards){if(Math.abs(player.x-h.x)<=h.w/2&&Math.abs(player.z-h.z)<=h.d/2&&player.y<.6){if(h.type==='water'){if(!player.boating){player.vx*=.9;player.vz*=.9;}}else if(performance.now()>player.damageUntil){player.damageUntil=performance.now()+1200;state.needs.energy=clamp(state.needs.energy-18,0,100);toast('Cuidado com a lava!','bad');returnHome();}}}
+    for(const h of world.hazards){if(Math.abs(player.x-h.x)<=h.w/2&&Math.abs(player.z-h.z)<=h.d/2&&player.y<.6){if(h.type==='water'){if(!player.boating){player.vx*=.9;player.vz*=.9;}}else if(performance.now()>player.damageUntil){if(performance.now()<(player.shieldUntil||0)){toast('🛡 Escudo bloqueou a lava!','good',1200);player.shieldUntil=0;return;}player.damageUntil=performance.now()+1200;state.needs.energy=clamp(state.needs.energy-18,0,100);toast('Cuidado com a lava!','bad');returnHome();}}}
   }
   function collectNearbyCrystals(){
     for(const c of world.crystals){if(c.got)continue;c.mesh.rotation.y+=.035;c.mesh.position.y=c.y+Math.sin(animTime*2+c.x)*.12;if(Math.hypot(player.x-c.x,player.z-c.z)<1.25&&Math.abs(player.y-c.mesh.position.y)<2){c.got=true;c.mesh.visible=false;state.inventory.crystals++;state.stats.collected++;trackDaily('collect',1);addXP(15);addCoins(5);toast('Cristal coletado!','good');beep(880);vibrate(20);evaluateMissions();checkActiveJob();saveState();}}
@@ -2498,7 +3107,7 @@
       const d=distance2D(player,e);let tx=e.baseX+Math.sin(animTime*.55+e.phase)*4,tz=e.baseZ+Math.cos(animTime*.48+e.phase)*4;
       if(d<9&&!currentHouse){tx=player.x;tz=player.z;}
       const speed=e.type==='bat'?2.1:e.type==='golem'?1.0:1.45;e.group.position.x=lerp(e.group.position.x,tx,dt*speed);e.group.position.z=lerp(e.group.position.z,tz,dt*speed);e.group.position.y=e.type==='bat'?1.2+Math.sin(animTime*3+e.phase)*.35:0;e.group.rotation.y=Math.atan2(tx-e.group.position.x,tz-e.group.position.z);
-      if(d<1.45&&performance.now()>player.damageUntil){player.damageUntil=performance.now()+1100;state.needs.energy=clamp(state.needs.energy-12,0,100);state.needs.fun=clamp(state.needs.fun-4,0,100);toast('Monstro acertou!','bad');vibrate([35,40,35]);saveState();}
+      if(d<1.45&&performance.now()>player.damageUntil){if(performance.now()<(player.shieldUntil||0)){toast('🛡 Escudo bloqueou!','good',1200);player.shieldUntil=0;player.damageUntil=performance.now()+800;}else{player.damageUntil=performance.now()+1100;state.needs.energy=clamp(state.needs.energy-12,0,100);state.needs.fun=clamp(state.needs.fun-4,0,100);toast('Monstro acertou!','bad');vibrate([35,40,35]);saveState();}}
     }
   }
   function meleeAttack(){
@@ -2582,7 +3191,14 @@
   function closeChallengePrompt(){if(!els.challengePrompt)return;els.challengePrompt.hidden=true;els.challengePrompt.classList.remove('ready','incoming','social');promptChallengeId='';promptSessionId='';promptSocialRequestId='';els.challengePromptAccept.disabled=false;els.challengePromptDecline.disabled=false;}
   function showIncomingChallengePrompt(c){if(!c||c.status!=='pending'||!els.challengePrompt)return;promptChallengeId=c.id;promptSessionId='';els.challengePrompt.classList.add('incoming');els.challengePrompt.classList.remove('ready','social');els.challengePromptKicker.textContent='NOVO DESAFIO';els.challengePromptTitle.textContent=`${c.fromName||'Jogador'} desafiou você`;els.challengePromptText.textContent=`${multiplayerGameLabel(c.type)} • toque em Aceitar e jogar`;els.challengePromptAccept.textContent='Aceitar e jogar';els.challengePromptDecline.textContent='Recusar';els.challengePrompt.hidden=false;}
   function showReadySessionPrompt(s){if(!s||s.status!=='active'||!els.challengePrompt)return;const uid=window.OTTHOS_RTDB?.uid,mine=s.players?.[uid];if(mine?.finished)return;promptSessionId=s.id;promptChallengeId='';els.challengePrompt.classList.add('ready');els.challengePrompt.classList.remove('incoming','social');els.challengePromptKicker.textContent='PARTIDA PRONTA';els.challengePromptTitle.textContent=`Duelo de ${multiplayerGameLabel(s.type)}`;els.challengePromptText.textContent=`Contra ${sessionOpponentName(s)} • os dois jogarão as mesmas 5 atividades`;els.challengePromptAccept.textContent='Jogar agora';els.challengePromptDecline.textContent='Depois';els.challengePrompt.hidden=false;}
-  const SOCIAL_ACTION_LABELS={dance:'dançar',play:'brincar',highfive:'fazer toca aqui',hug:'dar um abraço',selfie:'tirar uma selfie',boatPassenger:'entrar no barco como passageiro',fishTogether:'pescar junto',campfireJoin:'participar da fogueira',huntTogether:'rastrear animais junto'};
+  const SOCIAL_ACTION_LABELS={dance:'dançar',play:'brincar',highfive:'fazer toca aqui',hug:'dar um abraço',selfie:'tirar uma selfie',boatPassenger:'entrar no barco como passageiro',vehiclePassenger:'entrar no carro como passageiro',fishTogether:'pescar junto',campfireJoin:'participar da fogueira',huntTogether:'rastrear animais junto'};
+  // V627: botão de habilidades no painel de jogo
+  document.addEventListener('DOMContentLoaded',()=>{
+    const skillsBtn=document.getElementById('skillsToggleBtn');
+    if(skillsBtn)skillsBtn.addEventListener('click',()=>{
+      if(running&&!paused&&els.modal.hidden)openSkillsPanel();
+    });
+  });
   function socialActionLabel(type){return SOCIAL_ACTION_LABELS[type]||'interagir';}
   function socialRequestPending(){return[...incomingSocialRequests.values()].filter(r=>r.status==='pending'&&Number(r.expiresAt||0)>Date.now());}
   function showIncomingSocialRequest(request){
@@ -2598,6 +3214,7 @@
     const rewardKey=String(context.requestId||'');if(rewardKey&&state.multiplayerRequests.completed.includes(rewardKey))return;
     if(['dance','play','highfive','hug','selfie'].includes(actionType)){triggerEmote(actionType);if(actionType==='play')state.needs.fun=clamp(state.needs.fun+10,0,100);}
     else if(actionType==='boatPassenger'){if(context.role==='passenger'||context.incoming)enterBoatAsPassenger(context.fromUid||context.partnerUid);else{player.boat.passengerUid=context.partnerUid||'';toast(`${context.partnerName||'Seu amigo'} entrou como passageiro.`,'good',2600);}}
+    else if(actionType==='vehiclePassenger'){if(context.role==='passenger'||context.incoming)enterVehicleAsPassenger(context.fromUid||context.partnerUid);else{player.vehiclePassengerUid=context.partnerUid||'';toast(`${context.partnerName||'Seu amigo'} entrou como passageiro no carro.`,'good',2600);}}
     else if(actionType==='fishTogether'){startFishing(player.boating?'boat':'shore',{cooperative:true,requestId:rewardKey,partnerName:context.partnerName||context.fromName||'amigo'});}
     else if(actionType==='campfireJoin'){openNearestCampfire();}
     else if(actionType==='huntTogether'){startHunting({cooperative:true,requestId:rewardKey,partnerName:context.partnerName||context.fromName||'amigo'});}
@@ -2645,7 +3262,9 @@
   function chatMessageHtml(m){return`<article class="world-chat-message"><b>${escapeHtml(m.name||'Jogador')}</b><span>${escapeHtml(m.text||'')}</span></article>`;}
   function openRemotePlayerActions(uid,ghost){
     const name=ghost.userData.displayName||'Jogador',nearLake=isNearFishingArea()||player.boating,nearCamp=nearestActiveCampfire(8),nearHunt=Math.hypot(player.x+96,player.z+72)<25;
-    const cooperative=`${player.boating&&!player.boat.passengerOf&&!player.boat.passengerUid?'<button class="choice" data-player-action="boatPassenger"><b>🛶 Passageiro</b><span>Convidar para o seu barco</span></button>':''}${nearLake?'<button class="choice" data-player-action="fishTogether"><b>🎣 Pescar juntos</b><span>Cada jogador recebe o próprio peixe</span></button>':''}${nearCamp?'<button class="choice" data-player-action="campfireJoin"><b>🔥 Fogueira</b><span>Convidar para sentar e cozinhar</span></button>':''}${nearHunt?'<button class="choice" data-player-action="huntTogether"><b>🐾 Rastrear juntos</b><span>Atividade infantil sem violência</span></button>':''}`;
+    // V627: carona no carro
+    const carCoopBtn=player.vehicle&&!player.vehiclePassengerUid?'<button class="choice" data-player-action="vehiclePassenger"><b>\ud83d\ude97 Carona no carro</b><span>Convidar para o seu carro</span></button>':'';
+    const cooperative=`${player.boating&&!player.boat.passengerOf&&!player.boat.passengerUid?'<button class="choice" data-player-action="boatPassenger"><b>🛶 Passageiro</b><span>Convidar para o seu barco</span></button>':''}${carCoopBtn}${nearLake?'<button class="choice" data-player-action="fishTogether"><b>🎣 Pescar juntos</b><span>Cada jogador recebe o próprio peixe</span></button>':''}${nearCamp?'<button class="choice" data-player-action="campfireJoin"><b>🔥 Fogueira</b><span>Convidar para sentar e cozinhar</span></button>':''}${nearHunt?'<button class="choice" data-player-action="huntTogether"><b>🐾 Rastrear juntos</b><span>Atividade infantil sem violência</span></button>':''}`;
     openModal(name,`<p>Interaja com este jogador em tempo real. Ações conjuntas só começam depois que ele aceitar.</p><div class="choice-grid remote-social-grid"><button class="choice" data-player-action="wave"><b>👋 Acenar</b><span>Saudação imediata</span></button><button class="choice" data-player-action="dance"><b>🕺 Dançar juntos</b><span>Requer aceite</span></button><button class="choice" data-player-action="play"><b>🎈 Brincar</b><span>Requer aceite</span></button><button class="choice" data-player-action="highfive"><b>🙌 Toca aqui</b><span>Requer aceite</span></button><button class="choice" data-player-action="hug"><b>🤗 Abraçar</b><span>Requer aceite</span></button><button class="choice" data-player-action="selfie"><b>📸 Selfie</b><span>Requer aceite</span></button>${cooperative}<button class="choice" data-player-action="giftCoins"><b>🪙 Dar 10 moedas</b><span>Presente online</span></button><button class="choice" data-player-action="giftCrystal"><b>💎 Dar cristal</b><span>Usa 1 cristal</span></button><button class="choice" data-player-action="challenge"><b>⚔️ Desafiar</b><span>Matemática, Português ou English</span></button><button class="choice" data-player-action="message"><b>💬 Mencionar no chat</b><span>Abrir conversa pública</span></button></div>`,root=>{$$('[data-player-action]',root).forEach(btn=>btn.onclick=async()=>{
       const action=btn.dataset.playerAction;if(action==='message'){closeModal();openSocialHub();setTimeout(()=>{const input=$('#worldChatInput');if(input){input.value=`@${name} `;input.focus();}},100);return;}
       if(action==='giftCoins'){if(state.profile.coins<10){toast('Você não tem 10 moedas.','warn');return;}const ok=await window.OTTHOS_RTDB?.sendGift?.(uid,{type:'coins',amount:10});if(ok){addCoins(-10);toast(`Você presenteou ${name}.`,'good');}}
@@ -2713,7 +3332,7 @@
     if(!running)return;raf=requestAnimationFrame(gameLoop);const dt=Math.min(.033,clock.getDelta());samplePerformance(dt);
     if(!paused){
       pollGamepad();updatePlayer(dt);updateFishingVisual(dt);updateVehicleFX(dt);updateFX(dt);updateFireballs(dt);updateRace(dt);updateNeeds(dt);updateCamera(dt);updateNavigation(dt);updateVisualLOD(dt);
-      perf.aiAcc+=dt;if(perf.aiAcc>=1/30){const step=perf.aiAcc;perf.aiAcc=0;updateNPCs(step);updateNpcSociety(step);updateEnemies(step);updateMultiplayer(step);updateLifeActivities(step);}
+      perf.aiAcc+=dt;if(perf.aiAcc>=1/30){const step=perf.aiAcc;perf.aiAcc=0;updateNPCs(step);updateNpcSociety(step);updateEnemies(step);updateMultiplayer(step);updateLifeActivities(step);updateNpcVehicles(step);}
       perf.cloudAcc+=dt;if(perf.cloudAcc>=1/15){const step=perf.cloudAcc;perf.cloudAcc=0;updateClouds(step);}
     }
     renderer.setScissorTest(false);renderer.setViewport(0,0,renderer.domElement.width,renderer.domElement.height);renderer.autoClear=true;renderer.render(scene,camera);
@@ -2734,7 +3353,7 @@
     press(els.cameraNearBtn,()=>adjustCamera(-1.6));press(els.cameraFarBtn,()=>adjustCamera(1.6));press(els.cameraResetBtn,()=>{cameraZoom=0;cameraPitch=.38;cameraYaw=currentHouse?0:player.facing;state.settings.cameraZoom=0;saveState();toast('Câmera centralizada.','good',900);});
     els.miniNav?.addEventListener('click',openMap);press(els.specialBtn,firePower);press(els.crouchBtn,()=>toggleCrouch());press(els.miniBtn,()=>setScaleMode('mini'));press(els.normalBtn,()=>setScaleMode('normal'));press(els.giantBtn,()=>setScaleMode('giant'));press(els.spinBtn,spinPlayer);
     [els.quickBar,els.inventoryBtn,els.buildBtn,els.mapBtn,els.gameSettingsBtn].forEach(el=>el?.addEventListener('pointerdown',e=>e.stopPropagation()));
-    window.addEventListener('keydown',e=>{input.keys.add(e.code);if(['Space','KeyE','KeyF','KeyC','Digit1','Digit2','Digit3','KeyR','ShiftLeft','ShiftRight'].includes(e.code))e.preventDefault();updateRunUI();if(e.code==='Space')requestJump();if(e.code==='KeyE')doAction();if(e.code==='KeyF')firePower();if(e.code==='KeyC')toggleCrouch();if(e.code==='Digit1')setScaleMode('mini');if(e.code==='Digit2')setScaleMode('normal');if(e.code==='Digit3')setScaleMode('giant');if(e.code==='KeyR')spinPlayer();if(e.code==='Escape'){e.preventDefault();if(!running)return;if(pauseMenuOpen)closeModal();else if(!els.modal.hidden)closeModal();else openPauseMenu();}});window.addEventListener('keyup',e=>{input.keys.delete(e.code);updateRunUI();});
+    window.addEventListener('keydown',e=>{input.keys.add(e.code);if(['Space','KeyE','KeyF','KeyC','Digit1','Digit2','Digit3','KeyR','ShiftLeft','ShiftRight','KeyQ','KeyX'].includes(e.code))e.preventDefault();updateRunUI();if(e.code==='Space')requestJump();if(e.code==='KeyE')doAction();if(e.code==='KeyF')firePower();if(e.code==='KeyC')toggleCrouch();if(e.code==='Digit1')setScaleMode('mini');if(e.code==='Digit2')setScaleMode('normal');if(e.code==='Digit3')setScaleMode('giant');if(e.code==='KeyR')spinPlayer();if(e.code==='KeyQ'&&running&&!paused&&els.modal.hidden)openSkillsPanel();if(e.code==='KeyX'&&running&&!paused)useSkill('dash');if(e.code==='Escape'){e.preventDefault();if(!running)return;if(pauseMenuOpen)closeModal();else if(!els.modal.hidden)closeModal();else openPauseMenu();}});window.addEventListener('keyup',e=>{input.keys.delete(e.code);updateRunUI();});
     els.stage.addEventListener('pointerdown',e=>{if(e.target!==renderer?.domElement)return;input.cameraDrag={id:e.pointerId,x:e.clientX,y:e.clientY};els.stage.setPointerCapture?.(e.pointerId);});
     els.stage.addEventListener('pointermove',e=>{const d=input.cameraDrag;if(!d||d.id!==e.pointerId)return;const dx=e.clientX-d.x,dy=e.clientY-d.y;cameraYaw-=dx*.006;cameraPitch=clamp(cameraPitch+dy*.003,.05,.9);d.x=e.clientX;d.y=e.clientY;});
     const endDrag=e=>{if(input.cameraDrag?.id===e.pointerId)input.cameraDrag=null;};els.stage.addEventListener('pointerup',endDrag);els.stage.addEventListener('pointercancel',endDrag);
@@ -2810,7 +3429,7 @@
 
   // Public test/audit API
   window.OTTHOS_TEST_API={
-    version:'V626_1_BOAT_FISHING_VEHICLE_HOTFIX',
+    version:'V627_METRO_BUS_VEHICLES_BOTS_CASTLE_SKILLS_COOP',
     performance:()=>({fps:+perf.fps.toFixed(1),tier:qualityTier(),requested:requestedQuality(),dpr:renderer?.getPixelRatio?.()||0,drawCalls:renderer?.info?.render?.calls||0,triangles:renderer?.info?.render?.triangles||0}),
     getState:()=>JSON.parse(JSON.stringify(state)),
     getGame:()=>({running,paused,currentHouse:currentHouse?.id||null,cameraMode,player:{...player},objects:{houses:world.houses.length,npcs:world.npcs.length,enemies:world.enemies.length,interactables:world.interactables.length,builds:world.builds.length}}),
