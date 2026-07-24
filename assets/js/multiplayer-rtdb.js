@@ -36,9 +36,9 @@ async function sendChat(text){text=String(text||'').trim().slice(0,180);if(!conn
 async function deleteOwnChatMessages(){if(!connected||!refs.chat||!user)return{ok:false,error:'Você está offline'};try{const q=api.query(refs.chat,api.orderByChild('senderUid'),api.equalTo(user.uid)),snap=await api.get(q),updates={};snap.forEach(child=>{updates[child.key]=null});const count=Object.keys(updates).length;if(count)await api.update(refs.chat,updates);return{ok:true,count}}catch(error){listenerError('exclusão do chat')(error);return{ok:false,error:error?.message||String(error)}}}
 async function sendGift(targetUid,gift){if(!connected||!targetUid||targetUid===user.uid)return false;const r=api.push(api.ref(db,`${ROOT}/users/${targetUid}/inbox`));await api.set(r,{senderUid:user.uid,senderName:ownName(),type:gift.type,amount:Number(gift.amount||1),createdAt:api.serverTimestamp()});return true}
 async function sendInteraction(targetUid,event){if(!connected||!targetUid||targetUid===user.uid)return false;const r=api.push(api.ref(db,`${ROOT}/users/${targetUid}/interactions`));await api.set(r,{senderUid:user.uid,senderName:ownName(),type:String(event.type||'wave').slice(0,32),requestId:String(event.requestId||'').slice(0,80),actionType:String(event.actionType||'').slice(0,32),status:String(event.status||'').slice(0,16),extra:event.extra&&typeof event.extra==='object'?event.extra:{},createdAt:api.serverTimestamp()});return true}
-const SOCIAL_ACTIONS=['dance','play','highfive','hug','selfie','boatPassenger','fishTogether','campfireJoin','huntTogether'];
+const SOCIAL_ACTIONS=['dance','play','highfive','hug','selfie','vehiclePassenger','boatPassenger','fishTogether','campfireJoin','huntTogether'];
 const SOCIAL_STATUSES=['pending','accepted','declined','expired','cancelled','completed'];
-function socialDistanceRequired(type){return['dance','play','highfive','hug','selfie','boatPassenger','fishTogether','campfireJoin','huntTogether'].includes(type)}
+function socialDistanceRequired(type){return['dance','play','highfive','hug','selfie','vehiclePassenger','boatPassenger','fishTogether','campfireJoin','huntTogether'].includes(type)}
 async function sendSocialRequest(targetUid,actionType,targetName='Jogador',extra={}){
   if(!connected||!targetUid||targetUid===user.uid)return{ok:false,error:'Jogador indisponível'};
   actionType=String(actionType||'').slice(0,32);if(!SOCIAL_ACTIONS.includes(actionType))return{ok:false,error:'Ação inválida'};
@@ -46,11 +46,15 @@ async function sendSocialRequest(targetUid,actionType,targetName='Jogador',extra
   const target=presenceCache[targetUid];if(!target)return{ok:false,error:'O jogador não está mais online'};
   if(String(target.room||'mundo-publico')!==String(lastPresence?.room||'mundo-publico'))return{ok:false,error:'O jogador está em outra sala'};
   if(socialDistanceRequired(actionType)&&Math.hypot(Number(target.x||0)-Number(lastPresence?.x||0),Number(target.z||0)-Number(lastPresence?.z||0))>6.5)return{ok:false,error:'Chegue mais perto do jogador'};
+  if(actionType==='vehiclePassenger'&&(!lastPresence?.vehicle||lastPresence?.vehicleRole!=='driver'))return{ok:false,error:'Entre no carro como motorista antes de convidar'};
+  if(actionType==='vehiclePassenger'&&lastPresence?.vehiclePassengerUid)return{ok:false,error:'Este carro já possui passageiro'};
+  if(actionType==='vehiclePassenger'&&target.vehicle)return{ok:false,error:'O jogador já está em outro veículo'};
   if(actionType==='boatPassenger'&&(!lastPresence?.boating||lastPresence?.boatRole!=='driver'||!lastPresence?.boatId))return{ok:false,error:'Entre no barco como motorista antes de convidar'};
+  if(actionType==='boatPassenger'&&lastPresence?.boatPassengerUid)return{ok:false,error:'Este barco já possui passageiro'};
   if(actionType==='boatPassenger'&&target.boating)return{ok:false,error:'O jogador já está em outro barco'};
   try{
     const inbox=api.ref(db,`${ROOT}/users/${targetUid}/socialRequests`),bucket=Math.floor(now/30000),safeUid=String(user.uid).replace(/[^a-zA-Z0-9_-]/g,'').slice(0,64),id=`req_${safeUid}_${actionType}_${bucket}`,r=api.child(inbox,id);
-    const safeExtra={boatId:String(extra?.boatId||'').slice(0,40),campfireId:String(extra?.campfireId||'').slice(0,80),fromX:Number(lastPresence?.x||0),fromZ:Number(lastPresence?.z||0)};
+    const safeExtra={vehicleId:String(extra?.vehicleId||'').slice(0,40),boatId:String(extra?.boatId||'').slice(0,40),campfireId:String(extra?.campfireId||'').slice(0,80),fromX:Number(lastPresence?.x||0),fromZ:Number(lastPresence?.z||0)};
     const request={fromUid:user.uid,fromName:ownName(),toUid:targetUid,toName:String(targetName||'Jogador').slice(0,24),actionType,room:String(lastPresence?.room||'mundo-publico').slice(0,32),status:'pending',createdAt:api.serverTimestamp(),createdAtClient:now,expiresAt:now+30000,extra:safeExtra};
     await api.set(r,request);requestCooldown.set(cooldownKey,now);return{ok:true,id,...request};
   }catch(error){listenerError('envio de solicitação social')(error);const message=String(error?.message||error||'');return{ok:false,error:/permission|denied/i.test(message)?'Este convite já está pendente ou foi enviado há poucos segundos':message}}
@@ -65,7 +69,11 @@ async function respondSocialRequest(requestId,decision){
     else if(status==='accepted'&&!sender){status='cancelled';reason='O jogador saiu.'}
     else if(status==='accepted'&&!sameRoom){status='cancelled';reason='O jogador mudou de sala.'}
     else if(status==='accepted'&&socialDistanceRequired(request.actionType)&&distance>7){status='cancelled';reason='Os jogadores estão longe demais.'}
+    else if(status==='accepted'&&request.actionType==='vehiclePassenger'&&(!sender.vehicle||sender.vehicleRole!=='driver')){status='cancelled';reason='O carro não está mais disponível.'}
+    else if(status==='accepted'&&request.actionType==='vehiclePassenger'&&sender.vehiclePassengerUid){status='cancelled';reason='O carro já possui passageiro.'}
+    else if(status==='accepted'&&request.actionType==='vehiclePassenger'&&lastPresence?.vehicle){status='cancelled';reason='Você já está em outro veículo.'}
     else if(status==='accepted'&&request.actionType==='boatPassenger'&&(!sender.boating||sender.boatRole!=='driver'||sender.boatId!==request.extra?.boatId)){status='cancelled';reason='O barco não está mais disponível.'}
+    else if(status==='accepted'&&request.actionType==='boatPassenger'&&sender.boatPassengerUid){status='cancelled';reason='O barco já possui passageiro.'}
     else if(status==='accepted'&&request.actionType==='boatPassenger'&&lastPresence?.boating){status='cancelled';reason='Você já está em um barco.'}
     await api.update(ref,{status,respondedAt:api.serverTimestamp(),respondedAtClient:now});requestCache[requestId]={...request,status,respondedAtClient:now};await sendInteraction(request.fromUid,{type:'socialRequestResult',requestId,actionType:request.actionType,status,extra:{reason,responderName:ownName(),requestExtra:request.extra||{}}});
     return{ok:status==='accepted',status,reason,id:requestId,...request};
