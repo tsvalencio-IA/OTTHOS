@@ -4,14 +4,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
   <meta name="theme-color" content="#0c1b33" />
-  <meta name="description" content="Otthos Life World — mundo aberto infantil com metrô, ônibus, veículos, NPCs em movimento, castelo, skills, pesca compacta e multiplayer." />
+  <meta name="description" content="Otthos Life World — mundo aberto infantil com casas, vizinhos, construção, Academia Kids, jogos educativos e multiplayer." />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Otthos Life World</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=627" />
+  <link rel="manifest" href="./manifest.webmanifest?v=629" />
   <link rel="icon" href="./icons/favicon.png" />
   <link rel="apple-touch-icon" href="./icons/icon-192.png" />
-  <link rel="stylesheet" href="./style.css?v=627" />
+  <link rel="stylesheet" href="./style.css?v=629" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script>
     // Visualizador/AR verdadeiramente sob demanda: não baixa model-viewer nem athos.glb no boot.
@@ -75,7 +75,7 @@
 
         <aside class="panel menu-panel">
           <button id="profileNameBtn" class="profile-name-card" type="button">
-            <b>👤</b><span><small>JOGADOR</small><strong id="lobbyPlayerName">Escolher nome</strong></span><i>Editar</i>
+            <b>👤</b><span><small>JOGADOR</small><strong id="lobbyPlayerName">Escolher nome</strong></span><i id="accountStatusLabel">Conta local</i>
           </button>
           <div class="profile-strip">
             <div class="profile-level"><small>NÍVEL</small><strong id="lobbyLevel">1</strong></div>
@@ -89,6 +89,7 @@
             <button id="quizBtn" class="menu-tile academy-tile" type="button"><b>🎓</b><span>Academia</span><small>Matemática • Português • Inglês</small></button>
             <button id="collectionBtn" class="menu-tile" type="button"><b>🏅</b><span>Coleção</span></button>
             <button id="avatarBtn" class="menu-tile" type="button"><b>👕</b><span>Personagem</span></button>
+            <button id="accountBtn" class="menu-tile account-tile" type="button"><b>🔐</b><span>Minha conta</span><small>Salvar em outros aparelhos</small></button>
             <button id="moldsBtn" class="menu-tile" type="button"><b>🧩</b><span>Moldes 3D</span></button>
             <button id="howBtn" class="menu-tile" type="button"><b>❓</b><span>Ajuda</span></button>
             <button id="settingsBtn" class="menu-tile" type="button"><b>⚙</b><span>Config.</span></button>
@@ -129,6 +130,7 @@
         <button id="avatarGameBtn" type="button">👕<span>Personagem</span></button>
         <button id="inventoryBtn" type="button">🎒<span>Itens</span></button>
         <button id="buildBtn" type="button">🧱<span>Construir</span></button>
+        <button id="toolsBtn" type="button">🪓<span>Ferramentas</span></button>
         <button id="mapBtn" type="button">🗺<span>Mapa</span></button>
         <button id="dailyBtn" class="academy-quick" type="button">🎓<span>Jogos Kids</span></button>
         <button id="onlineBtn" type="button">🌐<span>Online</span></button>
@@ -170,6 +172,9 @@
       <div id="raceBadge" class="race-badge" hidden><b id="raceTitle">Desafio</b><span id="raceStatus">Prepare-se!</span></div>
       <div id="buildBadge" class="build-badge" hidden>CONSTRUÇÃO: <b id="buildTypeLabel">Bloco</b> — toque em AÇÃO para colocar</div>
       <div id="vehicleBadge" class="vehicle-badge" hidden>🚗 Carrinho ativo — AÇÃO para sair</div>
+      <div id="safetyPanel" class="safety-panel" hidden>
+        <span>🚓</span><div><b>Patrulha de segurança</b><small id="safetyStatus">Encoste com calma.</small></div>
+      </div>
       <div id="toast" class="toast" role="status" aria-live="polite"></div>
     </section>
 
@@ -191,9 +196,10 @@
 
   </div>
 
-  <script src="./assets/js/save-db.js?v=627"></script>
-  <script src="./firebase-config.js?v=627"></script>
-  <script type="module" src="./assets/js/multiplayer-rtdb.js?v=627"></script>
-  <script src="./app.js?v=627"></script>
+  <script src="./assets/js/save-db.js?v=629"></script>
+  <script src="./firebase-config.js?v=629"></script>
+  <script src="./assets/js/game-account.js?v=629"></script>
+  <script type="module" src="./assets/js/multiplayer-rtdb.js?v=629"></script>
+  <script src="./app.js?v=629"></script>
 </body>
 </html>

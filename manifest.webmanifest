@@ -1,8 +1,8 @@
 {
-  "name": "Otthos Life World V627",
-  "short_name": "Otthos RP",
-  "description": "Mundo aberto infantil com metrô, ônibus, frota de veículos, NPCs dirigindo, castelo aprimorado, skills, pesca compacta e multiplayer com passageiros.",
-  "start_url": "./index.html?v=627",
+  "name": "Otthos Life World V629",
+  "short_name": "OTTHOS V629",
+  "description": "Mundo aberto infantil com conta protegida, transporte público, escola, segurança educativa, ferramentas, mineração, pesca, construção e multiplayer.",
+  "start_url": "./index.html?v=629",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",

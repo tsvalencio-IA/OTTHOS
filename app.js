@@ -8,9 +8,9 @@
   const lerpAngle = (a, b, t) => { let d=((b-a+Math.PI)%(Math.PI*2))-Math.PI; if(d<-Math.PI)d+=Math.PI*2; return a+d*t; };
   const distance2D = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
   const uid = () => (crypto.randomUUID ? crypto.randomUUID() : `p-${Date.now()}-${Math.random().toString(16).slice(2)}`);
-  const APP_VERSION = 627;
-  const STORAGE_KEY = 'otthos_life_world_roleplay_v627';
-  const LEGACY_STORAGE_KEYS = ['otthos_life_world_roleplay_v626','otthos_life_world_roleplay_v625','otthos_life_world_roleplay_v624','otthos_life_world_roleplay_v623','otthos_life_world_roleplay_v622','otthos_life_world_roleplay_v621','otthos_life_world_roleplay_v620','otthos_life_world_roleplay_v619','otthos_life_world_roleplay_v618','otthos_life_world_roleplay_v617','otthos_life_world_roleplay_v616','otthos_life_world_roleplay_v615','otthos_life_world_roleplay_v614','otthos_life_world_roleplay_v613','otthos_life_world_roleplay_v612','otthos_life_world_roleplay_v611','otthos_life_world_roleplay_v610','otthos_life_world_roleplay_v609','otthos_life_world_roleplay_v608','otthos_life_world_roleplay_v607','otthos_life_world_roleplay_v606','otthos_life_world_roleplay_v605','otthos_life_world_roleplay_v604','otthos_life_world_roleplay_v603','otthos_life_world_roleplay_v602','otthos_life_world_roleplay_v601','otthos_life_world_complete_v600'];
+  const APP_VERSION = 629;
+  const STORAGE_KEY = 'otthos_life_world_roleplay_v629';
+  const LEGACY_STORAGE_KEYS = ['otthos_life_world_roleplay_v628','otthos_life_world_roleplay_v627','otthos_life_world_roleplay_v626','otthos_life_world_roleplay_v625','otthos_life_world_roleplay_v624','otthos_life_world_roleplay_v623','otthos_life_world_roleplay_v622','otthos_life_world_roleplay_v621','otthos_life_world_roleplay_v620','otthos_life_world_roleplay_v619','otthos_life_world_roleplay_v618','otthos_life_world_roleplay_v617','otthos_life_world_roleplay_v616','otthos_life_world_roleplay_v615','otthos_life_world_roleplay_v614','otthos_life_world_roleplay_v613','otthos_life_world_roleplay_v612','otthos_life_world_roleplay_v611','otthos_life_world_roleplay_v610','otthos_life_world_roleplay_v609','otthos_life_world_roleplay_v608','otthos_life_world_roleplay_v607','otthos_life_world_roleplay_v606','otthos_life_world_roleplay_v605','otthos_life_world_roleplay_v604','otthos_life_world_roleplay_v603','otthos_life_world_roleplay_v602','otthos_life_world_roleplay_v601','otthos_life_world_complete_v600'];
   const safeLocalGet = key => { try { return window.localStorage?.getItem(key) ?? null; } catch { return null; } };
   const safeLocalSet = (key, value) => { try { window.localStorage?.setItem(key, value); return true; } catch { return false; } };
   const safeLocalRemove = key => { try { window.localStorage?.removeItem(key); return true; } catch { return false; } };
@@ -18,17 +18,17 @@
   const els = {
     lobby: $('#lobby'), game: $('#game'), stage: $('#stage'), screenTint: $('#screenTint'),
     playBtn: $('#playBtn'), continueBtn: $('#continueBtn'), installBtn: $('#installBtn'), installHint: $('#installHint'),
-    arBtn: $('#arBtn'), quizBtn: $('#quizBtn'), collectionBtn: $('#collectionBtn'), avatarBtn: $('#avatarBtn'), moldsBtn: $('#moldsBtn'), howBtn: $('#howBtn'), settingsBtn: $('#settingsBtn'),
-    lobbyLevel: $('#lobbyLevel'), lobbyCoins: $('#lobbyCoins'), lobbyRep: $('#lobbyRep'), lobbyMedals: $('#lobbyMedals'), lobbyPlayerName: $('#lobbyPlayerName'), profileNameBtn: $('#profileNameBtn'),
+    arBtn: $('#arBtn'), quizBtn: $('#quizBtn'), collectionBtn: $('#collectionBtn'), avatarBtn: $('#avatarBtn'), accountBtn: $('#accountBtn'), moldsBtn: $('#moldsBtn'), howBtn: $('#howBtn'), settingsBtn: $('#settingsBtn'),
+    lobbyLevel: $('#lobbyLevel'), lobbyCoins: $('#lobbyCoins'), lobbyRep: $('#lobbyRep'), lobbyMedals: $('#lobbyMedals'), lobbyPlayerName: $('#lobbyPlayerName'), profileNameBtn: $('#profileNameBtn'), accountStatusLabel: $('#accountStatusLabel'),
     hudLevel: $('#hudLevel'), xpFill: $('#xpFill'), xpText: $('#xpText'), hudCoins: $('#hudCoins'), hudPlayerName: $('#hudPlayerName'),
     needHunger: $('#needHunger'), needEnergy: $('#needEnergy'), needFun: $('#needFun'), needHygiene: $('#needHygiene'),
     missionChapter: $('#missionChapter'), missionTitle: $('#missionTitle'), missionStep: $('#missionStep'), missionFill: $('#missionFill'),
-    quickToggleBtn: $('#quickToggleBtn'), quickBar: $('#quickBar'), needsToggleBtn: $('#needsToggleBtn'), missionCard: $('#missionCard'), avatarGameBtn: $('#avatarGameBtn'), inventoryBtn: $('#inventoryBtn'), buildBtn: $('#buildBtn'), mapBtn: $('#mapBtn'), dailyBtn: $('#dailyBtn'), onlineBtn: $('#onlineBtn'), gameSettingsBtn: $('#gameSettingsBtn'), multiplayerBadge: $('#multiplayerBadge'),
+    quickToggleBtn: $('#quickToggleBtn'), quickBar: $('#quickBar'), needsToggleBtn: $('#needsToggleBtn'), missionCard: $('#missionCard'), avatarGameBtn: $('#avatarGameBtn'), inventoryBtn: $('#inventoryBtn'), buildBtn: $('#buildBtn'), toolsBtn: $('#toolsBtn'), mapBtn: $('#mapBtn'), dailyBtn: $('#dailyBtn'), onlineBtn: $('#onlineBtn'), gameSettingsBtn: $('#gameSettingsBtn'), multiplayerBadge: $('#multiplayerBadge'),
     contextPrompt: $('#contextPrompt'), contextIcon: $('#contextIcon'), contextLabel: $('#contextLabel'), contextHint: $('#contextHint'),
     joystick: $('#joystick'), joystickKnob: $('#joystickKnob'), runBtn: $('#runBtn'), specialBtn: $('#specialBtn'), actionBtn: $('#actionBtn'), jumpBtn: $('#jumpBtn'), crouchBtn: $('#crouchBtn'), miniBtn: $('#miniBtn'), normalBtn: $('#normalBtn'), giantBtn: $('#giantBtn'), spinBtn: $('#spinBtn'), skillsToggleBtn: $('#skillsToggleBtn'), secondaryActions: document.querySelector('.secondary-actions'),
     miniNav: $('#miniNav'), miniMapCanvas: $('#miniMapCanvas'), miniNavName: $('#miniNavName'), miniNavDistance: $('#miniNavDistance'), miniNavArrow: $('#miniNavArrow'),
     cameraControls: $('#cameraControls'), cameraNearBtn: $('#cameraNearBtn'), cameraResetBtn: $('#cameraResetBtn'), cameraFarBtn: $('#cameraFarBtn'),
-    buildBadge: $('#buildBadge'), buildTypeLabel: $('#buildTypeLabel'), vehicleBadge: $('#vehicleBadge'), raceBadge: $('#raceBadge'), raceTitle: $('#raceTitle'), raceStatus: $('#raceStatus'), toast: $('#toast'),
+    buildBadge: $('#buildBadge'), buildTypeLabel: $('#buildTypeLabel'), vehicleBadge: $('#vehicleBadge'), safetyPanel: $('#safetyPanel'), safetyStatus: $('#safetyStatus'), raceBadge: $('#raceBadge'), raceTitle: $('#raceTitle'), raceStatus: $('#raceStatus'), toast: $('#toast'),
     modal: $('#modal'), modalTitle: $('#modalTitle'), modalBody: $('#modalBody'), modalClose: $('#modalClose'), challengePrompt: $('#challengePrompt'), challengePromptKicker: $('#challengePromptKicker'), challengePromptTitle: $('#challengePromptTitle'), challengePromptText: $('#challengePromptText'), challengePromptAccept: $('#challengePromptAccept'), challengePromptDecline: $('#challengePromptDecline'),
     nativeViewer: $('#nativeViewer'), viewerShell: $('#viewerShell'), viewerPlaceholder: $('#viewerPlaceholder'), viewerLoadBtn: $('#viewerLoadBtn'), viewerStatus: $('#viewerStatus'), insideArBtn: $('#insideArBtn')
   };
@@ -37,8 +37,8 @@
     version: APP_VERSION,
     profile: { playerId: uid(), name: '', nameConfirmed: false, level: 1, xp: 0, coins: 500, reputation: 0 },
     needs: { hunger: 92, energy: 92, fun: 86, hygiene: 88 },
-    inventory: { wood: 0, stone: 0, food: 2, water: 2, crystals: 0, blocks: 4, fences: 2, keys: 0, fishingRod: 1, bait: 5, rawFish: 0, cookedFish: 0, forestResources: 0 },
-    homeStorage: { wood: 0, stone: 0, food: 0, water: 0, crystals: 0 },
+    inventory: { wood: 0, stone: 0, goldOre: 0, goldBar: 0, food: 2, water: 2, crystals: 0, blocks: 4, fences: 2, keys: 0, fishingRod: 1, bait: 5, rawFish: 0, cookedFish: 0, forestResources: 0 },
+    homeStorage: { wood: 0, stone: 0, goldOre: 0, goldBar: 0, food: 0, water: 0, crystals: 0 },
     houses: {
       home: { owned: true, locked: false, home: true },
       blue: { owned: false, locked: true, price: 250 },
@@ -49,7 +49,10 @@
     avatar: { outfit: 'classic', hat: 'none', accessory: 'none' },
     career: { title: 'Morador da Vila', level: 1, xp: 0, completed: 0, activeJob: null },
     social: { invited: [], gifts: 0, jokes: 0, arguments: 0, chatHiddenBefore:0 },
-    abilities: { scaleMode: 'normal', crouched: false },
+    abilities: { scaleMode: 'normal', crouched: false, mastery: { miniDash:0, superJump:0, giantSlam:0, stealth:0, magnetSpin:0 } },
+    tools: { owned: ['axe','pickaxe','bucket'], equipped: 'axe', harvested: { wood:0, stone:0, gold:0, water:0 } },
+    account: { linked:false, accountId:'', username:'', lastCloudSync:0 },
+    safety: { incidents:0, safeStops:0, lessons:0, lastIncident:0 },
     races: { wins: 0, losses: 0, coinWins: 0, houseWins: 0, bestTime: 0 },
     waypoint: null,
     ui: { quickOpen: false, needsOpen: false, missionOpen: false, skillsOpen: false },
@@ -60,20 +63,19 @@
     defeated: 0,
     position: { x: 0, y: 0, z: 8, yaw: 0 },
     settings: { sound: true, quality: 'auto', autoTier: 'balanced', vibration: true, cameraZoom: 0, joystickNatural: true },
-    stats: { walked:0, driven:0, jumps:0, collected:0, talks:0, cooked:0, races:0, actions:0 },
+    stats: { walked:0, driven:0, jumps:0, collected:0, talks:0, cooked:0, races:0, actions:0, metroTrips:0, busStops:0, skillCombos:0 },
     daily: { date:'', streak:0, lastDate:'', quests:[] },
     learning: { crowns:0, totalCorrect:0, lessons:{}, lastLesson:'', perfectLessons:0, subjectXP:{math:0,portuguese:0,english:0}, multiplayerWins:0, multiplayerPlayed:0, matchHistory:[] },
     multiplayer: { enabled:true, room:'mundo-publico', displayName:'', cloudUid:'', cloudReady:false },
     fishing: { catches: [], species: {}, lastAttempt: 0, cooperativeRewards: [] },
     campfires: [],
     boats: { activeBoatId: '', passengerOf: '', lastPosition: { x:-38, z:52, heading:0 } },
+    transport: { metroTrips:0, metroDestinations:[], busStops:[], busTrips:0 },
+    adventures: { completed:[], bestTimes:{}, active:null },
     hunting: { lastAttempt: 0, tracksFound: 0, successful: 0, failed: 0, cooperativeRewards: [] },
     houseExtensions: [],
     multiplayerRequests: { lastSentAt: 0, completed: [] },
     npcSociety: { lastEvent:0, houses:{}, friendships:{}, moods:{} },
-    transport: { metroTrips:0, busTrips:0, discoveredStations:[], lastStation:'', lastRideAt:0 },
-    skillMastery: { dash:0, superJump:0, shield:0, total:0, shieldUntil:0 },
-    vehicles: { activeVehicleId:'', passengerOf:'', passengerUid:'', botPassengerId:'' },
     lastSaved: Date.now()
   });
 
@@ -108,13 +110,15 @@
       houseExtensions: Array.isArray(saved.houseExtensions) ? saved.houseExtensions : [],
       multiplayerRequests: { ...fresh.multiplayerRequests, ...(saved.multiplayerRequests || {}), completed:Array.isArray(saved.multiplayerRequests?.completed)?saved.multiplayerRequests.completed:[] },
       npcSociety: { ...fresh.npcSociety, ...(saved.npcSociety || {}), houses:{...fresh.npcSociety.houses,...(saved.npcSociety?.houses||{})}, friendships:{...fresh.npcSociety.friendships,...(saved.npcSociety?.friendships||{})}, moods:{...fresh.npcSociety.moods,...(saved.npcSociety?.moods||{})} },
-      transport: { ...fresh.transport, ...(saved.transport || {}), discoveredStations:Array.isArray(saved.transport?.discoveredStations)?saved.transport.discoveredStations:[] },
-      skillMastery: { ...fresh.skillMastery, ...(saved.skillMastery || {}) },
-      vehicles: { ...fresh.vehicles, ...(saved.vehicles || {}) },
       avatar: { ...fresh.avatar, ...(saved.avatar || {}) },
       career: { ...fresh.career, ...(saved.career || {}) },
       social: { ...fresh.social, ...(saved.social || {}) },
-      abilities: { ...fresh.abilities, ...(saved.abilities || {}) },
+      abilities: { ...fresh.abilities, ...(saved.abilities || {}), mastery:{...fresh.abilities.mastery,...(saved.abilities?.mastery||{})} },
+      tools: { ...fresh.tools, ...(saved.tools || {}), owned:Array.isArray(saved.tools?.owned)?saved.tools.owned:fresh.tools.owned, harvested:{...fresh.tools.harvested,...(saved.tools?.harvested||{})} },
+      account: { ...fresh.account, ...(saved.account || {}) },
+      safety: { ...fresh.safety, ...(saved.safety || {}) },
+      transport: { ...fresh.transport, ...(saved.transport || {}), metroDestinations:Array.isArray(saved.transport?.metroDestinations)?saved.transport.metroDestinations:[], busStops:Array.isArray(saved.transport?.busStops)?saved.transport.busStops:[] },
+      adventures: { ...fresh.adventures, ...(saved.adventures || {}), active:null, completed:Array.isArray(saved.adventures?.completed)?saved.adventures.completed:[], bestTimes:{...fresh.adventures.bestTimes,...(saved.adventures?.bestTimes||{})} },
       races: { ...fresh.races, ...(saved.races || {}) },
       ui: { ...fresh.ui, ...(saved.ui || {}) },
       builds: Array.isArray(saved.builds) ? saved.builds : [],
@@ -143,6 +147,10 @@
   }
 
   let state = loadState();
+  let accountSession = window.OTTHOS_ACCOUNT?.getSession?.() || null;
+  if(accountSession){
+    state.account={...(state.account||{}),linked:true,accountId:accountSession.accountId,username:accountSession.username||state.account?.username||''};
+  }
   if(!state.profile.nameConfirmed){
     const legacyName=String(state.profile.name||'').trim();
     if(legacyName&&legacyName.toLowerCase()!=='otthos'){state.profile.name=legacyName;state.profile.nameConfirmed=true;}
@@ -154,6 +162,7 @@
     dbReady = window.OTTHOS_DB.load().then(saved => {
       if (saved && saved.profile) {
         state = normalizeState(saved);
+        if(accountSession)state.account={...(state.account||{}),linked:true,accountId:accountSession.accountId,username:accountSession.username||state.account?.username||''};
         safeLocalSet(STORAGE_KEY, JSON.stringify(state));
       } else {
         window.OTTHOS_DB.save(state).catch(console.warn);
@@ -178,7 +187,7 @@
         })
       : Promise.resolve(true);
     ensureDailyChallenges();updateLobbyStats();updateDailyBadge();
-    lastSavePromise.finally(()=>syncCloudProgress(false));
+    lastSavePromise.finally(()=>{syncCloudProgress(false);syncGameAccount(false);});
     return lastSavePromise;
   }
   function saveState(immediate = false) {
@@ -194,8 +203,7 @@
       version: APP_VERSION,lastSaved:Number(state.lastSaved||Date.now()),
       profile:{name:state.profile.name||'Jogador',coins:state.profile.coins||0,xp:state.profile.xp||0,level:state.profile.level||1,reputation:state.profile.reputation||0},
       inventory:{...state.inventory},medals:[...(state.medals||[])],flags:{...state.flags},houses:{...state.houses},races:{...state.races},
-      avatar:{...state.avatar},abilities:{...state.abilities},builds:[...(state.builds||[])],homeStorage:{...state.homeStorage},fishing:{...state.fishing,catches:[...(state.fishing?.catches||[])],species:{...(state.fishing?.species||{})}},campfires:[...(state.campfires||[])],boats:{...state.boats,lastPosition:{...(state.boats?.lastPosition||{})}},hunting:{...state.hunting},houseExtensions:[...(state.houseExtensions||[])],
-      transport:{...state.transport,discoveredStations:[...(state.transport?.discoveredStations||[])]},skillMastery:{...state.skillMastery},vehicles:{...state.vehicles},
+      avatar:{...state.avatar},abilities:{...state.abilities,mastery:{...(state.abilities?.mastery||{})}},tools:{...state.tools,owned:[...(state.tools?.owned||[])],harvested:{...(state.tools?.harvested||{})}},safety:{...state.safety},builds:[...(state.builds||[])],homeStorage:{...state.homeStorage},fishing:{...state.fishing,catches:[...(state.fishing?.catches||[])],species:{...(state.fishing?.species||{})}},campfires:[...(state.campfires||[])],boats:{...state.boats,lastPosition:{...(state.boats?.lastPosition||{})}},transport:{...state.transport,metroDestinations:[...(state.transport?.metroDestinations||[])],busStops:[...(state.transport?.busStops||[])]},adventures:{...state.adventures,completed:[...(state.adventures?.completed||[])],bestTimes:{...(state.adventures?.bestTimes||{})}},hunting:{...state.hunting},houseExtensions:[...(state.houseExtensions||[])],
       achievements:{stats:{...state.stats},daily:{...state.daily,quests:[...(state.daily?.quests||[])]},learning:{...state.learning,subjectXP:{...state.learning.subjectXP},lessons:{...state.learning.lessons}}},position:{...state.position}
     };
   }
@@ -211,14 +219,105 @@
       profile:{...state.profile,...(remote.profile||{}),name:state.profile.name||remote.profile?.name||'Jogador',nameConfirmed:true},
       inventory:{...state.inventory,...(remote.inventory||{})},medals:Array.isArray(remote.medals)?remote.medals:state.medals,
       flags:{...state.flags,...(remote.flags||{})},houses:{...state.houses,...(remote.houses||{})},races:{...state.races,...(remote.races||{})},
-      avatar:{...state.avatar,...(remote.avatar||{})},abilities:{...state.abilities,...(remote.abilities||{})},
-      builds:Array.isArray(remote.builds)?remote.builds:state.builds,homeStorage:{...state.homeStorage,...(remote.homeStorage||{})},fishing:{...state.fishing,...(remote.fishing||{}),catches:Array.isArray(remote.fishing?.catches)?remote.fishing.catches:state.fishing.catches,species:{...state.fishing.species,...(remote.fishing?.species||{})}},campfires:Array.isArray(remote.campfires)?remote.campfires:state.campfires,boats:{...state.boats,...(remote.boats||{}),lastPosition:{...state.boats.lastPosition,...(remote.boats?.lastPosition||{})}},hunting:{...state.hunting,...(remote.hunting||{})},houseExtensions:Array.isArray(remote.houseExtensions)?remote.houseExtensions:state.houseExtensions,
-      transport:{...state.transport,...(remote.transport||{}),discoveredStations:Array.isArray(remote.transport?.discoveredStations)?remote.transport.discoveredStations:state.transport.discoveredStations},skillMastery:{...state.skillMastery,...(remote.skillMastery||{})},vehicles:{...state.vehicles,...(remote.vehicles||{})},
+      avatar:{...state.avatar,...(remote.avatar||{})},abilities:{...state.abilities,...(remote.abilities||{}),mastery:{...state.abilities.mastery,...(remote.abilities?.mastery||{})}},tools:{...state.tools,...(remote.tools||{}),owned:Array.isArray(remote.tools?.owned)?remote.tools.owned:state.tools.owned,harvested:{...state.tools.harvested,...(remote.tools?.harvested||{})}},safety:{...state.safety,...(remote.safety||{})},
+      builds:Array.isArray(remote.builds)?remote.builds:state.builds,homeStorage:{...state.homeStorage,...(remote.homeStorage||{})},fishing:{...state.fishing,...(remote.fishing||{}),catches:Array.isArray(remote.fishing?.catches)?remote.fishing.catches:state.fishing.catches,species:{...state.fishing.species,...(remote.fishing?.species||{})}},campfires:Array.isArray(remote.campfires)?remote.campfires:state.campfires,boats:{...state.boats,...(remote.boats||{}),lastPosition:{...state.boats.lastPosition,...(remote.boats?.lastPosition||{})}},transport:{...state.transport,...(remote.transport||{}),metroDestinations:Array.isArray(remote.transport?.metroDestinations)?remote.transport.metroDestinations:state.transport.metroDestinations,busStops:Array.isArray(remote.transport?.busStops)?remote.transport.busStops:state.transport.busStops},adventures:{...state.adventures,...(remote.adventures||{}),completed:Array.isArray(remote.adventures?.completed)?remote.adventures.completed:state.adventures.completed,bestTimes:{...state.adventures.bestTimes,...(remote.adventures?.bestTimes||{})}},hunting:{...state.hunting,...(remote.hunting||{})},houseExtensions:Array.isArray(remote.houseExtensions)?remote.houseExtensions:state.houseExtensions,
       stats:{...state.stats,...(remote.achievements?.stats||{})},daily:{...state.daily,...(remote.achievements?.daily||{})},learning:{...state.learning,...(remote.achievements?.learning||{}),subjectXP:{...state.learning.subjectXP,...(remote.achievements?.learning?.subjectXP||{})},lessons:{...state.learning.lessons,...(remote.achievements?.learning?.lessons||{})}},
       position:{...state.position,...(remote.position||{})},lastSaved:remoteSaved,version: APP_VERSION
     };
     state=normalizeState(merged);state.profile.nameConfirmed=true;state.multiplayer.room='mundo-publico';
     safeLocalSet(STORAGE_KEY,JSON.stringify(state));window.OTTHOS_DB?.save?.(state).catch(()=>{});updatePlayerNameUI();updateHUD();updateLobbyStats();toast('Progresso recuperado do Firebase.','good',2300);return true;
+  }
+
+  let accountSaveTimer=0,accountSyncing=false;
+  function accountLinked(){return!!(accountSession&&state.account?.linked&&state.account.accountId===accountSession.accountId);}
+  function accountStatusText(){return accountLinked()?`Conta: ${state.account.username||accountSession.username}`:state.account?.linked?'Entrar novamente':'Conta local';}
+  async function waitForAccountBackend(timeout=6500){
+    if(window.OTTHOS_RTDB)return window.OTTHOS_RTDB;
+    return new Promise(resolve=>{
+      let done=false;
+      const finish=value=>{if(done)return;done=true;clearTimeout(timer);window.removeEventListener('otthos:rtdb-ready',ready);resolve(value);};
+      const ready=()=>finish(window.OTTHOS_RTDB||null),timer=setTimeout(()=>finish(window.OTTHOS_RTDB||null),timeout);
+      window.addEventListener('otthos:rtdb-ready',ready,{once:true});
+    });
+  }
+  async function ensureAccountConnection(){
+    const backend=await waitForAccountBackend();
+    if(!backend?.configured)return{ok:false,error:'A nuvem do jogo ainda não está configurada.'};
+    if(backend.connected?.())return{ok:true,backend};
+    const ok=await backend.connect?.({name:state.profile.name||'Jogador'});
+    return ok?{ok:true,backend}:{ok:false,error:'Sem conexão. O progresso local continua protegido neste aparelho.'};
+  }
+  function syncGameAccount(force=false){
+    clearTimeout(accountSaveTimer);
+    if(!accountLinked()||accountSyncing)return false;
+    const run=async()=>{
+      if(!accountLinked()||accountSyncing)return false;
+      const connection=await ensureAccountConnection();if(!connection.ok)return false;
+      const cloudAccount=connection.backend.accountStatus?.();
+      if(!cloudAccount||cloudAccount.anonymous||cloudAccount.username!==accountSession.username)return false;
+      accountSyncing=true;
+      try{
+        const snapshot=JSON.parse(JSON.stringify(state));
+        snapshot.account={...snapshot.account,linked:true,accountId:accountSession.accountId,username:accountSession.username};
+        const encrypted=await window.OTTHOS_ACCOUNT.encryptState(snapshot,accountSession);
+        const result=await connection.backend.saveGameAccount(accountSession.accountId,encrypted);
+        if(result?.ok)state.account.lastCloudSync=Date.now();
+        return!!result?.ok;
+      }catch(error){console.warn('Conta do jogo:',error);return false}
+      finally{accountSyncing=false}
+    };
+    if(force)return run();
+    accountSaveTimer=setTimeout(run,2400);return true;
+  }
+  async function createGameAccount(displayName,username,password){
+    if(!window.OTTHOS_ACCOUNT)throw new Error('Proteção de conta indisponível neste navegador.');
+    const cleanName=sanitizePlayerName(displayName);if(cleanName.length<3)throw new Error('Escolha um nome de jogador com pelo menos 3 caracteres.');
+    const credentials=await window.OTTHOS_ACCOUNT.deriveCredentials(username,password),connection=await ensureAccountConnection();
+    if(!connection.ok)throw new Error(connection.error);
+    const authResult=await connection.backend.createPlayerAccount?.(credentials.username,password,cleanName);
+    if(!authResult?.ok)throw new Error(authResult?.error||'Não foi possível criar a conta protegida.');
+    applyPlayerName(cleanName);accountSession=window.OTTHOS_ACCOUNT.rememberSession(credentials);
+    state.account={linked:true,accountId:credentials.accountId,username:credentials.username,lastCloudSync:0};
+    await commitState();const saved=await syncGameAccount(true);if(!saved)throw new Error('A conta foi criada, mas a primeira cópia online não terminou. Tente sincronizar novamente.');
+    updatePlayerNameUI();return true;
+  }
+  async function loginGameAccount(username,password){
+    if(!window.OTTHOS_ACCOUNT)throw new Error('Proteção de conta indisponível neste navegador.');
+    const credentials=await window.OTTHOS_ACCOUNT.deriveCredentials(username,password),connection=await ensureAccountConnection();
+    if(!connection.ok)throw new Error(connection.error);
+    const authResult=await connection.backend.signInPlayerAccount?.(credentials.username,password,state.profile.name||credentials.username);
+    if(!authResult?.ok)throw new Error(authResult?.error||'Nome ou senha incorretos.');
+    const result=await connection.backend.loadGameAccount(credentials.accountId);
+    if(!result?.ok)throw new Error(result?.error||'Não foi possível consultar a conta.');
+    if(!result.exists)throw new Error('A conta existe, mas ainda não possui uma cópia de progresso. Entre no aparelho onde ela foi criada e toque em “Sincronizar agora”.');
+    const recovered=await window.OTTHOS_ACCOUNT.decryptState(result.record,credentials);
+    accountSession=window.OTTHOS_ACCOUNT.rememberSession(credentials);
+    state=normalizeState(recovered);state.account={...(state.account||{}),linked:true,accountId:credentials.accountId,username:credentials.username,lastCloudSync:Date.now()};
+    state.profile.nameConfirmed=!!sanitizePlayerName(state.profile.name);
+    safeLocalSet(STORAGE_KEY,JSON.stringify(state));await window.OTTHOS_DB?.save?.(state);window.OTTHOS_RTDB?.setDisplayName?.(state.profile.name||'Jogador');
+    updatePlayerNameUI();updateHUD();updateLobbyStats();return true;
+  }
+  async function unlinkGameAccount(){
+    await window.OTTHOS_RTDB?.signOutPlayerAccount?.().catch?.(()=>{});
+    window.OTTHOS_ACCOUNT?.clearSession?.();accountSession=null;state.account={linked:false,accountId:'',username:'',lastCloudSync:0};saveState(true);updatePlayerNameUI();
+  }
+  function openAccountForm(mode='create',required=false,onReady=null){
+    const creating=mode==='create';
+    openModal(creating?'Criar conta do jogo':'Entrar na conta',`<div class="account-form"><div class="account-shield">🔐</div><p>${creating?'Um responsável pode ajudar. A senha não é gravada; ela protege o progresso antes de enviá-lo.':'Use o mesmo usuário e senha cadastrados no outro aparelho.'}</p>${creating?'<label class="field"><span>Nome que aparece no jogo</span><input data-account-display maxlength="18" autocomplete="nickname" value="'+escapeHtml(state.profile.name||'')+'" placeholder="Ex.: Luna"></label>':''}<label class="field"><span>Usuário da conta</span><input data-account-user maxlength="20" autocapitalize="none" autocomplete="username" spellcheck="false" placeholder="Ex.: luna_azul"></label><label class="field"><span>Senha</span><input data-account-password type="password" maxlength="64" autocomplete="${creating?'new-password':'current-password'}" placeholder="Mínimo de 6 caracteres"></label>${creating?'<label class="field"><span>Repita a senha</span><input data-account-confirm type="password" maxlength="64" autocomplete="new-password"></label>':''}<p class="account-error" data-account-error hidden></p><button class="btn primary xl" data-account-submit>${creating?'Criar e proteger progresso':'Entrar e recuperar progresso'}</button><button class="btn" data-account-back>Voltar</button></div>`,root=>{
+      const submit=$('[data-account-submit]',root),error=$('[data-account-error]',root),user=$('[data-account-user]',root),password=$('[data-account-password]',root);
+      const showError=message=>{error.textContent=message;error.hidden=false;submit.disabled=false;submit.textContent=creating?'Criar e proteger progresso':'Entrar e recuperar progresso';};
+      submit.onclick=async()=>{error.hidden=true;const pass=password.value;if(creating&&pass!==$('[data-account-confirm]',root).value){showError('As duas senhas precisam ser iguais.');return;}submit.disabled=true;submit.textContent=creating?'Criando conta...':'Recuperando...';try{if(creating)await createGameAccount($('[data-account-display]',root).value,user.value,pass);else await loginGameAccount(user.value,pass);closeModal();toast(creating?'Conta criada e progresso protegido.':'Progresso recuperado com sucesso.','good',2600);if(typeof onReady==='function')onReady();else if(!creating)setTimeout(()=>location.reload(),550);}catch(e){showError(e.message||'Não foi possível concluir.');}};
+      $('[data-account-back]',root).onclick=()=>openAccountCenter(required,onReady);setTimeout(()=>user.focus(),80);
+    });
+  }
+  function openAccountCenter(required=false,onReady=null){
+    const linked=accountLinked(),last=Number(state.account?.lastCloudSync||0),lastText=last?new Date(last).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'aguardando primeira cópia';
+    openModal(linked?'Minha conta':'Proteja seu progresso',linked?`<div class="account-card linked"><span>✓</span><div><b>${escapeHtml(state.account.username||accountSession.username)}</b><small>Progresso criptografado • última cópia ${lastText}</small></div></div><div class="modal-actions"><button class="btn primary" data-account-sync>Sincronizar agora</button><button class="btn" data-account-logout>Sair da conta neste aparelho</button></div>`:`<div class="account-intro"><span>☁️</span><h3>Continue em qualquer celular</h3><p>Crie uma conta do jogo ou entre com a combinação cadastrada. Não informe telefone, endereço, escola ou nome completo.</p></div><div class="choice-grid"><button class="choice" data-account-create><b>🔐 Criar conta</b><span>Protege o progresso atual</span></button><button class="choice" data-account-login><b>🔑 Entrar</b><span>Recupera conquistas antigas</span></button>${required?'<button class="choice muted" data-account-offline><b>📱 Jogar neste aparelho</b><span>O progresso continuará salvo localmente</span></button>':''}</div>`,root=>{
+      $('[data-account-create]',root)?.addEventListener('click',()=>openAccountForm('create',required,onReady));$('[data-account-login]',root)?.addEventListener('click',()=>openAccountForm('login',required,onReady));
+      $('[data-account-sync]',root)?.addEventListener('click',async e=>{e.currentTarget.disabled=true;e.currentTarget.textContent='Sincronizando...';const ok=await syncGameAccount(true);closeModal();toast(ok?'Progresso sincronizado.':'Sem conexão agora; a cópia local foi preservada.',ok?'good':'warn',2400);});
+      $('[data-account-logout]',root)?.addEventListener('click',async()=>{if(await confirmModal('Sair da conta','O progresso continuará neste aparelho e na cópia protegida.','Sair','Cancelar')){await unlinkGameAccount();toast('Conta desconectada deste aparelho.','good');}});
+      $('[data-account-offline]',root)?.addEventListener('click',()=>openPlayerNameModal(true,()=>{state.flags.accountPromptedV629=true;saveState(true);if(typeof onReady==='function')onReady();}));
+    });
   }
 
   function addXP(amount) {
@@ -365,7 +464,7 @@
       : '<p>No Chrome, abra o menu ⋮ e escolha <b>Instalar aplicativo</b> ou <b>Adicionar à tela inicial</b>.</p>');
   }
   if (els.installBtn) els.installBtn.onclick = installApp;
-  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=627').catch(console.warn));
+  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=629').catch(console.warn));
   updateInstallUI();
 
 
@@ -376,7 +475,10 @@
     {id:'collect',icon:'💎',title:'Caçador de Tesouros',target:5,reward:95,xp:60,label:n=>`${Math.floor(n)}/5 itens coletados`},
     {id:'talk',icon:'💬',title:'Amigo da Vizinhança',target:3,reward:80,xp:50,label:n=>`${Math.floor(n)}/3 conversas`},
     {id:'cook',icon:'🍳',title:'Chef da Vila',target:1,reward:75,xp:45,label:n=>`${Math.floor(n)}/1 refeição`},
-    {id:'race',icon:'🏁',title:'Competidor',target:1,reward:130,xp:80,label:n=>`${Math.floor(n)}/1 corrida concluída`}
+    {id:'race',icon:'🏁',title:'Competidor',target:1,reward:130,xp:80,label:n=>`${Math.floor(n)}/1 corrida concluída`},
+    {id:'metro',icon:'Ⓜ️',title:'Rede Metropolitana',target:2,reward:110,xp:65,label:n=>`${Math.floor(n)}/2 viagens de metrô`},
+    {id:'bus',icon:'🚌',title:'Passageiro da Cidade',target:3,reward:105,xp:60,label:n=>`${Math.floor(n)}/3 paradas de ônibus`},
+    {id:'skill',icon:'✨',title:'Mestre das Skills',target:3,reward:120,xp:75,label:n=>`${Math.floor(n)}/3 skills avançadas`}
   ];
   function localDateKey(){const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
   function daysBetween(a,b){if(!a||!b)return 99;return Math.round((new Date(`${b}T12:00:00`)-new Date(`${a}T12:00:00`))/86400000)}
@@ -469,7 +571,20 @@
   function startSoloEducationGame(subject,level){try{closeChallengePrompt();runEducationGame({subject,level:Number(level)||1,seed:Date.now()});}catch(error){console.error('Academia Kids:',error);toast('Não foi possível abrir o jogo. Atualize a página.','bad',3000);}}
   function finishSoloEducationGame(result){const passed=result.score>=3,stars=passed?(result.score===result.total?3:result.score>=4?2:1):0,key=`${result.subject}-${result.level}`,old=subjectLevelRecord(result.subject,result.level);state.learning.lessons[key]={completed:old.completed||passed,stars:Math.max(old.stars||0,stars),best:Math.max(old.best||0,result.score),attempts:(old.attempts||0)+1};state.learning.lastLesson=key;state.learning.subjectXP[result.subject]=(state.learning.subjectXP[result.subject]||0)+result.score*10;if(passed){state.learning.crowns+=(old.completed?0:1);if(result.score===result.total)state.learning.perfectLessons++;const coins=30+stars*18;addCoins(coins);addXP(25+stars*12);awardMedal(result.score===result.total?`${EDUCATION_SUBJECTS[result.subject].title} Perfeito`:`Aluno ${EDUCATION_SUBJECTS[result.subject].title}`);saveState(true);openModal('Fase concluída!',`<div class="lesson-result"><div>${result.score===result.total?'🏆':'🎉'}</div><h3>${result.score}/${result.total}</h3><p>${'⭐'.repeat(stars)} Você ganhou ${coins} moedas.</p><button class="btn primary" data-edu-continue>Continuar</button></div>`,root=>$('[data-edu-continue]',root).onclick=()=>openEducationHub(result.subject));}else{saveState(true);openModal('Treine mais um pouco',`<div class="lesson-result"><div>💪</div><h3>${result.score}/${result.total}</h3><p>Você precisa acertar pelo menos 3 atividades.</p><button class="btn primary" data-edu-retry>Tentar novamente</button><button class="btn" data-edu-back>Voltar</button></div>`,root=>{$('[data-edu-retry]',root).onclick=()=>startSoloEducationGame(result.subject,result.level);$('[data-edu-back]',root).onclick=()=>openEducationHub(result.subject);});}}
 
-  function triggerEmote(type,npc=null){player.emoteType=type;player.emoteUntil=performance.now()+(type==='dance'?3200:2400);player.emoteSeq=(player.emoteSeq||0)+1;if(npc){npc.emoteType=type;npc.emoteUntil=performance.now()+(type==='dance'?3200:2400);}if(type==='play')state.needs.fun=clamp(state.needs.fun+8,0,100);const msg={wave:'Acenou!',dance:'Hora da dança!',play:'Começou a brincar!',selfie:'Selfie da amizade!',highfive:'Toca aqui!',hug:'Abraço de amizade!'};toast(msg[type]||'Ação social!','good',1200);beep(type==='highfive'?820:type==='play'?700:620,55);vibrate(15);addXP(3);}
+  let cinematicEmoteTimer=0;
+  function startCinematicEmote(type,duration=2800){
+    if(!['dance','play','selfie','highfive','hug'].includes(type))return;clearTimeout(cinematicEmoteTimer);document.body.classList.add('cinematic-emote');cinematicEmoteTimer=setTimeout(()=>document.body.classList.remove('cinematic-emote'),Math.max(900,duration));
+  }
+  function triggerEmote(type,npc=null){
+    const duration=type==='selfie'?5200:type==='dance'?3200:2400;startCinematicEmote(type,duration);player.emoteType=type;player.emoteUntil=performance.now()+duration;player.emoteSeq=(player.emoteSeq||0)+1;
+    if(npc){npc.emoteType=type;npc.emoteUntil=performance.now()+duration;}
+    if(['dance','play','selfie','highfive','hug'].includes(type)){
+      const token=String(performance.now());triggerEmote.cinemaToken=token;document.body.classList.add('social-moment');
+      setTimeout(()=>{if(triggerEmote.cinemaToken===token)document.body.classList.remove('social-moment');},duration+180);
+    }
+    if(type==='play')state.needs.fun=clamp(state.needs.fun+8,0,100);
+    const msg={wave:'Acenou!',dance:'Hora da dança!',play:'Hora de brincar!',selfie:'Selfie da amizade!',highfive:'Toca aqui!',hug:'Abraço de amizade!'};toast(msg[type]||'Ação social!','good',1100);beep(type==='highfive'?820:type==='play'?700:620,55);vibrate(15);addXP(3);
+  }
 
   function openQuiz(){openEducationHub('math');}
 
@@ -506,9 +621,11 @@
   function openLifePanel() {
     const c = state.career;
     const friendships = Object.entries(state.friendship).sort((a,b)=>b[1]-a[1]).map(([id,value])=>`<div class="friend-row"><span>${({nino:'Nino',luna:'Luna',teo:'Teo',bia:'Bia',maya:'Maya'})[id]||id}</span><b>${value}/100</b></div>`).join('');
-    openModal('Minha vida', `<div class="roleplay-card"><small>CARREIRA</small><h3>${c.title}</h3><p>Nível ${c.level} • ${c.xp} XP profissional • ${c.completed} trabalhos</p></div><div class="choice-grid"><button class="choice" data-life-avatar><b>👕 Meu personagem</b><span>Roupas e acessórios</span></button><button class="choice" data-life-jobs><b>💼 Trabalhos</b><span>Ganhe moedas e reputação</span></button></div><h3>Amizades</h3><div class="friend-list">${friendships}</div>`, root => {
+    openModal('Minha vida', `<div class="roleplay-card"><small>CARREIRA</small><h3>${c.title}</h3><p>Nível ${c.level} • ${c.xp} XP profissional • ${c.completed} trabalhos</p></div><div class="choice-grid"><button class="choice" data-life-avatar><b>👕 Meu personagem</b><span>Roupas e acessórios</span></button><button class="choice" data-life-jobs><b>💼 Trabalhos</b><span>Ganhe moedas e reputação</span></button><button class="choice" data-life-adventures><b>🏰 Desafios da cidade</b><span>Castelo, metrô, ônibus e skills</span></button><button class="choice" data-life-transit><b>Ⓜ️ Rede de transporte</b><span>Estações, linhas e progresso</span></button></div><h3>Amizades</h3><div class="friend-list">${friendships}</div>`, root => {
       $('[data-life-avatar]', root).onclick = openAvatarStudio;
       $('[data-life-jobs]', root).onclick = openJobCenter;
+      $('[data-life-adventures]', root).onclick = openAdventureHub;
+      $('[data-life-transit]', root).onclick = openTransitGuide;
     });
   }
   const moldFiles = [
@@ -523,13 +640,15 @@
       <div class="choice"><b>🕹 Andar</b><span>Use o joystick. O movimento acompanha a direção da câmera.</span></div>
       <div class="choice"><b>✋ Ação contextual</b><span>O texto da tela é exatamente a ação executada: cozinhar, abrir, conversar, coletar ou atacar.</span></div>
       <div class="choice"><b>▼ Abaixar</b><span>Use em passagens baixas e túneis.</span></div>
-      <div class="choice"><b>◱ Mini</b><span>Entre em espaços pequenos e desafios especiais.</span></div>
-      <div class="choice"><b>N Normal</b><span>Volta ao tamanho padrão.</span></div>
-      <div class="choice"><b>⬡ Grande</b><span>Abra portões pesados e enfrente desafios fortes.</span></div>
-      <div class="choice"><b>↻ Girar</b><span>Executa o giro do personagem.</span></div>
+      <div class="choice"><b>◱ Mini</b><span>Entre em espaços pequenos; toque novamente para usar o Dash Mini.</span></div>
+      <div class="choice"><b>N Normal</b><span>Volta ao tamanho padrão; toque novamente para o Super Pulo.</span></div>
+      <div class="choice"><b>⬡ Grande</b><span>Abra portões; toque novamente para o Impacto Gigante.</span></div>
+      <div class="choice"><b>↻ Giro Ímã</b><span>Atrai cristais e afasta monstros próximos.</span></div>
       <div class="choice"><b>⬆ Pular</b><span>Pulo rápido com peso. Use nas plataformas e corridas.</span></div>
       <div class="choice"><b>🔥 Poder</b><span>Lança fogo contra monstros de fantasia.</span></div>
       <div class="choice"><b>🏃 Ginásio</b><span>Dispute corridas e desafios pega-moedas com os vizinhos.</span></div>
+      <div class="choice"><b>Ⓜ️ Metrô</b><span>Entre em uma estação e escolha qualquer destino do mapa.</span></div>
+      <div class="choice"><b>🚌 Ônibus</b><span>Embarque nas paradas, percorra a linha e peça a próxima parada.</span></div>
       <div class="choice"><b>🧱 Construir</b><span>Escolha um item e coloque em áreas autorizadas.</span></div>
       <div class="choice"><b>💾 Salvar</b><span>O jogo salva automaticamente no celular e também permite exportar backup.</span></div>
     </div>`);
@@ -596,21 +715,11 @@
       ]
     },
     {
-      id: 'transport', title: 'Mobilidade da Cidade', chapter: 'CAPÍTULO 8 — METRÔ E TRANSPORTE', reward: { coins: 720, medal: 'Explorador Metropolitano' },
+      id: 'transit', title: 'Cidade conectada', chapter: 'CAPÍTULO 8 — TRANSPORTE E CASTELO', reward: { coins: 720, medal: 'Guardião da Cidade' },
       steps: [
-        ['usedMetro', 'Viaje de metrô para outro ponto do mapa.'],
-        ['rodeBus', 'Entre em um ônibus e faça um passeio.'],
-        ['droveFleetVehicle', 'Dirija um dos veículos espalhados pela cidade.'],
-        ['npcPassenger', 'Leve um aldeão como passageiro.']
-      ]
-    },
-    {
-      id: 'mastery', title: 'Mestre das Habilidades', chapter: 'CAPÍTULO 9 — CASTELO DAS SKILLS', reward: { coins: 900, medal: 'Guardião das Skills' },
-      steps: [
-        ['usedDash', 'Use a habilidade Impulso.'],
-        ['usedSuperJump', 'Use o Super Pulo.'],
-        ['usedShield', 'Ative o Escudo de Energia.'],
-        ['castleTrial', 'Conclua a prova do Castelo.']
+        ['usedMetro', 'Viaje de metrô para um ponto do mapa.'],
+        ['rodeBus', 'Embarque e desembarque em uma linha de ônibus.'],
+        ['castleChallenge', 'Conclua um desafio no castelo.']
       ]
     }
   ];
@@ -667,8 +776,8 @@
   function hasValidPlayerName(){const name=sanitizePlayerName(state.profile.name);return !!(state.profile.nameConfirmed&&name.length>=3);}
   function playerDisplayName(){return hasValidPlayerName()?sanitizePlayerName(state.profile.name):'Jogador';}
   function playerText(value=''){return String(value).replaceAll('Casa do Otthos',`Casa de ${playerDisplayName()}`).replaceAll('do Otthos',`de ${playerDisplayName()}`).replaceAll('o Otthos',playerDisplayName()).replaceAll('Otthos',playerDisplayName());}
-  function updatePlayerNameUI(){const name=hasValidPlayerName()?state.profile.name:'Escolher nome';if(els.lobbyPlayerName)els.lobbyPlayerName.textContent=name;if(els.hudPlayerName)els.hudPlayerName.textContent=hasValidPlayerName()?state.profile.name:'Jogador';const menu=$('#avatarMenuName'),quick=$('#avatarQuickName');if(menu)menu.textContent=`Meu ${playerDisplayName()}`;if(quick)quick.textContent=playerDisplayName();const homeLoc=MAP_LOCATIONS?.find?.(x=>x.id==='home');if(homeLoc)homeLoc.name=`Casa de ${playerDisplayName()}`;const homeHouse=world?.houses?.find?.(x=>x.id==='home');if(homeHouse)homeHouse.name=`Casa de ${playerDisplayName()}`;updateLocalPlayerNameLabel?.();}
-  function applyPlayerName(name){const clean=sanitizePlayerName(name);if(clean.length<3){toast('Digite um nome com pelo menos 3 caracteres.','warn',2200);return false;}state.profile.name=clean;state.profile.nameConfirmed=true;state.multiplayer.displayName=clean;updatePlayerNameUI();saveState(true);window.OTTHOS_RTDB?.setDisplayName?.(clean);if(running)window.OTTHOS_RTDB?.publish?.({name:clean,x:player.x,y:player.y,z:player.z,r:player.facing,vehicle:!!player.vehicle,vehicleRole:player.vehicle?(player.car.passengerOf?'passenger':'driver'):'',passengerOfVehicle:player.car.passengerOf||'',vehiclePassengerUid:player.car.passengerUid||'',boating:!!player.boating,boatId:state.boats.activeBoatId||'',boatRole:player.boating?(player.boat.passengerOf?'passenger':'driver'):'',passengerOf:player.boat.passengerOf||'',boatPassengerUid:player.boat.passengerUid||'',scaleMode:player.scaleMode,crouched:!!player.crouched,color:0x5ad8ff},true);return true;}
+  function updatePlayerNameUI(){const name=hasValidPlayerName()?state.profile.name:'Escolher nome';if(els.lobbyPlayerName)els.lobbyPlayerName.textContent=name;if(els.hudPlayerName)els.hudPlayerName.textContent=hasValidPlayerName()?state.profile.name:'Jogador';if(els.accountStatusLabel)els.accountStatusLabel.textContent=accountStatusText();const menu=$('#avatarMenuName'),quick=$('#avatarQuickName');if(menu)menu.textContent=`Meu ${playerDisplayName()}`;if(quick)quick.textContent=playerDisplayName();const homeLoc=MAP_LOCATIONS?.find?.(x=>x.id==='home');if(homeLoc)homeLoc.name=`Casa de ${playerDisplayName()}`;const homeHouse=world?.houses?.find?.(x=>x.id==='home');if(homeHouse)homeHouse.name=`Casa de ${playerDisplayName()}`;updateLocalPlayerNameLabel?.();}
+  function applyPlayerName(name){const clean=sanitizePlayerName(name);if(clean.length<3){toast('Digite um nome com pelo menos 3 caracteres.','warn',2200);return false;}state.profile.name=clean;state.profile.nameConfirmed=true;state.multiplayer.displayName=clean;updatePlayerNameUI();saveState(true);window.OTTHOS_RTDB?.setDisplayName?.(clean);if(running)window.OTTHOS_RTDB?.publish?.({name:clean,x:player.x,y:player.y,z:player.z,r:player.facing,vehicle:!!player.vehicle,vehicleId:player.car.id||'',vehicleRole:player.vehicle?(player.car.passengerOf?'passenger':'driver'):'',vehiclePassengerOf:player.car.passengerOf||'',vehiclePassengerUid:player.car.passengerUid||'',vehiclePassengerBotId:player.car.passengerBotId||'',boating:!!player.boating,boatId:state.boats.activeBoatId||'',boatRole:player.boating?(player.boat.passengerOf?'passenger':'driver'):'',passengerOf:player.boat.passengerOf||'',boatPassengerUid:player.boat.passengerUid||'',boatPassengerBotId:player.boat.passengerBotId||'',scaleMode:player.scaleMode,crouched:!!player.crouched,color:0x5ad8ff},true);return true;}
   function openPlayerNameModal(required=false,onSaved=null){
     const current=hasValidPlayerName()?state.profile.name:'';
     openModal(required?'Escolha seu nome de jogador':'Nome do jogador',`<div class="player-name-modal"><div class="player-name-icon">👤</div><p>${required?'Antes de entrar, escolha o nome que aparecerá para os outros jogadores.':'Este nome aparece sobre seu personagem no multiplayer.'}</p><label class="field"><span>Nome público</span><input id="playerNameInput" maxlength="18" autocomplete="nickname" inputmode="text" value="${current.replace(/"/g,'&quot;')}" placeholder="Ex.: Thiago"></label><small>De 3 a 18 caracteres. Não use telefone, endereço ou informação pessoal sensível.</small><button class="btn primary xl" data-save-player-name>Salvar nome</button></div>`,root=>{const input=$('#playerNameInput',root),save=$('[data-save-player-name]',root);setTimeout(()=>input?.focus(),80);const submit=()=>{if(!applyPlayerName(input?.value))return;closeModal();toast(`Nome definido: ${state.profile.name}`,'good',1600);if(typeof onSaved==='function')onSaved();};save.onclick=submit;input?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submit();}});});
@@ -699,10 +808,38 @@
   function openInventory() {
     const inv = state.inventory;
     openModal('Inventário', `<div class="inventory-grid">
-      <div class="inventory-item"><b>🪵 ${inv.wood}</b><span>Madeira</span></div><div class="inventory-item"><b>🪨 ${inv.stone}</b><span>Pedra</span></div><div class="inventory-item"><b>🍎 ${inv.food}</b><span>Comida</span></div><div class="inventory-item"><b>💧 ${inv.water}</b><span>Água</span></div><div class="inventory-item"><b>💎 ${inv.crystals}</b><span>Cristais</span></div><div class="inventory-item"><b>🧱 ${inv.blocks}</b><span>Blocos</span></div><div class="inventory-item"><b>🪵 ${inv.fences}</b><span>Cercas</span></div><div class="inventory-item"><b>🪙 ${state.profile.coins}</b><span>Moedas</span></div>
+      <div class="inventory-item"><b>🪵 ${inv.wood}</b><span>Madeira</span></div><div class="inventory-item"><b>🪨 ${inv.stone}</b><span>Pedra</span></div><div class="inventory-item"><b>🟨 ${inv.goldOre||0}</b><span>Minério de ouro</span></div><div class="inventory-item"><b>🏅 ${inv.goldBar||0}</b><span>Barra de ouro</span></div><div class="inventory-item"><b>🍎 ${inv.food}</b><span>Comida</span></div><div class="inventory-item"><b>💧 ${inv.water}</b><span>Água</span></div><div class="inventory-item"><b>💎 ${inv.crystals}</b><span>Cristais</span></div><div class="inventory-item"><b>🧱 ${inv.blocks}</b><span>Blocos</span></div><div class="inventory-item"><b>🪵 ${inv.fences}</b><span>Cercas</span></div><div class="inventory-item"><b>🪙 ${state.profile.coins}</b><span>Moedas</span></div>
       <div class="inventory-item"><b>🎣 ${inv.fishingRod||0}</b><span>Vara de pesca</span></div><div class="inventory-item"><b>🪱 ${inv.bait||0}</b><span>Iscas</span></div><div class="inventory-item"><b>🐟 ${inv.rawFish||0}</b><span>Peixe cru</span></div><div class="inventory-item"><b>🍽️ ${inv.cookedFish||0}</b><span>Peixe assado</span></div><div class="inventory-item"><b>🌿 ${inv.forestResources||0}</b><span>Recursos da floresta</span></div>
-    </div>${inv.cookedFish>0?'<div class="modal-actions"><button class="btn primary" data-eat-cooked>Comer peixe assado</button></div>':''}`,root=>{$('[data-eat-cooked]',root)?.addEventListener('click',()=>{if((state.inventory.cookedFish||0)<1)return;state.inventory.cookedFish--;state.needs.hunger=clamp(state.needs.hunger+32,0,100);state.needs.energy=clamp(state.needs.energy+6,0,100);saveState(true);updateHUD();toast('Peixe assado consumido.','good');openInventory();});});
+    </div><div class="modal-actions"><button class="btn primary" data-open-tools>Ferramentas</button>${inv.cookedFish>0?'<button class="btn" data-eat-cooked>Comer peixe assado</button>':''}</div>`,root=>{$('[data-open-tools]',root)?.addEventListener('click',openToolbelt);$('[data-eat-cooked]',root)?.addEventListener('click',()=>{if((state.inventory.cookedFish||0)<1)return;state.inventory.cookedFish--;state.needs.hunger=clamp(state.needs.hunger+32,0,100);state.needs.energy=clamp(state.needs.energy+6,0,100);saveState(true);updateHUD();toast('Peixe assado consumido.','good');openInventory();});});
   }
+
+  const TOOL_DEFS={
+    axe:{icon:'🪓',name:'Machado',description:'Corta árvores e coleta madeira.'},
+    pickaxe:{icon:'⛏️',name:'Picareta',description:'Extrai pedra e minério de ouro.'},
+    bucket:{icon:'🪣',name:'Balde',description:'Retira água limpa do poço.'}
+  };
+  function equippedTool(){return TOOL_DEFS[state.tools?.equipped]||TOOL_DEFS.axe;}
+  function equipTool(id){
+    if(!TOOL_DEFS[id]||!state.tools.owned.includes(id))return false;state.tools.equipped=id;saveState(true);refreshEquippedToolVisual();if(els.toolsBtn){els.toolsBtn.firstChild.textContent=TOOL_DEFS[id].icon;$('span',els.toolsBtn).textContent=TOOL_DEFS[id].name;}toast(`${TOOL_DEFS[id].name} equipado.`,'good',1200);return true;
+  }
+  function openToolbelt(){
+    openModal('Ferramentas',`<div class="tool-grid">${Object.entries(TOOL_DEFS).map(([id,tool])=>`<button class="tool-card ${state.tools.equipped===id?'active':''}" data-equip-tool="${id}"><span>${tool.icon}</span><b>${tool.name}</b><small>${tool.description}</small><em>${state.tools.equipped===id?'Em uso':'Equipar'}</em></button>`).join('')}</div><div class="resource-summary"><span>🪵 ${state.tools.harvested.wood||0}</span><span>🪨 ${state.tools.harvested.stone||0}</span><span>🟨 ${state.tools.harvested.gold||0}</span><span>💧 ${state.tools.harvested.water||0}</span></div>`,root=>{$$('[data-equip-tool]',root).forEach(btn=>btn.onclick=()=>{equipTool(btn.dataset.equipTool);closeModal();});});
+  }
+  function refreshEquippedToolVisual(){
+    if(!playerModel?.userData?.parts?.rightArm)return;
+    const arm=playerModel.userData.parts.rightArm;if(toolVisual){arm.remove(toolVisual);toolVisual=null;}
+    toolVisual=new THREE.Group();toolVisual.position.set(0,-1.12,.14);toolVisual.rotation.z=-.18;arm.add(toolVisual);
+    const type=state.tools?.equipped||'axe',wood=materials.wood||0x8c542c,metal=materials.metal||0x8d9aa6;
+    if(type==='bucket'){
+      const bucket=new THREE.Mesh(new THREE.CylinderGeometry(.24,.18,.38,10,1,true),metal);bucket.position.y=-.16;toolVisual.add(bucket);const handle=new THREE.Mesh(new THREE.TorusGeometry(.24,.025,6,12,Math.PI),renderMat(0x53606c,{metalness:.5,roughness:.35}));handle.position.y=.05;handle.rotation.z=Math.PI;toolVisual.add(handle);
+    }else{
+      box(.11,.92,.11,wood,0,-.16,0,toolVisual);
+      if(type==='axe'){box(.48,.3,.14,metal,.17,.25,0,toolVisual);box(.18,.18,.17,metal,-.13,.25,0,toolVisual);}
+      else{box(.72,.16,.16,metal,0,.25,0,toolVisual);box(.16,.28,.16,metal,-.3,.14,0,toolVisual);box(.16,.28,.16,metal,.3,.14,0,toolVisual);}
+    }
+    toolVisual.visible=!player.vehicle&&!player.boating&&!player.transit.mode;
+  }
+  function playToolAnimation(){player.emoteType='tool';player.emoteUntil=performance.now()+620;player.emoteSeq=(player.emoteSeq||0)+1;beep(state.tools.equipped==='pickaxe'?180:260,55,'triangle');vibrate(16);}
 
   const WORLD_MAP_ROADS=[{x:0,z:0,w:18,d:210},{x:0,z:0,w:210,d:18},{x:-55,z:-55,w:9,d:105},{x:55,z:48,w:9,d:92}];
   const NAV_BASE_NODES={
@@ -741,6 +878,14 @@
   function updateNavigation(dt=0,force=false){updateNavigation.acc=(updateNavigation.acc||0)+dt;if(!force&&updateNavigation.acc<.14)return;updateNavigation.acc=0;updateRouteGuide(force);drawMiniMap();if(!els.miniNav)return;if(state.waypoint){const info=routeProgressInfo(world.routePath,player),dx=info.next.x-player.x,dz=info.next.z-player.z,arrival=Math.hypot((state.waypoint.navX??state.waypoint.x)-player.x,(state.waypoint.navZ??state.waypoint.z)-player.z);els.miniNavName.textContent=`Rota: ${state.waypoint.name}`;els.miniNavDistance.textContent=arrival<4?'Você chegou!':`${Math.round(info.remaining)} m • ${info.instruction}`;els.miniNavArrow.style.transform=`rotate(${player.facing-Math.atan2(dx,dz)}rad)`;els.miniNav.classList.add('active');if(arrival<4&&!state.waypoint.arrived){state.waypoint.arrived=true;toast(`Você chegou: ${state.waypoint.name}`,'good',1800);beep(850,90);saveState();}}else{els.miniNavName.textContent='GPS da Vila';els.miniNavDistance.textContent='Toque para escolher o destino';els.miniNavArrow.style.transform='rotate(0deg)';els.miniNav.classList.remove('active');}}
   function routeSvgMarkup(points){const mapped=points.map(p=>worldToMap(p.x,p.z));return `<svg class="map-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polyline points="${mapped.map(p=>`${p.left},${p.top}`).join(' ')}"/></svg>`;}
 
+  const METRO_STATIONS = [
+    { id:'central', name:'Estação Central', x:-12, z:5, navX:-12, navZ:11, line:'Linha Solar' },
+    { id:'academia', name:'Estação Academia', x:13, z:-40, navX:13, navZ:-40, line:'Linha Solar' },
+    { id:'floresta', name:'Estação Floresta', x:-62, z:-34, navX:-62, navZ:-34, line:'Linha Verde' },
+    { id:'lago', name:'Estação Lago', x:-25, z:59, navX:-25, navZ:59, line:'Linha Verde' },
+    { id:'castelo', name:'Estação Castelo', x:71, z:49, navX:71, navZ:49, line:'Linha Real' },
+    { id:'ginásio', name:'Estação Ginásio', x:63, z:80, navX:63, navZ:80, line:'Linha Real' }
+  ];
   const MAP_LOCATIONS = [
     { id:'home', name:`Casa de ${playerDisplayName()}`, icon:'🏠', x:0, z:18, navX:0, navZ:23.3, group:'Casa' },
     { id:'village', name:'Praça da Vila', icon:'🏘', x:0, z:0, group:'Vila' },
@@ -748,6 +893,11 @@
     { id:'pink', name:'Casa Rosa', icon:'🏡', x:25, z:17, navX:25, navZ:22.3, group:'Casas' },
     { id:'shop', name:'Mercadinho', icon:'🛒', x:-22, z:-18, navX:-22, navZ:-12.7, group:'Serviços' },
     { id:'workshop', name:'Oficina', icon:'🛠', x:22, z:-18, navX:22, navZ:-12.7, group:'Serviços' },
+    { id:'school', name:'Escola Vila do Sol', icon:'🏫', x:-68, z:-18, navX:-60, navZ:-12, group:'Serviços' },
+    { id:'school-east', name:'Escola Horizonte', icon:'🏫', x:78, z:24, navX:68, navZ:18, group:'Serviços' },
+    { id:'police', name:'Posto de Segurança', icon:'🛡️', x:68, z:-18, navX:60, navZ:-12, group:'Serviços' },
+    { id:'well', name:'Poço da Vila', icon:'🪣', x:38, z:10, navX:38, navZ:10, group:'Recursos' },
+    { id:'mine', name:'Mina Dourada', icon:'⛏️', x:-92, z:-92, navX:-84, navZ:-86, group:'Recursos' },
     { id:'forest', name:'Floresta', icon:'🌲', x:-88, z:-42, navX:-82, navZ:-35, group:'Exploração' },
     { id:'lake', name:'Represa / Lago', icon:'🌊', x:-36, z:52, navX:-27, navZ:52, group:'Água e Natureza' },
     { id:'pier', name:'Píer do Lago', icon:'🛶', x:-29, z:52, navX:-25, navZ:52, group:'Água e Natureza' },
@@ -758,6 +908,7 @@
     { id:'home-extension', name:'Ampliação da Casa', icon:'🧰', x:9, z:24, navX:7, navZ:26, group:'Casa' },
     { id:'crystal', name:'Vale dos Cristais', icon:'💎', x:70, z:-60, group:'Desafios' },
     { id:'garage', name:'Garagem e Fazenda', icon:'🚗', x:52, z:48, navX:48, navZ:43, group:'Trabalho' },
+    ...METRO_STATIONS.map(s=>({id:`metro-${s.id}`,name:s.name,icon:'Ⓜ️',x:s.x,z:s.z,navX:s.navX,navZ:s.navZ,group:'Transporte'})),
     { id:'gym', name:'Ginásio', icon:'🏃', x:45, z:78, navX:45, navZ:84, group:'Desafios' },
     { id:'castle', name:'Castelo', icon:'🏰', x:88, z:62, group:'Aventura' },
     { id:'mini', name:'Passagem Mini', icon:'◱', x:-38, z:42, group:'Habilidades' },
@@ -765,16 +916,7 @@
     { id:'giant', name:'Portão Grande', icon:'⬡', x:36, z:-35, group:'Habilidades' },
     { id:'edu-math', name:'Matemática Kids', icon:'🔢', x:22, z:-32, navX:18, navZ:-32, group:'Academia' },
     { id:'edu-portuguese', name:'Português Kids', icon:'📚', x:22, z:-40, navX:18, navZ:-40, group:'Academia' },
-    { id:'edu-english', name:'English Kids', icon:'🌎', x:22, z:-48, navX:18, navZ:-48, group:'Academia' },
-    { id:'metro-village', name:'Metrô Praça Central', icon:'🚇', x:8, z:-3, navX:8, navZ:-3, group:'Metrô' },
-    { id:'metro-lake', name:'Metrô Lago e Píer', icon:'🚇', x:-22, z:39, navX:-22, navZ:39, group:'Metrô' },
-    { id:'metro-forest', name:'Metrô Floresta', icon:'🚇', x:-55, z:-34, navX:-55, navZ:-34, group:'Metrô' },
-    { id:'metro-castle', name:'Metrô Castelo', icon:'🚇', x:72, z:47, navX:72, navZ:47, group:'Metrô' },
-    { id:'metro-gym', name:'Metrô Ginásio', icon:'🚇', x:55, z:90, navX:55, navZ:90, group:'Metrô' },
-    { id:'bus-central', name:'Ponto Praça Central', icon:'🚌', x:-8, z:5, navX:-8, navZ:5, group:'Transporte' },
-    { id:'bus-garage', name:'Ponto Garagem', icon:'🚌', x:55, z:5, navX:55, navZ:5, group:'Transporte' },
-    { id:'bus-gym', name:'Ponto Ginásio', icon:'🚌', x:55, z:82, navX:55, navZ:82, group:'Transporte' },
-    { id:'bus-forest', name:'Ponto Floresta', icon:'🚌', x:-55, z:-48, navX:-55, navZ:-48, group:'Transporte' }
+    { id:'edu-english', name:'English Kids', icon:'🌎', x:22, z:-48, navX:18, navZ:-48, group:'Academia' }
   ];
   function worldToMap(x,z){ return { left:clamp((x+116)/232*100,2.5,97.5), top:clamp((116-z)/232*100,2.5,97.5) }; }
   function mapDistance(point){ return Math.round(Math.hypot(player.x-(point.navX??point.x),player.z-(point.navZ??point.z))); }
@@ -854,7 +996,33 @@
   function refreshOpenMapAfterResize(){if(els.modal.hidden||!els.modal.classList.contains('map-modal'))return;clearTimeout(mapResizeTimer);mapResizeTimer=setTimeout(()=>{if(!els.modal.hidden&&els.modal.classList.contains('map-modal'))openMap();},180);}
   window.addEventListener('resize',refreshOpenMapAfterResize,{passive:true});window.addEventListener('orientationchange',refreshOpenMapAfterResize,{passive:true});
 
-
+  function performLocalReset(){
+    window.OTTHOS_ACCOUNT?.clearSession?.();accountSession=null;safeLocalRemove(STORAGE_KEY);LEGACY_STORAGE_KEYS.forEach(safeLocalRemove);return window.OTTHOS_DB?.clear?.();
+  }
+  function openFinalResetConfirmation(inGame=false){
+    openModal('Confirmação final',`<div class="parent-gate"><span>⚠️</span><h3>Esta ação reinicia somente este aparelho</h3><p>Uma conta sincronizada poderá recuperar o progresso. Para continuar, digite <b>APAGAR</b>.</p><label class="field"><span>Confirmação</span><input data-reset-word maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="APAGAR"></label><p data-reset-error class="account-error" hidden>Digite APAGAR exatamente.</p><button class="btn danger" data-reset-confirm>Recomeçar neste aparelho</button><button class="btn" data-reset-cancel>Cancelar</button></div>`,root=>{
+      const input=$('[data-reset-word]',root),confirm=async()=>{if(String(input.value||'').trim().toUpperCase()!=='APAGAR'){$('[data-reset-error]',root).hidden=false;input.select();return;}if(!(await confirmModal('Última confirmação','Tem certeza de que deseja reiniciar os dados locais deste aparelho?','Sim, recomeçar','Cancelar')))return;await performLocalReset();state=defaultState();await commitState();location.reload();};
+      $('[data-reset-confirm]',root).onclick=confirm;$('[data-reset-cancel]',root).onclick=()=>openParentTools(inGame);input.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();confirm();}};setTimeout(()=>input.focus(),80);
+    });
+  }
+  function openParentTools(inGame=false){
+    openModal('Área dos responsáveis',`<div class="parent-area"><div class="parent-area-heading"><span>🛡️</span><div><b>Backup e dados do jogo</b><small>Área protegida e fora da interface infantil.</small></div></div><div class="choice-grid"><button class="choice" data-parent-export><b>📤 Exportar backup</b><span>Baixar uma cópia do progresso</span></button><button class="choice" data-parent-import><b>📥 Importar backup</b><span>Substitui os dados deste aparelho</span></button><button class="choice danger-zone" data-parent-reset><b>🗑️ Recomeçar neste aparelho</b><span>Exige senha, palavra APAGAR e confirmação final</span></button></div><input data-parent-import-file type="file" accept="application/json" hidden><div class="modal-actions"><button class="btn" data-parent-back>Voltar às configurações</button></div></div>`,root=>{
+      $('[data-parent-export]',root).onclick=()=>window.OTTHOS_DB?.exportFile(state);
+      const fileInput=$('[data-parent-import-file]',root);$('[data-parent-import]',root).onclick=()=>fileInput.click();
+      fileInput.onchange=async()=>{const file=fileInput.files?.[0];if(!file)return;try{const imported=normalizeState(await window.OTTHOS_DB.importFile(file));if(!(await confirmModal('Importar backup','O progresso atual deste aparelho será substituído pelo arquivo escolhido. Continuar?','Importar','Cancelar')))return;state=imported;await window.OTTHOS_DB.save(state);safeLocalSet(STORAGE_KEY,JSON.stringify(state));location.reload();}catch(error){toast(error.message||'Backup inválido.','bad');}};
+      $('[data-parent-reset]',root).onclick=()=>openFinalResetConfirmation(inGame);$('[data-parent-back]',root).onclick=()=>openSettings(inGame);
+    });
+  }
+  function openParentGate(inGame=false){
+    if(accountLinked()){
+      openModal('Acesso de responsável',`<div class="parent-gate"><span>🛡️</span><h3>Confirme a senha da conta</h3><p>Esta área contém backup e reinício do aparelho.</p><label class="field"><span>Senha da conta</span><input data-parent-password type="password" maxlength="64" autocomplete="current-password"></label><p data-parent-gate-error class="account-error" hidden></p><button class="btn primary xl" data-parent-unlock>Continuar</button><button class="btn" data-parent-cancel>Cancelar</button></div>`,root=>{
+        const input=$('[data-parent-password]',root),error=$('[data-parent-gate-error]',root),unlock=async()=>{const btn=$('[data-parent-unlock]',root);btn.disabled=true;btn.textContent='Confirmando...';const result=await window.OTTHOS_RTDB?.reauthenticateAccount?.(input.value);if(!result?.ok){error.textContent=result?.error||'Senha incorreta.';error.hidden=false;btn.disabled=false;btn.textContent='Continuar';input.select();return;}openParentTools(inGame);};
+        $('[data-parent-unlock]',root).onclick=unlock;$('[data-parent-cancel]',root).onclick=()=>openSettings(inGame);input.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();unlock();}};setTimeout(()=>input.focus(),80);
+      });return;
+    }
+    const a=7+Math.floor(Math.random()*5),b=5+Math.floor(Math.random()*4),answer=a*b;
+    openModal('Acesso de responsável',`<div class="parent-gate"><span>🛡️</span><h3>Peça ajuda a um adulto</h3><p>Para abrir backup e reinício, responda:</p><label class="field"><span>Quanto é ${a} × ${b}?</span><input data-parent-answer inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off"></label><p data-parent-gate-error class="account-error" hidden>Resposta incorreta.</p><button class="btn primary xl" data-parent-unlock>Continuar</button><button class="btn" data-parent-cancel>Cancelar</button></div>`,root=>{const input=$('[data-parent-answer]',root),unlock=()=>{if(Number(input.value)!==answer){$('[data-parent-gate-error]',root).hidden=false;input.select();return;}openParentTools(inGame);};$('[data-parent-unlock]',root).onclick=unlock;$('[data-parent-cancel]',root).onclick=()=>openSettings(inGame);input.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();unlock();}};setTimeout(()=>input.focus(),80);});
+  }
   let deferredSettingsRefresh = null;
   function openSettings(inGame = false) {
     const sound = state.settings.sound, vibration = state.settings.vibration, quality = requestedQuality(), high = quality === 'high';
@@ -866,17 +1034,16 @@
       <div class="settings-row"><div><b>Vibração</b><small>Feedback no celular</small></div><button class="toggle ${vibration ? 'on' : ''}" data-toggle="vibration"><i></i></button></div>
       <div class="settings-row"><div><b>Qualidade gráfica</b><small>${qualityLabel()}</small></div><button class="toggle ${quality !== 'low' ? 'on' : ''}" data-toggle="quality"><i></i></button></div><div class="settings-row"><div><b>Desempenho atual</b><small>${Math.round(perf.fps)} FPS • render ${qualityTier()}</small></div><span class="db-status">AUTO</span></div>
       <div class="settings-row"><div><b>Salvamento automático</b><small>IndexedDB no celular + cópia local. Último: ${savedAt}</small></div><span class="db-status">✓ Ativo</span></div>
-      <div class="settings-row"><div><b>Nome público</b><small>${hasValidPlayerName()?state.profile.name:'Ainda não definido'}</small></div><button class="btn compact" data-player-name-settings>Editar</button></div><div class="settings-row"><div><b>Multiplayer Firebase</b><small id="mpSettingsStatus">${multiplayerStatusText()}</small></div><button class="btn compact" data-multiplayer-config>Abrir online</button></div>
+      <div class="settings-row"><div><b>Nome público</b><small>${hasValidPlayerName()?state.profile.name:'Ainda não definido'}</small></div><button class="btn compact" data-player-name-settings>Editar</button></div>
+      <div class="settings-row"><div><b>Conta do jogo</b><small>${accountStatusText()}</small></div><button class="btn compact" data-account-settings>Abrir</button></div>
+      <div class="settings-row"><div><b>Mundo online</b><small id="mpSettingsStatus">${multiplayerStatusText()}</small></div><button class="btn compact" data-multiplayer-config>Abrir online</button></div>
     </div><div class="modal-actions">
       <button class="btn primary" data-save-now>Salvar agora</button>
-      <button class="btn" data-export>Exportar backup</button>
-      <button class="btn" data-import>Importar backup</button>
       ${installOption}
-      <input data-import-file type="file" accept="application/json" hidden>
       ${inGame ? '<button class="btn" data-home>Voltar para casa</button><button class="btn" data-exit>Sair para o menu</button>' : ''}
-      <button class="btn danger" data-reset>Apagar progresso</button>
+      <button class="btn subtle parent-access-btn" data-parent-area>🛡️ Área dos responsáveis</button>
     </div>`, root => {
-      $('[data-player-name-settings]',root)?.addEventListener('click',()=>openPlayerNameModal(false,()=>openSettings(inGame)));$('[data-multiplayer-config]',root)?.addEventListener('click',openMultiplayerConfig);
+      $('[data-player-name-settings]',root)?.addEventListener('click',()=>openPlayerNameModal(false,()=>openSettings(inGame)));$('[data-account-settings]',root)?.addEventListener('click',()=>openAccountCenter(false));$('[data-multiplayer-config]',root)?.addEventListener('click',openMultiplayerConfig);
       $$('[data-toggle]', root).forEach(btn => btn.onclick = () => {
         const key = btn.dataset.toggle;
         if (key === 'quality') state.settings.quality = requestedQuality() === 'auto' ? 'high' : requestedQuality() === 'high' ? 'low' : 'auto';
@@ -884,22 +1051,10 @@
         saveState(true); closeModal(); applyQuality(); openSettings(inGame);
       });
       $('[data-save-now]',root).onclick=async()=>{ if(running) savePlayerPosition(true); else await commitState(); toast('Progresso salvo no celular.','good'); closeModal(); };
-      $('[data-export]', root).onclick = () => window.OTTHOS_DB?.exportFile(state);
       const install=$('[data-install]',root);if(install)install.onclick=installApp;
-      const fileInput = $('[data-import-file]', root);
-      $('[data-import]', root).onclick = () => fileInput.click();
-      fileInput.onchange = async () => {
-        const file = fileInput.files?.[0]; if (!file) return;
-        try { state = normalizeState(await window.OTTHOS_DB.importFile(file)); await window.OTTHOS_DB.save(state); safeLocalSet(STORAGE_KEY, JSON.stringify(state)); location.reload(); }
-        catch (error) { toast(error.message || 'Backup inválido.', 'bad'); }
-      };
       const home = $('[data-home]', root); if (home) home.onclick = () => { closeModal(); returnHome(); };
       const exit = $('[data-exit]', root); if (exit) exit.onclick = () => { closeModal(); stopGame(); };
-      $('[data-reset]', root).onclick = async () => {
-        if (await confirmModal('Apagar progresso', 'Tem certeza? Casas, moedas, amizade e construções serão apagadas.', 'Apagar', 'Cancelar')) {
-          state = defaultState(); safeLocalRemove(STORAGE_KEY); await window.OTTHOS_DB?.clear(); await commitState(); location.reload();
-        }
-      };
+      $('[data-parent-area]',root).onclick=()=>openParentGate(inGame);
     });
   }
 
@@ -909,23 +1064,25 @@
   els.challengePromptDecline.onclick=()=>{if(promptSocialRequestId)declineIncomingSocialRequest(promptSocialRequestId);else if(promptChallengeId)declineIncomingChallenge(promptChallengeId);else closeChallengePrompt();};
   els.collectionBtn.onclick = openCollection;
   els.avatarBtn.onclick = openAvatarStudio;
+  els.accountBtn.onclick = () => openAccountCenter(false);
   els.moldsBtn.onclick = openMolds;
   els.howBtn.onclick = openHow;
   els.settingsBtn.onclick = () => openSettings(false);els.multiplayerBadge.onclick=openSocialHub;els.profileNameBtn.onclick=()=>openPlayerNameModal(false);
   els.avatarGameBtn.onclick = openLifePanel;
   els.inventoryBtn.onclick = openInventory;
+  els.toolsBtn.onclick = openToolbelt;
   els.mapBtn.onclick = openMap;
   els.dailyBtn.onclick = () => openEducationHub('math');
   els.onlineBtn.onclick = openSocialHub;
   els.gameSettingsBtn.onclick = () => openSettings(true);
-  function syncMobilePanels(){document.body.classList.toggle('skills-open',!!state.ui.skillsOpen);document.body.classList.toggle('quick-open',!!state.ui.quickOpen);els.skillsToggleBtn?.classList.toggle('active',!!state.ui.skillsOpen);els.quickToggleBtn?.classList.toggle('active',!!state.ui.quickOpen);els.quickBar.hidden=!state.ui.quickOpen;syncAdvancedSkillsPanel();}
+  function syncMobilePanels(){document.body.classList.toggle('skills-open',!!state.ui.skillsOpen);document.body.classList.toggle('quick-open',!!state.ui.quickOpen);els.skillsToggleBtn?.classList.toggle('active',!!state.ui.skillsOpen);els.quickToggleBtn?.classList.toggle('active',!!state.ui.quickOpen);els.quickBar.hidden=!state.ui.quickOpen;}
   els.quickToggleBtn.onclick = () => { state.ui.quickOpen = !state.ui.quickOpen;if(state.ui.quickOpen)state.ui.skillsOpen=false;syncMobilePanels();saveState(); };
   els.skillsToggleBtn.onclick=()=>{state.ui.skillsOpen=!state.ui.skillsOpen;if(state.ui.skillsOpen)state.ui.quickOpen=false;syncMobilePanels();saveState();};
   els.needsToggleBtn.onclick = () => { state.ui.needsOpen = !state.ui.needsOpen; els.game.classList.toggle('needs-expanded', state.ui.needsOpen); saveState(); };
   const toggleMission = () => { state.ui.missionOpen = !state.ui.missionOpen; els.missionCard.classList.toggle('expanded', state.ui.missionOpen); saveState(); };
   els.missionCard.onclick = toggleMission;
   els.missionCard.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleMission(); } };
-  [els.avatarGameBtn,els.inventoryBtn,els.buildBtn,els.mapBtn,els.dailyBtn,els.onlineBtn,els.gameSettingsBtn].forEach(btn => btn?.addEventListener('click', () => { state.ui.quickOpen=false; els.quickBar.hidden=true; els.quickToggleBtn.classList.remove('active'); }));
+  [els.avatarGameBtn,els.inventoryBtn,els.buildBtn,els.toolsBtn,els.mapBtn,els.dailyBtn,els.onlineBtn,els.gameSettingsBtn].forEach(btn => btn?.addEventListener('click', () => { state.ui.quickOpen=false; els.quickBar.hidden=true; els.quickToggleBtn.classList.remove('active'); }));
   async function ensureModelViewerReady({activateAR=false}={}) {
     if (!els.nativeViewer || !window.loadModelViewerLib) throw new Error('Visualizador indisponível');
     if (els.viewerStatus) els.viewerStatus.textContent = 'Carregando visualizador 3D…';
@@ -968,10 +1125,10 @@
   };
 
   /* THREE.JS GAME */
-  let scene, camera, renderer, clock, worldGroup, playerGroup, playerModel, playerMixer, avatarLayer, contactShadow, vehicleVisual, sunLight;
+  let scene, camera, renderer, clock, worldGroup, playerGroup, playerModel, playerMixer, avatarLayer, contactShadow, vehicleVisual, toolVisual, sunLight;
   let running = false, paused = false, pauseMenuOpen = false, raf = 0, cameraYaw = 0, cameraPitch = .38, cameraZoom = Number(state.settings?.cameraZoom || 0), cameraMode = 'openworld';
   let currentHouse = null, buildMode = null, currentContext = null, lastContextId = '', lastActionSource = 'none', actionLockedUntil = 0, activeRace = null, lastContextScanAt = 0, lastContextScanX = Infinity, lastContextScanZ = Infinity;
-  const player = { x: 0, y: 0, z: 8, vx: 0, vy: 0, vz: 0, facing: Math.PI, grounded: true, vehicle: false, sitUntil: 0, lastGrounded: 0, jumpBuffer: 0, attackUntil: 0, damageUntil: 0, scaleMode: state.abilities?.scaleMode || 'normal', crouched: !!state.abilities?.crouched, spinUntil: 0, preVehicleAbilities: null, hornUntil: 0, emoteUntil:0, emoteType:'', emoteSeq:0, publicRide:{type:'',id:''}, boating:false, boat:{heading:0,speed:0,steerVisual:0,passengerOf:'',passengerUid:'',botPassengerId:'',hostMissingAt:0}, car: { heading: Math.PI, speed: 0, steerVisual: 0, drift: 0, _prevSpeed: 0, activeVehicleId:'', passengerOf:'', passengerUid:'', botPassengerId:'', hostMissingAt:0 } };
+  const player = { x: 0, y: 0, z: 8, vx: 0, vy: 0, vz: 0, facing: Math.PI, grounded: true, vehicle: false, sitUntil: 0, lastGrounded: 0, jumpBuffer: 0, attackUntil: 0, damageUntil: 0, shieldUntil:0, skillDashUntil:0, scaleMode: state.abilities?.scaleMode || 'normal', crouched: !!state.abilities?.crouched, spinUntil: 0, preVehicleAbilities: null, hornUntil: 0, emoteUntil:0, emoteType:'', emoteSeq:0, boating:false, transit:{mode:'',busId:'',requestStop:false,metroUntil:0}, boat:{heading:0,speed:0,steerVisual:0,passengerOf:'',passengerUid:'',passengerBotId:'',hostMissingAt:0}, car: { id:'', kind:'car', label:'Carro', heading: Math.PI, speed: 0, steerVisual: 0, drift: 0, _prevSpeed: 0, passengerOf:'', passengerUid:'', passengerBotId:'', hostMissingAt:0 } };
   const input = {
     x:0,z:0,targetX:0,targetZ:0,
     joyId:null,joyX:0,joyZ:0,
@@ -981,8 +1138,8 @@
     keys:new Set(),cameraDrag:null,cameraPointers:new Map(),pinchDistance:0
   };
   const world = {
-    houses: [], npcs: [], interactables: [], enemies: [], fireballs: [], resources: [], crystals: [], platforms: [], colliders: [], hazards: [], builds: [], ghosts: new Map(), vehicles:[], metroStations:[], buses:[], transportStops:[],
-    bridgeParts: [], secretChest: null, vehicle: null, deliveryPoint: null, raceCoins: [], waypointMarker: null, gym: null, routeGuide: null, routeArrows: [], routeLastBuild: 0, routeLastX: Infinity, routeLastZ: Infinity, routePath: [], navCache: new Map(), landmarks: [], outlines: [], glows: [], criticalSurfaces: [], boat:null, campfires:[], animals:[], houseExtensions:[], remoteCampfires:new Map(), remoteExtensions:new Map(), activityAcc:0
+    houses: [], npcs: [], interactables: [], enemies: [], fireballs: [], resources: [], crystals: [], platforms: [], colliders: [], hazards: [], builds: [], ghosts: new Map(),
+    bridgeParts: [], secretChest: null, vehicle: null, vehicles:[], buses:[], busStops:[], metroStations:[], policeCars:[], policeAlert:null, school:null, policeStation:null, mine:null, well:null, deliveryPoint: null, raceCoins: [], waypointMarker: null, gym: null, routeGuide: null, routeArrows: [], routeLastBuild: 0, routeLastX: Infinity, routeLastZ: Infinity, routePath: [], navCache: new Map(), landmarks: [], outlines: [], glows: [], criticalSurfaces: [], boat:null, campfires:[], animals:[], houseExtensions:[], remoteCampfires:new Map(), remoteExtensions:new Map(), challengeTokens:[], activeChallenge:null, activityAcc:0
   };
   const textures = {};
   const materials = {};
@@ -1056,6 +1213,18 @@
   }
 
   function playerScaleValue(mode = player.scaleMode) { return mode === 'mini' ? .58 : mode === 'giant' ? 1.42 : 1; }
+  const skillCooldowns={miniDash:0,superJump:0,giantSlam:0,stealth:0,magnetSpin:0};
+  const skillButtons={miniDash:()=>els.miniBtn,superJump:()=>els.normalBtn,giantSlam:()=>els.giantBtn,stealth:()=>els.crouchBtn,magnetSpin:()=>els.spinBtn};
+  function skillReady(id){const left=Math.max(0,Number(skillCooldowns[id]||0)-performance.now());if(left>0){toast(`Skill recarregando: ${Math.ceil(left/1000)} s.`,'warn',1200);return false;}return true;}
+  function recordAdvancedSkill(id,cooldownMs){
+    skillCooldowns[id]=performance.now()+cooldownMs;
+    state.abilities.mastery[id]=(state.abilities.mastery[id]||0)+1;
+    state.stats.skillCombos=(state.stats.skillCombos||0)+1;trackDaily('skill',1);advanceAdventure('skills',id);saveState();updateAbilityUI();
+    for(let elapsed=1000;elapsed<=cooldownMs+50;elapsed+=1000)setTimeout(updateAbilityUI,elapsed);setTimeout(updateAbilityUI,cooldownMs+60);
+  }
+  function collectCrystal(c,message='Cristal coletado!'){
+    if(!c||c.got)return false;c.got=true;c.mesh.visible=false;state.inventory.crystals++;state.stats.collected++;trackDaily('collect',1);addXP(15);addCoins(5);toast(message,'good');beep(880);vibrate(20);evaluateMissions();checkActiveJob();saveState();return true;
+  }
   function syncPlayerRootScale(){
     if(!playerGroup)return;
     if(player.vehicle){
@@ -1067,8 +1236,18 @@
     playerGroup.scale.set(scale,scale*(player.crouched?.68:1),scale);
   }
   function setScaleMode(mode) {
-    if(!els.modal.hidden||paused||player.vehicle)return;
+    if(!els.modal.hidden||paused||player.vehicle||player.boating||player.transit.mode)return;
     if (!['mini','normal','giant'].includes(mode)) return;
+    if(mode===player.scaleMode){
+      if(mode==='mini'){
+        if(!skillReady('miniDash'))return;player.skillDashUntil=performance.now()+1250;recordAdvancedSkill('miniDash',4200);toast('Dash Mini ativado!','good',1400);beep(760,70,'sine');
+      }else if(mode==='normal'){
+        if(!player.grounded){toast('Pouse antes de usar o Super Pulo.','warn');return;}if(!skillReady('superJump'))return;state.stats.jumps++;trackDaily('jump',1);player.vy=15;player.grounded=false;recordAdvancedSkill('superJump',4600);toast('Super Pulo!','good',1300);beep(820,80,'sine');vibrate(24);
+      }else{
+        if(!skillReady('giantSlam'))return;player.damageUntil=performance.now()+900;for(const enemy of world.enemies)if(!enemy.dead&&distance2D(player,enemy.group.position)<5.4)damageEnemy(enemy,2);for(let i=0;i<9;i++){const a=i/9*Math.PI*2;spawnDust(player.x+Math.sin(a)*1.8,player.z+Math.cos(a)*1.8);}recordAdvancedSkill('giantSlam',6000);toast('Impacto Gigante!','good',1500);beep(125,130,'sawtooth');vibrate([45,25,60]);
+      }
+      return;
+    }
     player.scaleMode = mode;
     player.crouched = false;
     state.abilities.scaleMode = mode;
@@ -1077,77 +1256,106 @@
     toast(mode === 'mini' ? 'Modo mini: entre em passagens pequenas.' : mode === 'giant' ? 'Modo grande: força para desafios pesados.' : 'Tamanho normal.', 'good');
   }
   function toggleCrouch(force) {
-    if(!els.modal.hidden||paused||player.vehicle)return;
+    if(!els.modal.hidden||paused||player.vehicle||player.boating||player.transit.mode)return;
+    if(typeof force!=='boolean'&&player.crouched){
+      if(!skillReady('stealth')){player.crouched=false;state.abilities.crouched=false;updateAbilityUI();saveState();return;}player.crouched=false;state.abilities.crouched=false;player.shieldUntil=performance.now()+5000;recordAdvancedSkill('stealth',8000);toast('Escudo Furtivo: protegido por 5 s.','good',1800);beep(610,90,'sine');return;
+    }
     player.crouched = typeof force === 'boolean' ? force : !player.crouched;
     state.abilities.crouched = player.crouched;
     updateAbilityUI(); saveState();
     toast(player.crouched ? `${playerDisplayName()} abaixou.` : `${playerDisplayName()} levantou.`, 'good');
   }
-  function spinPlayer(){ if(!els.modal.hidden||paused||player.vehicle)return; player.spinUntil=performance.now()+720; addXP(1); beep(430,50,'sine'); }
+  function spinPlayer(){
+    if(!els.modal.hidden||paused||player.vehicle||player.boating||player.transit.mode||!skillReady('magnetSpin'))return;
+    player.spinUntil=performance.now()+980;let pulled=0;
+    for(const c of world.crystals)if(!c.got&&Math.hypot(player.x-c.x,player.z-c.z)<6){collectCrystal(c,'Cristal atraído pelo Giro Ímã!');pulled++;}
+    for(const enemy of world.enemies)if(!enemy.dead&&distance2D(player,enemy.group.position)<4.6){damageEnemy(enemy,1);const a=Math.atan2(enemy.group.position.x-player.x,enemy.group.position.z-player.z);enemy.group.position.x+=Math.sin(a)*1.4;enemy.group.position.z+=Math.cos(a)*1.4;}
+    recordAdvancedSkill('magnetSpin',5200);addXP(3+pulled);beep(430,80,'sine');toast(pulled?`Giro Ímã: ${pulled} cristal(is)!`:'Giro Ímã ativado!','good',1500);
+  }
   function updateAbilityUI(){
     els.crouchBtn?.classList.toggle('active',player.crouched);
     els.miniBtn?.classList.toggle('active',player.scaleMode==='mini');
     els.normalBtn?.classList.toggle('active',player.scaleMode==='normal');
     els.giantBtn?.classList.toggle('active',player.scaleMode==='giant');
+    for(const [id,getButton] of Object.entries(skillButtons)){const btn=getButton(),left=Math.max(0,skillCooldowns[id]-performance.now());btn?.classList.toggle('cooldown',left>0);if(btn)btn.dataset.cooldown=left>0?String(Math.ceil(left/1000)):'';}
+    els.crouchBtn?.classList.toggle('shielded',performance.now()<player.shieldUntil);
   }
-
-  let advancedSkillsPanel=null;
-  function ensureAdvancedSkillsPanel(){
-    if(advancedSkillsPanel)return advancedSkillsPanel;
-    advancedSkillsPanel=document.createElement('div');advancedSkillsPanel.id='advancedSkillsPanel';advancedSkillsPanel.className='advanced-skills-panel';advancedSkillsPanel.hidden=true;
-    advancedSkillsPanel.innerHTML='<button type="button" data-skill="dash"><b>⚡</b><span>Impulso</span></button><button type="button" data-skill="jump"><b>🚀</b><span>Super Pulo</span></button><button type="button" data-skill="shield"><b>🛡️</b><span>Escudo</span></button>';
-    document.body.appendChild(advancedSkillsPanel);
-    advancedSkillsPanel.querySelector('[data-skill="dash"]').onclick=useDashSkill;
-    advancedSkillsPanel.querySelector('[data-skill="jump"]').onclick=useSuperJumpSkill;
-    advancedSkillsPanel.querySelector('[data-skill="shield"]').onclick=useShieldSkill;
-    return advancedSkillsPanel;
-  }
-  function syncAdvancedSkillsPanel(){const panel=ensureAdvancedSkillsPanel();panel.hidden=!state.ui.skillsOpen||!running||paused||player.vehicle||player.boating||!!player.publicRide?.type;panel.classList.toggle('shield-active',Date.now()<Number(state.skillMastery.shieldUntil||0));}
-  function gainSkillMastery(key,amount=1){state.skillMastery[key]=(state.skillMastery[key]||0)+amount;state.skillMastery.total=(state.skillMastery.total||0)+amount;addXP(4*amount);saveState();}
-  function useDashSkill(){if(paused||!els.modal.hidden||player.vehicle||player.boating||player.publicRide?.type)return;const now=performance.now(),last=Number(useDashSkill.last||0);if(now-last<4500){toast(`Impulso recarrega em ${Math.ceil((4500-(now-last))/1000)} s.`,'warn');return;}useDashSkill.last=now;let ox=player.x,oz=player.z;for(let i=1;i<=12;i++){const nx=ox+Math.sin(player.facing)*.62*i,nz=oz+Math.cos(player.facing)*.62*i;if(waterAt(nx,nz)||world.colliders.some(c=>Math.abs(nx-c.x)<c.w/2+.45&&Math.abs(nz-c.z)<c.d/2+.45))break;player.x=nx;player.z=nz;}player.vx=player.vz=0;setFlag('usedDash');gainSkillMastery('dash');beep(760,90,'sawtooth');vibrate([20,25,20]);toast('Impulso executado!','good',1200);}
-  function useSuperJumpSkill(){if(paused||!els.modal.hidden||player.vehicle||player.boating||player.publicRide?.type)return;const now=performance.now(),last=Number(useSuperJumpSkill.last||0);if(now-last<6000){toast(`Super Pulo recarrega em ${Math.ceil((6000-(now-last))/1000)} s.`,'warn');return;}if(!player.grounded){toast('Encoste no chão para usar o Super Pulo.','warn');return;}useSuperJumpSkill.last=now;player.vy=15.2;player.grounded=false;setFlag('usedSuperJump');gainSkillMastery('superJump');beep(920,110,'sine');vibrate(24);}
-  function useShieldSkill(){if(paused||!els.modal.hidden||player.vehicle||player.boating||player.publicRide?.type)return;const now=performance.now(),last=Number(useShieldSkill.last||0);if(now-last<12000){toast(`Escudo recarrega em ${Math.ceil((12000-(now-last))/1000)} s.`,'warn');return;}useShieldSkill.last=now;state.skillMastery.shieldUntil=Date.now()+8000;player.damageUntil=Math.max(player.damageUntil,now+8000);setFlag('usedShield');gainSkillMastery('shield');syncAdvancedSkillsPanel();addGlow(player.x,1.5,player.z,0x66e7ff,5);toast('Escudo ativo por 8 segundos.','good',1600);beep(620,130,'sine');}
 
   function canvasTexture(kind, colors) {
-    const c = document.createElement('canvas'); c.width = c.height = 128;
+    const c = document.createElement('canvas'); c.width = c.height = 256;
     const ctx = c.getContext('2d');
-    ctx.fillStyle = colors[0]; ctx.fillRect(0, 0, 128, 128);
+    let seed=[kind,...colors].join('|').split('').reduce((value,char)=>(value*31+char.charCodeAt(0))>>>0,2166136261);
+    const rand=()=>{seed^=seed<<13;seed^=seed>>>17;seed^=seed<<5;return(seed>>>0)/4294967296;};
+    const pick=()=>colors[1+Math.floor(rand()*Math.max(1,colors.length-1))]||colors[0];
+    ctx.imageSmoothingEnabled=false;ctx.fillStyle = colors[0]; ctx.fillRect(0, 0, 256, 256);
     if (kind === 'grass') {
-      for (let i = 0; i < 260; i++) { ctx.fillStyle = colors[1 + (i % (colors.length - 1))]; ctx.fillRect(Math.random() * 128, Math.random() * 128, 4 + Math.random() * 7, 4 + Math.random() * 7); }
-      ctx.fillStyle='rgba(20,60,15,.10)'; for(let i=0;i<40;i++)ctx.fillRect(Math.random()*128,Math.random()*128,10+Math.random()*16,2);
+      for (let i = 0; i < 720; i++) { ctx.fillStyle=pick();const x=rand()*256,y=rand()*256;ctx.fillRect(x,y,2+rand()*7,2+rand()*7);if(i%9===0)ctx.fillRect(x+2,y-5,2,8); }
+      ctx.fillStyle='rgba(15,65,22,.14)';for(let i=0;i<95;i++)ctx.fillRect(rand()*256,rand()*256,12+rand()*26,2);
     } else if (kind === 'road') {
-      ctx.fillStyle=colors[0]; ctx.fillRect(0,0,128,128);
-      for (let i = 0; i < 70; i++) { ctx.fillStyle = colors[1]; ctx.fillRect(Math.random() * 128, Math.random() * 128, 8 + Math.random() * 14, 3 + Math.random() * 6); }
+      for (let i=0;i<260;i++){ctx.fillStyle=pick();ctx.globalAlpha=.18+rand()*.2;ctx.fillRect(rand()*256,rand()*256,2+rand()*7,1+rand()*4);}ctx.globalAlpha=1;
+      ctx.strokeStyle='rgba(10,16,23,.22)';ctx.lineWidth=2;for(let i=0;i<8;i++){const x=rand()*256,y=rand()*256;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+10+rand()*22,y-5+rand()*10);ctx.lineTo(x+18+rand()*28,y+rand()*20);ctx.stroke();}
     } else if (kind === 'wood') {
-      ctx.strokeStyle = colors[1]; ctx.lineWidth = 7; for (let x = 0; x < 128; x += 30) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 128); ctx.stroke(); }
-      ctx.strokeStyle='rgba(0,0,0,.12)'; for(let x=14;x<128;x+=30){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,128);ctx.stroke();}
+      for(let x=0;x<256;x+=48){ctx.fillStyle=x%96?colors[0]:pick();ctx.fillRect(x,0,47,256);ctx.fillStyle='rgba(255,238,190,.12)';ctx.fillRect(x+3,0,3,256);ctx.fillStyle='rgba(50,22,8,.25)';ctx.fillRect(x+45,0,3,256);}
+      ctx.strokeStyle='rgba(66,31,13,.28)';ctx.lineWidth=2;for(let i=0;i<28;i++){const x=rand()*256;ctx.beginPath();ctx.moveTo(x,0);ctx.bezierCurveTo(x+8,65,x-7,150,x+4,256);ctx.stroke();}
+      for(let i=0;i<9;i++){ctx.strokeStyle='rgba(58,28,13,.35)';ctx.strokeRect(rand()*245,rand()*245,5+rand()*9,3+rand()*6);}
     } else if (kind === 'brick') {
-      ctx.strokeStyle = colors[1]; ctx.lineWidth = 5; for (let y = 0; y < 128; y += 30) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(128, y); ctx.stroke(); for (let x = (y / 30 % 2) * 30; x < 128; x += 60) { ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y + 30); ctx.stroke(); } }
+      ctx.fillStyle=colors[1];ctx.fillRect(0,0,256,256);for(let y=0;y<256;y+=42){const offset=(y/42)%2?32:0;for(let x=-64+offset;x<256;x+=64){ctx.fillStyle=rand()>.5?colors[0]:pick();ctx.fillRect(x+3,y+3,58,36);ctx.fillStyle='rgba(255,255,255,.10)';ctx.fillRect(x+5,y+5,54,3);}}
     } else if (kind === 'sidewalk') {
-      for (let y=0;y<128;y+=32){ctx.strokeStyle='rgba(0,0,0,.14)';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(128,y);ctx.stroke();}
-      for (let i=0;i<50;i++){ctx.fillStyle=colors[1];ctx.globalAlpha=.25;ctx.fillRect(Math.random()*128,Math.random()*128,3+Math.random()*4,3+Math.random()*4);ctx.globalAlpha=1;}
+      ctx.strokeStyle='rgba(54,66,80,.22)';ctx.lineWidth=4;for(let y=0;y<=256;y+=48){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(256,y);ctx.stroke();}for(let x=0;x<=256;x+=48){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,256);ctx.stroke();}
+      for(let i=0;i<150;i++){ctx.fillStyle=pick();ctx.globalAlpha=.16;ctx.fillRect(rand()*256,rand()*256,2+rand()*5,2+rand()*5);}ctx.globalAlpha=1;
     } else if (kind === 'water') {
-      ctx.fillStyle=colors[0]; ctx.fillRect(0,0,128,128);
       ctx.strokeStyle=colors[1]; ctx.lineWidth=3; ctx.globalAlpha=.5;
-      for(let y=8;y<128;y+=18){ctx.beginPath();ctx.moveTo(0,y+Math.sin(y)*4);for(let x=0;x<=128;x+=16)ctx.lineTo(x,y+Math.sin((x+y)*.15)*5);ctx.stroke();}
+      for(let y=10;y<256;y+=24){ctx.beginPath();ctx.moveTo(0,y+Math.sin(y)*4);for(let x=0;x<=256;x+=12)ctx.lineTo(x,y+Math.sin((x+y)*.09)*5);ctx.stroke();}
       ctx.globalAlpha=1;
+    } else if(kind==='stone'){
+      ctx.fillStyle=colors[1];ctx.fillRect(0,0,256,256);for(let y=0;y<256;y+=50){for(let x=((y/50)%2?-28:0);x<256;x+=58){ctx.fillStyle=rand()>.45?colors[0]:pick();ctx.fillRect(x+3,y+3,52,44);ctx.fillStyle='rgba(255,255,255,.09)';ctx.fillRect(x+5,y+5,48,4);}}
+    } else if(kind==='tile'){
+      ctx.strokeStyle=colors[1];ctx.lineWidth=7;for(let p=0;p<=256;p+=64){ctx.beginPath();ctx.moveTo(p,0);ctx.lineTo(p,256);ctx.stroke();ctx.beginPath();ctx.moveTo(0,p);ctx.lineTo(256,p);ctx.stroke();}ctx.fillStyle='rgba(255,255,255,.18)';for(let y=7;y<256;y+=64)for(let x=7;x<256;x+=64)ctx.fillRect(x,y,48,5);
+    } else if(kind==='fabric'){
+      for(let y=0;y<256;y+=12)for(let x=0;x<256;x+=12){ctx.fillStyle=(x/12+y/12)%2?colors[0]:colors[1];ctx.globalAlpha=.62;ctx.fillRect(x,y,12,12);}ctx.globalAlpha=1;
+    } else if(kind==='metal'){
+      for(let y=0;y<256;y+=32){ctx.fillStyle=y%64?colors[0]:colors[1];ctx.fillRect(0,y,256,32);ctx.fillStyle='rgba(255,255,255,.14)';ctx.fillRect(0,y,256,3);}for(const x of [10,246])for(let y=14;y<256;y+=42){ctx.fillStyle='#6c7b88';ctx.fillRect(x-3,y-3,6,6);}
     }
-    const tex = new THREE.CanvasTexture(c); tex.magFilter = THREE.NearestFilter; tex.minFilter = THREE.LinearMipmapLinearFilter; tex.generateMipmaps = true; tex.anisotropy = (renderer && renderer.capabilities) ? renderer.capabilities.getMaxAnisotropy() : 4; tex.wrapS = tex.wrapT = THREE.RepeatWrapping; return tex;
+    const tex = new THREE.CanvasTexture(c); tex.magFilter = THREE.NearestFilter; tex.minFilter = THREE.LinearMipmapLinearFilter; tex.generateMipmaps = true; tex.anisotropy = (renderer && renderer.capabilities) ? Math.min(12,renderer.capabilities.getMaxAnisotropy()) : 4; tex.wrapS = tex.wrapT = THREE.RepeatWrapping;tex.encoding=THREE.sRGBEncoding; return tex;
+  }
+  function professionalTexture(path,kind,colors,repeatX=1,repeatY=1){
+    const texture=canvasTexture(kind,colors);texture.repeat.set(repeatX,repeatY);
+    const loader=new THREE.TextureLoader();
+    loader.load(path,loaded=>{
+      texture.image=loaded.image;texture.wrapS=texture.wrapT=THREE.RepeatWrapping;texture.repeat.set(repeatX,repeatY);
+      texture.magFilter=THREE.LinearFilter;texture.minFilter=THREE.LinearMipmapLinearFilter;texture.generateMipmaps=true;
+      texture.anisotropy=(renderer&&renderer.capabilities)?Math.min(12,renderer.capabilities.getMaxAnisotropy()):4;texture.encoding=THREE.sRGBEncoding;texture.needsUpdate=true;
+    },undefined,()=>console.warn('Textura profissional opcional não carregada:',path));
+    return texture;
   }
   function initMaterials() {
-    textures.grass = canvasTexture('grass', ['#348f32','#62c94e','#28762c','#91df63']); textures.grass.repeat.set(46, 46);
-    textures.road = canvasTexture('road', ['#252d38','#3d4652']); textures.road.repeat.set(10, 30);
+    textures.grass = professionalTexture('./assets/textures/grass-v628.png','grass',['#348f32','#62c94e','#28762c','#91df63'],46,46);
+    textures.road = professionalTexture('./assets/textures/asphalt-v628.png','road',['#252d38','#3d4652'],10,30);
     textures.sidewalk = canvasTexture('sidewalk', ['#d9dde3','#aeb7c2']); textures.sidewalk.repeat.set(6,14);
     textures.water = canvasTexture('water', ['#2fb8ec','#bdf1ff']); textures.water.repeat.set(5,5);
-    textures.wood = canvasTexture('wood', ['#9a5a28','#693819']); textures.wood.repeat.set(2, 2);
-    textures.brick = canvasTexture('brick', ['#c38142','#8a4e25']); textures.brick.repeat.set(3, 2);
+    textures.wood = professionalTexture('./assets/textures/wood-v628.png','wood',['#9a5a28','#693819'],2,2);
+    textures.brick = professionalTexture('./assets/textures/brick-v628.png','brick',['#c38142','#8a4e25'],3,2);
+    textures.stone = professionalTexture('./assets/textures/stone-v628.png','stone',['#8795a6','#677482','#aab5bf'],4,3);
+    textures.roof = professionalTexture('./assets/textures/roof-v628.png','brick',['#7c3030','#481d22'],3,3);
+    textures.busSeat = professionalTexture('./assets/textures/bus-seat-v628.png','fabric',['#2e6db2','#173c69'],4,4);
+    textures.schoolWall = professionalTexture('./assets/textures/school-wall-v628.png','brick',['#ead89a','#c49b58'],3,2);
+    textures.policeWall = professionalTexture('./assets/textures/police-wall-v628.png','brick',['#dce8ef','#1f5c9d'],3,2);
+    textures.goldOre = professionalTexture('./assets/textures/gold-ore-v628.png','stone',['#565c64','#f0c230'],2,2);
+    textures.interiorFloor = professionalTexture('./assets/textures/interior-floor-v628.png','wood',['#a4703e','#67411f'],4,4);
+    textures.tile = canvasTexture('tile', ['#e8f3f6','#78b8c9']); textures.tile.repeat.set(4,4);
+    textures.fabric = textures.busSeat;
+    textures.metal = canvasTexture('metal', ['#8c9dab','#657481']); textures.metal.repeat.set(2,3);
     materials.grass = new THREE.MeshStandardMaterial({ map: textures.grass, roughness: .88 });
     materials.road = new THREE.MeshStandardMaterial({ map: textures.road, roughness: .82 });
     materials.sidewalk = new THREE.MeshStandardMaterial({ map: textures.sidewalk, roughness: .92 });
     materials.wood = new THREE.MeshStandardMaterial({ map: textures.wood, roughness: .8 });
     materials.brick = new THREE.MeshStandardMaterial({ map: textures.brick, roughness: .82 });
+    materials.tile = new THREE.MeshStandardMaterial({ map:textures.tile,roughness:.42,metalness:.03 });
+    materials.fabric = new THREE.MeshStandardMaterial({ map:textures.fabric,roughness:.86 });
+    materials.metal = new THREE.MeshStandardMaterial({ map:textures.metal,roughness:.38,metalness:.48 });
     materials.water = new THREE.MeshStandardMaterial({ map:textures.water, color:0x2fc8f4, emissive:0x087aa7, emissiveIntensity:.18, transparent:true, opacity:.76, roughness:.2, metalness:.1 });
-    materials.stone = new THREE.MeshStandardMaterial({ color:0x8795a6, roughness:.9, flatShading:true });
+    materials.stone = new THREE.MeshStandardMaterial({ map:textures.stone,color:0xaab2bb,roughness:.88,flatShading:true });
+    materials.goldOre = new THREE.MeshStandardMaterial({ map:textures.goldOre,color:0xffffff,emissive:0x6b3f00,emissiveIntensity:.22,roughness:.62,metalness:.28,flatShading:true });
     materials.dark = new THREE.MeshStandardMaterial({ color:0x080b11, roughness:.55, flatShading:true });
   }
   function mat(color, opts = {}) { return new THREE.MeshStandardMaterial({ color, roughness: opts.roughness ?? .72, metalness: opts.metalness ?? .03, emissive: opts.emissive ?? 0x000000, emissiveIntensity: opts.emissiveIntensity ?? 0, transparent: !!opts.transparent, opacity: opts.opacity ?? 1, flatShading: opts.flatShading ?? true }); }
@@ -1172,9 +1380,12 @@
     if(!immutableVisualMaterials.has(key))immutableVisualMaterials.set(key,mat(color,opts));
     return immutableVisualMaterials.get(key);
   }
-  function tintedBrickMaterial(color){
-    const material=new THREE.MeshStandardMaterial({map:textures.brick,color:new THREE.Color(color).lerp(new THREE.Color(0xffffff),.34),roughness:.8,metalness:0,flatShading:true});
-    return material;
+  const roofMaterialCache=new Map();
+  function tintedBrickMaterial(color,texture=textures.brick){
+    return new THREE.MeshStandardMaterial({map:texture||textures.brick,color:new THREE.Color(color).lerp(new THREE.Color(0xffffff),.34),roughness:.8,metalness:0,flatShading:true});
+  }
+  function texturedRoofMaterial(color){
+    const key=Number(color);if(!roofMaterialCache.has(key))roofMaterialCache.set(key,new THREE.MeshStandardMaterial({map:textures.roof,color:new THREE.Color(color).lerp(new THREE.Color(0xffffff),.12),roughness:.76,metalness:0,flatShading:true}));return roofMaterialCache.get(key);
   }
   function addSoftHighlight(parent,w,h,d,x,y,z,color=0xffffff,opacity=.22){
     const m=new THREE.MeshBasicMaterial({color,transparent:true,opacity,depthWrite:false,fog:true});
@@ -1214,14 +1425,6 @@
   }
   function makePlanter(parent,x,y,z,color=0xe24f72){
     premiumBox(1.35,.34,.48,0x8a522d,x,y,z,parent);for(const ox of [-.42,0,.42]){premiumBox(.08,.4,.08,0x2f9d46,x+ox,y+.32,z,parent);premiumBox(.28,.16,.28,color,x+ox,y+.55,z,parent);}return parent;
-  }
-  function createPassengerProxy(parent,{x=0,y=0,z=0,color=0x5ad8ff,scale=.72}={}){
-    const passenger=new THREE.Group();passenger.position.set(x,y,z);passenger.scale.setScalar(scale);passenger.visible=false;parent.add(passenger);
-    const skin=renderMat(0xffc98f,{roughness:.72}),shirt=renderMat(color,{roughness:.62}),dark=renderMat(0x27364a,{roughness:.76}),hair=renderMat(0x282019,{roughness:.82});
-    premiumBox(.72,.86,.55,shirt,0,.78,0,passenger);premiumBox(.62,.62,.62,skin,0,1.52,0,passenger);premiumBox(.66,.16,.64,hair,0,1.88,-.01,passenger);
-    premiumBox(.19,.72,.2,shirt,-.47,.78,0,passenger);premiumBox(.19,.72,.2,shirt,.47,.78,0,passenger);premiumBox(.22,.64,.24,dark,-.2,.18,0,passenger);premiumBox(.22,.64,.24,dark,.2,.18,0,passenger);
-    premiumBox(.08,.07,.04,0x18202b,-.13,1.55,.33,passenger);premiumBox(.08,.07,.04,0x18202b,.13,1.55,.33,passenger);
-    passenger.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});return passenger;
   }
 
   function createPlayerModel() {
@@ -1271,7 +1474,6 @@
     box(.3,.17,.08,headlight,-.58,.5,1.27,vehicleVisual);box(.3,.17,.08,headlight,.58,.5,1.27,vehicleVisual);
     box(.28,.16,.07,taillight,-.59,.45,-1.3,vehicleVisual);box(.28,.16,.07,taillight,.59,.45,-1.3,vehicleVisual);
     vehicleVisual.userData.wheels=[];vehicleVisual.userData.frontWheels=[];
-    vehicleVisual.userData.passengerVisual=createPassengerProxy(vehicleVisual,{x:.46,y:.66,z:-.14,color:0x8f69df,scale:.56});
     const wheelMat=renderMat(0x10151d,{roughness:.9}),hubMat=renderMat(0xf5a623,{roughness:.35,metalness:.46});
     [[-.84,.24,-.79,false],[.84,.24,-.79,false],[-.84,.24,.79,true],[.84,.24,.79,true]].forEach(([x,y,z,front])=>{
       const holder=new THREE.Group();holder.position.set(x,y,z);vehicleVisual.add(holder);
@@ -1282,7 +1484,8 @@
     playerModel.traverse(o=>{if(o.isMesh)addVoxelOutline(o,0x0a1a2d,.4);});
     vehicleVisual.traverse(o=>{if(o.isMesh)addVoxelOutline(o,0x14243a,.3);});
     const ownLabel=new THREE.Sprite(new THREE.SpriteMaterial({map:multiplayerNameTexture(playerDisplayName()),transparent:true,depthWrite:false,depthTest:false}));
-    ownLabel.position.set(0,3.65,0);ownLabel.scale.set(2.65,.66,1);ownLabel.renderOrder=1000;playerGroup.add(ownLabel);playerGroup.userData.nameLabel=ownLabel;playerGroup.userData.displayName=playerDisplayName();
+    ownLabel.position.set(0,3.65,0);ownLabel.scale.set(2.65,.66,1);ownLabel.renderOrder=1000;ownLabel.visible=false;playerGroup.add(ownLabel);playerGroup.userData.nameLabel=ownLabel;playerGroup.userData.displayName=playerDisplayName();
+    refreshEquippedToolVisual();
   }
 
   function loadFaithfulAthosModel() {
@@ -1358,14 +1561,50 @@
     if(!resource&&scale>.8){box(.34*scale,.18*scale,.34*scale,0xffe26a,.7*scale,3.95*scale,.65*scale,group);}
     if(resource){
       const id=`tree-${x.toFixed(1)}-${z.toFixed(1)}`;
-      world.resources.push({id,type:'wood',x,z,mesh:group,collected:false});
-      registerInteractable({id,type:'resource',icon:'🪵',label:'Coletar madeira',x,z,radius:2.4,action:()=>collectResource(id)});
+      world.resources.push({id,type:'wood',x,z,mesh:group,collected:false,hits:0,hitsNeeded:2});
+      registerInteractable({id,type:'resource',icon:'🪓',label:'Cortar árvore com machado',x,z,radius:2.4,priority:135,action:()=>collectResource(id)});
     }
     return group;
   }
   function createRock(x,z,scale=1,resource=true) {
     const mesh = new THREE.Mesh(new THREE.DodecahedronGeometry(.8*scale,0),materials.stone); mesh.position.set(x,.55*scale,z); mesh.castShadow=true; mesh.receiveShadow=true; worldGroup.add(mesh);
-    if(resource){const id=`rock-${x.toFixed(1)}-${z.toFixed(1)}`;world.resources.push({id,type:'stone',x,z,mesh,collected:false});registerInteractable({id,type:'resource',icon:'🪨',label:'Coletar pedra',x,z,radius:2.2,action:()=>collectResource(id)});} return mesh;
+    if(resource){const id=`rock-${x.toFixed(1)}-${z.toFixed(1)}`;world.resources.push({id,type:'stone',x,z,mesh,collected:false,hits:0,hitsNeeded:2});registerInteractable({id,type:'resource',icon:'⛏️',label:'Extrair pedra com picareta',x,z,radius:2.2,priority:135,action:()=>collectResource(id)});} return mesh;
+  }
+  function createGoldFoundry(x=34,z=-35){
+    const g=new THREE.Group();g.position.set(x,0,z);worldGroup.add(g);
+    premiumBox(7.4,.24,5.8,materials.stone,0,.12,0,g);premiumBox(6.6,3.2,5.1,0x8a5c3a,0,1.72,0,g);premiumBox(6.9,.42,5.4,texturedRoofMaterial(0x3d4652),0,3.45,0,g);
+    premiumBox(1.15,3.4,1.15,0x59616a,2.25,4.65,-1.25,g);premiumBox(1.42,.35,1.42,0x343b42,2.25,6.36,-1.25,g);
+    const furnace=renderMat(0x303842,{roughness:.42,metalness:.32}),glow=renderMat(0xffb33e,{emissive:0xff5a00,emissiveIntensity:1.25,roughness:.25});premiumBox(2.4,1.7,1.7,furnace,0,1.05,2.55,g);premiumBox(1.15,.82,.12,glow,0,1.05,3.43,g);
+    const sign=new THREE.Mesh(new THREE.PlaneGeometry(3.6,.9),new THREE.MeshStandardMaterial({map:signTexture('FUNDIÇÃO DE OURO','#3a2a16','#ffe691'),side:THREE.DoubleSide,roughness:.7}));sign.position.set(0,2.75,2.62);g.add(sign);
+    registerCollider(x,z,7.4,5.8,{landmark:'foundry'});registerInteractable({id:'gold-foundry',type:'workshop',icon:'🏅',label:'Usar fundição de ouro',x,z:z+3.7,radius:3.1,priority:190,action:openWorkshop});world.landmarks.push(g);return g;
+  }
+  function createGoldMine(x=-92,z=-92){
+    const g=new THREE.Group();g.position.set(x,0,z);worldGroup.add(g);world.mine={x,z,group:g};
+    premiumBox(18,.3,13,materials.stone,0,.15,0,g);premiumBox(15,.18,10,renderMat(0x2e3540,{roughness:.94}),0,.34,0,g);
+    for(const [ox,oz,s] of [[-7,-4,2.4],[7,-4,2.4],[-7,4,2.6],[7,4,2.6],[-4,-5,2],[4,-5,2]]){const rock=new THREE.Mesh(new THREE.DodecahedronGeometry(s,0),materials.stone);rock.position.set(ox,s*.48,oz);rock.scale.y=1.35;g.add(rock);}
+    premiumBox(7.4,5.5,1.4,materials.stone,0,2.75,-5.1,g);premiumBox(5.3,4.2,1.55,0x141923,0,2.05,-5.35,g);premiumBox(7.8,.55,2.2,materials.wood,0,.45,-3.9,g);
+    for(const ox of [-2.5,2.5]){premiumBox(.35,4.7,.35,materials.wood,ox,2.4,-4.3,g);premiumBox(3.1,.35,.35,materials.wood,ox/2,4.65,-4.3,g);}
+    const orePositions=[[-4,-1],[-1.2,2],[3.2,.8],[-3.8,3.6],[4.4,-2.4],[.8,-2.2]];
+    orePositions.forEach(([ox,oz],index)=>{
+      const mesh=new THREE.Mesh(new THREE.DodecahedronGeometry(.78+(index%2)*.12,0),materials.goldOre);mesh.position.set(x+ox,.65,z+oz);mesh.castShadow=true;worldGroup.add(mesh);
+      const id=`gold-${index}`;world.resources.push({id,type:'gold',x:x+ox,z:z+oz,mesh,collected:false,hits:0,hitsNeeded:3});
+      registerInteractable({id,type:'resource',icon:'⛏️',label:'Extrair minério de ouro',x:x+ox,z:z+oz,radius:2.3,priority:145,action:()=>collectResource(id)});
+    });
+    createSignpost(x+7,z-6,'Mina Dourada',Math.PI*.1);createLamp(x-6,z-3);createLamp(x+6,z-3);return g;
+  }
+  function createVillageWell(x=38,z=10){
+    const g=new THREE.Group();g.position.set(x,0,z);worldGroup.add(g);world.well={x,z,group:g,lastDrawAt:0};
+    premiumCylinder(2.05,.55,materials.stone,0,.28,0,g,14);premiumCylinder(1.42,.7,0x122637,0,.52,0,g,14);
+    for(const ox of [-1.65,1.65])premiumBox(.28,3.6,.28,materials.wood,ox,2.0,0,g);
+    premiumBox(4.2,.28,1.6,0xb24b35,0,4.0,0,g);premiumBox(3.5,.22,1.3,0xe16a42,0,4.28,0,g);
+    const axle=premiumCylinder(.16,3.6,materials.metal,0,2.8,0,g,12);axle.rotation.z=Math.PI/2;
+    premiumBox(.06,1.9,.06,0x70513b,0,1.85,0,g);const bucket=premiumCylinder(.35,.48,materials.metal,0,.82,0,g,10);bucket.userData.wellBucket=true;
+    registerInteractable({id:'village-well',type:'well',icon:'🪣',label:'Retirar água com o balde',x,z,radius:3.2,priority:170,action:drawWaterFromWell});createSignpost(x+3,z+1.5,'Poço da Vila',Math.PI/2);return g;
+  }
+  function drawWaterFromWell(){
+    if(state.tools.equipped!=='bucket'){toast('Equipe o balde no menu Ferramentas.','warn',1800);return;}
+    const now=performance.now();if(world.well&&now-world.well.lastDrawAt<2500){toast('O balde ainda está subindo.','warn',1100);return;}if(world.well)world.well.lastDrawAt=now;
+    playToolAnimation();state.inventory.water=(state.inventory.water||0)+2;state.tools.harvested.water=(state.tools.harvested.water||0)+2;state.needs.hygiene=clamp(state.needs.hygiene+2,0,100);advanceAdventure('resources','water');addXP(6);saveState(true);updateHUD();toast('+2 água limpa','good',1300);
   }
   function createFlower(x,z,color=0xff70c8){
     const batch=ensureFlowerBatch(color),matrix=new THREE.Matrix4();
@@ -1453,6 +1692,28 @@
     if(type==='chest'){box(1.25,.72,.82,wood,0,.36,0,group);box(1.3,.2,.87,0xffc629,0,.82,0,group);box(.18,.34,.08,metal,0,.55,.44,group);}
     if(type==='table'){box(1.6,.17,1.05,wood,0,.9,0,group);for(const ox of [-.58,.58])for(const oz of [-.35,.35])box(.13,.82,.13,wood,ox,.42,oz,group);box(.55,.08,.55,0x56c5ff,0,.99,0,group);}
     if(type==='wardrobe'){box(1.55,2.14,.68,renderMat(0x89502b,{roughness:.8}),0,1.07,0,group);box(.06,1.9,.7,0x5e351c,0,1.07,0,group);box(.08,.12,.08,0xffd84d,-.13,1.08,.37,group);box(.08,.12,.08,0xffd84d,.13,1.08,.37,group);}
+    if(type==='desk'){
+      box(1.75,.16,.88,wood,0,.83,0,group);for(const ox of [-.65,.65])for(const oz of [-.28,.28])box(.12,.76,.12,wood,ox,.4,oz,group);
+      box(1.18,.1,.5,materials.tile,0,.94,0,group);box(.72,.14,.14,0xffd45e,-.15,1.07,.06,group);
+      box(1.05,.14,.34,materials.fabric,0,.5,.72,group);box(1.05,.72,.14,materials.fabric,0,.83,.86,group);for(const ox of [-.42,.42])box(.1,.47,.1,metal,ox,.24,.72,group);
+    }
+    if(type==='bookshelf'){
+      box(1.72,2.25,.4,wood,0,1.12,0,group);for(const y of [.2,.75,1.3,1.85,2.22])box(1.68,.1,.46,shadeColor(0x89502b,-16),0,y,0,group);
+      const colors=[0xe34e52,0x3f8fd5,0xf0c441,0x55ad67,0x8d65c5];for(let row=0;row<4;row++)for(let i=0;i<7;i++)box(.16,.38,.3,colors[(i+row)%colors.length],-.62+i*.205,.43+row*.55,.04,group);
+    }
+    if(type==='board'){
+      box(3.25,1.75,.12,0x244f47,0,1.55,0,group);box(3.5,.12,.2,wood,0,.65,0,group);box(3.5,.12,.2,wood,0,2.45,0,group);
+      for(const ox of [-1.2,-.45,.35,1.05])box(.42,.06,.025,0xf1f5d5,ox,1.6,.075,group);
+    }
+    if(type==='bench'){box(2.25,.22,.62,materials.fabric,0,.62,0,group);box(2.25,.74,.18,materials.fabric,0,1.0,-.24,group);for(const ox of [-.82,.82])box(.14,.55,.14,metal,ox,.28,0,group);}
+    if(type==='radio'){
+      box(1.35,.88,.65,materials.metal,0,.7,0,group);box(.72,.42,.05,dark,-.18,.72,.35,group);for(let i=0;i<4;i++)box(.06,.32,.04,0x9aaaba,-.46+i*.14,.72,.39,group);
+      cylinder(.13,.1,0xffd24a,.42,.86,.36,group,12);box(.06,.85,.06,metal,.45,1.55,0,group);
+    }
+    if(type==='plant'){
+      premiumCylinder(.46,.58,0xd8733f,0,.3,0,group,10);box(.18,1.15,.18,0x4f8332,0,1.0,0,group);
+      for(const [ox,oy,oz] of [[-.34,1.25,0],[.34,1.08,.08],[0,1.48,-.15],[-.15,1.05,.28]])premiumBox(.62,.22,.4,0x55b94b,ox,oy,oz,group);
+    }
     house.interiorObjects.push(group);return {group,x,z,type,label};
   }
 
@@ -1514,13 +1775,13 @@
     const {id,name,x,z,color,roofColor,price=0,publicBuilding=false}=config;
     const house={id,name,x,z,w:9,d:7,color,roofColor,price,publicBuilding,roof:new THREE.Group(),front:new THREE.Group(),interiorObjects:[],owned:!!state.houses[id]?.owned};
     worldGroup.add(house.roof,house.front);
-    const wallMat=tintedBrickMaterial(color),corner=renderMat(new THREE.Color(color).lerp(new THREE.Color(0xffffff),.48).getHex(),{roughness:.78});
+    const wallTexture=id.startsWith('school')?textures.schoolWall:id==='police'?textures.policeWall:textures.brick,wallMat=tintedBrickMaterial(color,wallTexture),roofMat=texturedRoofMaterial(roofColor),roofLight=texturedRoofMaterial(shadeColor(roofColor,18)),corner=renderMat(new THREE.Color(color).lerp(new THREE.Color(0xffffff),.48).getHex(),{roughness:.78});
     box(9,.25,7,materials.wood,x,.12,z);
     box(9,2.8,.35,wallMat,x,1.5,z-3.32);box(.35,2.8,7,wallMat,x-4.32,1.5,z);box(.35,2.8,7,wallMat,x+4.32,1.5,z);
     box(3.6,2.8,.35,wallMat,x-2.7,1.5,z+3.32,house.front);box(3.6,2.8,.35,wallMat,x+2.7,1.5,z+3.32,house.front);
     for(const cx of [-4.12,4.12]){box(.24,2.82,.4,corner,x+cx,1.5,z-3.28);box(.24,2.82,.4,corner,x+cx,1.5,z+3.28,house.front);}
-    box(9.8,.62,7.75,roofColor,x,3.18,z,house.roof);box(8.8,.35,6.8,shadeColor(roofColor,18),x,3.55,z,house.roof);
-    box(7.5,.42,7.15,roofColor,x,3.86,z,house.roof);box(5.9,.4,5.85,shadeColor(roofColor,26),x,4.18,z,house.roof);
+    box(9.8,.62,7.75,roofMat,x,3.18,z,house.roof);box(8.8,.35,6.8,roofLight,x,3.55,z,house.roof);
+    box(7.5,.42,7.15,roofMat,x,3.86,z,house.roof);box(5.9,.4,5.85,texturedRoofMaterial(shadeColor(roofColor,26)),x,4.18,z,house.roof);
     const spotMat=renderMat(0xfff2df,{roughness:.52});
     [[-2.5,-1.7],[2.25,-1.45],[-.4,1.8],[1.2,.5],[-1.2,-.1]].forEach(([ox,oz],i)=>box(i%2?.72:.88,.16,i%2?.72:.88,spotMat,x+ox,4.42,z+oz,house.roof));
     const door=box(1.45,2.25,.18,materials.wood,x,1.12,z+3.48);door.userData.houseId=id;
@@ -1548,6 +1809,7 @@
       const shower=createFurniture(house,'shower',3.1,1.6,0,'Tomar banho');
       const chest=createFurniture(house,'chest',3.15,-2.05,0,'Abrir baú');
       const wardrobe=createFurniture(house,'wardrobe',2.95,.65,0,'Trocar roupa');
+      createFurniture(house,'table',-1.6,.15,0,'Mesa de refeições');createFurniture(house,'plant',1.65,.55,0,'Planta da casa');
       premiumBox(3.5,.04,2.2,0xd6a65d,house.x-1.7,.18,house.z+1.45,worldGroup,0x765228);
       premiumBox(3.2,.04,2.0,0x7057b7,house.x+1.1,.18,house.z-1.85,worldGroup,0x3f2c65);
       premiumBox(8.1,.12,.18,0x63b4e8,house.x,.78,house.z-3.08);premiumBox(.18,2.0,.18,0x63b4e8,house.x-3.9,1.05,house.z-2.95);premiumBox(.18,2.0,.18,0x63b4e8,house.x+3.9,1.05,house.z-2.95);
@@ -1558,6 +1820,16 @@
     } else if(type==='workshop'){
       const table=createFurniture(house,'table',0,-1.0,0,'Usar oficina');registerActivity(house,table,'workshop');
       createFurniture(house,'chest',2.8,-1.8,0,'Baú de ferramentas');
+    } else if(type==='school'){
+      premiumBox(8.2,.08,6.2,new THREE.MeshStandardMaterial({map:textures.interiorFloor,roughness:.74}),house.x,.16,house.z);
+      const board=createFurniture(house,'board',0,-2.75,0,'Começar aula');registerActivity(house,board,'school');
+      for(const [x,z] of [[-2.6,-1.2],[0,-1.2],[2.6,-1.2],[-2.6,.65],[0,.65],[2.6,.65]])createFurniture(house,'desk',x,z,0,'Carteira escolar');
+      createFurniture(house,'bookshelf',3.25,2.15,0,'Biblioteca');createFurniture(house,'plant',-3.3,2.1,0,'Horta da turma');
+    } else if(type==='police'){
+      premiumBox(8.2,.08,6.2,new THREE.MeshStandardMaterial({map:textures.interiorFloor,roughness:.74}),house.x,.16,house.z);
+      const radio=createFurniture(house,'radio',-2.7,-1.4,0,'Central de segurança');registerActivity(house,radio,'police');
+      createFurniture(house,'desk',0,-1.1,0,'Mesa da patrulha');createFurniture(house,'bench',2.5,1.8,0,'Banco de espera');
+      createFurniture(house,'board',0,2.7,0,'Regras de trânsito');createFurniture(house,'bookshelf',-3.25,1.7,0,'Guias de segurança');
     } else if(type==='neighbor'){
       const sofa=createFurniture(house,'sofa',1,-1.5,0xef6c9d,'Sentar');registerActivity(house,sofa,'sofa');
       const tv=createFurniture(house,'tv',1,.2,0,'Assistir TV');registerActivity(house,tv,'tv');
@@ -1566,10 +1838,10 @@
     registerInteractable({id:`exit-${house.id}`,type:'exit',icon:'🚪',label:'Sair da casa',x:house.x,z:house.z+2.65,radius:1.5,priority:240,houseId:house.id,action:()=>exitHouse()});
   }
   function registerActivity(house,item,activity){
-    const priority=({stove:180,fridge:170,sink:165,bed:160,shower:155,tv:150,sofa:145,wardrobe:140,chest:120,shop:170,workshop:170})[activity]||100;
+    const priority=({stove:180,fridge:170,sink:165,bed:160,shower:155,tv:150,sofa:145,wardrobe:140,chest:120,shop:170,workshop:170,school:185,police:185})[activity]||100;
     registerInteractable({id:`${activity}-${house.id}`,type:'activity',activity,icon:activityIcon(activity),label:item.label,x:item.x,z:item.z,radius:1.75,priority,houseId:house.id,action:()=>useActivity(activity,house)});
   }
-  function activityIcon(type){return ({bed:'🛏',sofa:'🛋',tv:'📺',fridge:'🍎',stove:'🍳',sink:'💧',shower:'🚿',chest:'🎁',shop:'🛒',workshop:'🛠',wardrobe:'👕'})[type]||'✋';}
+  function activityIcon(type){return ({bed:'🛏',sofa:'🛋',tv:'📺',fridge:'🍎',stove:'🍳',sink:'💧',shower:'🚿',chest:'🎁',shop:'🛒',workshop:'🛠',wardrobe:'👕',school:'🏫',police:'🛡️'})[type]||'✋';}
 
   function createNPC(id,name,x,z,color,pathRadius=3){
     const group=new THREE.Group();group.position.set(x,0,z);worldGroup.add(group);
@@ -1590,6 +1862,20 @@
     const badge=new THREE.Sprite(new THREE.SpriteMaterial({map:iconTexture(name.charAt(0),'#ffffff','#15314b'),transparent:true,depthWrite:false}));badge.position.set(0,2.95,0);badge.scale.set(.55,.55,.55);badge.visible=false;group.add(badge);npc.badge=badge;
     world.npcs.push(npc);registerInteractable({id:`npc-${id}`,type:'npc',icon:'💬',label:`Conversar com ${name}`,radius:2.7,priority:160,getPos:()=>({x:npc.group.position.x,z:npc.group.position.z}),action:()=>talkToNPC(npc)});return npc;
   }
+  function createNpcMobility(npc,type,route,speed){
+    if(!npc||!Array.isArray(route)||route.length<2)return npc;const ride=new THREE.Group();npc.group.add(ride);const wheels=[];
+    if(type==='car'){
+      premiumBox(1.72,.34,2.45,0x24364d,0,.35,0,ride);premiumBox(1.55,.45,1.12,npc.color,0,.62,.43,ride);premiumBox(1.3,.4,.78,0x163049,0,.82,-.45,ride);
+      for(const p of [[-.78,.28,-.72],[.78,.28,-.72],[-.78,.28,.72],[.78,.28,.72]]){const wheel=premiumCylinder(.28,.24,0x121821,p[0],p[1],p[2],ride,10);wheel.rotation.z=Math.PI/2;wheels.push(wheel);}
+    }else if(type==='moto'){
+      for(const z of [-.72,.72]){const wheel=premiumCylinder(.34,.13,0x111822,0,.36,z,ride,12);wheel.rotation.z=Math.PI/2;wheels.push(wheel);}premiumBox(.28,.26,1.15,npc.color,0,.58,0,ride);premiumBox(.56,.15,.42,0x202c3b,0,.76,-.12,ride);premiumBox(.7,.06,.08,0xd7e2eb,0,1.05,.53,ride);
+    }else if(type==='bike'){
+      for(const z of [-.72,.72]){const wheel=premiumCylinder(.34,.07,0x17202b,0,.36,z,ride,14);wheel.rotation.z=Math.PI/2;wheels.push(wheel);}premiumBox(.08,.65,1.2,npc.color,0,.62,0,ride);premiumBox(.58,.07,.08,0xe8eef3,0,1.05,.62,ride);premiumBox(.45,.12,.34,0x25364a,0,.84,-.2,ride);
+    }else{
+      premiumBox(.62,.1,1.2,npc.color,0,.12,0,ride);for(const p of [[-.25,.08,-.42],[.25,.08,-.42],[-.25,.08,.42],[.25,.08,.42]]){const wheel=premiumCylinder(.09,.08,0x1c2633,p[0],p[1],p[2],ride,8);wheel.rotation.z=Math.PI/2;wheels.push(wheel);}
+    }
+    ride.traverse(o=>{if(o.isMesh)addVoxelOutline(o,0x132238,.22);});npc.mobility={type,route:route.map(p=>({x:p[0],z:p[1]})),index:1,speed:speed||({car:4.4,moto:4.8,bike:3.2,skate:2.8})[type]||3,ride,wheels};return npc;
+  }
   function createEnemy(type,x,z){
     const group=new THREE.Group();group.position.set(x,0,z);worldGroup.add(group);
     if(type==='slime'){box(1.35,.85,1.35,0x31c65b,0,.45,0,group);box(.18,.12,.05,0xff2441,-.28,.55,.7,group);box(.18,.12,.05,0xff2441,.28,.55,.7,group);}
@@ -1605,74 +1891,19 @@
     const group=new THREE.Group();group.position.set(x,0,z);worldGroup.add(group);box(1.2,.72,.9,materials.wood,0,.36,0,group);const lid=box(1.25,.22,.95,secret?0xa855f7:0xffd84d,0,.84,0,group);const chest={id,x,z,group,lid,opened:!!state.flags[`chest_${id}`],secret};if(chest.opened)lid.rotation.x=-.6;registerInteractable({id:`chest-${id}`,type:'chest',icon:'🎁',label:secret?'Pegar presente secreto':'Abrir presente/baú',x,z,radius:2,priority:200,action:()=>openChest(chest)});return chest;
   }
   function createPlatform(x,y,z,w=3,d=3,color=0x8b5a2b){box(w,y,d,color,x,y/2,z);registerPlatform(x,z,w,d,y);}
-  function createParkedCar(id,x,z,color=0xf28a22,heading=0,label='Entrar no carro'){
-    const group=new THREE.Group();group.position.set(x,0,z);group.rotation.y=heading;worldGroup.add(group);
-    const chassis=renderMat(0x26384e,{roughness:.5,metalness:.16}),body=renderMat(color,{roughness:.4,metalness:.18}),trim=renderMat(shadeColor(color,-28),{roughness:.48}),glass=renderMat(0x102338,{roughness:.12,metalness:.38,transparent:true,opacity:.84});
-    box(1.84,.36,2.56,chassis,0,.28,0,group);box(1.72,.48,1.35,body,0,.55,.55,group);box(1.48,.46,.92,trim,0,.78,-.48,group);box(1.32,.31,.72,glass,0,.93,-.42,group);
-    box(1.94,.18,.28,0xf3f5f7,0,.32,1.34,group);box(.18,.34,2.2,trim,-.92,.42,0,group);box(.18,.34,2.2,trim,.92,.42,0,group);box(.72,.42,.58,0x151a23,0,.72,-.12,group);
+  function createToyCar(x,z,options={}){
+    const id=options.id||`city-car-${world.vehicles.length+1}`,heading=Number(options.heading||0),group=new THREE.Group();group.position.set(x,0,z);group.rotation.y=heading;worldGroup.add(group);
+    const chassis=renderMat(0x26384e,{roughness:.5,metalness:.16}),orange=renderMat(options.primary??0xf28a22,{roughness:.4,metalness:.18}),teal=renderMat(options.secondary??0x0aa7b8,{roughness:.38,metalness:.22}),glass=renderMat(0x102338,{roughness:.12,metalness:.38,transparent:true,opacity:.84});
+    box(1.84,.36,2.56,chassis,0,.28,0,group);box(1.72,.48,1.35,orange,0,.55,.55,group);box(1.48,.46,.92,teal,0,.78,-.48,group);box(1.32,.31,.72,glass,0,.93,-.42,group);
+    box(1.94,.18,.28,0xf3f5f7,0,.32,1.34,group);box(.18,.34,2.2,teal,-.92,.42,0,group);box(.18,.34,2.2,teal,.92,.42,0,group);
+    box(.72,.42,.58,0x151a23,0,.72,-.12,group);
     const headlight=renderMat(0xfff1a8,{emissive:0xffd75b,emissiveIntensity:.9,roughness:.2});box(.3,.17,.08,headlight,-.58,.5,1.27,group);box(.3,.17,.08,headlight,.58,.5,1.27,group);
     for(const p of [[-.84,.24,-.79],[.84,.24,-.79],[-.84,.24,.79],[.84,.24,.79]]){const wheel=cylinder(.34,.28,0x10151d,p[0],p[1],p[2],group,14);wheel.rotation.z=Math.PI/2;const hub=cylinder(.12,.3,0xf5a623,p[0],p[1],p[2],group,10);hub.rotation.z=Math.PI/2;}
     group.traverse(o=>{if(o.isMesh)addVoxelOutline(o,0x14243a,.28);});
-    const record={id,x,z,heading,color,group,occupied:false};world.vehicles.push(record);if(!world.vehicle)world.vehicle=record;
-    registerInteractable({id:`vehicle-${id}`,type:'vehicle',icon:'🚗',label,radius:2.6,priority:150,getPos:()=>({x:record.group.position.x,z:record.group.position.z}),action:()=>enterVehicle(record)});return record;
-  }
-  function createToyCar(x,z){return createParkedCar('garage-car',x,z,0xf28a22,0,'Entrar no carro da garagem');}
-  function createCityVehicleFleet(){
-    createParkedCar('blue-city',-34,-7,0x3588d8,Math.PI/2,'Entrar no carro azul');
-    createParkedCar('pink-city',34,-7,0xe8588e,-Math.PI/2,'Entrar no carro rosa');
-    createParkedCar('green-city',-74,5,0x42ae66,Math.PI/2,'Entrar no carro verde');
-    createParkedCar('yellow-city',76,5,0xf0bf36,-Math.PI/2,'Entrar no carro amarelo');
-    createParkedCar('castle-car',72,39,0x7f5bd5,0,'Entrar no carro do Castelo');
+    const vehicle={id,x,z,heading,group,label:options.label||'Carro da cidade',occupied:false};world.vehicles.push(vehicle);if(!world.vehicle)world.vehicle=vehicle;
+    registerInteractable({id:`vehicle-${id}`,type:'vehicle',icon:'🚗',label:`Entrar: ${vehicle.label}`,radius:2.5,priority:155,getPos:()=>({x:vehicle.group.position.x,z:vehicle.group.position.z}),action:()=>enterVehicle(vehicle)});return vehicle;
   }
 
-
-
-  function createMetroStation(id,name,x,z,color=0x1878d2){
-    const g=new THREE.Group();g.position.set(x,0,z);worldGroup.add(g);const steel=renderMat(0x26364b,{roughness:.55,metalness:.18}),blue=renderMat(color,{roughness:.42,metalness:.12}),glass=renderMat(0x7fdcff,{transparent:true,opacity:.68,roughness:.12});
-    premiumBox(5.4,.22,4.4,0xd8dde5,0,.11,0,g);premiumBox(.35,3.4,.35,steel,-2.25,1.7,-1.65,g);premiumBox(.35,3.4,.35,steel,2.25,1.7,-1.65,g);premiumBox(5.05,.36,.55,blue,0,3.18,-1.65,g);premiumBox(4.4,2.35,.12,glass,0,1.65,-1.58,g);premiumBox(2.7,.18,2.8,0x1c2634,0,.22,.65,g);for(let i=0;i<5;i++)premiumBox(2.5,.12,.34,0x748294,0,.32+i*.18,.55+i*.42,g);
-    const sign=new THREE.Sprite(new THREE.SpriteMaterial({map:iconTexture('M','#1366b1','#ffffff'),transparent:true,depthWrite:false}));sign.position.set(0,4.15,-1.6);sign.scale.set(1.15,1.15,1);g.add(sign);addGlow(x,3.3,z,0x53c9ff,5);
-    const station={id,name,x,z,group:g};world.metroStations.push(station);registerInteractable({id:`metro-${id}`,type:'metro',icon:'🚇',label:`Entrar no ${name}`,x,z,radius:3.6,priority:175,action:()=>openMetroStation(station)});return station;
-  }
-  function metroDestinationButtons(current){return MAP_LOCATIONS.filter(loc=>!loc.id.startsWith('metro-')&&loc.id!==current.id).map(loc=>`<button class="choice" data-metro-destination="${loc.id}"><b>${loc.icon} ${loc.name}</b><span>Descer próximo deste ponto</span></button>`).join('');}
-  function openMetroStation(station){
-    if(player.publicRide?.type)exitPublicRide(true);if(player.vehicle)exitVehicle(true);if(player.boating){player.x=-24.7;player.z=52;exitBoat(true);}if(currentHouse)exitHouse();
-    if(!state.transport.discoveredStations.includes(station.id))state.transport.discoveredStations.push(station.id);state.transport.lastStation=station.id;saveState();
-    openModal(station.name,`<div class="metro-card"><div class="metro-line">🚇 LINHA VILA DO SOL</div><p>Escolha qualquer ponto do mapa. O metrô deixa você na saída mais próxima.</p><div class="choice-grid metro-destinations">${metroDestinationButtons(station)}</div></div>`,root=>{$$('[data-metro-destination]',root).forEach(btn=>btn.onclick=()=>{const loc=MAP_LOCATIONS.find(x=>x.id===btn.dataset.metroDestination);if(!loc)return;closeModal();toast('Portas fechando… próximo destino: '+loc.name,'good',1500);beep(440,100,'sine');setTimeout(()=>{player.x=loc.navX??loc.x;player.z=loc.navZ??loc.z;player.y=groundHeightAt(player.x,player.z);player.vx=player.vz=player.vy=0;state.transport.metroTrips=(state.transport.metroTrips||0)+1;state.transport.lastRideAt=Date.now();setFlag('usedMetro');state.waypoint=null;updateWaypointMarker();updateNavigation(0,true);saveState(true);toast(`Você chegou: ${loc.name}`,'good',2200);beep(880,110,'sine');},850);});});
-  }
-  function createBusModel(id,color,route,routeIndex=0,direction=1){
-    const g=new THREE.Group();worldGroup.add(g);const body=renderMat(color,{roughness:.46,metalness:.12}),dark=renderMat(shadeColor(color,-30),{roughness:.55}),glass=renderMat(0x18334d,{roughness:.14,metalness:.26,transparent:true,opacity:.84});
-    premiumBox(2.55,.5,5.6,dark,0,.42,0,g);premiumBox(2.45,1.75,5.25,body,0,1.38,0,g);premiumBox(2.16,.72,4.15,glass,0,1.72,-.1,g);for(const z of [-1.55,-.45,.65,1.75]){premiumBox(.08,.75,.1,0xe8edf2,-1.12,1.72,z,g);premiumBox(.08,.75,.1,0xe8edf2,1.12,1.72,z,g);}premiumBox(2.5,.25,5.35,0xf2f4f7,0,2.42,0,g);
-    const wheels=[];for(const p of [[-1.2,.38,-1.75],[1.2,.38,-1.75],[-1.2,.38,1.75],[1.2,.38,1.75]]){const w=premiumCylinder(.42,.26,0x111827,p[0],p[1],p[2],g,14);w.rotation.z=Math.PI/2;wheels.push(w);}const bus={id,group:g,route,routeIndex,direction,speed:6.2,pauseUntil:0,wheels,heading:0};const first=route[routeIndex]||route[0];g.position.set(first.x,0,first.z);world.buses.push(bus);registerInteractable({id:`bus-${id}`,type:'bus',icon:'🚌',label:'Entrar no ônibus',radius:3.4,priority:170,getPos:()=>({x:g.position.x,z:g.position.z}),action:()=>enterBus(bus)});return bus;
-  }
-  function createBusStop(name,x,z,rotation=0){const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=rotation;worldGroup.add(g);premiumBox(.18,2.6,.18,0x354a5f,0,1.3,0,g);premiumBox(1.6,.85,.18,0x2d82d6,0,2.2,0,g);premiumBox(1.35,.55,.2,0xffffff,0,2.2,.02,g);const icon=new THREE.Sprite(new THREE.SpriteMaterial({map:iconTexture('B','#2076c9','#ffffff'),transparent:true,depthWrite:false}));icon.position.set(0,2.2,.15);icon.scale.set(.5,.5,1);g.add(icon);premiumBox(2.2,.22,.55,0x66788b,0,.35,.45,g);createSignpost(x+1.5,z,name,rotation);world.transportStops.push({name,x,z,group:g});}
-  function createPublicTransport(){
-    createMetroStation('village','Metrô Praça Central',8,-3);createMetroStation('lake','Metrô Lago e Píer',-22,39,0x22a36a);createMetroStation('forest','Metrô Floresta',-55,-34,0x2f8757);createMetroStation('castle','Metrô Castelo',72,47,0x7455c7);createMetroStation('gym','Metrô Ginásio',55,90,0xd04c55);
-    createBusStop('Ponto Central',-8,5,Math.PI/2);createBusStop('Ponto Garagem',55,5,Math.PI/2);createBusStop('Ponto Ginásio',55,82,0);createBusStop('Ponto Floresta',-55,-48,0);
-    const route=[{x:-100,z:0},{x:0,z:0},{x:55,z:0},{x:55,z:90},{x:55,z:0},{x:-55,z:0},{x:-55,z:-100},{x:-55,z:0}];createBusModel('sol-1',0xf2b632,route,0,1);createBusModel('sol-2',0x36a0d9,[...route].reverse(),2,1);
-  }
-  function updateTransportWorld(dt){
-    for(const bus of world.buses){if(performance.now()<bus.pauseUntil)continue;const current=bus.route[bus.routeIndex],nextIndex=(bus.routeIndex+bus.direction+bus.route.length)%bus.route.length,next=bus.route[nextIndex],dx=next.x-bus.group.position.x,dz=next.z-bus.group.position.z,dist=Math.hypot(dx,dz);if(dist<.55){bus.routeIndex=nextIndex;bus.pauseUntil=performance.now()+1700;continue;}const step=Math.min(dist,bus.speed*dt);bus.group.position.x+=dx/dist*step;bus.group.position.z+=dz/dist*step;bus.heading=Math.atan2(dx,dz);bus.group.rotation.y=bus.heading;bus.wheels.forEach(w=>w.rotation.x-=step*2.4);}
-  }
-  function enterBus(bus){if(!bus||player.publicRide?.type)return;if(player.vehicle)exitVehicle(true);if(player.boating){player.x=-24.7;player.z=52;exitBoat(true);}player.publicRide={type:'bus',id:bus.id};clearMovementInputs();if(playerModel)playerModel.visible=false;if(avatarLayer)avatarLayer.visible=false;state.transport.busTrips=(state.transport.busTrips||0)+1;state.transport.lastRideAt=Date.now();setFlag('rodeBus');saveState(true);toast('Você entrou no ônibus. Use AÇÃO para descer.','good',2200);syncAdvancedSkillsPanel();}
-  function updatePublicRide(){const bus=world.buses.find(b=>b.id===player.publicRide?.id);if(!bus){exitPublicRide(true);return;}const sideX=Math.cos(bus.heading)*.35,sideZ=-Math.sin(bus.heading)*.35;player.x=bus.group.position.x+sideX;player.z=bus.group.position.z+sideZ;player.y=.55;player.facing=bus.heading;player.vx=player.vz=0;player.grounded=true;}
-  function exitPublicRide(silent=false){if(!player.publicRide?.type)return false;const bus=world.buses.find(b=>b.id===player.publicRide.id);player.publicRide={type:'',id:''};if(bus){player.x=bus.group.position.x+Math.cos(bus.heading)*3.1;player.z=bus.group.position.z-Math.sin(bus.heading)*3.1;}player.y=groundHeightAt(player.x,player.z);if(playerModel)playerModel.visible=true;if(avatarLayer)avatarLayer.visible=true;clearMovementInputs();syncAdvancedSkillsPanel();if(!silent)toast('Você desceu do ônibus.','good');saveState(true);return true;}
-  function attachNpcTransport(npc,kind,color=0x3c8ed7){if(!npc||kind==='walk')return;const g=new THREE.Group();g.name=`NPC_${kind}`;npc.group.add(g);npc.transportKind=kind;npc.transportVisual=g;if(kind==='car'){premiumBox(1.7,.34,2.5,shadeColor(color,-25),0,.34,0,g);premiumBox(1.55,.72,1.65,color,0,.65,0,g);premiumBox(1.3,.35,.75,0x153047,0,.88,-.25,g);for(const p of [[-.78,.25,-.72],[.78,.25,-.72],[-.78,.25,.72],[.78,.25,.72]]){const w=premiumCylinder(.3,.22,0x111827,p[0],p[1],p[2],g,12);w.rotation.z=Math.PI/2;}}else if(kind==='motorcycle'){premiumBox(.42,.42,1.75,color,0,.45,0,g);for(const z of [-.72,.72]){const w=new THREE.Mesh(new THREE.TorusGeometry(.34,.08,7,12),renderMat(0x111827));w.position.set(0,.34,z);w.rotation.y=Math.PI/2;g.add(w);}premiumBox(.75,.12,.12,0x26384e,0,1.02,.35,g);}else if(kind==='bike'){for(const z of [-.62,.62]){const w=new THREE.Mesh(new THREE.TorusGeometry(.34,.055,7,14),renderMat(0x18212d));w.position.set(0,.34,z);w.rotation.y=Math.PI/2;g.add(w);}premiumBox(.08,.65,1.05,color,0,.55,0,g);premiumBox(.7,.08,.08,color,0,.88,.28,g);}else if(kind==='skate'){premiumBox(.75,.1,1.55,color,0,.18,0,g);for(const p of [[-.28,.08,-.52],[.28,.08,-.52],[-.28,.08,.52],[.28,.08,.52]])premiumCylinder(.08,.12,0x111827,p[0],p[1],p[2],g,8);} }
-  function syncPassengerVisuals(){
-    const carPassenger=!!player.vehicle&&!player.car.passengerOf&&!!(player.car.passengerUid||player.car.botPassengerId);
-    if(vehicleVisual?.userData?.passengerVisual)vehicleVisual.userData.passengerVisual.visible=carPassenger;
-    const boatPassenger=!!player.boating&&!player.boat.passengerOf&&!!(player.boat.passengerUid||player.boat.botPassengerId);
-    if(world.boat?.passengerVisual)world.boat.passengerVisual.visible=boatPassenger;
-  }
-  function boardNpcWithPlayer(npc){if(!player.vehicle&&!player.boating){toast('Entre primeiro em um carro ou barco.','warn');return;}const type=player.boating?'boat':'car',slot=type==='boat'?player.boat:player.car;if(slot.passengerUid||slot.botPassengerId){toast('Este veículo já possui passageiro.','warn');return;}slot.botPassengerId=npc.id;npc.ridingWithPlayer=type;npc.following=false;npc.group.visible=false;syncPassengerVisuals();setFlag('npcPassenger');changeFriendship(npc,2,`${npc.name} entrou como passageiro.`);closeModal();saveState(true);}
-  function releaseBotPassenger(type){const slot=type==='boat'?player.boat:player.car,id=slot.botPassengerId;if(!id){syncPassengerVisuals();return;}const npc=world.npcs.find(n=>n.id===id);if(npc){npc.ridingWithPlayer='';npc.group.visible=true;npc.group.position.set(player.x+1.8,0,player.z+1.2);npc.baseX=npc.group.position.x;npc.baseZ=npc.group.position.z;}slot.botPassengerId='';syncPassengerVisuals();}
-  function createPremiumCastle(x=88,z=62){
-    const g=new THREE.Group();g.position.set(x,0,z);worldGroup.add(g);const stone=renderMat(0x7d8996,{roughness:.82}),dark=renderMat(0x596675,{roughness:.86}),roof=renderMat(0x4c5a92,{roughness:.58}),gold=renderMat(0xf0c54a,{metalness:.24,roughness:.36}),glass=renderMat(0x66d7ff,{emissive:0x1f7fa5,emissiveIntensity:.35,roughness:.18});
-    premiumBox(32,.35,26,0x697783,0,.18,0,g);premiumBox(32,5,2.2,stone,0,2.5,12,g);premiumBox(12,5,2.2,stone,-10,2.5,-12,g);premiumBox(12,5,2.2,stone,10,2.5,-12,g);premiumBox(2.2,5,24,stone,-15,2.5,0,g);premiumBox(2.2,5,24,stone,15,2.5,0,g);
-    for(const [tx,tz] of [[-14,-11],[14,-11],[-14,11],[14,11]]){premiumCylinder(3.2,8,dark,tx,4,tz,g,12);premiumCylinder(3.65,.7,stone,tx,8.1,tz,g,12);const cone=new THREE.Mesh(new THREE.ConeGeometry(3.7,3.4,8),roof);cone.position.set(tx,10.1,tz);cone.rotation.y=Math.PI/8;g.add(cone);const flag=premiumBox(.12,3,.12,gold,tx,13,tz,g);premiumBox(1.7,.8,.08,0xe14f5f,tx+.85,13.65,tz,g);}
-    for(let i=-13;i<=13;i+=2.6){premiumBox(1.25,1.1,1.2,stone,i,5.55,11.7,g);if(Math.abs(i)>4)premiumBox(1.25,1.1,1.2,stone,i,5.55,-11.7,g);}for(let i=-9;i<=9;i+=4.5){premiumBox(.7,1.55,.16,glass,i,3.1,10.86,g);premiumBox(.7,1.55,.16,glass,i,3.1,-10.86,g);}premiumBox(7.2,6,1.1,dark,0,3,-11.4,g);premiumBox(5.1,4.7,.7,0x3b2b25,0,2.35,-12.02,g);for(const sx of [-2.2,2.2])premiumBox(.25,4.3,.25,gold,sx,2.3,-12.5,g);premiumBox(6.5,.5,1.4,gold,0,5.6,-12.2,g);premiumBox(9,1.1,5,0x475463,0,5.5,0,g);premiumBox(7.2,4.8,4.3,stone,0,7.8,0,g);const keepRoof=new THREE.Mesh(new THREE.ConeGeometry(5.4,3.2,4),roof);keepRoof.position.set(0,11.7,0);keepRoof.rotation.y=Math.PI/4;g.add(keepRoof);addGlow(x,8,z,0x6fdcff,10);
-    createSignpost(x-16,z-16,'Castelo das Skills',Math.PI*.25);registerInteractable({id:'castle-skills',type:'castle',icon:'🏰',label:'Entrar no desafio do Castelo',x:x,z:z-15,radius:4.4,priority:180,action:openCastleChallenge});world.landmarks.push(g);return g;
-  }
-  function openCastleChallenge(){const mastery=Number(state.skillMastery.total||0);openModal('Castelo das Skills',`<div class="castle-challenge-card"><div class="castle-crest">🏰</div><h3>Prova dos Três Poderes</h3><p>Ative Impulso, Super Pulo e Escudo. Depois volte ao portão para receber a insígnia.</p><div class="skill-proof"><span>${state.flags.usedDash?'✅':'⚡'} Impulso</span><span>${state.flags.usedSuperJump?'✅':'🚀'} Super Pulo</span><span>${state.flags.usedShield?'✅':'🛡️'} Escudo</span></div><small>Maestria total: ${mastery}</small><button class="btn primary xl" data-complete-castle ${state.flags.usedDash&&state.flags.usedSuperJump&&state.flags.usedShield?'':'disabled'}>Concluir prova</button></div>`,root=>$('[data-complete-castle]',root).onclick=()=>{if(state.flags.castleTrial){toast('A prova do Castelo já foi concluída.','good');return;}setFlag('castleTrial');addCoins(240);addXP(180);awardMedal('Insígnia do Castelo');closeModal();toast('Prova concluída! O Castelo reconheceu suas habilidades.','good',3000);evaluateMissions();saveState(true);});}
   function createWaypointMarker(){
     const group=new THREE.Group();
     const beam=box(.32,6,.32,0x38d8ff,0,3,0,group);beam.material.transparent=true;beam.material.opacity=.48;
@@ -1793,6 +2024,199 @@
     createPlayground(-8,-38);createFountain(0,-2);createPortalArch(88,51);createChallengeCube(36,1.3,-27,'◆','#ffd43b');createChallengeCube(66,1.3,-50,'★','#53d8ff');createChallengeCube(-43,1.3,35,'◈','#ff756f');createAwning(-22,-14,0xef4444,0);createAwning(22,-14,0x2563eb,0);createCommercialDistrict();
   }
 
+  const BUS_ROUTES=[
+    {id:'solar',name:'Linha Solar',number:'101',color:0x168de2,speed:7.2,copies:2,points:[
+      {x:0,z:10,stopId:'central-norte',stopName:'Central Norte'},{x:7,z:11},{x:7,z:27},{x:0,z:34},{x:0,z:55},{x:0,z:94,stopId:'bairro-norte',stopName:'Bairro Norte'},{x:0,z:55},{x:0,z:34},{x:7,z:27},{x:7,z:11},{x:0,z:0},{x:55,z:0,stopId:'fazenda',stopName:'Fazenda'},{x:72,z:0,stopId:'seguranca',stopName:'Posto de Segurança'},{x:55,z:0},{x:55,z:48,stopId:'castelo',stopName:'Castelo'},{x:55,z:88,stopId:'ginasio',stopName:'Ginásio'},{x:55,z:48},{x:55,z:0},{x:0,z:0}
+    ]},
+    {id:'verde',name:'Linha Verde',number:'202',color:0x27b36a,speed:6.8,copies:2,points:[
+      {x:0,z:-10,stopId:'central-sul',stopName:'Central Sul'},{x:0,z:-55,stopId:'academia',stopName:'Academia'},{x:0,z:-94,stopId:'vale',stopName:'Vale dos Cristais'},{x:0,z:-55},{x:-55,z:-55,stopId:'floresta',stopName:'Floresta'},{x:-55,z:-10,stopId:'mercado',stopName:'Mercado'},{x:-55,z:0},{x:-70,z:0,stopId:'escola',stopName:'Escola Vila do Sol'},{x:-55,z:0},{x:0,z:0}
+    ]},
+    {id:'escolar',name:'Circular Escolar',number:'E10',color:0xf0b62d,speed:6.4,copies:1,schoolBus:true,points:[
+      {x:-70,z:0,stopId:'escola',stopName:'Escola Vila do Sol'},{x:-55,z:0},{x:0,z:0,stopId:'central-escolar',stopName:'Praça Central'},{x:55,z:0},{x:68,z:18,stopId:'escola-horizonte',stopName:'Escola Horizonte'},{x:55,z:0},{x:0,z:0},{x:-55,z:0}
+    ]}
+  ];
+  const ADVENTURE_DEFS={
+    castle:{icon:'👑',name:'Coroas do Castelo',description:'Encontre 6 coroas reais em 75 segundos.',target:6,reward:180,xp:130},
+    metro:{icon:'Ⓜ️',name:'Explorador do Metrô',description:'Visite 3 destinos diferentes pela rede.',target:3,reward:150,xp:105},
+    bus:{icon:'🚌',name:'Volta pela Cidade',description:'Desembarque em 3 paradas diferentes.',target:3,reward:145,xp:100},
+    skills:{icon:'✨',name:'Combo de Skills',description:'Use as 5 skills avançadas diferentes.',target:5,reward:175,xp:125},
+    resources:{icon:'🧰',name:'Mestre das Ferramentas',description:'Colete madeira, pedra/minério e água com as ferramentas certas.',target:3,reward:155,xp:115}
+  };
+  let transitPanel=null,metroOverlay=null;
+
+  function createMetroEntrance(station){
+    const g=new THREE.Group();g.position.set(station.x,0,station.z);worldGroup.add(g);
+    premiumBox(4.3,.24,4.6,0x27384a,0,.12,0,g);premiumBox(3.65,.24,3.9,0xc9d6df,0,.3,0,g);
+    for(let i=0;i<5;i++)premiumBox(2.8,.16,.58,0x718291,0,.35-i*.02,.6+i*.5,g);
+    premiumBox(.25,3.3,.25,0x1c2c42,-1.82,1.75,-1.62,g);premiumBox(.25,3.3,.25,0x1c2c42,1.82,1.75,-1.62,g);premiumBox(4.1,.32,1.2,0x168de2,0,3.38,-1.62,g);
+    const panel=new THREE.Mesh(new THREE.PlaneGeometry(1.15,1.15),new THREE.MeshStandardMaterial({map:iconTexture('M','#168de2','#ffffff'),emissive:0x0a4d86,emissiveIntensity:.35,side:THREE.DoubleSide}));panel.position.set(0,3.42,-2.25);panel.rotation.y=Math.PI;g.add(panel);
+    premiumBox(3.45,2.5,.12,0x13283d,0,1.45,1.82,g);for(const x of [-1.18,0,1.18])premiumBox(.08,2.35,.14,0x64d8ff,x,1.45,1.75,g);
+    station.group=g;world.metroStations.push(station);registerInteractable({id:`metro-entry-${station.id}`,type:'metro',icon:'Ⓜ️',label:`Entrar: ${station.name}`,x:station.x,z:station.z,radius:3.5,priority:205,action:()=>openMetroStation(station)});return station;
+  }
+  function ensureMetroOverlay(){
+    if(metroOverlay)return metroOverlay;metroOverlay=document.createElement('div');metroOverlay.id='metroTravelOverlay';metroOverlay.className='metro-travel-overlay';metroOverlay.hidden=true;metroOverlay.innerHTML='<div class="metro-tunnel"><i></i><i></i><i></i></div><div class="metro-train"><b>M</b><span></span><span></span><span></span></div><strong data-metro-trip>Próxima estação</strong>';document.body.appendChild(metroOverlay);return metroOverlay;
+  }
+  function openMetroStation(station){
+    if(player.vehicle||player.boating||player.transit.mode){toast('Desembarque antes de entrar no metrô.','warn');return;}
+    const groups=[...new Set(MAP_LOCATIONS.map(x=>x.group))].map(group=>`<section class="metro-destination-group"><h4>${group}</h4><div>${MAP_LOCATIONS.filter(x=>x.group===group).map(loc=>`<button class="metro-destination" data-metro-destination="${loc.id}"><b>${loc.icon} ${loc.name}</b><span>${Math.round(Math.hypot((loc.navX??loc.x)-station.x,(loc.navZ??loc.z)-station.z))} m</span></button>`).join('')}</div></section>`).join('');
+    openModal(station.name,`<div class="transit-heading"><b>Ⓜ️ ${station.line}</b><span>Escolha qualquer ponto conhecido do mapa.</span></div><div class="metro-destination-list">${groups}</div>`,root=>{$$('[data-metro-destination]',root).forEach(btn=>btn.onclick=()=>{const destination=MAP_LOCATIONS.find(x=>x.id===btn.dataset.metroDestination);if(destination)rideMetroTo(station,destination);});});
+  }
+  function rideMetroTo(station,destination){
+    if(!destination||player.transit.mode)return;closeModal();clearMovementInputs();player.transit.mode='metro';player.transit.metroUntil=performance.now()+1900;player.vx=player.vz=0;if(playerModel)playerModel.visible=false;if(avatarLayer)avatarLayer.visible=false;if(contactShadow)contactShadow.visible=false;
+    const overlay=ensureMetroOverlay();overlay.querySelector('[data-metro-trip]').textContent=`${station.name} → ${destination.name}`;overlay.hidden=false;overlay.classList.remove('arriving');requestAnimationFrame(()=>overlay.classList.add('travelling'));
+    const token=player.transit.metroUntil;setTimeout(()=>{if(player.transit.mode!=='metro'||player.transit.metroUntil!==token)return;overlay.classList.add('arriving');player.x=Number(destination.navX??destination.x);player.z=Number(destination.navZ??destination.z);player.y=groundHeightAt(player.x,player.z);player.vx=player.vy=player.vz=0;player.grounded=true;player.facing=Math.PI;state.position={x:player.x,y:player.y,z:player.z,yaw:player.facing};state.transport.metroTrips=(state.transport.metroTrips||0)+1;state.stats.metroTrips=(state.stats.metroTrips||0)+1;if(!state.transport.metroDestinations.includes(destination.id))state.transport.metroDestinations.push(destination.id);state.transport.metroDestinations=state.transport.metroDestinations.slice(-60);trackDaily('metro',1);advanceAdventure('metro',destination.id);setFlag('usedMetro');state.waypoint=null;world.routePath=[];player.transit.mode='';if(playerModel)playerModel.visible=true;if(avatarLayer)avatarLayer.visible=true;if(contactShadow)contactShadow.visible=true;playerGroup?.position?.set(player.x,player.y,player.z);updateNavigation(0,true);updateContext(true);saveState(true);setTimeout(()=>{overlay.hidden=true;overlay.classList.remove('travelling','arriving');},260);toast(`Metrô: chegada em ${destination.name}.`,'good',2100);},1900);
+  }
+
+  function ensureBusStop(route,point){
+    let stop=world.busStops.find(s=>s.id===point.stopId);if(stop){if(!stop.routes.includes(route.id))stop.routes.push(route.id);return stop;}
+    stop={id:point.stopId,name:point.stopName,x:point.x,z:point.z,roadX:point.x,roadZ:point.z,routes:[route.id]};world.busStops.push(stop);const g=new THREE.Group();const sideX=Math.abs(point.x)<9?4.8:point.x<0?4.8:-4.8;g.position.set(point.x+sideX,0,point.z);worldGroup.add(g);premiumBox(.18,2.7,.18,0x23364b,0,1.35,0,g);premiumBox(1.5,.92,.16,route.color,0,2.35,0,g);const sign=new THREE.Mesh(new THREE.PlaneGeometry(.72,.72),new THREE.MeshStandardMaterial({map:iconTexture('🚌','#ffffff','#17324d'),transparent:true,side:THREE.DoubleSide}));sign.position.set(0,2.38,.1);g.add(sign);premiumBox(2.8,.18,.82,0xd3dce3,0,.1,0,g);stop.sign=g;stop.x=point.x+sideX;registerInteractable({id:`bus-stop-${stop.id}`,type:'bus-stop',icon:'🚌',label:`Parada: ${stop.name}`,x:stop.x,z:stop.z,radius:3.3,priority:190,action:()=>openBusStop(stop)});return stop;
+  }
+  function createBusModel(route,copy=0){
+    const g=new THREE.Group(),body=renderMat(route.color,{roughness:.4,metalness:.14}),dark=renderMat(0x11263a,{roughness:.08,metalness:.28,transparent:true,opacity:.42}),light=renderMat(0xf5f7fa,{roughness:.46}),rail=renderMat(0xf6c934,{roughness:.34,metalness:.32}),seat=materials.fabric;
+    premiumBox(3.08,.48,7.0,0x26384b,0,.4,0,g);premiumBox(2.92,.2,6.65,materials.tile,0,.72,0,g);
+    premiumBox(3.02,.62,6.82,body,0,1.02,0,g);premiumBox(3.06,.24,6.9,light,0,3.26,0,g);
+    for(const side of [-1,1]){
+      premiumBox(.16,2.05,6.74,body,side*1.49,1.95,0,g);
+      for(const z of [-2.72,-1.38,0,1.38,2.72])premiumBox(.22,2.0,.18,light,side*1.51,2.03,z,g);
+      for(const z of [-2.08,-.68,.68,2.08])premiumBox(.035,1.25,1.08,dark,side*1.595,2.1,z,g);
+    }
+    premiumBox(2.95,2.25,.2,body,0,2.0,-3.4,g);premiumBox(2.48,1.25,.04,dark,0,2.24,-3.52,g);
+    premiumBox(2.95,.72,.2,body,0,1.08,3.4,g);premiumBox(2.75,.42,.16,light,0,3.05,3.42,g);
+    const windshield=premiumBox(2.48,1.15,.045,dark,0,2.18,3.515,g);windshield.material.opacity=.5;
+    premiumBox(.16,2.15,.22,light,-1.36,2.03,3.42,g);premiumBox(.16,2.15,.22,light,1.36,2.03,3.42,g);
+    const routeBoard=new THREE.Mesh(new THREE.PlaneGeometry(1.95,.46),new THREE.MeshStandardMaterial({map:signTexture(`${route.number} ${route.name}`,route.schoolBus?'#f0b62d':'#12273b',route.schoolBus?'#1b2835':'#ffffff'),roughness:.5,side:THREE.DoubleSide}));routeBoard.position.set(0,2.92,3.535);g.add(routeBoard);if(route.schoolBus){const schoolSign=new THREE.Mesh(new THREE.PlaneGeometry(1.15,.45),new THREE.MeshStandardMaterial({map:signTexture('ESCOLAR','#fff4c8','#24364a'),side:THREE.DoubleSide,roughness:.6}));schoolSign.position.set(0,2.35,-3.54);schoolSign.rotation.y=Math.PI;g.add(schoolSign);}
+    for(const z of [-2.25,-.85,.55,1.95])for(const x of [-.72,.72]){premiumBox(.72,.18,.62,seat,x,1.08,z,g);premiumBox(.72,.74,.16,seat,x,1.42,z-.26,g);premiumBox(.08,.48,.08,rail,x-.26,1.0,z,g);premiumBox(.08,.48,.08,rail,x+.26,1.0,z,g);}
+    for(const x of [-1.15,1.15])premiumBox(.07,2.2,.07,rail,x,1.82,2.55,g);premiumBox(2.35,.07,.07,rail,0,2.72,2.55,g);
+    premiumBox(.68,1.9,.08,renderMat(0x98e7ff,{transparent:true,opacity:.22,roughness:.08}),1.54,1.7,2.52,g);premiumBox(.12,2.08,.12,rail,1.5,1.78,1.84,g);
+    const wheels=[];for(const p of [[-1.48,.47,-2.3],[1.48,.47,-2.3],[-1.48,.47,2.25],[1.48,.47,2.25]]){const wheel=premiumCylinder(.48,.28,0x111720,p[0],p[1],p[2],g,14);wheel.rotation.z=Math.PI/2;wheels.push(wheel);}
+    const start=route.points[(copy*3)%route.points.length],bus={id:`bus-${route.id}-${copy+1}`,route,group:g,pointIndex:((copy*3)+1)%route.points.length,stopUntil:performance.now()+800,lastStopId:start.stopId||'',lastStopName:start.stopName||'',wheels,speed:route.speed,seatOffset:new THREE.Vector3(-.72,.94,.55),interiorSeats:8};g.position.set(start.x,.02,start.z);worldGroup.add(g);world.buses.push(bus);
+    registerInteractable({id:`board-${bus.id}`,type:'bus',icon:'🚌',label:`Embarcar • ${route.number} ${route.name}`,radius:4.6,priority:210,getPos:()=>({x:bus.group.position.x,z:bus.group.position.z}),action:()=>enterBus(bus)});
+    for(const point of route.points)if(point.stopId)ensureBusStop(route,point);return bus;
+  }
+  function createTransitWorld(){METRO_STATIONS.forEach(createMetroEntrance);BUS_ROUTES.forEach(route=>{for(let copy=0;copy<Math.max(1,Number(route.copies||2));copy++)createBusModel(route,copy);});}
+  function busAtStop(bus){return performance.now()<Number(bus.stopUntil||0)&&!!bus.lastStopId;}
+  function openBusStop(stop){
+    const buses=world.buses.filter(b=>stop.routes.includes(b.route.id)).sort((a,b)=>Math.hypot(a.group.position.x-stop.roadX,a.group.position.z-stop.roadZ)-Math.hypot(b.group.position.x-stop.roadX,b.group.position.z-stop.roadZ));const ready=buses.find(b=>busAtStop(b)&&Math.hypot(b.group.position.x-stop.roadX,b.group.position.z-stop.roadZ)<1.2);
+    openModal(`Parada ${stop.name}`,`<div class="transit-heading"><b>🚌 ${stop.routes.map(id=>BUS_ROUTES.find(r=>r.id===id)?.number).join(' • ')}</b><span>${ready?'Ônibus na parada. Embarque agora.':'Os ônibus continuam circulando em tempo real.'}</span></div><div class="bus-live-list">${buses.map(bus=>`<article><b>${bus.route.number} • ${bus.route.name}</b><span>${busAtStop(bus)?`Parado em ${bus.lastStopName}`:`Indo para ${bus.route.points[bus.pointIndex]?.stopName||'próximo trecho'}`}</span></article>`).join('')}</div><div class="modal-actions">${ready?`<button class="btn primary" data-board-ready="${ready.id}">Embarcar</button>`:`<button class="btn primary" data-wait-bus>Esperar nesta parada</button>`}</div>`,root=>{const board=$('[data-board-ready]',root);if(board)board.onclick=()=>{closeModal();enterBus(ready);};const wait=$('[data-wait-bus]',root);if(wait)wait.onclick=()=>{world.waitingForBus=stop.id;closeModal();toast(`Esperando na parada ${stop.name}.`,'good',1800);};});
+  }
+  function ensureTransitPanel(){
+    if(transitPanel)return transitPanel;transitPanel=document.createElement('div');transitPanel.id='transitActivityPanel';transitPanel.className='transit-activity-panel';transitPanel.hidden=true;transitPanel.innerHTML='<div><b data-bus-line>Ônibus</b><span data-bus-next>Próxima parada</span></div><button type="button" data-bus-request>🔔<span>Pedir parada</span></button>';document.body.appendChild(transitPanel);transitPanel.querySelector('[data-bus-request]').onclick=()=>{if(player.transit.mode!=='bus')return;player.transit.requestStop=true;updateTransitPanel();toast('Parada solicitada.','good',1200);};return transitPanel;
+  }
+  function updateTransitPanel(){
+    const panel=ensureTransitPanel(),bus=world.buses.find(b=>b.id===player.transit.busId);document.body.classList.toggle('bus-passenger',player.transit.mode==='bus'&&!!bus);panel.hidden=player.transit.mode!=='bus'||!bus;if(!bus)return;panel.querySelector('[data-bus-line]').textContent=`${bus.route.number} • ${bus.route.name}`;panel.querySelector('[data-bus-next]').textContent=`Próxima: ${bus.route.points.slice(bus.pointIndex).find(p=>p.stopId)?.stopName||'Terminal'}`;const button=panel.querySelector('[data-bus-request]');button.disabled=player.transit.requestStop;button.querySelector('span').textContent=player.transit.requestStop?'Solicitada':'Pedir parada';
+  }
+  function enterBus(bus){
+    if(!bus||player.transit.mode||player.vehicle||player.boating){toast('Desembarque do transporte atual primeiro.','warn');return false;}if(!busAtStop(bus)){toast('Embarque somente quando o ônibus estiver parado.','warn');return false;}if(Math.hypot(player.x-bus.group.position.x,player.z-bus.group.position.z)>6.2){toast('Chegue mais perto da porta do ônibus.','warn');return false;}
+    closeModal();clearMovementInputs();player.transit.mode='bus';player.transit.busId=bus.id;player.transit.requestStop=false;player.x=bus.group.position.x;player.z=bus.group.position.z;player.y=.94;player.vx=player.vz=0;player.sitUntil=Number.MAX_SAFE_INTEGER;if(playerModel)playerModel.visible=false;if(avatarLayer)avatarLayer.visible=false;if(contactShadow)contactShadow.visible=false;if(toolVisual)toolVisual.visible=false;
+    bus.group.updateMatrixWorld(true);const cameraPos=bus.group.localToWorld(new THREE.Vector3(.28,2.28,-2.56)),cameraLook=bus.group.localToWorld(new THREE.Vector3(-.18,1.55,1.75));camera.position.copy(cameraPos);camera.fov=68;camera.lookAt(cameraLook);camera.updateProjectionMatrix();
+    world.waitingForBus='';state.transport.busTrips=(state.transport.busTrips||0)+1;updateTransitPanel();toast(`Embarcou na linha ${bus.route.number}.`,'good',1800);saveState();return true;
+  }
+  function exitBusAtStop(bus,stop){
+    if(player.transit.mode!=='bus')return false;const heading=bus.group.rotation.y;player.transit.mode='';player.transit.busId='';player.transit.requestStop=false;player.sitUntil=0;player.x=clamp(bus.group.position.x+Math.cos(heading)*3.6,-115,115);player.z=clamp(bus.group.position.z-Math.sin(heading)*3.6,-115,115);player.y=groundHeightAt(player.x,player.z);player.vx=player.vy=player.vz=0;player.grounded=true;if(playerModel)playerModel.visible=true;if(avatarLayer)avatarLayer.visible=true;if(contactShadow)contactShadow.visible=true;if(toolVisual)toolVisual.visible=true;const stopId=stop?.stopId||bus.lastStopId||'terminal';if(!state.transport.busStops.includes(stopId))state.transport.busStops.push(stopId);state.transport.busStops=state.transport.busStops.slice(-40);state.stats.busStops=(state.stats.busStops||0)+1;trackDaily('bus',1);advanceAdventure('bus',stopId);setFlag('rodeBus');updateTransitPanel();updateContext(true);saveState(true);toast(`Desembarcou: ${stop?.stopName||bus.lastStopName||'parada'}.`,'good',1900);return true;
+  }
+  function updateTransitWorld(dt){
+    const now=performance.now();for(const bus of world.buses){
+      if(now>=Number(bus.stopUntil||0)){const target=bus.route.points[bus.pointIndex],dx=target.x-bus.group.position.x,dz=target.z-bus.group.position.z,d=Math.hypot(dx,dz);if(d<=bus.speed*dt+.08){bus.group.position.set(target.x,.02,target.z);bus.pointIndex=(bus.pointIndex+1)%bus.route.points.length;if(target.stopId){bus.lastStopId=target.stopId;bus.lastStopName=target.stopName;bus.stopUntil=now+1900;if(world.waitingForBus===target.stopId&&Math.hypot(player.x-bus.group.position.x,player.z-bus.group.position.z)<7)enterBus(bus);if(player.transit.mode==='bus'&&player.transit.busId===bus.id&&player.transit.requestStop)exitBusAtStop(bus,target);}}else{const move=Math.min(d,bus.speed*dt),heading=Math.atan2(dx,dz);bus.group.position.x+=dx/d*move;bus.group.position.z+=dz/d*move;bus.group.rotation.y=lerpAngle(bus.group.rotation.y,heading,Math.min(1,dt*5));for(const wheel of bus.wheels)wheel.rotation.x-=move*2.2;}}
+      if(player.transit.mode==='bus'&&player.transit.busId===bus.id){bus.group.updateMatrixWorld?.(true);const seat=bus.group.localToWorld(bus.seatOffset.clone());player.x=seat.x;player.z=seat.z;player.y=seat.y;player.facing=bus.group.rotation.y;player.vx=player.vz=0;}
+    }updateTransitPanel();
+  }
+  function createPoliceCar(id,route,routeIndex=0){
+    const g=new THREE.Group(),white=renderMat(0xf4f7fb,{roughness:.38,metalness:.16}),blue=renderMat(0x215ea8,{roughness:.34,metalness:.25}),dark=renderMat(0x13253a,{roughness:.14,metalness:.35,transparent:true,opacity:.78});
+    premiumBox(2.0,.4,3.0,0x26384e,0,.32,0,g);premiumBox(1.9,.5,1.65,white,0,.66,.46,g);premiumBox(1.58,.48,1.1,blue,0,.86,-.42,g);premiumBox(1.38,.32,.88,dark,0,1.02,-.36,g);
+    premiumBox(2.02,.34,.24,blue,0,.56,.88,g);premiumBox(2.02,.34,.24,blue,0,.56,-.88,g);premiumBox(.12,.36,1.7,blue,-.96,.58,0,g);premiumBox(.12,.36,1.7,blue,.96,.58,0,g);
+    const lightBar=new THREE.Group();lightBar.position.set(0,1.36,-.2);g.add(lightBar);const red=premiumBox(.62,.18,.34,renderMat(0xe9404a,{emissive:0xb10e22,emissiveIntensity:.9}),-.34,0,0,lightBar),cyan=premiumBox(.62,.18,.34,renderMat(0x35bfff,{emissive:0x087db4,emissiveIntensity:.9}),.34,0,0,lightBar);
+    const sign=new THREE.Mesh(new THREE.PlaneGeometry(.72,.72),new THREE.MeshStandardMaterial({map:iconTexture('★','#ffffff','#215ea8'),transparent:true,side:THREE.DoubleSide}));sign.position.set(1.02,.72,.2);sign.rotation.y=Math.PI/2;g.add(sign);
+    const wheels=[];for(const p of [[-.94,.28,-.88],[.94,.28,-.88],[-.94,.28,.88],[.94,.28,.88]]){const wheel=premiumCylinder(.36,.25,0x10151d,p[0],p[1],p[2],g,14);wheel.rotation.z=Math.PI/2;wheels.push(wheel);}
+    g.traverse(o=>{if(o.isMesh)addVoxelOutline(o,0x132238,.22);});const start=route[routeIndex%route.length],car={id,group:g,route,routeIndex:(routeIndex+1)%route.length,speed:8.1,wheels,red,cyan,npcTarget:'',npcChaseUntil:0};g.position.set(start.x,.02,start.z);worldGroup.add(g);world.policeCars.push(car);return car;
+  }
+  function createPoliceSystem(){
+    createPoliceCar('patrol-1',[{x:68,z:-12},{x:68,z:0},{x:100,z:0},{x:0,z:0},{x:-100,z:0},{x:0,z:0},{x:68,z:0}],0);
+    createPoliceCar('patrol-2',[{x:55,z:0},{x:55,z:88},{x:55,z:0},{x:0,z:0},{x:0,z:-94},{x:0,z:0}],2);
+  }
+  function movePoliceToward(car,target,dt,speed=car.speed){
+    const dx=target.x-car.group.position.x,dz=target.z-car.group.position.z,d=Math.hypot(dx,dz);if(d<.08)return d;const move=Math.min(d,speed*dt),heading=Math.atan2(dx,dz);car.group.position.x+=dx/d*move;car.group.position.z+=dz/d*move;car.group.rotation.y=lerpAngle(car.group.rotation.y,heading,Math.min(1,dt*6));for(const wheel of car.wheels)wheel.rotation.x-=move*2.8;return d;
+  }
+  function updatePolicePatrol(car,dt){
+    const target=car.route[car.routeIndex],distance=movePoliceToward(car,target,dt);if(distance<.28)car.routeIndex=(car.routeIndex+1)%car.route.length;
+  }
+  function updateSafetyPanel(message=''){
+    if(!els.safetyPanel)return;els.safetyPanel.hidden=!message;if(els.safetyStatus)els.safetyStatus.textContent=message;
+  }
+  function startPoliceAlert(car){
+    if(world.policeAlert||!player.vehicle||player.car.passengerOf)return false;const now=performance.now();
+    if(Date.now()-Number(state.safety.lastIncident||0)<5000)return false;
+    state.safety.incidents=(state.safety.incidents||0)+1;state.safety.lastIncident=Date.now();world.policeAlert={carId:car.id,startedAt:now,slowSince:0};car.npcTarget='';saveState(true);updateSafetyPanel('Encoste com calma • solte o acelerador');toast('Patrulha de segurança: encoste com calma.','warn',2200);return true;
+  }
+  function finishSafetyStop(){
+    const alert=world.policeAlert;if(!alert)return;world.policeAlert=null;state.safety.safeStops=(state.safety.safeStops||0)+1;
+    if(player.vehicle)exitVehicle(true);clearMovementInputs();player.x=68;player.z=-12.2;player.y=groundHeightAt(player.x,player.z);player.vx=player.vy=player.vz=0;player.grounded=true;playerGroup?.position?.set(player.x,player.y,player.z);updateSafetyPanel('');saveState(true);setTimeout(()=>openSafetyLesson('incident'),120);
+  }
+  function openSafetyLesson(source='station'){
+    const incident=source==='incident',questions=[
+      {q:'Antes de dirigir, qual é a primeira atitude segura?',answers:['Colocar o cinto e observar ao redor','Acelerar para sair rápido','Olhar somente para a buzina'],correct:0},
+      {q:'Ao ver outro veículo perto, o que devemos fazer?',answers:['Reduzir e manter distância','Fechar os olhos','Correr para chegar primeiro'],correct:0},
+      {q:'Se acontecer uma batida no jogo, qual é a melhor escolha?',answers:['Parar, respirar e aprender','Bater novamente','Culpar alguém sem conversar'],correct:0}
+    ],lesson=questions[(state.safety.lessons||0)%questions.length];
+    openModal(incident?'Parada educativa':'Clube de Segurança',`<div class="safety-lesson"><span>🛡️</span><h3>${incident?'Todo mundo está bem!':'Vamos aprender trânsito seguro'}</h3><p>${incident?'A patrulha trouxe você ao posto para uma atividade rápida, sem violência e sem perda de conquistas.':'Treine escolhas seguras para pedestres, bicicletas e veículos.'}</p><b>${lesson.q}</b><div class="choice-grid">${lesson.answers.map((answer,index)=>`<button class="choice" data-safety-answer="${index}"><span>${answer}</span></button>`).join('')}</div><small>Ninguém perde moedas, itens ou progresso nesta atividade.</small></div>`,root=>{
+      $$('[data-safety-answer]',root).forEach(button=>button.onclick=()=>{const correct=Number(button.dataset.safetyAnswer)===lesson.correct;state.safety.lessons=(state.safety.lessons||0)+1;if(correct){addXP(18);addReputation(3);awardMedal('Direção Segura');}saveState(true);closeModal();toast(correct?'Boa escolha! Segurança vem primeiro.':'Vamos lembrar: reduza, observe e cuide de todos.',correct?'good':'warn',2600);});
+    });
+  }
+  function updatePoliceSystem(dt){
+    const now=performance.now(),alert=world.policeAlert,alertCar=alert&&world.policeCars.find(car=>car.id===alert.carId);
+    for(const car of world.policeCars){
+      const active=alert&&car===alertCar;
+      car.red.material.emissiveIntensity=(active||car.npcTarget)?(.45+Math.sin(now*.018)*.45):.16;car.cyan.material.emissiveIntensity=(active||car.npcTarget)?(.45+Math.sin(now*.018+Math.PI)*.45):.16;
+      if(active){
+        const distance=movePoliceToward(car,player,dt,12.8);const stopped=Math.abs(player.car.speed)<1.15;
+        alert.slowSince=stopped?(alert.slowSince||now):0;updateSafetyPanel(stopped?'Muito bem • aguarde a patrulha':'Encoste com calma • solte o acelerador');
+        if(!player.vehicle||distance<2.15||(alert.slowSince&&now-alert.slowSince>1100)||now-alert.startedAt>15000)finishSafetyStop();
+      }else if(car.npcTarget){
+        const npc=world.npcs.find(item=>item.id===car.npcTarget);if(!npc||now>car.npcChaseUntil){if(npc)npcSpeech(npc,'Vou reduzir a velocidade e dirigir com cuidado.');car.npcTarget='';}
+        else if(movePoliceToward(car,npc.group.position,dt,10.2)<2.25){npc.policeCooldown=now+45000;npcSpeech(npc,'Entendi, patrulha! Segurança primeiro.');car.npcTarget='';}
+      }else updatePolicePatrol(car,dt);
+    }
+    if(!alert&&player.vehicle&&!player.car.passengerOf&&Math.abs(player.car.speed)>1.4){
+      const hit=world.policeCars.find(car=>Math.hypot(player.x-car.group.position.x,player.z-car.group.position.z)<2.45);if(hit)startPoliceAlert(hit);
+    }
+    if(!alert){
+      for(const car of world.policeCars){if(car.npcTarget)continue;const npc=world.npcs.find(item=>item.mobility&&['car','moto'].includes(item.mobility.type)&&now>Number(item.policeCooldown||0)&&Math.hypot(item.group.position.x-car.group.position.x,item.group.position.z-car.group.position.z)<2.0);if(npc){car.npcTarget=npc.id;car.npcChaseUntil=now+6500;npc.policeCooldown=now+45000;break;}}
+    }
+  }
+  function openTransitGuide(){
+    openModal('Rede de transporte',`<div class="transport-summary"><article><b>${state.transport.metroTrips||0}</b><span>viagens de metrô</span></article><article><b>${state.transport.busTrips||0}</b><span>viagens de ônibus</span></article><article><b>${state.transport.busStops.length}</b><span>paradas visitadas</span></article></div><h3>Estações de metrô</h3><div class="transit-directory">${METRO_STATIONS.map(s=>`<button data-transit-waypoint="metro-${s.id}"><b>Ⓜ️ ${s.name}</b><span>${s.line}</span></button>`).join('')}</div><h3>Linhas de ônibus</h3><div class="transit-directory">${BUS_ROUTES.map(r=>`<article><b>🚌 ${r.number} • ${r.name}</b><span>${[...new Set(r.points.filter(p=>p.stopName).map(p=>p.stopName))].join(' → ')}</span></article>`).join('')}</div>`,root=>{$$('[data-transit-waypoint]',root).forEach(btn=>btn.onclick=()=>setWaypoint(btn.dataset.transitWaypoint));});
+  }
+
+  function createRoyalCastle(x,z){
+    const g=new THREE.Group();g.position.set(x,0,z);worldGroup.add(g);const stone=0x8996a5,dark=0x657587,trim=0xc9d0d8,roof=0x315aa8,gold=0xf5c846;
+    const moatA=premiumBox(8.2,.18,2.5,materials.water,-8.1,.08,-13.8,g),moatB=premiumBox(8.2,.18,2.5,materials.water,8.1,.08,-13.8,g),moatBack=premiumBox(27,.18,2.2,materials.water,0,.08,13.5,g);for(const water of [moatA,moatB,moatBack])water.material.depthWrite=false;
+    premiumBox(31,.7,25,dark,0,.35,0,g);premiumBox(27,.45,21,0xb5bac1,0,.82,0,g);
+    premiumBox(10,6.4,2.1,stone,-8.5,4, -10,g);premiumBox(10,6.4,2.1,stone,8.5,4,-10,g);premiumBox(27,6.4,2.1,stone,0,4,10,g);premiumBox(2.1,6.4,18,stone,-13.5,4,0,g);premiumBox(2.1,6.4,18,stone,13.5,4,0,g);
+    premiumBox(10,8.5,8.5,dark,0,5.1,3.5,g);premiumBox(8.6,7.5,7.2,stone,0,5.4,2.8,g);premiumBox(4.2,4.8,.8,0x20364f,0,3.2,-1.05,g);
+    for(const [tx,tz] of [[-13,-10],[13,-10],[-13,10],[13,10]]){premiumCylinder(3.6,10,stone,tx,5.5,tz,g,12);premiumCylinder(4,1.1,trim,tx,10.2,tz,g,12);const cone=new THREE.Mesh(new THREE.ConeGeometry(4.25,4.8,12),renderMat(roof,{roughness:.55,metalness:.08}));cone.position.set(tx,13.05,tz);cone.castShadow=true;g.add(cone);premiumBox(.16,2,.16,gold,tx,16.2,tz,g);const flag=premiumBox(1.8,.8,.08,0xe43d4c,tx+.9,16.7,tz,g);flag.rotation.y=.15;}
+    const battlement=(px,pz,alongX,count)=>{for(let i=0;i<count;i++){const offset=(i-(count-1)/2)*2.15;premiumBox(1.25,1.15,1.25,trim,px+(alongX?offset:0),7.75,pz+(alongX?0:offset),g);}};battlement(-8.3,-10,true,4);battlement(8.3,-10,true,4);battlement(0,10,true,11);battlement(-13.5,0,false,7);battlement(13.5,0,false,7);
+    for(const wx of [-4.8,0,4.8]){premiumBox(1.2,1.9,.18,0x5ee7ff,wx,6.7,-1.05,g);premiumBox(.12,1.9,.2,trim,wx,6.7,-1.15,g);}premiumBox(5.2,.35,5.8,materials.wood,0,.34,-12.3,g);
+    for(const px of [-9,-5,5,9]){premiumCylinder(.48,.56,0xc88a45,px,1.1,4.8,g,10);premiumBox(.82,.3,.82,px<0?0xff6fa8:0xffd34d,px,1.55,4.8,g);}
+    for(const a of [-1,1]){const chain=premiumCylinder(.08,5.5,0x333b45,a*2.2,2.8,-11.4,g,8);chain.rotation.x=Math.PI/2;chain.rotation.z=.1*a;}const crown=new THREE.Mesh(new THREE.OctahedronGeometry(.85,0),mat(gold,{emissive:0xb87900,emissiveIntensity:.7}));crown.position.set(0,10.7,2.5);g.add(crown);addGlow(x,10.7,z+2.5,gold,5);
+    createSignpost(x-8,z-13,'Castelo Real',0);registerInteractable({id:'castle-adventures',type:'adventure',icon:'🏰',label:'Desafios do Castelo',x,z:z-11.5,radius:5.2,priority:195,action:openAdventureHub});world.castle=g;createCastleChallengeTokens();return g;
+  }
+  function createCastleChallengeTokens(){
+    const coords=[[-10,-7],[10,-7],[-10,7],[10,7],[0,5],[-6,1]];world.challengeTokens=coords.map(([dx,dz],i)=>{const mesh=new THREE.Mesh(new THREE.OctahedronGeometry(.62,0),mat(0xffd34d,{emissive:0xc68400,emissiveIntensity:1.1,metalness:.22,roughness:.25}));mesh.position.set(88+dx,1.5,62+dz);mesh.visible=false;worldGroup.add(mesh);return{id:`crown-${i}`,x:88+dx,z:62+dz,mesh,got:false};});
+  }
+  function openAdventureHub(){
+    const active=world.activeChallenge,completed=new Set(state.adventures.completed||[]);openModal('Desafios da cidade',`${active?`<div class="active-adventure"><b>${ADVENTURE_DEFS[active.type]?.icon} Em andamento: ${ADVENTURE_DEFS[active.type]?.name}</b><span>${active.progress.size}/${active.target}</span></div>`:''}<div class="adventure-grid">${Object.entries(ADVENTURE_DEFS).map(([id,d])=>`<button class="adventure-card ${completed.has(id)?'completed':''}" data-adventure="${id}" ${active?'disabled':''}><span>${d.icon}</span><b>${d.name}</b><small>${d.description}</small><em>${completed.has(id)?'✓ Concluído':`${d.reward} moedas • ${d.xp} XP`}</em></button>`).join('')}</div>`,root=>{$$('[data-adventure]',root).forEach(btn=>btn.onclick=()=>startAdventure(btn.dataset.adventure));});
+  }
+  function startAdventure(type){
+    const def=ADVENTURE_DEFS[type];if(!def||world.activeChallenge||activeRace)return;if(type==='castle'&&Math.hypot(player.x-88,player.z-52)>15){setWaypoint('castle');toast('Siga a rota até o Castelo para começar.','good',2200);return;}closeModal();world.activeChallenge={type,target:def.target,progress:new Set(),startedAt:performance.now(),endsAt:type==='castle'?performance.now()+75000:0};state.adventures.active={type,startedAt:Date.now()};if(type==='castle')for(const token of world.challengeTokens){token.got=false;token.mesh.visible=true;}els.raceBadge.hidden=false;els.raceTitle.textContent=`${def.icon} ${def.name}`;els.raceStatus.textContent=`0/${def.target}`;toast(`${def.name} começou!`,'good',1900);saveState();
+  }
+  function advanceAdventure(type,key){
+    const active=world.activeChallenge;if(!active||active.type!==type||active.progress.has(key))return false;active.progress.add(key);els.raceStatus.textContent=`${active.progress.size}/${active.target}`;beep(780,55,'sine');if(active.progress.size>=active.target)finishAdventure(true);return true;
+  }
+  function finishAdventure(success){
+    const active=world.activeChallenge;if(!active)return;const def=ADVENTURE_DEFS[active.type];for(const token of world.challengeTokens)token.mesh.visible=false;world.activeChallenge=null;state.adventures.active=null;els.raceBadge.hidden=true;if(success){if(!state.adventures.completed.includes(active.type))state.adventures.completed.push(active.type);const elapsed=(performance.now()-active.startedAt)/1000,stateBest=Number(state.adventures.bestTimes[active.type]||Infinity);state.adventures.bestTimes[active.type]=Math.min(stateBest,elapsed);addCoins(def.reward);addXP(def.xp);addReputation(8);awardMedal(def.name);if(active.type==='castle')setFlag('castleChallenge');toast(`Desafio concluído! +${def.reward} moedas`,'good',2600);}else toast('Tempo esgotado. Tente novamente!','warn',2200);saveState(true);
+  }
+  function updateAdventure(){
+    const active=world.activeChallenge;if(!active)return;if(active.type==='castle'){if(performance.now()>=active.endsAt){finishAdventure(false);return;}for(const token of world.challengeTokens){if(token.got)continue;token.mesh.rotation.y+=.08;token.mesh.position.y=1.45+Math.sin(animTime*3+token.x)*.18;if(Math.hypot(player.x-token.x,player.z-token.z)<1.5){token.got=true;token.mesh.visible=false;advanceAdventure('castle',token.id);}}if(world.activeChallenge)els.raceStatus.textContent=`${active.progress.size}/${active.target} • ${Math.ceil((active.endsAt-performance.now())/1000)} s`;}}
+
   function createLearningStation(id,subject,x,z,color,icon,label){
     const g=new THREE.Group();g.position.set(x,0,z);worldGroup.add(g);premiumBox(2.5,.35,2.5,0x34485e,0,.18,0,g);premiumBox(1.7,2.1,1.2,color,0,1.35,0,g);const panel=new THREE.Mesh(new THREE.PlaneGeometry(1.25,1.25),new THREE.MeshStandardMaterial({map:iconTexture(icon,color,'#ffffff'),roughness:.35,emissive:new THREE.Color(color),emissiveIntensity:.12,side:THREE.DoubleSide}));panel.position.set(0,1.55,.63);g.add(panel);const beacon=new THREE.Mesh(new THREE.OctahedronGeometry(.34,0),mat(color,{emissive:color,emissiveIntensity:1.1}));beacon.position.y=2.75;g.add(beacon);registerInteractable({id:`learning-${id}`,type:'education',icon,label,x,z,radius:3,priority:130,action:()=>openEducationHub(subject)});world.landmarks.push(g);return g;
   }
@@ -1852,8 +2276,8 @@
     if(document.getElementById('otthosFishingModalStyle'))return;const style=document.createElement('style');style.id='otthosFishingModalStyle';style.textContent=`
       .modal.fishing-modal{background:transparent!important;backdrop-filter:none!important;pointer-events:none!important;align-items:flex-start!important;justify-content:center!important;padding-top:clamp(155px,31dvh,285px)!important}
       .modal.fishing-modal .modal-card{pointer-events:auto!important;width:min(360px,calc(100vw - 18px))!important;max-height:none!important;border-radius:18px!important;background:rgba(5,22,38,.92)!important;box-shadow:0 12px 32px rgba(0,0,0,.42)!important}
-      .modal.fishing-modal .modal-card>header{min-height:44px!important;padding:6px 10px!important}.modal.fishing-modal .modal-card>header h2{font-size:18px!important}.modal.fishing-modal .modal-card>header button{width:36px!important;height:36px!important}
-      .modal.fishing-modal .modal-body{padding:8px 10px 10px!important;max-height:none!important;overflow:visible!important}.modal.fishing-modal .activity-card{padding:0!important}.modal.fishing-modal .activity-card .activity-icon{display:none!important}.modal.fishing-modal .activity-card h3{margin:2px 0 4px!important;font-size:16px!important}.modal.fishing-modal .activity-card p{margin:4px 0!important;font-size:12px!important}.modal.fishing-modal .activity-meter{margin:7px 0!important;height:8px!important}.modal.fishing-modal .btn.xl{min-height:42px!important;padding:8px 12px!important;font-size:13px!important}
+      .modal.fishing-modal .modal-card>header{position:absolute!important;right:4px!important;top:3px!important;z-index:3!important;padding:0!important;min-height:0!important;border:0!important}.modal.fishing-modal .modal-card>header h2{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip-path:inset(50%)!important}.modal.fishing-modal .modal-card>header button{width:32px!important;height:32px!important;background:rgba(255,255,255,.12)!important}
+      .modal.fishing-modal .modal-body{padding:10px 42px 10px 10px!important;max-height:none!important;overflow:visible!important}.modal.fishing-modal .activity-card{padding:0!important}.modal.fishing-modal .fishing-compact-status{min-height:24px;display:flex;align-items:center;font-size:14px;font-weight:900;color:#fff}.modal.fishing-modal .activity-meter{margin:6px 0!important;height:7px!important}.modal.fishing-modal .btn.xl{min-height:38px!important;padding:7px 11px!important;font-size:13px!important}
       @media (orientation:landscape) and (max-height:560px){.modal.fishing-modal{align-items:flex-start!important;justify-content:flex-start!important;padding:72px 0 0 max(12px,env(safe-area-inset-left))!important}.modal.fishing-modal .modal-card{width:min(330px,45vw)!important}}
     `;document.head.appendChild(style);
   }
@@ -1870,9 +2294,7 @@
   }
   function createBoatModel(){
     const g=new THREE.Group();const hull=renderMat(0x7b3f20,{roughness:.72}),edge=renderMat(0xe3ad55,{roughness:.62}),seat=renderMat(0x374151,{roughness:.72});
-    premiumBox(2.4,.42,4.4,hull,0,.38,0,g);premiumBox(2.75,.25,3.85,edge,0,.67,0,g);premiumBox(1.85,.23,3.15,renderMat(0x2d6f8d,{roughness:.48}),0,.83,0,g);premiumBox(1.75,.25,.55,seat,0,1.02,-.65,g);premiumBox(1.75,.25,.55,seat,0,1.02,.72,g);premiumBox(.12,1.8,.12,0xd8c28d,.95,1.35,.1,g);premiumBox(1.45,.05,.72,0xf5f1df,.25,2.05,.1,g);
-    const passengerVisual=createPassengerProxy(g,{x:-.48,y:1.02,z:.66,color:0x8f69df,scale:.62});
-    g.position.set(-38,.1,52);worldGroup.add(g);world.boat={id:'lake-boat',group:g,x:-38,z:52,heading:0,driverUid:'',passengerUid:'',passengerVisual};
+    premiumBox(2.4,.42,4.4,hull,0,.38,0,g);premiumBox(2.75,.25,3.85,edge,0,.67,0,g);premiumBox(1.85,.23,3.15,renderMat(0x2d6f8d,{roughness:.48}),0,.83,0,g);premiumBox(1.75,.25,.55,seat,0,1.02,-.65,g);premiumBox(1.75,.25,.55,seat,0,1.02,.72,g);premiumBox(.12,1.8,.12,0xd8c28d,.95,1.35,.1,g);premiumBox(1.45,.05,.72,0xf5f1df,.25,2.05,.1,g);g.position.set(-38,.1,52);worldGroup.add(g);world.boat={id:'lake-boat',group:g,x:-38,z:52,heading:0,driverUid:'',passengerUid:''};
     registerInteractable({id:'lake-boat-entry',type:'boat',icon:'🛶',label:'Entrar no barco',radius:3.1,priority:180,getPos:()=>({x:world.boat?.group.position.x||-38,z:world.boat?.group.position.z||52}),action:enterBoat});
   }
   function ensureBoatPanel(){
@@ -1880,13 +2302,13 @@
   }
   function updateBoatPanel(){const panel=ensureBoatPanel();panel.hidden=!player.boating;if(player.boating){const passenger=!!player.boat.passengerOf;panel.querySelector('[data-boat-fish]').disabled=passenger;panel.querySelector('[data-boat-fish] span').textContent=passenger?'Passageiro':'Pescar';}}
   async function enterBoat(){
-    if(player.boating)return;if(player.publicRide?.type)exitPublicRide(true);if(player.vehicle)exitVehicle(true);if(!world.boat)return;const p=world.boat.group.position;if(Math.hypot(player.x-p.x,player.z-p.z)>3.6){toast('Chegue perto do barco pelo píer.','warn');return;}const lock=await window.OTTHOS_RTDB?.claimBoat?.(world.boat.id);if(lock&&lock.ok===false){toast(lock.error||'O barco já está sendo usado por outro jogador.','warn',2800);return;}player.boating=true;player.boat.passengerOf='';player.boat.passengerUid='';player.boat.heading=world.boat.heading||0;player.boat.speed=0;player.boat.steerVisual=0;player.x=p.x;player.z=p.z;player.y=.18;player.vx=player.vz=0;state.boats.activeBoatId=world.boat.id;state.boats.passengerOf='';updateBoatPanel();toast('Barco pronto. Use o manche para navegar.','good',2300);saveState(true);
+    if(player.boating)return;if(player.vehicle)exitVehicle(true);if(player.transit.mode)return;if(!world.boat)return;const p=world.boat.group.position;if(Math.hypot(player.x-p.x,player.z-p.z)>3.6){toast('Chegue perto do barco pelo píer.','warn');return;}const lock=await window.OTTHOS_RTDB?.claimBoat?.(world.boat.id);if(lock&&lock.ok===false){toast(lock.error||'O barco já está sendo usado por outro jogador.','warn',2800);return;}player.boating=true;player.boat.passengerOf='';player.boat.passengerUid='';player.boat.passengerBotId='';player.boat.heading=world.boat.heading||0;player.boat.speed=0;player.boat.steerVisual=0;player.x=p.x;player.z=p.z;player.y=.18;player.vx=player.vz=0;state.boats.activeBoatId=world.boat.id;state.boats.passengerOf='';const companion=nearestRideCompanion(9);if(companion)boardNpcPassenger(companion,'boat');updateBoatPanel();toast('Barco pronto. Use o manche para navegar.','good',2300);saveState(true);
   }
   function enterBoatAsPassenger(hostUid){
-    const ghost=world.ghosts.get(hostUid);if(!ghost){toast('O barco do jogador não está mais disponível.','warn');return false;}if(player.publicRide?.type)exitPublicRide(true);if(player.vehicle)exitVehicle(true);player.boating=true;player.boat.passengerOf=hostUid;player.boat.speed=0;player.x=ghost.position.x;player.z=ghost.position.z;state.boats.activeBoatId='lake-boat';state.boats.passengerOf=hostUid;updateBoatPanel();toast('Você entrou como passageiro. O motorista controla o barco.','good',2600);saveState(true);return true;
+    const ghost=world.ghosts.get(hostUid);if(!ghost){toast('O barco do jogador não está mais disponível.','warn');return false;}if(player.vehicle)exitVehicle(true);if(player.transit.mode)return false;player.boating=true;player.boat.passengerOf=hostUid;player.boat.passengerBotId='';player.boat.speed=0;player.x=ghost.position.x;player.z=ghost.position.z;state.boats.activeBoatId='lake-boat';state.boats.passengerOf=hostUid;updateBoatPanel();toast('Você entrou como passageiro. O motorista controla o barco.','good',2600);saveState(true);return true;
   }
   function exitBoat(silent=false){
-    if(!player.boating)return false;if(!silent&&!validBoatExit()){toast('Encoste a lateral do barco no píer para sair com segurança.','warn',2500);return false;}const passengerHost=player.boat.passengerOf,hostedPassenger=player.boat.passengerUid,wasPassenger=!!passengerHost;releaseBotPassenger('boat');if(passengerHost)window.OTTHOS_RTDB?.sendInteraction?.(passengerHost,{type:'boatPassengerLeft'});else if(hostedPassenger)window.OTTHOS_RTDB?.sendInteraction?.(hostedPassenger,{type:'boatEnded'});player.boating=false;player.boat.passengerOf='';player.boat.passengerUid='';player.boat.speed=0;player.boat.steerVisual=0;state.boats.passengerOf='';state.boats.activeBoatId='';if(!wasPassenger&&world.boat)window.OTTHOS_RTDB?.releaseBoat?.(world.boat.id);if(world.boat&&!wasPassenger){world.boat.group.position.set(player.x,.1,player.z);world.boat.heading=player.boat.heading;world.boat.group.rotation.y=player.boat.heading;}const safe=safeBoatExitPoint();player.x=safe.x;player.z=safe.z;player.y=groundHeightAt(safe.x,safe.z);player.vx=player.vz=0;updateBoatPanel();if(!silent)toast('Você desembarcou no píer.','good');saveState(true);return true;
+    if(!player.boating)return false;if(!silent&&!validBoatExit()){toast('Encoste a lateral do barco no píer para sair com segurança.','warn',2500);return false;}const passengerHost=player.boat.passengerOf,hostedPassenger=player.boat.passengerUid,wasPassenger=!!passengerHost;if(passengerHost)window.OTTHOS_RTDB?.sendInteraction?.(passengerHost,{type:'boatPassengerLeft'});else if(hostedPassenger)window.OTTHOS_RTDB?.sendInteraction?.(hostedPassenger,{type:'boatEnded'});releaseNpcPassenger('boat');player.boating=false;player.boat.passengerOf='';player.boat.passengerUid='';player.boat.speed=0;player.boat.steerVisual=0;state.boats.passengerOf='';state.boats.activeBoatId='';if(!wasPassenger&&world.boat)window.OTTHOS_RTDB?.releaseBoat?.(world.boat.id);if(world.boat&&!wasPassenger){world.boat.group.position.set(player.x,.1,player.z);world.boat.heading=player.boat.heading;world.boat.group.rotation.y=player.boat.heading;}const safe=safeBoatExitPoint();player.x=safe.x;player.z=safe.z;player.y=groundHeightAt(safe.x,safe.z);player.vx=player.vz=0;updateBoatPanel();if(!silent)toast('Você desembarcou no píer.','good');saveState(true);return true;
   }
   function updateBoatPhysics(dt,ix,iz){
     const boat=player.boat;if(boat.passengerOf){const ghost=world.ghosts.get(boat.passengerOf),target=ghost?.userData?.target;if(!ghost||!target){boat.hostMissingAt=boat.hostMissingAt||performance.now();if(performance.now()-boat.hostMissingAt>3500){toast('O motorista saiu. Você voltou ao píer.','warn');player.x=-24.7;player.z=52;exitBoat(true);}player.vx=player.vz=0;return;}boat.hostMissingAt=0;const tx=Number(target.x||ghost.position.x),tz=Number(target.z||ghost.position.z);player.vx=clamp((tx-player.x)*8,-18,18);player.vz=clamp((tz-player.z)*8,-18,18);boat.heading=Number(target.r||boat.heading);player.facing=boat.heading;return;}
@@ -1896,11 +2318,11 @@
   function weightedFish(){let r=Math.random()*100;for(const fish of FISH_SPECIES){r-=fish.weight;if(r<=0)return fish;}return FISH_SPECIES[0];}
   function startFishing(source='shore',options={}){
     if(fishingSession){toast('Finalize a pesca atual primeiro.','warn');return;}if((state.inventory.fishingRod||0)<1){toast('Você precisa de uma vara de pesca.','warn');return;}if((state.inventory.bait||0)<1){toast('Você ficou sem isca.','warn');return;}if(source==='boat'&&!player.boating){toast('Entre no barco primeiro.','warn');return;}if(source!=='boat'&&!isNearFishingArea()){toast('Pesque somente nos pontos marcados da margem.','warn');return;}const wait=Math.max(0,6500-(Date.now()-Number(state.fishing.lastAttempt||0)));if(wait>0){toast(`Aguarde ${Math.ceil(wait/1000)} s para tentar novamente.`,'warn');return;}
-    const token=uid();fishingSession={token,source,options,hookTimer:0,escapeTimer:0,finishTimer:0};beginFishingVisual(source);ensureFishingModalStyle();openModal(options.cooperative?'Pesca com amigo':'Pesca',`<div class="activity-card fishing-card fishing-card-compact"><div class="fishing-compact-status"><b>🎣</b><span data-fishing-status>Pronto para lançar</span></div><div class="activity-meter"><i data-fishing-meter></i></div><button class="btn primary" data-cast>Lançar</button><button class="btn good" data-pull hidden>Puxar!</button></div>`,root=>{
+    const token=uid();fishingSession={token,source,options,hookTimer:0,escapeTimer:0,finishTimer:0};beginFishingVisual(source);ensureFishingModalStyle();openModal(options.cooperative?'Pesca com amigo':'Pesca',`<div class="activity-card fishing-card"><div class="fishing-compact-status" data-fishing-status>🎣 Pronto</div><div class="activity-meter"><i data-fishing-meter></i></div><button class="btn primary xl" data-cast>Lançar</button><button class="btn good xl" data-pull hidden>PUXAR!</button></div>`,root=>{
       els.modal.classList.add('fishing-modal');
       const status=$('[data-fishing-status]',root),cast=$('[data-cast]',root),pull=$('[data-pull]',root),meter=$('[data-fishing-meter]',root);
-      cast.onclick=()=>{if(!fishingSession||fishingSession.token!==token)return;cast.disabled=true;state.inventory.bait--;state.fishing.lastAttempt=Date.now();saveState(true);status.textContent='Aguardando fisgada…';meter.style.animation='fishingWait 2.4s linear forwards';castFishingVisual();const hookDelay=1400+Math.random()*1700;fishingSession.hookTimer=setTimeout(()=>{if(!fishingSession||fishingSession.token!==token||els.modal.hidden){cancelFishingSession();return;}status.textContent='Fisgou! Puxe agora!';pull.hidden=false;hookFishingVisual();beep(880,100,'sine');vibrate([35,35,55]);fishingSession.hookedAt=performance.now();fishingSession.escapeTimer=setTimeout(()=>{if(!fishingSession||fishingSession.token!==token)return;status.textContent='Escapou.';pull.hidden=true;pullFishingVisual(false);fishingSession.finishTimer=setTimeout(()=>{if(fishingSession?.token===token)fishingSession=null;stopFishingVisual();},800);},2700);},hookDelay);};
-      pull.onclick=()=>{if(!fishingSession||fishingSession.token!==token)return;clearTimeout(fishingSession.escapeTimer);const reaction=performance.now()-Number(fishingSession.hookedAt||performance.now()),success=reaction<2400&&Math.random()<.88;pull.hidden=true;if(!success){status.textContent='Puxou fora do tempo.';pullFishingVisual(false);saveState();fishingSession.finishTimer=setTimeout(()=>{if(fishingSession?.token===token)fishingSession=null;stopFishingVisual();},800);return;}const fish=weightedFish(),size=+(fish.min+Math.random()*(fish.max-fish.min)).toFixed(2),catchId=uid();state.inventory.rawFish=(state.inventory.rawFish||0)+1;state.fishing.catches.push({id:catchId,species:fish.name,size,rarity:fish.rarity,caughtAt:Date.now(),source,cooperative:!!options.cooperative});state.fishing.catches=state.fishing.catches.slice(-200);state.fishing.species[fish.name]=(state.fishing.species[fish.name]||0)+1;let xp=fish.xp,coins=fish.coins;if(options.cooperative&&options.requestId&&!state.fishing.cooperativeRewards.includes(options.requestId)){state.fishing.cooperativeRewards.push(options.requestId);state.fishing.cooperativeRewards=state.fishing.cooperativeRewards.slice(-80);xp+=6;coins+=3;}addXP(xp);addCoins(coins);status.innerHTML=`<b>${fish.name}</b> • ${size} kg • ${fish.rarity}`;pullFishingVisual(true,{...fish,size});beep(1040,130,'sine');vibrate([40,35,70]);clearFishingTimers(fishingSession);fishingSession=null;stopFishingVisual(1800);saveState(true);};
+      cast.onclick=()=>{if(!fishingSession||fishingSession.token!==token)return;cast.disabled=true;state.inventory.bait--;state.fishing.lastAttempt=Date.now();saveState(true);status.textContent='🎣 Aguarde…';meter.style.animation='fishingWait 2.4s linear forwards';castFishingVisual();const hookDelay=1400+Math.random()*1700;fishingSession.hookTimer=setTimeout(()=>{if(!fishingSession||fishingSession.token!==token||els.modal.hidden){cancelFishingSession();return;}status.textContent='⚡ Fisgou!';pull.hidden=false;hookFishingVisual();beep(880,100,'sine');vibrate([35,35,55]);fishingSession.hookedAt=performance.now();fishingSession.escapeTimer=setTimeout(()=>{if(!fishingSession||fishingSession.token!==token)return;status.textContent='💨 Escapou';pull.hidden=true;pullFishingVisual(false);fishingSession.finishTimer=setTimeout(()=>{if(fishingSession?.token===token)fishingSession=null;stopFishingVisual();},800);},2700);},hookDelay);};
+      pull.onclick=()=>{if(!fishingSession||fishingSession.token!==token)return;clearTimeout(fishingSession.escapeTimer);const reaction=performance.now()-Number(fishingSession.hookedAt||performance.now()),success=reaction<2400&&Math.random()<.88;pull.hidden=true;if(!success){status.textContent='💨 Escapou';pullFishingVisual(false);saveState();fishingSession.finishTimer=setTimeout(()=>{if(fishingSession?.token===token)fishingSession=null;stopFishingVisual();},800);return;}const fish=weightedFish(),size=+(fish.min+Math.random()*(fish.max-fish.min)).toFixed(2),catchId=uid();state.inventory.rawFish=(state.inventory.rawFish||0)+1;state.fishing.catches.push({id:catchId,species:fish.name,size,rarity:fish.rarity,caughtAt:Date.now(),source,cooperative:!!options.cooperative});state.fishing.catches=state.fishing.catches.slice(-200);state.fishing.species[fish.name]=(state.fishing.species[fish.name]||0)+1;let xp=fish.xp,coins=fish.coins;if(options.cooperative&&options.requestId&&!state.fishing.cooperativeRewards.includes(options.requestId)){state.fishing.cooperativeRewards.push(options.requestId);state.fishing.cooperativeRewards=state.fishing.cooperativeRewards.slice(-80);xp+=6;coins+=3;}addXP(xp);addCoins(coins);status.textContent=`🐟 ${fish.name} • ${size} kg • ${fish.rarity}`;pullFishingVisual(true,{...fish,size});beep(1040,130,'sine');vibrate([40,35,70]);clearFishingTimers(fishingSession);fishingSession=null;stopFishingVisual(1800);saveState(true);};
     });
   }
   function campfireAllowed(x,z){if(Math.hypot(x+70,z+62)>14)return false;if(waterAt(x,z))return false;if(WORLD_MAP_ROADS.some(r=>rectOverlap({x,z,w:3,d:3},r,.5)))return false;if(world.houses.some(h=>Math.hypot(x-h.x,z-h.z)<10))return false;return true;}
@@ -1950,7 +2372,7 @@
     for(let i=-5;i<=5;i++){const part=box(2.1,.35,5,materials.wood,-12+i*2.15,.25,52);world.bridgeParts.push(part);registerPlatform(-12+i*2.15,52,2.1,5,.43,{bridgePart:i+5});}
     createLava(96,-82,34,26);
     // trees forest
-    for(let i=0;i<48;i++){const x=-92+(Math.random()-.5)*68,z=-52+(Math.random()-.5)*84;if(Math.abs(x+68)<10&&Math.abs(z-52)<12)continue;createTree(x,z,.75+Math.random()*.55,true);}
+    for(let i=0;i<48;i++){const x=-92+(Math.random()-.5)*68,z=-52+(Math.random()-.5)*84;if(Math.abs(x+68)<10&&Math.abs(z-52)<12)continue;if(Math.abs(x+68)<11&&Math.abs(z+18)<11)continue;if(Math.abs(x+92)<14&&Math.abs(z+92)<13)continue;createTree(x,z,.75+Math.random()*.55,true);}
     for(let i=0;i<18;i++)createRock(-44+(Math.random()-.5)*60,-95+(Math.random()-.5)*54,.7+Math.random()*.6,true);
     for(let i=0;i<80;i++)createFlower((Math.random()-.5)*190,(Math.random()-.5)*190,Math.random()>.5?0xff74c9:0xffdf55);
     // village houses
@@ -1960,23 +2382,29 @@
     const cabin=createHouse({id:'cabin',name:'Cabana da Floresta',x:-88,z:-42,color:0x7e4a28,roofColor:0x4d2b1c,price:180});addHouseInterior(cabin,'neighbor');
     const shop=createHouse({id:'shop',name:'Mercadinho',x:-22,z:-18,color:0xf1b83e,roofColor:0xc83a2f,publicBuilding:true});addHouseInterior(shop,'shop');
     const workshop=createHouse({id:'workshop',name:'Oficina',x:22,z:-18,color:0x8c96a4,roofColor:0x3d4a5a,publicBuilding:true});addHouseInterior(workshop,'workshop');
+    const school=createHouse({id:'school',name:'Escola Vila do Sol',x:-68,z:-18,color:0xf2c64e,roofColor:0x2f7fd8,publicBuilding:true});addHouseInterior(school,'school');world.school=school;
+    const schoolEast=createHouse({id:'school-east',name:'Escola Horizonte',x:78,z:24,color:0xe9d68f,roofColor:0x2f7fd8,publicBuilding:true});addHouseInterior(schoolEast,'school');world.schools=[school,schoolEast];
+    const policeStation=createHouse({id:'police',name:'Posto de Segurança',x:68,z:-18,color:0xe8edf3,roofColor:0x245da8,publicBuilding:true});addHouseInterior(policeStation,'police');world.policeStation=policeStation;
+    createGoldMine();createVillageWell();createGoldFoundry();
     // yards/fences/lamps
     createFenceLine(-36,26,-14,26,9);createFenceLine(14,26,36,26,9);createFenceLine(-10,29,10,29,8);for(const p of [[-9,9],[9,9],[-33,8],[33,8],[-10,-7],[10,-7]])createLamp(p[0],p[1]);
-    // NPCs
-    const nino=createNPC('nino','Nino',4,3,0xffd84d,4),luna=createNPC('luna','Luna',-22,8,0xff72b6,4),teo=createNPC('teo','Teo',22,7,0x54c7ff,4),bia=createNPC('bia','Bia',-10,-10,0x8ee15c,3),maya=createNPC('maya','Maya',65,54,0xa66bff,3);attachNpcTransport(nino,'bike',0x45a9df);attachNpcTransport(luna,'skate',0xf05f9b);attachNpcTransport(teo,'motorcycle',0x4d78e6);attachNpcTransport(maya,'car',0xa66bff);
+    // NPCs com mobilidade própria
+    const nino=createNPC('nino','Nino',4,3,0xffd84d,4),luna=createNPC('luna','Luna',-22,8,0xff72b6,4),teo=createNPC('teo','Teo',22,7,0x54c7ff,4),bia=createNPC('bia','Bia',-10,-10,0x8ee15c,3),maya=createNPC('maya','Maya',65,54,0xa66bff,3);
+    createNpcMobility(nino,'bike',[[4,3],[4,10],[-18,10],[-18,0],[4,0]],3.2);createNpcMobility(luna,'skate',[[-22,8],[-34,8],[-34,0],[-12,0],[-12,8]],2.8);createNpcMobility(teo,'moto',[[22,7],[8,7],[8,-12],[35,-12],[35,7]],4.7);createNpcMobility(bia,'bike',[[-10,-10],[-10,0],[-48,0],[-48,-10]],3.4);createNpcMobility(maya,'car',[[65,54],[55,54],[55,8],[68,8],[68,54]],4.5);
     // farm and garage
     createFenceLine(38,22,65,22,10);createFenceLine(65,22,65,43,8);for(let x=42;x<62;x+=4)for(let z=27;z<40;z+=4){box(2.8,.12,2.8,0x75451f,x,.06,z);box(.18,.55,.18,0x54c93e,x,.33,z);}
-    createToyCar(52,48);createCityVehicleFleet();createPublicTransport();registerInteractable({id:'job-board',type:'job',icon:'📦',label:'Central de trabalhos',x:49,z:45,radius:2.3,action:openJobCenter});world.deliveryPoint={x:65,z:54};
+    createToyCar(52,48,{id:'garage-orange',label:'Carro da Garagem',primary:0xf28a22,secondary:0x0aa7b8});createToyCar(-31,-11,{id:'market-blue',label:'Compacto Azul',primary:0x2787d8,secondary:0x43c6e8,heading:Math.PI/2});createToyCar(31,-11,{id:'workshop-red',label:'Esportivo Vermelho',primary:0xe5484d,secondary:0xf3b33d,heading:-Math.PI/2});createToyCar(12,35,{id:'home-green',label:'Carro Verde',primary:0x31a76a,secondary:0x8edb65,heading:Math.PI});createToyCar(66,40,{id:'royal-purple',label:'Carro Real',primary:0x7d58c9,secondary:0xf1c94d});createToyCar(47,84,{id:'gym-yellow',label:'Carro do Ginásio',primary:0xf1c943,secondary:0xef6c3d,heading:Math.PI});createToyCar(-78,-5,{id:'forest-teal',label:'Carro da Floresta',primary:0x138d83,secondary:0x6bc08b,heading:Math.PI/2});
+    registerInteractable({id:'job-board',type:'job',icon:'📦',label:'Central de trabalhos',x:49,z:45,radius:2.3,action:openJobCenter});world.deliveryPoint={x:65,z:54};
     createLifeExpansionWorld();
-    createAthleticsGym();createSizeChallenges();createWaypointMarker();
+    createAthleticsGym();createSizeChallenges();createTransitWorld();createPoliceSystem();createWaypointMarker();
     // placas de bairro/orientação (somente decorativas, não alteram colisão nem interação)
     createSignpost(12,4,'Vila do Sol',Math.PI/2); createSignpost(-30,-5,'Mercado e Oficina',Math.PI/2);
     createSignpost(-62,-30,'Floresta',Math.PI*.15); createSignpost(48,26,'Fazenda e Garagem',-Math.PI/2);
     createSignpost(70,40,'Castelo',Math.PI*.7); createSignpost(-58,50,'Lago',Math.PI*.4);
     // platform challenge
     const coords=[[48,0,-48],[53,1.2,-55],[59,2.3,-61],[66,3.5,-67],[74,4.6,-72],[82,5.8,-76]];coords.forEach(([x,y,z],i)=>{createPlatform(x,y+.5,z,3.2,3.2,i%2?0x7a4ed0:0x3e9fd8);createCrystal(x,y+1.7,z,i===coords.length-1);});world.secretChest=createChest('secret',86,-78,true);
-    // castle and enemies
-    createPremiumCastle(88,62);
+    // castelo real e inimigos
+    createRoyalCastle(88,62);
     createEnemy('slime',48,-25);createEnemy('slime',58,-32);createEnemy('bat',72,-43);createEnemy('golem',82,48);createEnemy('slime',96,56);
     // crystals spread
     for(const p of [[12,1,-2],[-14,1,-8],[36,1,-15],[-45,1,18],[-63,1,-35],[78,1,15],[95,1,-20]])createCrystal(...p);
@@ -1992,8 +2420,13 @@
 
   function collectResource(id){
     const resource=world.resources.find(r=>r.id===id);if(!resource||resource.collected)return;
-    resource.collected=true;resource.mesh.visible=false;state.inventory[resource.type]=(state.inventory[resource.type]||0)+1;state.stats.collected++;trackDaily('collect',1);
-    addXP(8);toast(resource.type==='wood'?'Madeira coletada!':'Pedra coletada!','good');beep(620);vibrate(25);evaluateMissions();checkActiveJob();saveState();
+    const needed=resource.type==='wood'?'axe':'pickaxe';if(state.tools.equipped!==needed){toast(`Equipe ${needed==='axe'?'o machado':'a picareta'} em Ferramentas.`,'warn',1700);return;}
+    resource.hits=(resource.hits||0)+1;playToolAnimation();resource.mesh.rotation.y+=(resource.hits%2?.08:-.08);
+    if(resource.hits<Number(resource.hitsNeeded||1)){toast(`${resource.type==='wood'?'Árvore':'Rocha'}: ${resource.hits}/${resource.hitsNeeded}`,'good',850);return;}
+    resource.collected=true;resource.mesh.visible=false;const inventoryKey=resource.type==='gold'?'goldOre':resource.type,amount=resource.type==='wood'?2:1;
+    state.inventory[inventoryKey]=(state.inventory[inventoryKey]||0)+amount;state.tools.harvested[resource.type]=(state.tools.harvested[resource.type]||0)+amount;state.stats.collected++;trackDaily('collect',1);
+    advanceAdventure('resources',resource.type==='gold'?'stone':resource.type);addXP(resource.type==='gold'?18:10);toast(resource.type==='wood'?'+2 madeira':resource.type==='gold'?'+1 minério de ouro':'+1 pedra','good',1300);beep(resource.type==='gold'?850:620);vibrate(25);evaluateMissions();checkActiveJob();saveState();
+    setTimeout(()=>{resource.collected=false;resource.hits=0;resource.mesh.visible=true;resource.mesh.rotation.y=0;},90000);
   }
   function openChest(chest){
     if(chest.opened){toast('Este baú já foi aberto.','warn');return;}
@@ -2035,18 +2468,25 @@
   }
 
   function enterHouse(house){
+    enterHouse.outdoorYaw=cameraYaw;cameraYaw=0;clearMovementInputs();
     currentHouse=house;cameraMode='interior';house.roof.visible=false;house.front.visible=false;house.door.visible=false;
+    for(const bus of world.buses)bus.group.visible=false;
+    for(const car of world.policeCars)car.group.visible=false;
     player.x=house.x;player.z=house.z+1.0;player.y=0;player.vx=player.vz=player.vy=0;player.grounded=true;
     state.position={x:player.x,y:0,z:player.z,yaw:cameraYaw};
+    updateCamera(1);
     if(house.id==='home')setFlag('enteredHome');
     toast(`Entrou: ${house.name}`,'good');updateContext(true);saveState();
   }
   function exitHouse(){
-    if(!currentHouse)return;const h=currentHouse;h.roof.visible=true;h.front.visible=true;h.door.visible=true;currentHouse=null;cameraMode='openworld';player.x=h.x;player.z=h.z+5.3;player.y=0;player.vx=player.vz=player.vy=0;toast('Saiu da casa.','good');saveState();
+    if(!currentHouse)return;const h=currentHouse;h.roof.visible=true;h.front.visible=true;h.door.visible=true;
+    for(const bus of world.buses)bus.group.visible=true;
+    for(const car of world.policeCars)car.group.visible=true;
+    currentHouse=null;cameraMode='openworld';cameraYaw=Number.isFinite(enterHouse.outdoorYaw)?enterHouse.outdoorYaw:0;clearMovementInputs();player.x=h.x;player.z=h.z+5.3;player.y=0;player.vx=player.vz=player.vy=0;toast('Saiu da casa.','good');saveState();
   }
 
   function openHomeChest(){
-    const keys=[['wood','Madeira','🪵'],['stone','Pedra','🪨'],['food','Comida','🍎'],['water','Água','💧'],['crystals','Cristais','💎']];
+    const keys=[['wood','Madeira','🪵'],['stone','Pedra','🪨'],['goldOre','Minério de ouro','🟨'],['goldBar','Barra de ouro','🏅'],['food','Comida','🍎'],['water','Água','💧'],['crystals','Cristais','💎']];
     const rows=keys.map(([key,name,icon])=>`<div class="storage-row"><span>${icon} ${name}</span><b>Mochila ${state.inventory[key]||0} • Baú ${state.homeStorage[key]||0}</b><div><button data-store="${key}">Guardar 1</button><button data-take="${key}">Retirar 1</button></div></div>`).join('');
     openModal(`Baú da casa de ${playerDisplayName()}`,`<p>Guarde recursos sem abrir o inventário geral.</p><div class="storage-list">${rows}</div>`,root=>{
       $$('[data-store]',root).forEach(btn=>btn.onclick=()=>{const key=btn.dataset.store;if((state.inventory[key]||0)<=0){toast('Você não tem esse item.','warn');return;}state.inventory[key]--;state.homeStorage[key]=(state.homeStorage[key]||0)+1;saveState(true);openHomeChest();});
@@ -2077,6 +2517,8 @@
     else if(type==='shop')openShop();
     else if(type==='workshop')openWorkshop();
     else if(type==='wardrobe')openAvatarStudio();
+    else if(type==='school')openEducationHub(String(state.learning.lastLesson||'math').split('-')[0]);
+    else if(type==='police')openSafetyLesson('station');
     updateHUD();
   }
   function openShop(){
@@ -2086,9 +2528,11 @@
     });
   }
   function openWorkshop(){
-    openModal('Oficina do Teo',`<p>Melhore seus equipamentos.</p><div class="choice-grid"><button class="choice" data-sword><b>⚔ Espada</b><span>2 madeiras + 2 pedras</span></button><button class="choice" data-blocks><b>🧱 Kit construção</b><span>1 madeira + 1 pedra</span></button></div>`,root=>{
-      $('[data-sword]',root).onclick=()=>{if(state.inventory.wood<2||state.inventory.stone<2){toast('Faltam materiais.','warn');return;}state.inventory.wood-=2;state.inventory.stone-=2;state.flags.swordUpgrade=(state.flags.swordUpgrade||0)+1;addXP(35);saveState();closeModal();toast('Espada melhorada!','good');};
-      $('[data-blocks]',root).onclick=()=>{if(state.inventory.wood<1||state.inventory.stone<1){toast('Faltam materiais.','warn');return;}state.inventory.wood--;state.inventory.stone--;state.inventory.blocks+=3;state.inventory.fences+=2;saveState();closeModal();toast('Kit de construção pronto!','good');};
+    const inv=state.inventory;
+    openModal('Oficina e Fundição',`<div class="workshop-header"><div>🛠️</div><section><h3>Ferramentas, construção e ouro</h3><p>Escolha uma melhoria. Os materiais só são consumidos depois do toque.</p></section></div><div class="resource-summary"><span>🪵 ${inv.wood}</span><span>🪨 ${inv.stone}</span><span>🟨 ${inv.goldOre||0}</span><span>🏅 ${inv.goldBar||0}</span></div><div class="choice-grid workshop-grid"><button class="choice" data-sword><b>✨ Ferramenta de aventura</b><span>2 madeiras + 2 pedras</span></button><button class="choice" data-blocks><b>🧱 Kit construção</b><span>1 madeira + 1 pedra</span></button><button class="choice" data-smelt><b>🏅 Fundir ouro</b><span>3 minérios → 1 barra</span></button></div>`,root=>{
+      $('[data-sword]',root).onclick=()=>{if(inv.wood<2||inv.stone<2){toast('Faltam materiais.','warn');return;}inv.wood-=2;inv.stone-=2;state.flags.swordUpgrade=(state.flags.swordUpgrade||0)+1;addXP(35);saveState();closeModal();toast('Ferramenta de aventura melhorada!','good');};
+      $('[data-blocks]',root).onclick=()=>{if(inv.wood<1||inv.stone<1){toast('Faltam materiais.','warn');return;}inv.wood--;inv.stone--;inv.blocks+=3;inv.fences+=2;saveState();closeModal();toast('Kit de construção pronto!','good');};
+      $('[data-smelt]',root).onclick=()=>{if((inv.goldOre||0)<3){toast('Você precisa de 3 minérios de ouro.','warn');return;}inv.goldOre-=3;inv.goldBar=(inv.goldBar||0)+1;addCoins(60);addXP(35);saveState(true);closeModal();toast('Barra de ouro criada: +60 moedas.','good',2200);};
     });
   }
 
@@ -2106,7 +2550,7 @@
       <button class="choice" data-social="talk"><b>💬 Conversar</b><span>Conhecer melhor</span></button>
       <button class="choice" data-social="joke"><b>😄 Contar piada</b><span>Aumenta diversão</span></button>
       <button class="choice" data-social="gift"><b>🎁 Dar presente</b><span>Usa comida ou cristal</span></button>
-      <button class="choice" data-social="argue"><b>😠 Discutir</b><span>Diminui amizade</span></button>
+      <button class="choice" data-social="argue"><b>🤝 Resolver desacordo</b><span>Conversar com calma e respeito</span></button>
       <button class="choice" data-social="race"><b>🏃 Desafiar corrida</b><span>Corrida de velocidade</span></button>
       <button class="choice" data-social="coinrace"><b>🪙 Pega-moedas</b><span>Quem coleta mais?</span></button>
       <button class="choice" data-social="house"><b>🏠 Disputar casa</b><span>Ganhe uma propriedade</span></button>
@@ -2117,7 +2561,7 @@
       <button class="choice" data-social="play"><b>🎈 Brincar</b><span>Diversão e amizade</span></button>
       <button class="choice" data-social="selfie"><b>📸 Tirar selfie</b><span>Guarde uma lembrança</span></button>
       <button class="choice" data-social="follow"><b>👣 Seguir junto</b><span>O vizinho acompanha você</span></button>
-      ${(player.vehicle||player.boating)?'<button class="choice" data-social="ride"><b>🧑‍🤝‍🧑 Viajar comigo</b><span>Entrar como passageiro</span></button>':''}
+      <button class="choice" data-social="ride"><b>🚗 Passear junto</b><span>Entra no próximo carro ou barco</span></button>
     </div>`,root=>{
       $$('[data-social]',root).forEach(btn=>btn.onclick=()=>{
         const action=btn.dataset.social;
@@ -2128,7 +2572,7 @@
           else if(state.inventory.crystals>0){state.inventory.crystals--;state.social.gifts++;changeFriendship(npc,10,'Cristal presenteado!');closeModal();}
           else toast('Você não tem comida nem cristal para presentear.','warn');
         } else if(action==='argue'){
-          state.social.arguments=(state.social.arguments||0)+1;state.friendship[npc.id]=clamp((state.friendship[npc.id]||0)-5,0,100);state.profile.reputation=Math.max(0,state.profile.reputation-1);state.needs.fun=clamp(state.needs.fun+4,0,100);saveState(true);updateHUD();closeModal();toast(`${npc.name} não gostou da discussão.`,'warn');
+          state.social.arguments=(state.social.arguments||0)+1;state.friendship[npc.id]=clamp((state.friendship[npc.id]||0)+2,0,100);state.profile.reputation+=1;saveState(true);updateHUD();closeModal();toast(`${npc.name} e você resolveram tudo conversando.`,'good');
         } else if(action==='race'){closeModal();startRace('sprint',npc);}
         else if(action==='coinrace'){closeModal();startRace('coins',npc);}
         else if(action==='house'){closeModal();openHouseChallenge(npc);}
@@ -2141,7 +2585,7 @@
         else if(action==='play'){triggerEmote('play',npc);state.needs.fun=clamp(state.needs.fun+14,0,100);changeFriendship(npc,3,`${npc.name} adorou brincar!`);closeModal();}
         else if(action==='selfie'){triggerEmote('selfie',npc);state.flags.selfies=(state.flags.selfies||0)+1;changeFriendship(npc,2);closeModal();}
         else if(action==='follow'){npc.following=!npc.following;toast(npc.following?`${npc.name} vai acompanhar você.`:`${npc.name} parou de seguir.`,'good');closeModal();}
-        else if(action==='ride'){boardNpcWithPlayer(npc);}
+        else if(action==='ride'){npc.pendingRide=true;npc.following=true;toast(`${npc.name} vai entrar no próximo carro ou barco com você.`,'good',2400);closeModal();}
       });
     });
   }
@@ -2291,7 +2735,8 @@
     engineAudio=null;
   }
   function updateVehicleFX(dt){
-    if(!player.vehicle||player.car.passengerOf){if(engineAudio)stopEngineSound();return;}
+    if(!player.vehicle){if(engineAudio)stopEngineSound();return;}
+    if(player.car.passengerOf){if(engineAudio)stopEngineSound();if(els.vehicleBadge)els.vehicleBadge.textContent='🚗 Passageiro — AÇÃO para sair';return;}
     const car=player.car,wheels=vehicleVisual.userData.wheels,fronts=vehicleVisual.userData.frontWheels;
     const spin=car.speed*dt*3.4;
     wheels.forEach(w=>w.rotation.x-=spin);
@@ -2324,36 +2769,38 @@
     if(els.specialBtn)els.specialBtn.setAttribute('aria-label',player.vehicle?'Buzina do carro':`Poder de ${playerDisplayName()}`);
   }
   function vehicleHorn(){
-    if(!player.vehicle||paused||!els.modal.hidden)return;
+    if(!player.vehicle||player.car.passengerOf||paused||!els.modal.hidden)return;
     const t=performance.now();if(t<player.hornUntil)return;player.hornUntil=t+360;
     beep(410,95,'square');setTimeout(()=>{if(player.vehicle)beep(520,70,'square');},105);vibrate(18);
     vehicleVisual.scale.set(1.015,.99,1.015);setTimeout(()=>vehicleVisual?.scale?.set(1,1,1),120);
   }
-  function enterVehicle(record=world.vehicle){
-    if(player.vehicle||player.publicRide?.type)return;if(!record)return;
+  function enterVehicle(vehicle=world.vehicle){
+    if(player.vehicle||player.boating||player.transit.mode||!vehicle)return false;world.vehicle=vehicle;
     player.preVehicleAbilities={scaleMode:player.scaleMode,crouched:player.crouched};
     // Estados de ações domésticas/personagem não podem congelar a física do carro.
     player.sitUntil=0;player.attackUntil=0;player.spinUntil=0;player.jumpBuffer=0;player.vy=0;player.grounded=true;
     clearMovementInputs();
-    player.vehicle=true;player.car.activeVehicleId=record.id||'';player.car.passengerOf='';player.car.passengerUid='';player.car.botPassengerId='';player.car.heading=Number(record.group?.rotation?.y??player.facing);player.car.speed=0;player.car.steerVisual=0;player.car.drift=0;player.car._prevSpeed=0;world.vehicle=record;record.occupied=true;
+    player.vehicle=true;player.car.id=vehicle.id;player.car.passengerOf='';player.car.passengerUid='';player.car.passengerBotId='';player.car.heading=vehicle.group.rotation.y||player.facing;player.car.speed=0;player.car.steerVisual=0;player.car.drift=0;player.car._prevSpeed=0;player.x=vehicle.group.position.x;player.z=vehicle.group.position.z;player.y=groundHeightAt(player.x,player.z);player.facing=player.car.heading;vehicle.occupied=true;
     player.scaleMode='normal';player.crouched=false; // carro nunca herda escala/agachamento do personagem
     syncPlayerRootScale(); // imediato: não espera o próximo frame para corrigir a raiz
     updateAbilityUI();
     if(playerModel)playerModel.visible=false; if(avatarLayer)avatarLayer.visible=false;
     vehicleVisual.visible=true;vehicleVisual.scale.set(1,1,1);vehicleVisual.rotation.set(0,0,0);
-    if(record.group)record.group.visible=false;els.vehicleBadge.hidden=false;updateVehicleControlsUI();updateRunUI();setFlag('gotVehicle');if(record.id!=='garage-car')setFlag('droveFleetVehicle');toast('Carro ligado! Use o manche para dirigir.','good');startEngineSound();saveState();
+    vehicle.group.visible=false;els.vehicleBadge.hidden=false;updateVehicleControlsUI();updateRunUI();setFlag('gotVehicle');const companion=nearestRideCompanion();if(companion)boardNpcPassenger(companion,'car');toast(`${vehicle.label} ligado! Use o manche para dirigir.`,'good');startEngineSound();saveState();return true;
   }
-  function enterVehicleAsPassenger(hostUid){
-    const ghost=world.ghosts.get(hostUid);if(!ghost){toast('O carro do jogador não está mais disponível.','warn');return false;}if(player.publicRide?.type)exitPublicRide(true);if(player.boating){player.x=-24.7;player.z=52;exitBoat(true);}if(player.vehicle)exitVehicle(true);player.preVehicleAbilities={scaleMode:player.scaleMode,crouched:player.crouched};player.scaleMode='normal';player.crouched=false;syncPlayerRootScale();updateAbilityUI();player.vehicle=true;player.car.passengerOf=hostUid;player.car.passengerUid='';player.car.speed=0;player.car.activeVehicleId='remote';clearMovementInputs();if(playerModel)playerModel.visible=false;if(avatarLayer)avatarLayer.visible=false;vehicleVisual.visible=false;els.vehicleBadge.hidden=false;els.vehicleBadge.textContent='🚗 Passageiro — AÇÃO para sair';updateVehicleControlsUI();toast('Você entrou como passageiro. O motorista controla o carro.','good',2500);saveState(true);return true;
+  function enterVehicleAsPassenger(hostUid,vehicleId=''){
+    const ghost=world.ghosts.get(hostUid),target=ghost?.userData?.target;if(!ghost||!target?.vehicle){toast('O carro do jogador não está mais disponível.','warn');return false;}if(player.boating)exitBoat(true);if(player.transit.mode)return false;player.preVehicleAbilities={scaleMode:player.scaleMode,crouched:player.crouched};clearMovementInputs();player.vehicle=true;player.car.id=vehicleId||target.vehicleId||'online-car';player.car.passengerOf=hostUid;player.car.passengerUid='';player.car.passengerBotId='';player.car.hostMissingAt=0;player.car.speed=0;player.scaleMode='normal';player.crouched=false;if(playerModel)playerModel.visible=false;if(avatarLayer)avatarLayer.visible=false;vehicleVisual.visible=false;els.vehicleBadge.hidden=false;updateVehicleControlsUI();updateRunUI();updateAbilityUI();toast('Você entrou como passageiro. O motorista controla o carro.','good',2500);saveState();return true;
   }
   function exitVehicle(silent=false){
-    if(!player.vehicle)return;const passengerHost=player.car.passengerOf,hostedPassenger=player.car.passengerUid,wasPassenger=!!passengerHost;if(passengerHost)window.OTTHOS_RTDB?.sendInteraction?.(passengerHost,{type:'vehiclePassengerLeft'});else if(hostedPassenger)window.OTTHOS_RTDB?.sendInteraction?.(hostedPassenger,{type:'vehicleEnded'});releaseBotPassenger('car');
-    player.vehicle=false;player.vx=0;player.vz=0;player.car.speed=0;player.car._prevSpeed=0;player.car.passengerOf='';player.car.passengerUid='';clearMovementInputs();
-    const prior=player.preVehicleAbilities||state.abilities||{scaleMode:'normal',crouched:false};player.scaleMode=['mini','normal','giant'].includes(prior.scaleMode)?prior.scaleMode:'normal';player.crouched=!!prior.crouched;player.preVehicleAbilities=null;syncPlayerRootScale();
-    if(playerModel)playerModel.visible=true;if(avatarLayer)avatarLayer.visible=true;vehicleVisual.visible=false;vehicleVisual.rotation.set(0,0,0);els.vehicleBadge.hidden=true;updateVehicleControlsUI();updateRunUI();updateAbilityUI();stopEngineSound();
-    if(!wasPassenger){const record=world.vehicles.find(v=>v.id===player.car.activeVehicleId)||world.vehicle;if(record){record.occupied=false;record.group.visible=true;record.group.position.set(player.x,groundHeightAt(player.x,player.z),player.z);record.group.rotation.y=player.car.heading;world.vehicle=record;}}player.car.activeVehicleId='';state.vehicles.activeVehicleId='';if(!silent)toast('Saiu do carro.','good');saveState(true);
+    if(!player.vehicle)return;
+    const passengerHost=player.car.passengerOf,hostedPassenger=player.car.passengerUid,wasPassenger=!!passengerHost;if(passengerHost)window.OTTHOS_RTDB?.sendInteraction?.(passengerHost,{type:'vehiclePassengerLeft'});else if(hostedPassenger)window.OTTHOS_RTDB?.sendInteraction?.(hostedPassenger,{type:'vehicleEnded'});releaseNpcPassenger('car');player.vehicle=false;player.vx=0;player.vz=0;player.car.speed=0;player.car._prevSpeed=0;player.car.passengerOf='';player.car.passengerUid='';player.car.hostMissingAt=0;clearMovementInputs();
+    const prior=player.preVehicleAbilities||state.abilities||{scaleMode:'normal',crouched:false};
+    player.scaleMode=['mini','normal','giant'].includes(prior.scaleMode)?prior.scaleMode:'normal';player.crouched=!!prior.crouched;player.preVehicleAbilities=null;
+    syncPlayerRootScale(); // restaura imediatamente Mini/Normal/Grande e Abaixar do Otthos
+    if(playerModel)playerModel.visible=true; if(avatarLayer)avatarLayer.visible=true;
+    vehicleVisual.visible=false;vehicleVisual.rotation.set(0,0,0);els.vehicleBadge.hidden=true;updateVehicleControlsUI();updateRunUI();updateAbilityUI();stopEngineSound();
+    if(world.vehicle&&!wasPassenger){world.vehicle.occupied=false;world.vehicle.group.visible=true;world.vehicle.group.position.set(player.x,groundHeightAt(player.x,player.z),player.z);world.vehicle.group.rotation.y=player.car.heading;world.vehicle.x=player.x;world.vehicle.z=player.z;world.vehicle.heading=player.car.heading;}player.car.id='';if(!silent)toast('Saiu do carro.','good');saveState();
   }
-
 
   function repairBridge(){
     if(state.flags.bridgeFixed){toast('A ponte já está consertada.','good');return;}
@@ -2361,9 +2808,19 @@
     state.inventory.wood-=3;state.inventory.stone-=2;setFlag('bridgeFixed');addXP(70);addReputation(20);toast('Ponte consertada!','good',2200);saveState();
   }
 
+  const BUILD_RECIPES={
+    block:{name:'Bloco',icon:'🧱',cost:{blocks:1},description:'Bloco empilhável'},
+    wall:{name:'Parede',icon:'🧱',cost:{stone:2,blocks:1},description:'Parede de pedra'},
+    floor:{name:'Piso de madeira',icon:'🪵',cost:{wood:2},description:'Plataforma para o quintal'},
+    fence:{name:'Cerca',icon:'🚧',cost:{fences:1},description:'Cerca orientada para a direção do personagem'},
+    lamp:{name:'Poste',icon:'💡',cost:{wood:1,stone:1},description:'Iluminação para sua construção'},
+    bench:{name:'Banco',icon:'🪑',cost:{wood:3},description:'Móvel externo para a vila'},
+    planter:{name:'Jardineira',icon:'🌻',cost:{wood:2,stone:1},description:'Flores vivas para o terreno'}
+  };
+  function buildCostText(cost){const names={wood:'madeira',stone:'pedra',blocks:'bloco',fences:'cerca'};return Object.entries(cost).map(([key,value])=>`${value} ${names[key]||key}${value>1?'s':''}`).join(' + ');}
   function openBuildMenu(){
-    openModal('Construção Minecraft Kids',`<p>Você só pode construir perto das casas que possui e na praça de construção.</p><div class="choice-grid"><button class="choice" data-type="block"><b>🧱 Bloco</b><span>Custa 1 bloco</span></button><button class="choice" data-type="fence"><b>🪵 Cerca</b><span>Custa 1 cerca</span></button><button class="choice" data-type="lamp"><b>💡 Poste</b><span>1 madeira + 1 pedra</span></button><button class="choice" data-type="extension"><b>🏠 Ampliar casa</b><span>Adicionar um cômodo modular</span></button><button class="choice" data-type="remove"><b>🧹 Remover</b><span>Remove sua construção mais próxima</span></button></div><div class="modal-actions"><button class="btn" data-cancel>Cancelar construção</button></div>`,root=>{
-      $$('[data-type]',root).forEach(btn=>btn.onclick=()=>{const type=btn.dataset.type;if(type==='remove'){removeNearestBuild();closeModal();return;}if(type==='extension'){openHouseExtensionMenu();return;}buildMode=type;els.buildTypeLabel.textContent=({block:'Bloco',fence:'Cerca',lamp:'Poste'})[type];els.buildBadge.hidden=false;closeModal();toast('Modo construção ativo. Use AÇÃO.','good');updateContext(true);});
+    openModal('Construção Minecraft Kids',`<p>Construa na praça ou perto das casas que você possui. Nenhuma construção antiga será removida.</p><div class="choice-grid build-catalog">${Object.entries(BUILD_RECIPES).map(([type,item])=>`<button class="choice" data-type="${type}"><b>${item.icon} ${item.name}</b><span>${item.description}<br><strong>${buildCostText(item.cost)}</strong></span></button>`).join('')}<button class="choice" data-type="extension"><b>🏠 Ampliar casa</b><span>Adicionar um cômodo modular</span></button><button class="choice" data-type="remove"><b>🧹 Remover</b><span>Remove somente sua construção mais próxima</span></button></div><div class="modal-actions"><button class="btn" data-cancel>Cancelar construção</button></div>`,root=>{
+      $$('[data-type]',root).forEach(btn=>btn.onclick=()=>{const type=btn.dataset.type;if(type==='remove'){removeNearestBuild();closeModal();return;}if(type==='extension'){openHouseExtensionMenu();return;}buildMode=type;els.buildTypeLabel.textContent=BUILD_RECIPES[type].name;els.buildBadge.hidden=false;closeModal();toast(`${BUILD_RECIPES[type].name}: use AÇÃO para colocar.`,'good');updateContext(true);});
       $('[data-cancel]',root).onclick=()=>{buildMode=null;els.buildBadge.hidden=true;closeModal();};
     });
   }
@@ -2374,20 +2831,24 @@
   function placeBuild(){
     const x=Math.round((player.x+Math.sin(player.facing)*2.2)*2)/2,z=Math.round((player.z+Math.cos(player.facing)*2.2)*2)/2;
     if(!canBuildAt(x,z)){toast('Construa no seu quintal ou na praça de construção.','warn');return;}
-    const cost=buildMode==='block'?['blocks',1]:buildMode==='fence'?['fences',1]:['wood',1];
-    if((state.inventory[cost[0]]||0)<cost[1]||(buildMode==='lamp'&&state.inventory.stone<1)){toast('Faltam materiais.','warn');return;}
-    state.inventory[cost[0]]-=cost[1];if(buildMode==='lamp')state.inventory.stone--;
-    const data={id:uid(),type:buildMode,x,z};state.builds.push(data);spawnBuild(data,true);addXP(12);evaluateMissions();checkActiveJob();saveState();toast('Construção colocada!','good');
+    const recipe=BUILD_RECIPES[buildMode];if(!recipe)return;if(!resourcesEnough(recipe.cost)){toast(`Faltam materiais: ${buildCostText(recipe.cost)}.`,'warn');return;}
+    for(const[key,value]of Object.entries(recipe.cost))state.inventory[key]-=value;
+    const data={id:uid(),type:buildMode,x,z,rotation:Math.round(player.facing/(Math.PI/2))*(Math.PI/2)};state.builds.push(data);spawnBuild(data,true);addXP(12);evaluateMissions();checkActiveJob();saveState();toast(`${recipe.name} colocado!`,'good');
   }
   function spawnBuild(data,persist){
-    let mesh;if(data.type==='block'){mesh=box(1.5,1.5,1.5,0xc07d3e,data.x,.75,data.z);registerPlatform(data.x,data.z,1.5,1.5,1.5,{buildId:data.id});registerCollider(data.x,data.z,1.5,1.5,{buildId:data.id});}
-    else if(data.type==='fence'){mesh=box(2.0,1.05,.22,materials.wood,data.x,.52,data.z);registerCollider(data.x,data.z,2,.22,{buildId:data.id});}
+    let mesh;const rotation=Number(data.rotation||0),quarter=Math.abs(Math.sin(rotation))>.7,oriented=(w,d)=>quarter?{w:d,d:w}:{w,d};
+    if(data.type==='block'){mesh=box(1.5,1.5,1.5,materials.brick,data.x,.75,data.z);registerPlatform(data.x,data.z,1.5,1.5,1.5,{buildId:data.id});registerCollider(data.x,data.z,1.5,1.5,{buildId:data.id});}
+    else if(data.type==='fence'){mesh=box(2.4,1.05,.22,materials.wood,data.x,.52,data.z);mesh.rotation.y=rotation;const size=oriented(2.4,.22);registerCollider(data.x,data.z,size.w,size.d,{buildId:data.id});}
+    else if(data.type==='wall'){mesh=box(3.0,2.4,.32,materials.stone,data.x,1.2,data.z);mesh.rotation.y=rotation;const size=oriented(3,.32);registerCollider(data.x,data.z,size.w,size.d,{buildId:data.id});}
+    else if(data.type==='floor'){mesh=box(3.0,.28,3.0,materials.wood,data.x,.14,data.z);mesh.rotation.y=rotation;registerPlatform(data.x,data.z,3,3,.28,{buildId:data.id});}
+    else if(data.type==='bench'){mesh=new THREE.Group();mesh.position.set(data.x,0,data.z);mesh.rotation.y=rotation;worldGroup.add(mesh);premiumBox(2.2,.22,.65,materials.fabric,0,.62,0,mesh);premiumBox(2.2,.74,.18,materials.fabric,0,1.02,-.27,mesh);for(const ox of [-.8,.8])premiumBox(.14,.55,.14,materials.metal,ox,.28,0,mesh);}
+    else if(data.type==='planter'){mesh=new THREE.Group();mesh.position.set(data.x,0,data.z);mesh.rotation.y=rotation;worldGroup.add(mesh);premiumBox(2.2,.55,.86,materials.brick,0,.28,0,mesh);premiumBox(1.82,.18,.58,0x5f371f,0,.58,0,mesh);for(const p of [[-.65,0xff6fa8],[0,0xffd74a],[.65,0x67d965]]){premiumBox(.09,.5,.09,0x3d8c3f,p[0],.92,0,mesh);premiumBox(.46,.18,.46,p[1],p[0],1.15,0,mesh);}}
     else{mesh=new THREE.Group();mesh.position.set(data.x,0,data.z);worldGroup.add(mesh);box(.22,2.4,.22,materials.wood,0,1.2,0,mesh);box(.65,.65,.65,0xffdc6a,0,2.65,0,mesh);addGlow(data.x,2.65,data.z,0xffd56a,4);}
     world.builds.push({data,mesh});
   }
   function removeNearestBuild(){
     const nearest=world.builds.filter(b=>distance2D(player,b.data)<3).sort((a,b)=>distance2D(player,a.data)-distance2D(player,b.data))[0];if(!nearest){toast('Nenhuma construção sua por perto.','warn');return;}
-    worldGroup.remove(nearest.mesh);world.builds=world.builds.filter(b=>b!==nearest);state.builds=state.builds.filter(b=>b.id!==nearest.data.id);saveState();toast('Construção removida.','good');
+    worldGroup.remove(nearest.mesh);world.colliders=world.colliders.filter(c=>c.buildId!==nearest.data.id);world.platforms=world.platforms.filter(p=>p.buildId!==nearest.data.id);world.builds=world.builds.filter(b=>b!==nearest);state.builds=state.builds.filter(b=>b.id!==nearest.data.id);saveState();toast('Construção removida.','good');
   }
   els.buildBtn.onclick=openBuildMenu;
 
@@ -2426,6 +2887,9 @@
   }
   function returnHome(){
     if(player.boating){player.x=-24.7;player.z=52;exitBoat(true);}
+    if(player.vehicle)exitVehicle(true);
+    if(player.transit.mode==='bus'){const bus=world.buses.find(b=>b.id===player.transit.busId);if(bus)exitBusAtStop(bus,{stopId:bus.lastStopId,stopName:bus.lastStopName});}
+    if(player.transit.mode==='metro'){player.transit.mode='';player.transit.metroUntil=0;if(metroOverlay){metroOverlay.hidden=true;metroOverlay.classList.remove('travelling','arriving');}if(playerModel)playerModel.visible=true;if(avatarLayer)avatarLayer.visible=true;if(contactShadow)contactShadow.visible=true;}
     if(currentHouse)exitHouse();player.x=0;player.z=23;player.y=0;player.vx=player.vz=player.vy=0;cameraYaw=Math.PI;toast('Você voltou para casa.','good');savePlayerPosition(true);
   }
   function savePlayerPosition(immediate=false){if(player.boating)state.boats.lastPosition={x:+player.x.toFixed(2),z:+player.z.toFixed(2),heading:+player.boat.heading.toFixed(3)};state.position={x:+player.x.toFixed(2),y:+player.y.toFixed(2),z:+player.z.toFixed(2),yaw:+cameraYaw.toFixed(3)};saveState(immediate);}
@@ -2495,8 +2959,8 @@
     input.x=0;input.z=0;input.targetX=0;input.targetZ=0;updateRunUI();
     if(els.joystickKnob)els.joystickKnob.style.transform='translate(-50%,-50%)';
   }
-  function canJump(){return !player.vehicle&&!player.boating&&(player.grounded||performance.now()-player.lastGrounded<125);}
-  function requestJump(){if(!els.modal.hidden||paused||player.vehicle||player.boating)return;player.jumpBuffer=performance.now()+150;if(canJump())doJump();}
+  function canJump(){return !player.vehicle&&!player.boating&&!player.transit.mode&&(player.grounded||performance.now()-player.lastGrounded<125);}
+  function requestJump(){if(!els.modal.hidden||paused||player.vehicle||player.boating||player.transit.mode)return;player.jumpBuffer=performance.now()+150;if(canJump())doJump();}
   function doJump(){if(!canJump())return;state.stats.jumps++;trackDaily('jump',1);player.vy=10.2;player.grounded=false;player.jumpBuffer=0;beep(540);vibrate(18);}
   function updatePlayer(dt){
     // Entrada é atualizada em todos os estados. O veículo tem prioridade absoluta:
@@ -2505,7 +2969,7 @@
     input.x=lerp(input.x,input.targetX,Math.min(1,dt*34));
     input.z=lerp(input.z,input.targetZ,Math.min(1,dt*34));
     const mag=Math.hypot(input.x,input.z);let ix=input.x,iz=input.z;if(mag>1){ix/=mag;iz/=mag;}if(fishingSession){ix=0;iz=0;input.x=input.z=input.targetX=input.targetZ=0;}
-    if(player.publicRide?.type){updatePublicRide();playerGroup.position.set(player.x,player.y,player.z);playerGroup.rotation.y=player.facing;contactShadow.position.set(player.x,.04,player.z);contactShadow.material.opacity=.12;updateContext();return;}
+    if(player.transit.mode){player.vx=player.vz=0;input.x=input.z=input.targetX=input.targetZ=0;playerGroup.position.set(player.x,player.y,player.z);playerGroup.rotation.y=player.facing;contactShadow.position.set(player.x,groundHeightAt(player.x,player.z)+.025,player.z);if(player.transit.mode==='bus')animatePlayer(dt);updateContext();return;}
 
     if(player.boating){
       updateBoatPhysics(dt,ix,iz);
@@ -2514,25 +2978,27 @@
     }else if(performance.now()<player.sitUntil){
       player.vx*=.82;player.vz*=.82;
     }else{
-      const forwardX=Math.sin(cameraYaw),forwardZ=-Math.cos(cameraYaw),rightX=Math.cos(cameraYaw),rightZ=Math.sin(cameraYaw);
+      const movementYaw=currentHouse?clamp(cameraYaw,-1.18,1.18):cameraYaw,forwardX=Math.sin(movementYaw),forwardZ=-Math.cos(movementYaw),rightX=Math.cos(movementYaw),rightZ=Math.sin(movementYaw);
       const wantsSprint=sprintRequested()&&mag>.14&&!player.crouched&&state.needs.energy>4;input.isSprinting=wantsSprint;
       const needsPenalty=state.needs.energy<15?.72:state.needs.hunger<15?.82:1;const sizeSpeed=player.scaleMode==='mini'?1.12:player.scaleMode==='giant'?.84:1;
-      const speed=(wantsSprint?11.4:7.35)*needsPenalty*sizeSpeed*(player.crouched?.54:1);
+      const skillBoost=performance.now()<player.skillDashUntil?1.82:1;
+      const speed=(wantsSprint?11.4:7.35)*needsPenalty*sizeSpeed*(player.crouched?.54:1)*skillBoost;
       const targetVx=(rightX*ix+forwardX*iz)*speed,targetVz=(rightZ*ix+forwardZ*iz)*speed;const accel=player.grounded?(wantsSprint?34:29):10;
       player.vx=lerp(player.vx,targetVx,Math.min(1,dt*accel));player.vz=lerp(player.vz,targetVz,Math.min(1,dt*accel));if(mag<.03){player.vx*=Math.pow(.0008,dt);player.vz*=Math.pow(.0008,dt);}
     }
-    const prevX=player.x,prevZ=player.z;player.x+=player.vx*dt;player.z+=player.vz*dt;player.x=clamp(player.x,-116,116);player.z=clamp(player.z,-116,116);if(player.boating)constrainBoat(prevX,prevZ);else{resolveCollisions(prevX,prevZ);resolveWaterWalking(prevX,prevZ);}
+    const prevX=player.x,prevZ=player.z;player.x+=player.vx*dt;player.z+=player.vz*dt;player.x=clamp(player.x,-116,116);player.z=clamp(player.z,-116,116);if(player.boating)constrainBoat(prevX,prevZ);else if(!(player.vehicle&&player.car.passengerOf)){resolveCollisions(prevX,prevZ);resolveWaterWalking(prevX,prevZ);}
     const movedNow=Math.hypot(player.x-prevX,player.z-prevZ);if(movedNow>.001){if(player.vehicle||player.boating){state.stats.driven+=movedNow;trackDaily('drive',movedNow);}else{state.stats.walked+=movedNow;trackDaily('walk',movedNow);}}
     const ground=player.boating?.78:groundHeightAt(player.x,player.z);if(!player.grounded)player.vy-=31*dt;player.y+=player.vy*dt;
     if(player.y<=ground&&player.vy<=0){const landed=!player.grounded&&player.vy<-4;player.y=ground;player.vy=0;player.grounded=true;player.lastGrounded=performance.now();if(landed){vibrate(20);beep(180,35,'sine');}}
     else if(player.y>ground+.03)player.grounded=false;
     if(player.jumpBuffer&&player.jumpBuffer>performance.now()&&canJump())doJump();
     if(!player.vehicle&&!player.boating&&Math.hypot(player.vx,player.vz)>.15)player.facing=Math.atan2(player.vx,player.vz);
-    playerGroup.position.set(player.x,player.y,player.z);playerGroup.rotation.y=performance.now()<player.spinUntil?player.facing+(1-(player.spinUntil-performance.now())/720)*Math.PI*4:player.facing;syncPlayerRootScale();contactShadow.position.set(player.x,ground+.025,player.z);const air=Math.max(0,player.y-ground);const ss=clamp(1-air*.08,.48,1);contactShadow.scale.setScalar(ss);contactShadow.material.opacity=clamp(.27-air*.035,.06,.27);vehicleVisual.visible=player.vehicle&&!player.car.passengerOf;if(world.boat)world.boat.group.visible=true;updateBoatPanel();syncPassengerVisuals();
+    playerGroup.position.set(player.x,player.y,player.z);playerGroup.rotation.y=performance.now()<player.spinUntil?player.facing+(1-(player.spinUntil-performance.now())/980)*Math.PI*4:player.facing;syncPlayerRootScale();contactShadow.position.set(player.x,ground+.025,player.z);const air=Math.max(0,player.y-ground);const ss=clamp(1-air*.08,.48,1);contactShadow.scale.setScalar(ss);contactShadow.material.opacity=clamp(.27-air*.035,.06,.27);vehicleVisual.visible=player.vehicle&&!player.car.passengerOf;if(world.boat)world.boat.group.visible=true;updateBoatPanel();
     animatePlayer(dt);checkHazards();collectNearbyCrystals();updateContext();
   }
   function updateVehiclePhysics(dt,ix,iz){
-    const car=player.car;if(car.passengerOf){const ghost=world.ghosts.get(car.passengerOf),target=ghost?.userData?.target;if(!ghost||!target){car.hostMissingAt=car.hostMissingAt||performance.now();if(performance.now()-car.hostMissingAt>3500){toast('O motorista saiu. Você voltou à rua.','warn');exitVehicle(true);}player.vx=player.vz=0;return;}car.hostMissingAt=0;const tx=Number(target.x||ghost.position.x),tz=Number(target.z||ghost.position.z);player.vx=clamp((tx-player.x)*9,-24,24);player.vz=clamp((tz-player.z)*9,-24,24);car.heading=Number(target.r||car.heading);player.facing=car.heading;return;}const steer=Math.abs(ix)<.06?0:ix,throttle=Math.abs(iz)<.05?0:iz;
+    const car=player.car,steer=Math.abs(ix)<.06?0:ix,throttle=Math.abs(iz)<.05?0:iz;
+    if(car.passengerOf){const ghost=world.ghosts.get(car.passengerOf),target=ghost?.userData?.target;if(!ghost||!target?.vehicle){car.hostMissingAt=car.hostMissingAt||performance.now();if(performance.now()-car.hostMissingAt>3500){toast('O motorista saiu. Você deixou o carro.','warn');exitVehicle(true);}player.vx=player.vz=0;return;}car.hostMissingAt=0;const heading=Number(target.r||ghost.rotation.y||car.heading),tx=Number(target.x??ghost.position.x)+Math.cos(heading)*.62-Math.sin(heading)*.12,tz=Number(target.z??ghost.position.z)-Math.sin(heading)*.62-Math.cos(heading)*.12;player.vx=clamp((tx-player.x)*10,-26,26);player.vz=clamp((tz-player.z)*10,-26,26);car.heading=heading;player.facing=heading;return;}
     const turbo=sprintRequested();const maxSpeed=turbo?29:23.5,maxReverse=-8.5;
     const accelFactor=car.speed>=0?Math.max(.22,1-car.speed/maxSpeed):1;
     const braking=(car.speed>0.2&&throttle<0)||(car.speed<-.2&&throttle>0)?2.75:1;
@@ -2550,7 +3016,7 @@
     const parts=playerModel.userData.parts;const speed=Math.hypot(player.vx,player.vz);const walking=speed>.25&&player.grounded&&!player.vehicle;const swing=walking?Math.sin(animTime*(8+speed*.45))*.62:0;
     if(parts){
       parts.leftArm.rotation.x=lerp(parts.leftArm.rotation.x,player.grounded?swing:-.65,.22);parts.rightArm.rotation.x=lerp(parts.rightArm.rotation.x,player.grounded?-swing:-.65,.22);parts.leftLeg.rotation.x=lerp(parts.leftLeg.rotation.x,player.grounded?-swing*.8:.38,.22);parts.rightLeg.rotation.x=lerp(parts.rightLeg.rotation.x,player.grounded?swing*.8:.38,.22);
-      if(performance.now()<player.emoteUntil){if(player.emoteType==='wave'){parts.rightArm.rotation.x=-2.25;parts.rightArm.rotation.z=Math.sin(animTime*10)*.55;}else if(player.emoteType==='dance'){parts.leftArm.rotation.z=1.1;parts.rightArm.rotation.z=-1.1;playerModel.rotation.y=Math.sin(animTime*4)*.35;}else if(player.emoteType==='selfie'){parts.leftArm.rotation.x=-1.7;parts.rightArm.rotation.x=-.9;playerModel.rotation.z=.08;}else if(player.emoteType==='highfive'){parts.rightArm.rotation.x=-2.6;}else if(player.emoteType==='play'){parts.leftArm.rotation.x=-1.9;parts.rightArm.rotation.x=-1.9;parts.leftArm.rotation.z=.55;parts.rightArm.rotation.z=-.55;playerModel.position.y+=(Math.sin(animTime*10)+1)*.09;playerModel.rotation.y+=Math.sin(animTime*5)*.08;}else if(player.emoteType==='hug'){parts.leftArm.rotation.x=-1.45;parts.rightArm.rotation.x=-1.45;parts.leftArm.rotation.z=-.48;parts.rightArm.rotation.z=.48;}}else{parts.leftArm.rotation.z=lerp(parts.leftArm.rotation.z,0,.2);parts.rightArm.rotation.z=lerp(parts.rightArm.rotation.z,0,.2);playerModel.rotation.y=lerp(playerModel.rotation.y,0,.18);}
+      if(performance.now()<player.emoteUntil){if(player.emoteType==='wave'){parts.rightArm.rotation.x=-2.25;parts.rightArm.rotation.z=Math.sin(animTime*10)*.55;}else if(player.emoteType==='dance'){parts.leftArm.rotation.z=1.1;parts.rightArm.rotation.z=-1.1;playerModel.rotation.y=Math.sin(animTime*4)*.35;}else if(player.emoteType==='selfie'){parts.leftArm.rotation.x=-1.7;parts.rightArm.rotation.x=-.9;playerModel.rotation.z=.08;}else if(player.emoteType==='highfive'){parts.rightArm.rotation.x=-2.6;}else if(player.emoteType==='play'){parts.leftArm.rotation.x=-1.9;parts.rightArm.rotation.x=-1.9;parts.leftArm.rotation.z=.55;parts.rightArm.rotation.z=-.55;playerModel.position.y+=(Math.sin(animTime*10)+1)*.09;playerModel.rotation.y+=Math.sin(animTime*5)*.08;}else if(player.emoteType==='hug'){parts.leftArm.rotation.x=-1.45;parts.rightArm.rotation.x=-1.45;parts.leftArm.rotation.z=-.48;parts.rightArm.rotation.z=.48;}else if(player.emoteType==='tool'){parts.rightArm.rotation.x=-1.25-Math.sin(animTime*18)*1.0;parts.rightArm.rotation.z=-.22;parts.leftArm.rotation.x=-.45;}}else{parts.leftArm.rotation.z=lerp(parts.leftArm.rotation.z,0,.2);parts.rightArm.rotation.z=lerp(parts.rightArm.rotation.z,0,.2);playerModel.rotation.y=lerp(playerModel.rotation.y,0,.18);}
       if(fishingVisual?.active){const phase=fishingVisual.phase,cast=phase==='casting',pull=phase==='hooked'||phase==='pulling'||phase==='caught';parts.rightArm.rotation.x=lerp(parts.rightArm.rotation.x,pull?-2.35:cast?-1.95:-1.45,.38);parts.leftArm.rotation.x=lerp(parts.leftArm.rotation.x,pull?-1.85:cast?-1.35:-1.1,.38);parts.rightArm.rotation.z=lerp(parts.rightArm.rotation.z,-.22,.3);parts.leftArm.rotation.z=lerp(parts.leftArm.rotation.z,.28,.3);playerModel.rotation.z=lerp(playerModel.rotation.z,pull?-.08:.03,.2);}
       const breathe=Math.sin(animTime*2.2)*.02;parts.body.scale.y=(player.crouched?.78:1)+breathe;
       const visualBase=playerModel.userData.baseY??.24;
@@ -2573,47 +3039,63 @@
     for(const h of world.hazards){if(Math.abs(player.x-h.x)<=h.w/2&&Math.abs(player.z-h.z)<=h.d/2&&player.y<.6){if(h.type==='water'){if(!player.boating){player.vx*=.9;player.vz*=.9;}}else if(performance.now()>player.damageUntil){player.damageUntil=performance.now()+1200;state.needs.energy=clamp(state.needs.energy-18,0,100);toast('Cuidado com a lava!','bad');returnHome();}}}
   }
   function collectNearbyCrystals(){
-    for(const c of world.crystals){if(c.got)continue;c.mesh.rotation.y+=.035;c.mesh.position.y=c.y+Math.sin(animTime*2+c.x)*.12;if(Math.hypot(player.x-c.x,player.z-c.z)<1.25&&Math.abs(player.y-c.mesh.position.y)<2){c.got=true;c.mesh.visible=false;state.inventory.crystals++;state.stats.collected++;trackDaily('collect',1);addXP(15);addCoins(5);toast('Cristal coletado!','good');beep(880);vibrate(20);evaluateMissions();checkActiveJob();saveState();}}
+    for(const c of world.crystals){if(c.got)continue;c.mesh.rotation.y+=.035;c.mesh.position.y=c.y+Math.sin(animTime*2+c.x)*.12;if(Math.hypot(player.x-c.x,player.z-c.z)<1.25&&Math.abs(player.y-c.mesh.position.y)<2)collectCrystal(c);}
   }
 
   function npcSpeech(npc,text,type='good'){if(distance2D(player,npc.group.position)<12)toast(`${npc.name}: ${text}`,type,2400);npc.emoteType=type==='warn'?'wave':'dance';npc.emoteUntil=performance.now()+1600;}
+  function nearestRideCompanion(radius=7){
+    return world.npcs.filter(n=>!n.passengerMode&&(n.pendingRide||n.following)).sort((a,b)=>distance2D(player,a.group.position)-distance2D(player,b.group.position)).find(n=>distance2D(player,n.group.position)<=radius)||null;
+  }
+  function nearestBoardableNpc(radius=4.8){
+    return world.npcs.filter(n=>!n.passengerMode).sort((a,b)=>distance2D(player,a.group.position)-distance2D(player,b.group.position)).find(n=>distance2D(player,n.group.position)<=radius)||null;
+  }
+  function boardNpcPassenger(npc,kind){
+    if(!npc)return false;const current=kind==='boat'?player.boat:player.car;if(current.passengerUid||current.passengerBotId)return false;current.passengerBotId=npc.id;npc.passengerMode=kind;npc.pendingRide=false;npc.following=false;if(npc.mobility?.ride)npc.mobility.ride.visible=false;toast(`${npc.name} entrou como passageiro no ${kind==='boat'?'barco':'carro'}.`,'good',2300);saveState();return true;
+  }
+  function releaseNpcPassenger(kind){
+    const current=kind==='boat'?player.boat:player.car,id=current.passengerBotId;if(!id)return;const npc=world.npcs.find(n=>n.id===id);if(npc){const exitX=kind==='boat'?BOAT_DOCK.exitX+1.2:player.x+1.8,exitZ=kind==='boat'?clamp(player.z,BOAT_DOCK.minZ+.25,BOAT_DOCK.maxZ-.25):player.z;npc.passengerMode='';npc.group.position.set(exitX,groundHeightAt(exitX,exitZ),exitZ);npc.baseX=npc.group.position.x;npc.baseZ=npc.group.position.z;if(npc.mobility?.ride)npc.mobility.ride.visible=true;}current.passengerBotId='';
+  }
   function updateNpcSociety(dt){
     updateNpcSociety.acc=(updateNpcSociety.acc||0)+dt;if(updateNpcSociety.acc<9)return;updateNpcSociety.acc=0;if(!world.npcs.length)return;
     const npc=world.npcs[Math.floor(Math.random()*world.npcs.length)],roll=Math.random();
     if(roll<.22){const gift=Math.random()<.5?'food':'coins';if(gift==='food'){state.inventory.food=(state.inventory.food||0)+1;npcSpeech(npc,'Trouxe uma comida para você!');}else{state.profile.coins+=8;npcSpeech(npc,'Ganhei algumas moedas e dividi com você!');}saveState();updateHUD();}
     else if(roll<.44){npcSpeech(npc,'Quer apostar uma corrida comigo?');npc.userDataChallengeUntil=performance.now()+12000;}
     else if(roll<.66){const other=world.npcs.find(n=>n!==npc);if(other){state.npcSociety.friendships[`${npc.id}-${other.id}`]=(state.npcSociety.friendships[`${npc.id}-${other.id}`]||0)+1;npcSpeech(npc,`Conversei com ${other.name} na praça.`);}}
-    else if(roll<.82){npcSpeech(npc,'Hoje eu estou meio bravo. Melhor não discutir comigo!','warn');state.npcSociety.moods[npc.id]='bravo';}
+    else if(roll<.82){npcSpeech(npc,'Hoje estou chateado. Podemos conversar com calma?','warn');state.npcSociety.moods[npc.id]='chateado';}
     else{const available=world.houses.find(h=>!h.publicBuilding&&!cloudHouseRecord(h.id)&&!state.npcSociety.houses[h.id]);if(available){state.npcSociety.houses[available.id]=npc.id;npcSpeech(npc,`Estou juntando moedas para morar na ${available.name}.`);saveState();}}
   }
 
   function updateNPCs(dt){
     for(const npc of world.npcs){
-      if(npc.ridingWithPlayer){npc.group.visible=false;continue;}
-      npc.group.visible=true;const near=distance2D(player,npc.group.position)<3.2;
+      const near=distance2D(player,npc.group.position)<3.2;
       const oldX=npc.group.position.x,oldZ=npc.group.position.z;
-      if(npc.following){
+      if(npc.passengerMode){
+        const heading=npc.passengerMode==='boat'?player.boat.heading:player.car.heading,lx=.65,lz=npc.passengerMode==='boat'?.62:-.18;npc.group.position.x=player.x+Math.cos(heading)*lx+Math.sin(heading)*lz;npc.group.position.z=player.z-Math.sin(heading)*lx+Math.cos(heading)*lz;npc.group.position.y=npc.passengerMode==='boat'?.75:.3;npc.group.rotation.y=heading;
+      }else if(npc.following){
         const backX=player.x-Math.sin(player.facing)*2.2,backZ=player.z-Math.cos(player.facing)*2.2;
         npc.group.position.x=lerp(npc.group.position.x,backX,Math.min(1,dt*2.4));npc.group.position.z=lerp(npc.group.position.z,backZ,Math.min(1,dt*2.4));npc.group.rotation.y=lerpAngle(npc.group.rotation.y,player.facing,Math.min(1,dt*5));
       }else if(near){
         const look=Math.atan2(player.x-npc.group.position.x,player.z-npc.group.position.z);
         npc.group.rotation.y=lerpAngle(npc.group.rotation.y,look,Math.min(1,dt*5.5));
+      }else if(npc.mobility){
+        const route=npc.mobility.route,target=route[npc.mobility.index],dx=target.x-npc.group.position.x,dz=target.z-npc.group.position.z,d=Math.hypot(dx,dz);if(d<.2)npc.mobility.index=(npc.mobility.index+1)%route.length;else{const step=Math.min(d,npc.mobility.speed*dt);npc.group.position.x+=dx/d*step;npc.group.position.z+=dz/d*step;npc.group.rotation.y=lerpAngle(npc.group.rotation.y,Math.atan2(dx,dz),Math.min(1,dt*5));for(const wheel of npc.mobility.wheels)wheel.rotation.x-=step*3;}
       }else{
-        const transportSpeed=npc.transportKind==='car'?2.5:npc.transportKind==='motorcycle'?2.2:npc.transportKind==='bike'?1.65:npc.transportKind==='skate'?1.45:1;npc.phase+=dt*.45*transportSpeed;
+        npc.phase+=dt*.45;
         const tx=npc.baseX+Math.sin(npc.phase)*npc.pathRadius,tz=npc.baseZ+Math.cos(npc.phase*.83)*npc.pathRadius;
-        npc.group.position.x=lerp(npc.group.position.x,tx,Math.min(1,dt*.45*transportSpeed));npc.group.position.z=lerp(npc.group.position.z,tz,Math.min(1,dt*.45*transportSpeed));
+        npc.group.position.x=lerp(npc.group.position.x,tx,dt*.45);npc.group.position.z=lerp(npc.group.position.z,tz,dt*.45);
         npc.group.rotation.y=lerpAngle(npc.group.rotation.y,Math.atan2(tx-npc.group.position.x,tz-npc.group.position.z),Math.min(1,dt*5));
       }
+      if(!npc.passengerMode)npc.group.position.y=lerp(npc.group.position.y,0,Math.min(1,dt*8));
       const moved=Math.hypot(npc.group.position.x-oldX,npc.group.position.z-oldZ);
-      const riding=!!npc.transportKind,walk=moved>.001&&!riding?Math.sin(animTime*8+npc.phase)*.52:0;
+      const riding=!!npc.mobility&&!npc.passengerMode&&!npc.following,walk=moved>.001&&!riding?Math.sin(animTime*8+npc.phase)*.52:0;
       const gesture=near?Math.sin(animTime*2.4+npc.phase)*.12:0,emote=performance.now()<npc.emoteUntil?npc.emoteType:'';
       if(npc.limbs){
-        npc.limbs.leftArm.rotation.x=lerp(npc.limbs.leftArm.rotation.x,emote==='dance'?-1.4:walk+gesture,.18);
-        npc.limbs.rightArm.rotation.x=lerp(npc.limbs.rightArm.rotation.x,emote==='wave'?-2.2:emote==='dance'?-1.4:-walk-gesture,.18);
-        const pedal=riding&&npc.transportKind!=='car'?Math.sin(animTime*10+npc.phase)*.5:walk;npc.limbs.leftLeg.rotation.x=lerp(npc.limbs.leftLeg.rotation.x,-pedal*.78,.18);
-        npc.limbs.rightLeg.rotation.x=lerp(npc.limbs.rightLeg.rotation.x,pedal*.78,.18);if(riding){npc.limbs.leftArm.rotation.x=lerp(npc.limbs.leftArm.rotation.x,-1.15,.2);npc.limbs.rightArm.rotation.x=lerp(npc.limbs.rightArm.rotation.x,-1.15,.2);}
+        npc.limbs.leftArm.rotation.x=lerp(npc.limbs.leftArm.rotation.x,riding?-1.2:emote==='dance'?-1.4:walk+gesture,.18);
+        npc.limbs.rightArm.rotation.x=lerp(npc.limbs.rightArm.rotation.x,riding?-1.2:emote==='wave'?-2.2:emote==='dance'?-1.4:-walk-gesture,.18);
+        npc.limbs.leftLeg.rotation.x=lerp(npc.limbs.leftLeg.rotation.x,riding?1.05:-walk*.78,.18);
+        npc.limbs.rightLeg.rotation.x=lerp(npc.limbs.rightLeg.rotation.x,riding?1.05:walk*.78,.18);
       }
-      npc.body.position.y=1.1+(moved>.001?Math.abs(Math.sin(animTime*8+npc.phase))*.035:Math.sin(animTime*2+npc.phase)*.012);
+      npc.body.position.y=(riding?1.42:1.1)+(moved>.001?Math.abs(Math.sin(animTime*8+npc.phase))*.035:Math.sin(animTime*2+npc.phase)*.012);
     }
   }
   function updateEnemies(dt){
@@ -2622,7 +3104,7 @@
       const d=distance2D(player,e);let tx=e.baseX+Math.sin(animTime*.55+e.phase)*4,tz=e.baseZ+Math.cos(animTime*.48+e.phase)*4;
       if(d<9&&!currentHouse){tx=player.x;tz=player.z;}
       const speed=e.type==='bat'?2.1:e.type==='golem'?1.0:1.45;e.group.position.x=lerp(e.group.position.x,tx,dt*speed);e.group.position.z=lerp(e.group.position.z,tz,dt*speed);e.group.position.y=e.type==='bat'?1.2+Math.sin(animTime*3+e.phase)*.35:0;e.group.rotation.y=Math.atan2(tx-e.group.position.x,tz-e.group.position.z);
-      if(d<1.45&&performance.now()>player.damageUntil){player.damageUntil=performance.now()+1100;state.needs.energy=clamp(state.needs.energy-12,0,100);state.needs.fun=clamp(state.needs.fun-4,0,100);toast('Monstro acertou!','bad');vibrate([35,40,35]);saveState();}
+      if(d<1.45&&performance.now()>player.damageUntil){player.damageUntil=performance.now()+1100;if(performance.now()<player.shieldUntil){toast('O Escudo Furtivo bloqueou o ataque!','good',1300);beep(690,60,'sine');continue;}state.needs.energy=clamp(state.needs.energy-12,0,100);state.needs.fun=clamp(state.needs.fun-4,0,100);toast('Monstro acertou!','bad');vibrate([35,40,35]);saveState();}
     }
   }
   function meleeAttack(){
@@ -2635,7 +3117,7 @@
     if(enemy.hp<=0){enemy.dead=true;enemy.group.visible=false;state.defeated++;addXP(enemy.type==='golem'?45:20);addCoins(enemy.type==='golem'?35:12);toast('Monstro derrotado!','good');evaluateMissions();saveState();}
   }
   function firePower(){
-    if(!els.modal.hidden||paused)return;
+    if(!els.modal.hidden||paused||player.transit.mode)return;
     if(player.vehicle){vehicleHorn();return;}
     if(currentHouse){toast('Use o poder do lado de fora.','warn');return;}
     const dir={x:Math.sin(player.facing),z:Math.cos(player.facing)};const mesh=new THREE.Mesh(new THREE.BoxGeometry(.42,.42,.42),mat(0xff5a12,{emissive:0xff2a00,emissiveIntensity:.9}));mesh.position.set(player.x,player.y+1.35,player.z);worldGroup.add(mesh);world.fireballs.push({mesh,x:player.x,y:player.y+1.35,z:player.z,vx:dir.x*12,vz:dir.z*12,life:1.4});beep(220,90,'sawtooth');vibrate(18);
@@ -2646,25 +3128,35 @@
 
   function updateCamera(dt){
     let desiredPos,look;
-    if(currentHouse&&cameraMode==='interior'){
+    if(player.transit.mode==='bus'){
+      const bus=world.buses.find(item=>item.id===player.transit.busId);
+      if(bus){
+        bus.group.updateMatrixWorld(true);
+        desiredPos=bus.group.localToWorld(new THREE.Vector3(.28,2.28,-2.56));
+        look=bus.group.localToWorld(new THREE.Vector3(-.18,1.55,1.75));
+        camera.fov=68;
+      }
+    }
+    if(!desiredPos&&currentHouse&&cameraMode==='interior'){
       const h=currentHouse;const portrait=innerHeight>innerWidth;const orbit=clamp(cameraYaw,-1.18,1.18);const dist=clamp((portrait?8.2:7.2)+cameraZoom,5.2,12.5);const height=clamp((portrait?5.6:4.6)+cameraPitch*2.4+cameraZoom*.18,3.8,8.8);
-      desiredPos=new THREE.Vector3(player.x+Math.sin(orbit)*dist,player.y+height,player.z+Math.cos(orbit)*dist);look=new THREE.Vector3(player.x,player.y+1.15,player.z);camera.fov=portrait?54:50;
-    }else{
-      const portrait=innerHeight>innerWidth;const speed=Math.hypot(player.vx,player.vz);const rideBus=player.publicRide?.type==='bus'?world.buses.find(b=>b.id===player.publicRide.id):null;
-      if((player.vehicle||player.boating||rideBus)&&!input.cameraDrag){const heading=player.vehicle?player.car.heading:player.boating?player.boat.heading:rideBus.heading;cameraYaw=lerpAngle(cameraYaw,Math.PI-heading,Math.min(1,dt*3.2));}
-      const transportSpeed=player.vehicle?player.car.speed:player.boating?player.boat.speed:rideBus?rideBus.speed:speed;const speedKick=clamp(Math.abs(transportSpeed)/9,0,1.6);
-      const dist=clamp((portrait?12.5:10.2)+(player.vehicle?3.4:player.boating?2.2:rideBus?2.6:0)+speedKick*1.6+cameraZoom,6.5,24);const height=clamp((portrait?6.6:5.4)+(player.vehicle?.4:player.boating?.25:rideBus?.3:0)+cameraPitch*2.2+cameraZoom*.16,3.5,12);
+      desiredPos=new THREE.Vector3(player.x-Math.sin(orbit)*dist,player.y+height,player.z+Math.cos(orbit)*dist);look=new THREE.Vector3(player.x,player.y+1.15,player.z);camera.fov=portrait?54:50;
+    }else if(!desiredPos){
+      const portrait=innerHeight>innerWidth;const speed=Math.hypot(player.vx,player.vz);
+      if((player.vehicle||player.boating)&&!input.cameraDrag){const heading=player.vehicle?player.car.heading:player.boat.heading;cameraYaw=lerpAngle(cameraYaw,Math.PI-heading,Math.min(1,dt*3.2));}
+      const speedKick=clamp(Math.abs(player.vehicle?player.car.speed:speed)/9,0,1.6);
+      const dist=clamp((portrait?12.5:10.2)+(player.vehicle?3.4:player.boating?2.2:0)+speedKick*1.6+cameraZoom,6.5,24);const height=clamp((portrait?6.6:5.4)+(player.vehicle?.4:player.boating?.25:0)+cameraPitch*2.2+cameraZoom*.16,3.5,12);
       desiredPos=new THREE.Vector3(player.x-Math.sin(cameraYaw)*dist,player.y+height,player.z+Math.cos(cameraYaw)*dist);const visualHeight=1.4*playerScaleValue()*(player.crouched?.72:1);look=new THREE.Vector3(player.x+Math.sin(cameraYaw)*3.5,player.y+visualHeight,player.z-Math.cos(cameraYaw)*3.5);
-      camera.fov=(portrait?57:60)+speedKick*(player.vehicle?7:player.boating?4:rideBus?4:2);
+      camera.fov=(portrait?57:60)+speedKick*(player.vehicle?7:player.boating?4:2);
     }
     const t=1-Math.exp(-dt*7.5);camera.position.lerp(desiredPos,t);camera.lookAt(look);camera.updateProjectionMatrix();
   }
 
   function nearestInteractable(){
     if(activeRace)return null;
-    if(player.publicRide?.type)return{id:'exit-public-ride',type:'bus',icon:'🚌',label:'Descer do ônibus',radius:999,priority:1000,action:exitPublicRide};
-    if(player.boating)return{id:'exit-boat',type:'boat',icon:'🛶',label:'Sair do barco no píer',radius:999,priority:999,action:exitBoat};
-    if(player.vehicle)return{id:'exit-vehicle',type:'vehicle',icon:'🚗',label:'Sair do carrinho',radius:999,priority:999,action:exitVehicle};
+    if(player.transit.mode==='metro')return null;
+    if(player.transit.mode==='bus')return{id:'request-bus-stop',type:'bus',icon:'🔔',label:player.transit.requestStop?'Parada já solicitada':'Pedir próxima parada',radius:999,priority:999,action:()=>{player.transit.requestStop=true;updateTransitPanel();toast('Parada solicitada.','good',1200);}};
+    if(player.boating){const free=!player.boat.passengerOf&&!player.boat.passengerUid&&!player.boat.passengerBotId,remote=free?nearestRemotePlayer():null,npc=free?nearestBoardableNpc():null;if(remote)return{id:`boat-remote-${remote.uid}`,type:'remote-player',icon:'🌐',label:`Convidar ${remote.ghost.userData.displayName||'Jogador'} para o barco`,radius:999,priority:1001,action:()=>openRemotePlayerActions(remote.uid,remote.ghost)};if(npc)return{id:`boat-invite-${npc.id}`,type:'boat',icon:'🛶',label:`Convidar ${npc.name} para o barco`,radius:999,priority:1000,action:()=>boardNpcPassenger(npc,'boat')};return{id:'exit-boat',type:'boat',icon:'🛶',label:'Sair do barco no píer',radius:999,priority:999,action:exitBoat};}
+    if(player.vehicle){const free=!player.car.passengerOf&&!player.car.passengerUid&&!player.car.passengerBotId,remote=free?nearestRemotePlayer():null,npc=free?nearestBoardableNpc():null;if(remote)return{id:`car-remote-${remote.uid}`,type:'remote-player',icon:'🌐',label:`Convidar ${remote.ghost.userData.displayName||'Jogador'} para o carro`,radius:999,priority:1001,action:()=>openRemotePlayerActions(remote.uid,remote.ghost)};if(npc)return{id:`car-invite-${npc.id}`,type:'vehicle',icon:'🚗',label:`Convidar ${npc.name} para o carro`,radius:999,priority:1000,action:()=>boardNpcPassenger(npc,'car')};return{id:'exit-vehicle',type:'vehicle',icon:'🚗',label:'Sair do carro',radius:999,priority:999,action:exitVehicle};}
     if(buildMode)return{id:'place-build',type:'build',icon:'🧱',label:'Colocar construção',radius:999,priority:999,action:placeBuild};
     const remote=nearestRemotePlayer();if(remote)return{id:`remote-${remote.uid}`,type:'remote-player',icon:'🌐',label:`Interagir: ${remote.ghost.userData.displayName||'Jogador'}`,radius:2.8,priority:980,x:remote.ghost.position.x,z:remote.ghost.position.z,action:()=>openRemotePlayerActions(remote.uid,remote.ghost)};
     let nearest=null,best=Infinity;
@@ -2704,27 +3196,27 @@
   function multiplayerGameLabel(type){return type==='portuguese'?'Português Kids':type==='english'?'English Kids':'Matemática Kids';}
   function pendingChallenges(){return [...incomingChallenges.values()].filter(c=>c.status==='pending');}
   function readyGameSessions(){const uid=window.OTTHOS_RTDB?.uid;return [...gameSessions.values()].filter(s=>(s.fromUid===uid||s.toUid===uid)&&s.status==='active');}
-  function closeChallengePrompt(){if(!els.challengePrompt)return;els.challengePrompt.hidden=true;els.challengePrompt.classList.remove('ready','incoming','social');promptChallengeId='';promptSessionId='';promptSocialRequestId='';els.challengePromptAccept.disabled=false;els.challengePromptDecline.disabled=false;}
-  function showIncomingChallengePrompt(c){if(!c||c.status!=='pending'||!els.challengePrompt)return;promptChallengeId=c.id;promptSessionId='';els.challengePrompt.classList.add('incoming');els.challengePrompt.classList.remove('ready','social');els.challengePromptKicker.textContent='NOVO DESAFIO';els.challengePromptTitle.textContent=`${c.fromName||'Jogador'} desafiou você`;els.challengePromptText.textContent=`${multiplayerGameLabel(c.type)} • toque em Aceitar e jogar`;els.challengePromptAccept.textContent='Aceitar e jogar';els.challengePromptDecline.textContent='Recusar';els.challengePrompt.hidden=false;}
-  function showReadySessionPrompt(s){if(!s||s.status!=='active'||!els.challengePrompt)return;const uid=window.OTTHOS_RTDB?.uid,mine=s.players?.[uid];if(mine?.finished)return;promptSessionId=s.id;promptChallengeId='';els.challengePrompt.classList.add('ready');els.challengePrompt.classList.remove('incoming','social');els.challengePromptKicker.textContent='PARTIDA PRONTA';els.challengePromptTitle.textContent=`Duelo de ${multiplayerGameLabel(s.type)}`;els.challengePromptText.textContent=`Contra ${sessionOpponentName(s)} • os dois jogarão as mesmas 5 atividades`;els.challengePromptAccept.textContent='Jogar agora';els.challengePromptDecline.textContent='Depois';els.challengePrompt.hidden=false;}
+  function closeChallengePrompt(){if(!els.challengePrompt)return;document.body.classList.remove('social-prompt-open');els.challengePrompt.hidden=true;els.challengePrompt.classList.remove('ready','incoming','social');promptChallengeId='';promptSessionId='';promptSocialRequestId='';els.challengePromptAccept.disabled=false;els.challengePromptDecline.disabled=false;}
+  function showIncomingChallengePrompt(c){if(!c||c.status!=='pending'||!els.challengePrompt)return;document.body.classList.add('social-prompt-open');promptChallengeId=c.id;promptSessionId='';els.challengePrompt.classList.add('incoming');els.challengePrompt.classList.remove('ready','social');els.challengePromptKicker.textContent='NOVO DESAFIO';els.challengePromptTitle.textContent=`${c.fromName||'Jogador'} desafiou você`;els.challengePromptText.textContent=`${multiplayerGameLabel(c.type)} • toque em Aceitar e jogar`;els.challengePromptAccept.textContent='Aceitar e jogar';els.challengePromptDecline.textContent='Recusar';els.challengePrompt.hidden=false;}
+  function showReadySessionPrompt(s){if(!s||s.status!=='active'||!els.challengePrompt)return;document.body.classList.add('social-prompt-open');const uid=window.OTTHOS_RTDB?.uid,mine=s.players?.[uid];if(mine?.finished)return;promptSessionId=s.id;promptChallengeId='';els.challengePrompt.classList.add('ready');els.challengePrompt.classList.remove('incoming','social');els.challengePromptKicker.textContent='PARTIDA PRONTA';els.challengePromptTitle.textContent=`Duelo de ${multiplayerGameLabel(s.type)}`;els.challengePromptText.textContent=`Contra ${sessionOpponentName(s)} • os dois jogarão as mesmas 5 atividades`;els.challengePromptAccept.textContent='Jogar agora';els.challengePromptDecline.textContent='Depois';els.challengePrompt.hidden=false;}
   const SOCIAL_ACTION_LABELS={dance:'dançar',play:'brincar',highfive:'fazer toca aqui',hug:'dar um abraço',selfie:'tirar uma selfie',vehiclePassenger:'entrar no carro como passageiro',boatPassenger:'entrar no barco como passageiro',fishTogether:'pescar junto',campfireJoin:'participar da fogueira',huntTogether:'rastrear animais junto'};
   function socialActionLabel(type){return SOCIAL_ACTION_LABELS[type]||'interagir';}
   function socialRequestPending(){return[...incomingSocialRequests.values()].filter(r=>r.status==='pending'&&Number(r.expiresAt||0)>Date.now());}
-  function showIncomingSocialRequest(request){
+  function showIncomingSocialRequest(request){document.body.classList.add('social-prompt-open');
     if(!request||request.status!=='pending'||Number(request.expiresAt||0)<=Date.now()||!els.challengePrompt)return;
     promptSocialRequestId=request.id;promptChallengeId='';promptSessionId='';els.challengePrompt.classList.add('incoming','social');els.challengePrompt.classList.remove('ready');els.challengePromptKicker.textContent='CONVITE MULTIPLAYER';els.challengePromptTitle.textContent=`${request.fromName||'Jogador'} quer ${socialActionLabel(request.actionType)}`;els.challengePromptText.textContent='Nada será executado antes da sua confirmação.';els.challengePromptAccept.textContent='Aceitar';els.challengePromptDecline.textContent='Recusar';els.challengePrompt.hidden=false;
   }
   async function sendSocialActionRequest(targetUid,targetName,actionType,extra={}){
-    if(actionType==='vehiclePassenger'&&(!player.vehicle||player.car.passengerOf)){toast('Somente o motorista do carro pode convidar um passageiro.','warn',2500);return false;}
-    if(actionType==='vehiclePassenger'&&(player.car.passengerUid||player.car.botPassengerId)){toast('Este carro já tem passageiro.','warn',2300);return false;}
     if(actionType==='boatPassenger'&&(!player.boating||player.boat.passengerOf)){toast('Somente o motorista do barco pode convidar um passageiro.','warn',2500);return false;}
-    if(actionType==='boatPassenger'&&(player.boat.passengerUid||player.boat.botPassengerId)){toast('Este barco já tem um passageiro.','warn',2300);return false;}
+    if(actionType==='boatPassenger'&&(player.boat.passengerUid||player.boat.passengerBotId)){toast('Este barco já tem um passageiro.','warn',2300);return false;}
+    if(actionType==='vehiclePassenger'&&(!player.vehicle||player.car.passengerOf)){toast('Somente o motorista do carro pode convidar um passageiro.','warn',2500);return false;}
+    if(actionType==='vehiclePassenger'&&(player.car.passengerUid||player.car.passengerBotId)){toast('Este carro já tem um passageiro.','warn',2300);return false;}
     const result=await window.OTTHOS_RTDB?.sendSocialRequest?.(targetUid,actionType,targetName,extra);if(result?.ok){state.multiplayerRequests.lastSentAt=Date.now();saveState();toast(`Convite enviado para ${targetName}.`,'good',2300);return true;}toast(result?.error||'Não foi possível enviar o convite.','warn',2600);return false;
   }
   function applyAcceptedSocialAction(actionType,context={}){
     const rewardKey=String(context.requestId||'');if(rewardKey&&state.multiplayerRequests.completed.includes(rewardKey))return;
     if(['dance','play','highfive','hug','selfie'].includes(actionType)){triggerEmote(actionType);if(actionType==='play')state.needs.fun=clamp(state.needs.fun+10,0,100);}
-    else if(actionType==='vehiclePassenger'){if(context.role==='passenger'||context.incoming)enterVehicleAsPassenger(context.fromUid||context.partnerUid);else{player.car.passengerUid=context.partnerUid||'';toast(`${context.partnerName||'Seu amigo'} entrou como passageiro do carro.`,'good',2600);}}
+    else if(actionType==='vehiclePassenger'){if(context.role==='passenger'||context.incoming)enterVehicleAsPassenger(context.fromUid||context.partnerUid,context.vehicleId||'');else{player.car.passengerUid=context.partnerUid||'';toast(`${context.partnerName||'Seu amigo'} entrou como passageiro.`,'good',2600);}}
     else if(actionType==='boatPassenger'){if(context.role==='passenger'||context.incoming)enterBoatAsPassenger(context.fromUid||context.partnerUid);else{player.boat.passengerUid=context.partnerUid||'';toast(`${context.partnerName||'Seu amigo'} entrou como passageiro.`,'good',2600);}}
     else if(actionType==='fishTogether'){startFishing(player.boating?'boat':'shore',{cooperative:true,requestId:rewardKey,partnerName:context.partnerName||context.fromName||'amigo'});}
     else if(actionType==='campfireJoin'){openNearestCampfire();}
@@ -2733,7 +3225,7 @@
   }
   async function acceptIncomingSocialRequest(id){
     const request=incomingSocialRequests.get(id);if(!request)return;els.challengePromptAccept.disabled=true;els.challengePromptDecline.disabled=true;const result=await window.OTTHOS_RTDB?.respondSocialRequest?.(id,'accepted');
-    if(result?.ok){closeChallengePrompt();applyAcceptedSocialAction(request.actionType,{incoming:true,role:(request.actionType==='boatPassenger'||request.actionType==='vehiclePassenger')?'passenger':'participant',requestId:id,fromUid:request.fromUid,fromName:request.fromName,partnerName:request.fromName});toast(`Convite de ${request.fromName||'Jogador'} aceito.`,'good',2200);setTimeout(()=>window.OTTHOS_RTDB?.completeSocialRequest?.(id),1800);}else{closeChallengePrompt();toast(result?.reason||result?.error||'O convite não pôde ser aceito.','warn',2600);}
+    if(result?.ok){closeChallengePrompt();applyAcceptedSocialAction(request.actionType,{incoming:true,role:['boatPassenger','vehiclePassenger'].includes(request.actionType)?'passenger':'participant',requestId:id,fromUid:request.fromUid,fromName:request.fromName,partnerName:request.fromName,vehicleId:request.vehicleId||request.extra?.vehicleId||''});toast(`Convite de ${request.fromName||'Jogador'} aceito.`,'good',2200);setTimeout(()=>window.OTTHOS_RTDB?.completeSocialRequest?.(id),1800);}else{closeChallengePrompt();toast(result?.reason||result?.error||'O convite não pôde ser aceito.','warn',2600);}
   }
   async function declineIncomingSocialRequest(id){
     const request=incomingSocialRequests.get(id);els.challengePromptAccept.disabled=true;els.challengePromptDecline.disabled=true;const result=await window.OTTHOS_RTDB?.respondSocialRequest?.(id,'declined');closeChallengePrompt();toast(request?`Convite de ${request.fromName||'Jogador'} recusado.`:(result?.error||'Convite recusado.'),'warn',1900);
@@ -2762,25 +3254,24 @@
   function refreshOpenSocialHub(){updateOnlineAttention();if(els.modal.hidden||els.modalTitle.textContent!=='Mundo Online')return;const players=onlinePlayers(),status=$('#onlineStatusText',els.modalBody),count=$('#onlineCount',els.modalBody),list=$('#onlinePlayerList',els.modalBody),chat=$('#worldChatList',els.modalBody),socialInvites=$('#socialRequestInbox',els.modalBody),invites=$('#challengeInbox',els.modalBody),sessions=$('#activeGameSessions',els.modalBody),history=$('#duelHistory',els.modalBody);if(status)status.textContent=multiplayerStatusText();if(count)count.textContent=`${players.length} além de você`;if(list){list.innerHTML=onlinePlayerListHtml(players);bindOnlinePlayerCards(els.modalBody);}if(socialInvites){socialInvites.innerHTML=socialRequestInboxHtml();bindChallengeCards(els.modalBody);}if(invites){invites.innerHTML=challengeInboxHtml();bindChallengeCards(els.modalBody);}if(sessions){sessions.innerHTML=activeSessionsHtml();bindChallengeCards(els.modalBody);}if(history)history.innerHTML=duelHistoryHtml();if(chat){chat.innerHTML=cloudChat.slice(-30).map(m=>chatMessageHtml(m)).join('')||'<p>Envie a primeira mensagem.</p>';chat.scrollTop=chat.scrollHeight;}}
   function openSocialHub(){
     const players=onlinePlayers(),messages=cloudChat.slice(-30);
-    openModal('Mundo Online',`<div class="online-status-card"><b id="onlineStatusText">${multiplayerStatusText()}</b><span>Todos entram automaticamente no mesmo mundo, sem escolher sala e sem senha.</span></div><div class="social-tabs"><b>Solicitações sociais</b><small>${socialRequestPending().length} pendente(s)</small></div><div id="socialRequestInbox">${socialRequestInboxHtml()}</div><div class="social-tabs"><b>Convites de jogos</b><small>${pendingChallenges().length} pendente(s)</small></div><div id="challengeInbox">${challengeInboxHtml()}</div><div id="activeGameSessions">${activeSessionsHtml()}</div><div class="social-tabs"><b>Histórico de duelos</b><small>vencedores registrados</small></div><div id="duelHistory">${duelHistoryHtml()}</div><div class="social-tabs"><b>Jogadores</b><small id="onlineCount">${players.length} além de você</small></div><div id="onlinePlayerList" class="online-player-list">${onlinePlayerListHtml(players)}</div><div class="social-tabs chat-title-row"><b>Chat do mundo</b><small>texto em tempo real</small></div><div id="worldChatList" class="world-chat-list">${messages.map(m=>chatMessageHtml(m)).join('')||'<p>Envie a primeira mensagem.</p>'}</div><div class="chat-compose"><input id="worldChatInput" maxlength="180" placeholder="Escreva uma mensagem..."><button data-send-world-chat>Enviar</button></div><div class="chat-history-actions"><button data-clear-local-chat>Limpar desta tela</button><button class="danger" data-delete-own-chat>Apagar minhas mensagens</button></div>`,root=>{
+    openModal('Mundo Online',`<div class="online-status-card"><b id="onlineStatusText">${multiplayerStatusText()}</b><span>Todos entram automaticamente no mesmo mundo, sem escolher sala e sem senha.</span></div><div class="social-tabs"><b>Solicitações sociais</b><small>${socialRequestPending().length} pendente(s)</small></div><div id="socialRequestInbox">${socialRequestInboxHtml()}</div><div class="social-tabs"><b>Convites de jogos</b><small>${pendingChallenges().length} pendente(s)</small></div><div id="challengeInbox">${challengeInboxHtml()}</div><div id="activeGameSessions">${activeSessionsHtml()}</div><div class="social-tabs"><b>Histórico de duelos</b><small>vencedores registrados</small></div><div id="duelHistory">${duelHistoryHtml()}</div><div class="social-tabs"><b>Jogadores</b><small id="onlineCount">${players.length} além de você</small></div><div id="onlinePlayerList" class="online-player-list">${onlinePlayerListHtml(players)}</div><div class="social-tabs chat-title-row"><b>Chat do mundo</b><small>texto em tempo real</small></div><div id="worldChatList" class="world-chat-list">${messages.map(m=>chatMessageHtml(m)).join('')||'<p>Envie a primeira mensagem.</p>'}</div><div class="chat-compose"><input id="worldChatInput" maxlength="180" placeholder="Escreva uma mensagem..."><button data-send-world-chat>Enviar</button></div><div class="chat-history-actions"><button data-clear-local-chat>Ocultar conversa neste aparelho</button></div>`,root=>{
       bindOnlinePlayerCards(root);bindChallengeCards(root);
       const send=()=>{const input=$('#worldChatInput',root),text=(input?.value||'').trim();if(!text)return;window.OTTHOS_RTDB?.sendChat?.(text);input.value='';};$('[data-send-world-chat]',root).onclick=send;$('#worldChatInput',root)?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();send();}});
       $('[data-clear-local-chat]',root).onclick=()=>{state.social.chatHiddenBefore=Date.now();cloudChat.length=0;saveState(true);refreshOpenSocialHub();toast('Histórico ocultado neste aparelho.','good');};
-      $('[data-delete-own-chat]',root).onclick=async()=>{const btn=$('[data-delete-own-chat]',root);btn.disabled=true;btn.textContent='Apagando...';const result=await window.OTTHOS_RTDB?.deleteOwnChatMessages?.();if(result?.ok){for(let i=cloudChat.length-1;i>=0;i--)if(cloudChat[i].senderUid===window.OTTHOS_RTDB?.uid)cloudChat.splice(i,1);refreshOpenSocialHub();toast(`${result.count||0} mensagem(ns) apagada(s).`,'good');}else{btn.disabled=false;btn.textContent='Apagar minhas mensagens';toast(result?.error||'Não foi possível apagar.','warn');}};
     });
   }
   function escapeHtml(value=''){return String(value).replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]));}
   function chatMessageHtml(m){return`<article class="world-chat-message"><b>${escapeHtml(m.name||'Jogador')}</b><span>${escapeHtml(m.text||'')}</span></article>`;}
   function openRemotePlayerActions(uid,ghost){
     const name=ghost.userData.displayName||'Jogador',nearLake=isNearFishingArea()||player.boating,nearCamp=nearestActiveCampfire(8),nearHunt=Math.hypot(player.x+96,player.z+72)<25;
-    const cooperative=`${player.vehicle&&!player.car.passengerOf&&!player.car.passengerUid&&!player.car.botPassengerId?'<button class="choice" data-player-action="vehiclePassenger"><b>🚗 Passageiro</b><span>Convidar para o seu carro</span></button>':''}${player.boating&&!player.boat.passengerOf&&!player.boat.passengerUid&&!player.boat.botPassengerId?'<button class="choice" data-player-action="boatPassenger"><b>🛶 Passageiro</b><span>Convidar para o seu barco</span></button>':''}${nearLake?'<button class="choice" data-player-action="fishTogether"><b>🎣 Pescar juntos</b><span>Cada jogador recebe o próprio peixe</span></button>':''}${nearCamp?'<button class="choice" data-player-action="campfireJoin"><b>🔥 Fogueira</b><span>Convidar para sentar e cozinhar</span></button>':''}${nearHunt?'<button class="choice" data-player-action="huntTogether"><b>🐾 Rastrear juntos</b><span>Atividade infantil sem violência</span></button>':''}`;
+    const cooperative=`${player.vehicle&&!player.car.passengerOf&&!player.car.passengerUid&&!player.car.passengerBotId?'<button class="choice" data-player-action="vehiclePassenger"><b>🚗 Passageiro</b><span>Convidar para o seu carro</span></button>':''}${player.boating&&!player.boat.passengerOf&&!player.boat.passengerUid&&!player.boat.passengerBotId?'<button class="choice" data-player-action="boatPassenger"><b>🛶 Passageiro</b><span>Convidar para o seu barco</span></button>':''}${nearLake?'<button class="choice" data-player-action="fishTogether"><b>🎣 Pescar juntos</b><span>Cada jogador recebe o próprio peixe</span></button>':''}${nearCamp?'<button class="choice" data-player-action="campfireJoin"><b>🔥 Fogueira</b><span>Convidar para sentar e cozinhar</span></button>':''}${nearHunt?'<button class="choice" data-player-action="huntTogether"><b>🐾 Rastrear juntos</b><span>Atividade infantil sem violência</span></button>':''}`;
     openModal(name,`<p>Interaja com este jogador em tempo real. Ações conjuntas só começam depois que ele aceitar.</p><div class="choice-grid remote-social-grid"><button class="choice" data-player-action="wave"><b>👋 Acenar</b><span>Saudação imediata</span></button><button class="choice" data-player-action="dance"><b>🕺 Dançar juntos</b><span>Requer aceite</span></button><button class="choice" data-player-action="play"><b>🎈 Brincar</b><span>Requer aceite</span></button><button class="choice" data-player-action="highfive"><b>🙌 Toca aqui</b><span>Requer aceite</span></button><button class="choice" data-player-action="hug"><b>🤗 Abraçar</b><span>Requer aceite</span></button><button class="choice" data-player-action="selfie"><b>📸 Selfie</b><span>Requer aceite</span></button>${cooperative}<button class="choice" data-player-action="giftCoins"><b>🪙 Dar 10 moedas</b><span>Presente online</span></button><button class="choice" data-player-action="giftCrystal"><b>💎 Dar cristal</b><span>Usa 1 cristal</span></button><button class="choice" data-player-action="challenge"><b>⚔️ Desafiar</b><span>Matemática, Português ou English</span></button><button class="choice" data-player-action="message"><b>💬 Mencionar no chat</b><span>Abrir conversa pública</span></button></div>`,root=>{$$('[data-player-action]',root).forEach(btn=>btn.onclick=async()=>{
       const action=btn.dataset.playerAction;if(action==='message'){closeModal();openSocialHub();setTimeout(()=>{const input=$('#worldChatInput');if(input){input.value=`@${name} `;input.focus();}},100);return;}
       if(action==='giftCoins'){if(state.profile.coins<10){toast('Você não tem 10 moedas.','warn');return;}const ok=await window.OTTHOS_RTDB?.sendGift?.(uid,{type:'coins',amount:10});if(ok){addCoins(-10);toast(`Você presenteou ${name}.`,'good');}}
       else if(action==='giftCrystal'){if(state.inventory.crystals<1){toast('Você não tem cristal.','warn');return;}const ok=await window.OTTHOS_RTDB?.sendGift?.(uid,{type:'crystal',amount:1});if(ok){state.inventory.crystals--;saveState(true);toast(`Cristal enviado para ${name}.`,'good');}}
       else if(action==='challenge'){openChallengePicker(uid,name);return;}
       else if(action==='wave'){const ok=await window.OTTHOS_RTDB?.sendInteraction?.(uid,{type:'wave'});if(ok){triggerEmote('wave');toast(`Você acenou para ${name}.`,'good');}}
-      else{await sendSocialActionRequest(uid,name,action,{vehicleId:player.car.activeVehicleId||'',boatId:state.boats.activeBoatId||'',campfireId:nearCamp?.data?.id||''});}
+      else{await sendSocialActionRequest(uid,name,action,{boatId:state.boats.activeBoatId||'',vehicleId:player.car.id||'',campfireId:nearCamp?.data?.id||''});}
       closeModal();
     });});
   }
@@ -2805,10 +3296,10 @@
   window.addEventListener('otthos:chat-removed',e=>{const id=e.detail?.id,index=cloudChat.findIndex(m=>m.id===id);if(index>=0)cloudChat.splice(index,1);refreshOpenSocialHub();});
   window.addEventListener('otthos:gift',e=>{const gift=e.detail;if(!gift)return;if(gift.type==='coins'){state.profile.coins+=Number(gift.amount||0);}else if(gift.type==='crystal'){state.inventory.crystals=(state.inventory.crystals||0)+Number(gift.amount||1);}saveState(true);toast(`🎁 ${gift.senderName||'Jogador'} enviou um presente!`,'good',2600);});
   window.addEventListener('otthos:interaction',e=>{const it=e.detail;if(!it)return;const sender=it.senderName||'Jogador';
-    if(it.type==='vehiclePassengerLeft'){player.car.passengerUid='';toast(`${sender} saiu do carro.`,'warn',1900);}
-    else if(it.type==='vehicleEnded'){if(player.vehicle&&player.car.passengerOf===it.senderUid)exitVehicle(true);toast('O motorista encerrou o passeio de carro.','warn',2300);}
-    else if(it.type==='boatPassengerLeft'){player.boat.passengerUid='';toast(`${sender} saiu do barco.`,'warn',1900);}
+    if(it.type==='boatPassengerLeft'){player.boat.passengerUid='';toast(`${sender} saiu do barco.`,'warn',1900);}
     else if(it.type==='boatEnded'){if(player.boating&&player.boat.passengerOf===it.senderUid)exitBoat(true);toast('O motorista encerrou o passeio de barco.','warn',2300);}
+    else if(it.type==='vehiclePassengerLeft'){player.car.passengerUid='';toast(`${sender} saiu do carro.`,'warn',1900);}
+    else if(it.type==='vehicleEnded'){if(player.vehicle&&player.car.passengerOf===it.senderUid)exitVehicle(true);toast('O motorista encerrou o passeio de carro.','warn',2300);}
     else if(it.type==='challengeAccepted')toast(`🎮 ${sender} aceitou seu desafio! Abra Online para jogar.`,'good',3400);
     else if(it.type==='challengeDeclined')toast(`${sender} recusou o desafio.`,'warn',2400);
     else if(it.type==='socialRequestResult'){
@@ -2825,37 +3316,35 @@
   window.addEventListener('otthos:rtdb-ready',async()=>{if(running||hasValidPlayerName()){const ok=await window.OTTHOS_RTDB?.connect?.({name:state.profile.name||'Jogador'});if(ok){window.OTTHOS_RTDB?.syncCampfires?.(state.campfires);window.OTTHOS_RTDB?.syncHouseExtensions?.(state.houseExtensions);}}});
 
   function initLocalMultiplayer(){
-    if(typeof BroadcastChannel==='function'){localChannel=new BroadcastChannel('otthos-life-world-v627');localChannel.onmessage=e=>{const data=e.data;if(!data||data.id===state.profile.playerId)return;if(data.type==='leave'){const ghost=world.ghosts.get(data.id);if(ghost){scene.remove(ghost);world.ghosts.delete(data.id);}return;}remotePlayerEvent({...data,uid:data.id});};window.addEventListener('beforeunload',()=>localChannel?.postMessage({type:'leave',id:state.profile.playerId}));}
-    window.OTTHOS_MULTIPLAYER={version:5,playerId:state.profile.playerId,mode:window.OTTHOS_RTDB?.configured?'firebase-public-world':'local-preview',connect:()=>window.OTTHOS_RTDB?.connect?.({name:state.profile.name||'Jogador'})||true,publish:payload=>{localChannel?.postMessage(payload);window.OTTHOS_RTDB?.publish?.(payload);},adapter:window.OTTHOS_RTDB?.configured?'Firebase Realtime Database':'BroadcastChannel'};updateMultiplayerBadge();if(window.OTTHOS_RTDB?.configured&&hasValidPlayerName())window.OTTHOS_RTDB.connect({name:state.profile.name||'Jogador'});
+    if(typeof BroadcastChannel==='function'){localChannel=new BroadcastChannel('otthos-life-world-v629');localChannel.onmessage=e=>{const data=e.data;if(!data||data.id===state.profile.playerId)return;if(data.type==='leave'){const ghost=world.ghosts.get(data.id);if(ghost){scene.remove(ghost);world.ghosts.delete(data.id);}return;}remotePlayerEvent({...data,uid:data.id});};window.addEventListener('beforeunload',()=>localChannel?.postMessage({type:'leave',id:state.profile.playerId}));}
+    window.OTTHOS_MULTIPLAYER={version:6,playerId:state.profile.playerId,mode:window.OTTHOS_RTDB?.configured?'firebase-public-world':'local-preview',connect:()=>window.OTTHOS_RTDB?.connect?.({name:state.profile.name||'Jogador'})||true,publish:payload=>{localChannel?.postMessage(payload);window.OTTHOS_RTDB?.publish?.(payload);},adapter:window.OTTHOS_RTDB?.configured?'Firebase Realtime Database':'BroadcastChannel'};updateMultiplayerBadge();if(window.OTTHOS_RTDB?.configured&&hasValidPlayerName())window.OTTHOS_RTDB.connect({name:state.profile.name||'Jogador'});
   }
   function multiplayerNameTexture(name){const c=document.createElement('canvas');c.width=512;c.height=128;const ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);ctx.fillStyle='rgba(5,18,34,.88)';ctx.strokeStyle='rgba(255,255,255,.92)';ctx.lineWidth=8;const r=30;ctx.beginPath();if(ctx.roundRect)ctx.roundRect(8,8,c.width-16,c.height-16,r);else ctx.rect(8,8,c.width-16,c.height-16);ctx.fill();ctx.stroke();ctx.fillStyle='#fff';ctx.font='900 48px system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(sanitizePlayerName(name)||'Jogador',c.width/2,c.height/2+2);const tex=new THREE.CanvasTexture(c);tex.minFilter=THREE.LinearFilter;tex.magFilter=THREE.LinearFilter;tex.generateMipmaps=false;return tex;}
   function updateLocalPlayerNameLabel(){if(!playerGroup?.userData?.nameLabel)return;const clean=playerDisplayName();if(playerGroup.userData.displayName===clean)return;const label=playerGroup.userData.nameLabel,old=label.material.map;label.material.map=multiplayerNameTexture(clean);label.material.needsUpdate=true;old?.dispose?.();playerGroup.userData.displayName=clean;}
   function updateGhostName(ghost,name){const clean=sanitizePlayerName(name)||'Jogador';if(ghost.userData.displayName===clean)return;ghost.userData.displayName=clean;if(ghost.userData.nameLabel){const old=ghost.userData.nameLabel.material.map;ghost.userData.nameLabel.material.map=multiplayerNameTexture(clean);ghost.userData.nameLabel.material.needsUpdate=true;old?.dispose?.();}}
-  function createGhost(color,name='Jogador'){const g=new THREE.Group();box(.82,1.18,.58,color,0,1.25,0,g);box(.72,.72,.72,0x111217,0,2.24,0,g);const leftArm=box(.22,1,.25,0xff9a24,-.58,1.28,0,g),rightArm=box(.22,1,.25,0xff9a24,.58,1.28,0,g),leftLeg=box(.25,1,.28,0x20242b,-.22,.34,0,g),rightLeg=box(.25,1,.28,0x20242b,.22,.34,0,g);box(.12,.1,.04,0xff3344,-.14,2.27,.38,g);box(.12,.1,.04,0xff3344,.14,2.27,.38,g);const label=new THREE.Sprite(new THREE.SpriteMaterial({map:multiplayerNameTexture(name),transparent:true,depthWrite:false,depthTest:false}));label.position.set(0,3.05,0);label.scale.set(2.75,.69,1);label.renderOrder=999;g.add(label);g.userData.nameLabel=label;g.userData.displayName=sanitizePlayerName(name)||'Jogador';g.userData.limbs={leftArm,rightArm,leftLeg,rightLeg};g.userData.phase=Math.random()*6.28;const ghostCar=new THREE.Group();premiumBox(2.0,.42,3.0,0x26384e,0,.35,0,ghostCar);premiumBox(1.75,.72,1.65,0xf28a22,0,.72,.25,ghostCar);for(const p of [[-.9,.3,-.85],[.9,.3,-.85],[-.9,.3,.85],[.9,.3,.85]]){const w=premiumCylinder(.34,.22,0x111827,p[0],p[1],p[2],ghostCar,12);w.rotation.z=Math.PI/2;}ghostCar.visible=false;g.add(ghostCar);g.userData.vehicleShell=ghostCar;const ghostBoat=new THREE.Group();premiumBox(2.4,.42,4.3,0x7b3f20,0,.35,0,ghostBoat);premiumBox(2.0,.3,3.4,0x2d6f8d,0,.66,0,ghostBoat);ghostBoat.visible=false;g.add(ghostBoat);g.userData.boatShell=ghostBoat;scene.add(g);return g;}
+  function createGhost(color,name='Jogador'){
+    const g=new THREE.Group(),avatar=new THREE.Group();g.add(avatar);box(.82,1.18,.58,color,0,1.25,0,avatar);box(.72,.72,.72,0x111217,0,2.24,0,avatar);const leftArm=box(.22,1,.25,0xff9a24,-.58,1.28,0,avatar),rightArm=box(.22,1,.25,0xff9a24,.58,1.28,0,avatar),leftLeg=box(.25,1,.28,0x20242b,-.22,.34,0,avatar),rightLeg=box(.25,1,.28,0x20242b,.22,.34,0,avatar);box(.12,.1,.04,0xff3344,-.14,2.27,.38,avatar);box(.12,.1,.04,0xff3344,.14,2.27,.38,avatar);
+    const car=new THREE.Group();car.visible=false;g.add(car);box(1.9,.42,2.8,0x26384e,0,.35,0,car);box(1.72,.6,1.45,color,0,.7,.25,car);box(1.46,.45,.9,0x173149,0,.92,-.48,car);for(const p of [[-.9,.3,-.85],[.9,.3,-.85],[-.9,.3,.85],[.9,.3,.85]]){const wheel=cylinder(.34,.24,0x10151d,p[0],p[1],p[2],car,10);wheel.rotation.z=Math.PI/2;}
+    const boat=new THREE.Group();boat.visible=false;boat.position.y=-.68;g.add(boat);box(2.4,.42,4.4,0x7b3f20,0,.38,0,boat);box(2.72,.24,3.82,0xe3ad55,0,.67,0,boat);box(1.85,.23,3.15,0x2d6f8d,0,.83,0,boat);box(1.75,.25,.55,0x374151,0,1.02,-.65,boat);box(1.75,.25,.55,0x374151,0,1.02,.72,boat);
+    const label=new THREE.Sprite(new THREE.SpriteMaterial({map:multiplayerNameTexture(name),transparent:true,depthWrite:false,depthTest:false}));label.position.set(0,3.05,0);label.scale.set(2.75,.69,1);label.renderOrder=999;g.add(label);g.userData.nameLabel=label;g.userData.displayName=sanitizePlayerName(name)||'Jogador';g.userData.avatar=avatar;g.userData.carVisual=car;g.userData.boatVisual=boat;g.userData.limbs={leftArm,rightArm,leftLeg,rightLeg};g.userData.phase=Math.random()*6.28;scene.add(g);return g;
+  }
   function updateMultiplayer(dt){
-    const now=performance.now(),payload={type:'position',id:state.profile.playerId,name:state.profile.name||'Jogador',x:+player.x.toFixed(2),y:+player.y.toFixed(2),z:+player.z.toFixed(2),r:+player.facing.toFixed(3),vehicle:!!player.vehicle,vehicleRole:player.vehicle?(player.car.passengerOf?'passenger':'driver'):'',passengerOfVehicle:player.car.passengerOf||'',vehiclePassengerUid:player.car.passengerUid||'',boating:!!player.boating,boatId:state.boats.activeBoatId||'',boatRole:player.boating?(player.boat.passengerOf?'passenger':'driver'):'',passengerOf:player.boat.passengerOf||'',boatPassengerUid:player.boat.passengerUid||'',scaleMode:player.scaleMode,crouched:!!player.crouched,emoteType:player.emoteType||'',emoteSeq:Number(player.emoteSeq||0),color:0x5ad8ff};
-    const changed=!lastPublishSnapshot||Math.hypot(payload.x-lastPublishSnapshot.x,payload.z-lastPublishSnapshot.z)>.06||Math.abs(payload.r-lastPublishSnapshot.r)>.025||payload.vehicle!==lastPublishSnapshot.vehicle||payload.vehicleRole!==lastPublishSnapshot.vehicleRole||payload.vehiclePassengerUid!==lastPublishSnapshot.vehiclePassengerUid||payload.boating!==lastPublishSnapshot.boating||payload.boatRole!==lastPublishSnapshot.boatRole||payload.boatPassengerUid!==lastPublishSnapshot.boatPassengerUid||payload.scaleMode!==lastPublishSnapshot.scaleMode||payload.crouched!==lastPublishSnapshot.crouched||payload.emoteSeq!==lastPublishSnapshot.emoteSeq;
+    const now=performance.now(),payload={type:'position',id:state.profile.playerId,name:state.profile.name||'Jogador',x:+player.x.toFixed(2),y:+player.y.toFixed(2),z:+player.z.toFixed(2),r:+player.facing.toFixed(3),vehicle:!!player.vehicle,vehicleId:player.car.id||'',vehicleRole:player.vehicle?(player.car.passengerOf?'passenger':'driver'):'',vehiclePassengerOf:player.car.passengerOf||'',vehiclePassengerUid:player.car.passengerUid||'',vehiclePassengerBotId:player.car.passengerBotId||'',boating:!!player.boating,boatId:state.boats.activeBoatId||'',boatRole:player.boating?(player.boat.passengerOf?'passenger':'driver'):'',passengerOf:player.boat.passengerOf||'',boatPassengerUid:player.boat.passengerUid||'',boatPassengerBotId:player.boat.passengerBotId||'',transitMode:player.transit.mode||'',scaleMode:player.scaleMode,crouched:!!player.crouched,emoteType:player.emoteType||'',emoteSeq:Number(player.emoteSeq||0),color:0x5ad8ff};
+    const changed=!lastPublishSnapshot||Math.hypot(payload.x-lastPublishSnapshot.x,payload.z-lastPublishSnapshot.z)>.06||Math.abs(payload.r-lastPublishSnapshot.r)>.025||payload.vehicle!==lastPublishSnapshot.vehicle||payload.vehicleRole!==lastPublishSnapshot.vehicleRole||payload.vehiclePassengerUid!==lastPublishSnapshot.vehiclePassengerUid||payload.boating!==lastPublishSnapshot.boating||payload.boatRole!==lastPublishSnapshot.boatRole||payload.boatPassengerUid!==lastPublishSnapshot.boatPassengerUid||payload.transitMode!==lastPublishSnapshot.transitMode||payload.scaleMode!==lastPublishSnapshot.scaleMode||payload.crouched!==lastPublishSnapshot.crouched||payload.emoteSeq!==lastPublishSnapshot.emoteSeq;
     if((changed&&now-lastPublish>240)||now-lastPublishHeartbeat>2200){lastPublish=now;lastPublishHeartbeat=now;lastPublishSnapshot=payload;localChannel?.postMessage(payload);window.OTTHOS_RTDB?.publish?.(payload);}
     for(const ghost of world.ghosts.values()){
-      const t=ghost.userData.target;if(!t)continue;
-      const heading=Number(t.r||0),carPassenger=!!t.vehicle&&t.vehicleRole==='passenger',boatPassenger=!!t.boating&&t.boatRole==='passenger';
-      const seatSide=carPassenger?.58:boatPassenger?.64:0,targetX=Number(t.x||0)+Math.cos(heading)*seatSide,targetZ=Number(t.z||0)-Math.sin(heading)*seatSide,targetY=Number(t.y||0)+(boatPassenger?.14:0);
-      const beforeX=ghost.position.x,beforeZ=ghost.position.z,follow=Math.min(1,dt*8);
-      ghost.position.x=lerp(ghost.position.x,targetX,follow);ghost.position.y=lerp(ghost.position.y,targetY,follow);ghost.position.z=lerp(ghost.position.z,targetZ,follow);ghost.rotation.y=lerpAngle(ghost.rotation.y,heading,follow);
+      const t=ghost.userData.target;if(!t)continue;const beforeX=ghost.position.x,beforeZ=ghost.position.z;ghost.position.x=lerp(ghost.position.x,Number(t.x||0),Math.min(1,dt*8));ghost.position.y=lerp(ghost.position.y,Number(t.y||0),Math.min(1,dt*8));ghost.position.z=lerp(ghost.position.z,Number(t.z||0),Math.min(1,dt*8));ghost.rotation.y=lerpAngle(ghost.rotation.y,Number(t.r||0),Math.min(1,dt*8));
       if(Number(t.emoteSeq||0)!==Number(ghost.userData.lastEmoteSeq||0)){ghost.userData.lastEmoteSeq=Number(t.emoteSeq||0);ghost.userData.emoteType=t.emoteType||'';ghost.userData.emoteUntil=performance.now()+2600;}
-      const moving=Math.hypot(ghost.position.x-beforeX,ghost.position.z-beforeZ)>.002,walk=moving?Math.sin(animTime*9+ghost.userData.phase)*.45:0,emote=performance.now()<Number(ghost.userData.emoteUntil||0)?ghost.userData.emoteType:'';
-      if(ghost.userData.limbs){const l=ghost.userData.limbs;l.leftArm.rotation.x=emote==='dance'?-1.35:emote==='play'?-1.9:emote==='hug'?-1.45:walk;l.rightArm.rotation.x=emote==='wave'?-2.2:emote==='highfive'?-2.5:emote==='dance'?-1.35:emote==='play'?-1.9:emote==='hug'?-1.45:-walk;l.leftArm.rotation.z=emote==='dance'?1.0:emote==='play'?.55:emote==='hug'?-.48:0;l.rightArm.rotation.z=emote==='dance'?-1.0:emote==='play'?-.55:emote==='hug'?.48:0;l.leftLeg.rotation.x=-walk*.75;l.rightLeg.rotation.x=walk*.75;}
-      if(ghost.userData.vehicleShell)ghost.userData.vehicleShell.visible=!!t.vehicle&&t.vehicleRole!=='passenger';
-      if(ghost.userData.boatShell)ghost.userData.boatShell.visible=!!t.boating&&t.boatRole!=='passenger';
-      ghost.scale.setScalar(t.scaleMode==='mini'?.58:t.scaleMode==='giant'?1.42:1);
+      const carDriver=!!t.vehicle&&t.vehicleRole!=='passenger',boatDriver=!!t.boating&&t.boatRole!=='passenger',avatar=ghost.userData.avatar;avatar.visible=!carDriver&&!boatDriver&&t.transitMode!=='metro';ghost.userData.carVisual.visible=carDriver;ghost.userData.boatVisual.visible=boatDriver;avatar.scale.setScalar(t.scaleMode==='mini'?.58:t.scaleMode==='giant'?1.42:1);ghost.userData.nameLabel.position.y=carDriver?3.15:boatDriver?3.45:3.05;
+      const moving=Math.hypot(ghost.position.x-beforeX,ghost.position.z-beforeZ)>.01,walk=moving?Math.sin(animTime*9+ghost.userData.phase)*.45:0,emote=performance.now()<Number(ghost.userData.emoteUntil||0)?ghost.userData.emoteType:'';if(ghost.userData.limbs){const l=ghost.userData.limbs;l.leftArm.rotation.x=emote==='dance'?-1.35:emote==='play'?-1.9:emote==='hug'?-1.45:walk;l.rightArm.rotation.x=emote==='wave'?-2.2:emote==='highfive'?-2.5:emote==='dance'?-1.35:emote==='play'?-1.9:emote==='hug'?-1.45:-walk;l.leftArm.rotation.z=emote==='dance'?1.0:emote==='play'?.55:emote==='hug'?-.48:0;l.rightArm.rotation.z=emote==='dance'?-1.0:emote==='play'?-.55:emote==='hug'?.48:0;l.leftLeg.rotation.x=-walk*.75;l.rightLeg.rotation.x=walk*.75;}
     }
   }
 
   function gameLoop(){
     if(!running)return;raf=requestAnimationFrame(gameLoop);const dt=Math.min(.033,clock.getDelta());samplePerformance(dt);
     if(!paused){
-      pollGamepad();updateTransportWorld(dt);updatePlayer(dt);updateFishingVisual(dt);updateVehicleFX(dt);updateFX(dt);updateFireballs(dt);updateRace(dt);updateNeeds(dt);updateCamera(dt);updateNavigation(dt);updateVisualLOD(dt);
-      perf.aiAcc+=dt;if(perf.aiAcc>=1/30){const step=perf.aiAcc;perf.aiAcc=0;updateNPCs(step);updateNpcSociety(step);updateEnemies(step);updateMultiplayer(step);updateLifeActivities(step);}
+      pollGamepad();updateTransitWorld(dt);updatePoliceSystem(dt);updatePlayer(dt);updateFishingVisual(dt);updateVehicleFX(dt);updateFX(dt);updateFireballs(dt);updateRace(dt);updateNeeds(dt);updateCamera(dt);updateNavigation(dt);updateVisualLOD(dt);
+      perf.aiAcc+=dt;if(perf.aiAcc>=1/30){const step=perf.aiAcc;perf.aiAcc=0;updateNPCs(step);updateNpcSociety(step);updateEnemies(step);updateMultiplayer(step);updateLifeActivities(step);updateAdventure(step);}
       perf.cloudAcc+=dt;if(perf.cloudAcc>=1/15){const step=perf.cloudAcc;perf.cloudAcc=0;updateClouds(step);}
     }
     renderer.setScissorTest(false);renderer.setViewport(0,0,renderer.domElement.width,renderer.domElement.height);renderer.autoClear=true;renderer.render(scene,camera);
@@ -2895,12 +3384,16 @@
   }
 
   async function startGame(resetPosition=false){
-    await dbReady;if(!hasValidPlayerName()){openPlayerNameModal(true,()=>startGame(resetPosition));return;}closeModal();showScreen('game');
+    await dbReady;
+    if((!hasValidPlayerName()||!accountLinked())&&!(state.flags.accountPromptedV629||state.flags.accountPromptedV628)){openAccountCenter(true,()=>{state.flags.accountPromptedV629=true;saveState(true);startGame(resetPosition);});return;}
+    if(!hasValidPlayerName()){openPlayerNameModal(true,()=>startGame(resetPosition));return;}
+    closeModal();showScreen('game');
     state.ui.quickOpen=false;state.ui.skillsOpen=false;state.ui.needsOpen=false;state.ui.missionOpen=false;syncMobilePanels();els.game.classList.remove('needs-expanded');els.missionCard.classList.remove('expanded');if(!scene){if(!initThree()){showScreen('lobby');return;}setupControls();}else{applyAvatarCustomization();}
+    if(els.toolsBtn){els.toolsBtn.firstChild.textContent=equippedTool().icon;$('span',els.toolsBtn).textContent=equippedTool().name;}
     if(resetPosition){player.x=0;player.z=8;player.y=0;}else restorePosition();player.scaleMode=state.abilities?.scaleMode||'normal';player.crouched=!!state.abilities?.crouched;updateAbilityUI();running=true;paused=false;clock.start();evaluateMissions();updateHUD();updateContext(true);updateNavigation(0,true);resize(true);cancelAnimationFrame(raf);gameLoop();toast('Bem-vindo à Vila do Sol!','good',2200);
   }
   function stopGame(){
-    if(player.publicRide?.type)exitPublicRide(true);if(player.boating){player.x=-24.7;player.z=52;exitBoat(true);}if(player.vehicle)exitVehicle(true);running=false;paused=false;pauseMenuOpen=false;cancelAnimationFrame(raf);stopEngineSound();savePlayerPosition(true);showScreen('lobby');updateLobbyStats();
+    world.policeAlert=null;updateSafetyPanel('');if(player.boating){player.x=-24.7;player.z=52;exitBoat(true);}if(player.vehicle)exitVehicle(true);if(player.transit.mode==='bus'){const bus=world.buses.find(b=>b.id===player.transit.busId);if(bus)exitBusAtStop(bus,{stopId:bus.lastStopId,stopName:bus.lastStopName});}if(player.transit.mode==='metro'){player.transit.mode='';if(metroOverlay)metroOverlay.hidden=true;if(playerModel)playerModel.visible=true;if(avatarLayer)avatarLayer.visible=true;if(contactShadow)contactShadow.visible=true;}running=false;paused=false;pauseMenuOpen=false;cancelAnimationFrame(raf);stopEngineSound();savePlayerPosition(true);showScreen('lobby');updateLobbyStats();
   }
   els.playBtn.onclick=()=>startGame(true);els.continueBtn.onclick=()=>startGame(false);
 
@@ -2952,11 +3445,11 @@
 
   // Public test/audit API
   window.OTTHOS_TEST_API={
-    version:'V627_TRANSPORT_CASTLE_SKILLS_MULTISEAT',
+    version:'V629_DEFINITIVE_COMMERCIAL_KIDS_WORLD',
     performance:()=>({fps:+perf.fps.toFixed(1),tier:qualityTier(),requested:requestedQuality(),dpr:renderer?.getPixelRatio?.()||0,drawCalls:renderer?.info?.render?.calls||0,triangles:renderer?.info?.render?.triangles||0}),
     getState:()=>JSON.parse(JSON.stringify(state)),
-    getGame:()=>({running,paused,currentHouse:currentHouse?.id||null,cameraMode,player:{...player},objects:{houses:world.houses.length,npcs:world.npcs.length,enemies:world.enemies.length,interactables:world.interactables.length,builds:world.builds.length,vehicles:world.vehicles.length,metroStations:world.metroStations.length,buses:world.buses.length}}),
-    getVisual:()=>{const parts=playerModel?.userData?.parts||{};const modelY=playerModel?.position?.y||0;const minFootY=playerModel?.userData?.minFootY??0;const scaleY=playerGroup?.scale?.y||1;const rootY=playerGroup?.position?.y||0;return {procedural:!!playerModel?.userData?.proceduralOtthos,rootY,modelY,minFootY,scaleY,visualBottom:rootY+(modelY+minFootY)*scaleY,limbs:{leftArm:parts.leftArm?.rotation?.x||0,rightArm:parts.rightArm?.rotation?.x||0,leftLeg:parts.leftLeg?.rotation?.x||0,rightLeg:parts.rightLeg?.rotation?.x||0}};},
+    getGame:()=>({running,paused,currentHouse:currentHouse?.id||null,cameraMode,player:{...player},objects:{houses:world.houses.length,npcs:world.npcs.length,enemies:world.enemies.length,interactables:world.interactables.length,builds:world.builds.length,vehicles:world.vehicles.length,buses:world.buses.length,metroStations:world.metroStations.length,policeCars:world.policeCars.length,resources:world.resources.length,school:!!world.school,policeStation:!!world.policeStation,mine:!!world.mine,well:!!world.well}}),
+    getVisual:()=>{const parts=playerModel?.userData?.parts||{};const modelY=playerModel?.position?.y||0;const minFootY=playerModel?.userData?.minFootY??0;const scaleY=playerGroup?.scale?.y||1;const rootY=playerGroup?.position?.y||0;return {procedural:!!playerModel?.userData?.proceduralOtthos,rendered:playerModel?.visible!==false,ownNameLabelVisible:playerGroup?.userData?.nameLabel?.visible!==false,rootY,modelY,minFootY,scaleY,visualBottom:rootY+(modelY+minFootY)*scaleY,limbs:{leftArm:parts.leftArm?.rotation?.x||0,rightArm:parts.rightArm?.rotation?.x||0,leftLeg:parts.leftLeg?.rotation?.x||0,rightLeg:parts.rightLeg?.rotation?.x||0}};},
     teleport:(x,z)=>{player.x=x;player.z=z;player.y=groundHeightAt(x,z);player.vx=player.vy=player.vz=0;player.grounded=true;updateContext(true);},
     getContext:()=>currentContext?{id:currentContext.id,label:currentContext.label,type:currentContext.type,activity:currentContext.activity||null}:null,
     getLastAction:()=>lastActionSource,
@@ -2979,14 +3472,13 @@
     race:()=>activeRace?{type:activeRace.type,npc:activeRace.npcName,playerScore:activeRace.playerScore,opponentScore:activeRace.opponentScore,timeLeft:activeRace.timeLeft}:null,
     startRace:(type='sprint')=>startRace(type,world.npcs[0]),
     map:()=>({player:{x:player.x,z:player.z},waypoint:state.waypoint,route:state.waypoint?buildRoutePoints(player,state.waypoint):[],locations:MAP_LOCATIONS.map(x=>({...x}))}),
-    transport:()=>({ride:{...player.publicRide},vehicles:world.vehicles.map(v=>({id:v.id,x:v.group.position.x,z:v.group.position.z,occupied:!!v.occupied})),metroStations:world.metroStations.map(v=>({id:v.id,name:v.name,x:v.x,z:v.z})),buses:world.buses.map(v=>({id:v.id,x:v.group.position.x,z:v.group.position.z,heading:v.heading})),npcTransports:world.npcs.filter(n=>n.transportKind).map(n=>({id:n.id,name:n.name,kind:n.transportKind}))}),
-    skills:()=>({mastery:{...state.skillMastery},flags:{usedDash:!!state.flags.usedDash,usedSuperJump:!!state.flags.usedSuperJump,usedShield:!!state.flags.usedShield,castleTrial:!!state.flags.castleTrial}}),
     setWaypoint:id=>{setWaypoint(id);return state.waypoint;},
     clearWaypoint:()=>{state.waypoint=null;updateWaypointMarker();updateNavigation(0,true);return true;},
-    camera:()=>({yaw:cameraYaw,pitch:cameraPitch,zoom:cameraZoom,mode:cameraMode}),
+    camera:()=>({yaw:cameraYaw,pitch:cameraPitch,zoom:cameraZoom,mode:cameraMode,position:camera?{x:camera.position.x,y:camera.position.y,z:camera.position.z}:null,fov:camera?.fov||0}),
     setCameraZoom:value=>{cameraZoom=clamp(Number(value)||0,-4.5,9);state.settings.cameraZoom=cameraZoom;return cameraZoom;},
     sprint:active=>{input.touchSprint=!!active;updateRunUI();return sprintRequested();},
     joystickVector:(dx,dy)=>{input.joyX=clamp(dx,-1,1);input.joyZ=clamp(dy,-1,1);return resolveMovementInput();},
+    stepPlayer:(frames=1,dt=1/60)=>{const n=clamp(Math.round(Number(frames)||1),1,600),step=clamp(Number(dt)||1/60,.001,.1);for(let i=0;i<n;i++)updatePlayer(step);return{x:player.x,y:player.y,z:player.z,facing:player.facing};},
     enterHouseById:(id)=>{const h=world.houses.find(x=>x.id===id);if(!h)return false;enterHouse(h);return true;},
     exitHouse,
     returnHome,
@@ -3018,7 +3510,30 @@
     education:()=>({subjects:Object.keys(EDUCATION_SUBJECTS),summary:educationSummary(),learning:JSON.parse(JSON.stringify(state.learning)),stations:MAP_LOCATIONS.filter(x=>x.group==='Academia')}),
     educationRounds:(subject='math',level=1,seed=123)=>generateEducationRounds(subject,Number(level)||1,Number(seed)||123,5),
     lifeExpansion:()=>({boating:player.boating,boat:{...player.boat,dockDistance:+distanceToBoatDock().toFixed(2),canExit:validBoatExit()},fishing:JSON.parse(JSON.stringify(state.fishing)),fishingVisual:fishingVisual?{active:fishingVisual.active,phase:fishingVisual.phase,source:fishingVisual.source}:null,campfires:JSON.parse(JSON.stringify(state.campfires)),hunting:JSON.parse(JSON.stringify(state.hunting)),houseExtensions:JSON.parse(JSON.stringify(state.houseExtensions)),animals:world.animals.map(a=>({id:a.id,type:a.type,available:a.available}))}),
+    transport:()=>({state:JSON.parse(JSON.stringify(state.transport)),mode:player.transit.mode,stations:METRO_STATIONS.map(s=>({...s,group:undefined})),stops:world.busStops.map(s=>({id:s.id,name:s.name,routes:[...s.routes],x:s.x,z:s.z})),buses:world.buses.map(b=>({id:b.id,route:b.route.id,line:b.route.number,x:b.group.position.x,z:b.group.position.z,visible:b.group.visible!==false,stopped:busAtStop(b),lastStopId:b.lastStopId,interiorSeats:b.interiorSeats||0}))}),
+    rideMetro:(destinationId='village',stationId='central')=>{const destination=MAP_LOCATIONS.find(x=>x.id===destinationId),station=METRO_STATIONS.find(x=>x.id===stationId)||METRO_STATIONS[0];if(!destination)return false;rideMetroTo(station,destination);return true;},
+    boardBus:id=>{const bus=world.buses.find(b=>b.id===id)||world.buses[0];if(!bus)return false;player.x=bus.group.position.x;player.z=bus.group.position.z;bus.stopUntil=performance.now()+2000;bus.lastStopId=bus.lastStopId||'test-stop';bus.lastStopName=bus.lastStopName||'Parada de teste';return enterBus(bus);},
+    exitBus:()=>{const bus=world.buses.find(b=>b.id===player.transit.busId);return bus?exitBusAtStop(bus,{stopId:'test-stop',stopName:'Parada de teste'}):false;},
+    stepTransit:(frames=60,dt=1/60)=>{const n=clamp(Math.round(Number(frames)||60),1,1200),step=clamp(Number(dt)||1/60,.001,.1);for(let i=0;i<n;i++)updateTransitWorld(step);return world.buses.map(b=>({id:b.id,x:b.group.position.x,z:b.group.position.z,stopped:busAtStop(b)}));},
+    fleet:()=>world.vehicles.map(v=>({id:v.id,label:v.label,x:v.group.position.x,z:v.group.position.z,visible:v.group.visible,occupied:v.occupied})),
+    npcMobility:()=>world.npcs.map(n=>({id:n.id,name:n.name,type:n.mobility?.type||'walk',passengerMode:n.passengerMode||'',pendingRide:!!n.pendingRide,x:n.group.position.x,z:n.group.position.z})),
+    setNpcRideCompanion:(id='nino')=>{const npc=world.npcs.find(n=>n.id===id);if(!npc)return false;npc.pendingRide=true;npc.following=true;npc.group.position.set(player.x+1,0,player.z);return true;},
+    tools:()=>({equipped:state.tools.equipped,owned:[...state.tools.owned],harvested:{...state.tools.harvested},resources:world.resources.map(resource=>({id:resource.id,type:resource.type,hits:resource.hits,hitsNeeded:resource.hitsNeeded,collected:resource.collected}))}),
+    equipTool,
+    collectResource,
+    drawWaterFromWell,
+    police:()=>({alert:world.policeAlert?{...world.policeAlert}:null,cars:world.policeCars.map(car=>({id:car.id,x:car.group.position.x,z:car.group.position.z,npcTarget:car.npcTarget||''})),safety:{...state.safety},panelHidden:els.safetyPanel?.hidden!==false}),
+    startPoliceAlert:()=>startPoliceAlert(world.policeCars[0]),
+    finishSafetyStop,
+    openSafetyLesson,
+    openSettings,
+    openAccountCenter,
+    triggerEmote,
+    adventures:()=>({completed:[...state.adventures.completed],active:world.activeChallenge?{type:world.activeChallenge.type,progress:world.activeChallenge.progress.size,target:world.activeChallenge.target}:null,definitions:JSON.parse(JSON.stringify(ADVENTURE_DEFS))}),
+    startAdventure,
+    stepAdventure:()=>{updateAdventure();return world.activeChallenge?{type:world.activeChallenge.type,progress:world.activeChallenge.progress.size}:null;},
     startFishing:(source='shore')=>startFishing(source),
+    enterBoat:()=>enterBoat(),
     boatDock:()=>({distance:distanceToBoatDock(),canExit:validBoatExit(),dock:{...BOAT_DOCK}}),
     forceBoatState:(x=-38,z=52,heading=0)=>{player.boating=true;player.boat.passengerOf='';player.boat.heading=Number(heading)||0;player.boat.speed=0;player.boat.steerVisual=0;player.x=Number(x);player.z=Number(z);player.y=.78;state.boats.activeBoatId='lake-boat';if(world.boat){world.boat.group.position.set(player.x,.1,player.z);world.boat.heading=player.boat.heading;world.boat.group.rotation.y=player.boat.heading;}updateBoatPanel();return{canExit:validBoatExit(),distance:distanceToBoatDock()};},
     exitBoat:()=>exitBoat(),
@@ -3026,7 +3541,10 @@
     buildCampfire,
     startHunting:()=>startHunting(),
     openHouseExtensionMenu,
-    multiplayer:()=>({local:window.OTTHOS_MULTIPLAYER||null,cloud:window.OTTHOS_RTDB?.status?.()||multiplayerState,challenges:pendingChallenges(),socialRequests:socialRequestPending(),sessions:[...gameSessions.values()]})
+    multiplayer:()=>({local:window.OTTHOS_MULTIPLAYER||null,cloud:window.OTTHOS_RTDB?.status?.()||multiplayerState,challenges:pendingChallenges(),socialRequests:socialRequestPending(),sessions:[...gameSessions.values()],ghosts:[...world.ghosts.entries()].map(([id,g])=>({id,vehicle:!!g.userData.carVisual?.visible,boat:!!g.userData.boatVisual?.visible,target:{...(g.userData.target||{})}}))}),
+    simulateRemotePresence:(data={})=>{const remote={uid:data.uid||'remote-test',name:data.name||'Jogador Teste',x:Number(data.x??player.x+2),y:Number(data.y??player.y),z:Number(data.z??player.z),r:Number(data.r??player.facing),vehicle:!!data.vehicle,vehicleId:data.vehicleId||'remote-car',vehicleRole:data.vehicleRole||'',boating:!!data.boating,boatId:data.boatId||'',boatRole:data.boatRole||'',scaleMode:data.scaleMode||'normal',color:data.color||0x5ad8ff};remotePlayerEvent(remote);updateMultiplayer(.1);return remote.uid;},
+    enterVehiclePassenger:(uid='remote-test')=>enterVehicleAsPassenger(uid),
+    enterBoatPassenger:(uid='remote-test')=>enterBoatAsPassenger(uid)
   };
 
   updateLobbyStats();evaluateMissions();updateInstallUI();
