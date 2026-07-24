@@ -1,14 +1,14 @@
-const CACHE = 'otthos-life-world-main-v626';
+const CACHE = 'otthos-life-world-main-v627';
 const CACHE_PREFIX = 'otthos-life-world-main-';
 const CORE = [
   './',
-  './index.html?v=626',
-  './style.css?v=626',
-  './assets/js/save-db.js?v=626',
-  './firebase-config.js?v=626',
-  './assets/js/multiplayer-rtdb.js?v=626',
-  './app.js?v=626',
-  './manifest.webmanifest?v=626',
+  './index.html?v=627',
+  './style.css?v=627',
+  './assets/js/save-db.js?v=627',
+  './firebase-config.js?v=627',
+  './assets/js/multiplayer-rtdb.js?v=627',
+  './app.js?v=627',
+  './manifest.webmanifest?v=627',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/favicon.png'
@@ -46,7 +46,7 @@ self.addEventListener('fetch', event => {
         }
         return response;
       }).catch(async () => {
-        return (await caches.match(event.request)) || (await caches.match('./index.html?v=626')) || (await caches.match('./'));
+        return (await caches.match(event.request)) || (await caches.match('./index.html?v=627')) || (await caches.match('./'));
       })
     );
     return;

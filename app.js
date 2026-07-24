@@ -71,8 +71,9 @@
     houseExtensions: [],
     multiplayerRequests: { lastSentAt: 0, completed: [] },
     npcSociety: { lastEvent:0, houses:{}, friendships:{}, moods:{} },
-    metro: { ridesTotal: 0, lastStation: '' },
-    bus: { ridesTotal: 0, lastStop: '' },
+    transport: { metroTrips:0, busTrips:0, discoveredStations:[], lastStation:'', lastRideAt:0 },
+    skillMastery: { dash:0, superJump:0, shield:0, total:0, shieldUntil:0 },
+    vehicles: { activeVehicleId:'', passengerOf:'', passengerUid:'', botPassengerId:'' },
     lastSaved: Date.now()
   });
 
@@ -107,8 +108,9 @@
       houseExtensions: Array.isArray(saved.houseExtensions) ? saved.houseExtensions : [],
       multiplayerRequests: { ...fresh.multiplayerRequests, ...(saved.multiplayerRequests || {}), completed:Array.isArray(saved.multiplayerRequests?.completed)?saved.multiplayerRequests.completed:[] },
       npcSociety: { ...fresh.npcSociety, ...(saved.npcSociety || {}), houses:{...fresh.npcSociety.houses,...(saved.npcSociety?.houses||{})}, friendships:{...fresh.npcSociety.friendships,...(saved.npcSociety?.friendships||{})}, moods:{...fresh.npcSociety.moods,...(saved.npcSociety?.moods||{})} },
-      metro: { ...fresh.metro, ...(saved.metro || {}) },
-      bus: { ...fresh.bus, ...(saved.bus || {}) },
+      transport: { ...fresh.transport, ...(saved.transport || {}), discoveredStations:Array.isArray(saved.transport?.discoveredStations)?saved.transport.discoveredStations:[] },
+      skillMastery: { ...fresh.skillMastery, ...(saved.skillMastery || {}) },
+      vehicles: { ...fresh.vehicles, ...(saved.vehicles || {}) },
       avatar: { ...fresh.avatar, ...(saved.avatar || {}) },
       career: { ...fresh.career, ...(saved.career || {}) },
       social: { ...fresh.social, ...(saved.social || {}) },
@@ -193,6 +195,7 @@
       profile:{name:state.profile.name||'Jogador',coins:state.profile.coins||0,xp:state.profile.xp||0,level:state.profile.level||1,reputation:state.profile.reputation||0},
       inventory:{...state.inventory},medals:[...(state.medals||[])],flags:{...state.flags},houses:{...state.houses},races:{...state.races},
       avatar:{...state.avatar},abilities:{...state.abilities},builds:[...(state.builds||[])],homeStorage:{...state.homeStorage},fishing:{...state.fishing,catches:[...(state.fishing?.catches||[])],species:{...(state.fishing?.species||{})}},campfires:[...(state.campfires||[])],boats:{...state.boats,lastPosition:{...(state.boats?.lastPosition||{})}},hunting:{...state.hunting},houseExtensions:[...(state.houseExtensions||[])],
+      transport:{...state.transport,discoveredStations:[...(state.transport?.discoveredStations||[])]},skillMastery:{...state.skillMastery},vehicles:{...state.vehicles},
       achievements:{stats:{...state.stats},daily:{...state.daily,quests:[...(state.daily?.quests||[])]},learning:{...state.learning,subjectXP:{...state.learning.subjectXP},lessons:{...state.learning.lessons}}},position:{...state.position}
     };
   }
@@ -210,6 +213,7 @@
       flags:{...state.flags,...(remote.flags||{})},houses:{...state.houses,...(remote.houses||{})},races:{...state.races,...(remote.races||{})},
       avatar:{...state.avatar,...(remote.avatar||{})},abilities:{...state.abilities,...(remote.abilities||{})},
       builds:Array.isArray(remote.builds)?remote.builds:state.builds,homeStorage:{...state.homeStorage,...(remote.homeStorage||{})},fishing:{...state.fishing,...(remote.fishing||{}),catches:Array.isArray(remote.fishing?.catches)?remote.fishing.catches:state.fishing.catches,species:{...state.fishing.species,...(remote.fishing?.species||{})}},campfires:Array.isArray(remote.campfires)?remote.campfires:state.campfires,boats:{...state.boats,...(remote.boats||{}),lastPosition:{...state.boats.lastPosition,...(remote.boats?.lastPosition||{})}},hunting:{...state.hunting,...(remote.hunting||{})},houseExtensions:Array.isArray(remote.houseExtensions)?remote.houseExtensions:state.houseExtensions,
+      transport:{...state.transport,...(remote.transport||{}),discoveredStations:Array.isArray(remote.transport?.discoveredStations)?remote.transport.discoveredStations:state.transport.discoveredStations},skillMastery:{...state.skillMastery,...(remote.skillMastery||{})},vehicles:{...state.vehicles,...(remote.vehicles||{})},
       stats:{...state.stats,...(remote.achievements?.stats||{})},daily:{...state.daily,...(remote.achievements?.daily||{})},learning:{...state.learning,...(remote.achievements?.learning||{}),subjectXP:{...state.learning.subjectXP,...(remote.achievements?.learning?.subjectXP||{})},lessons:{...state.learning.lessons,...(remote.achievements?.learning?.lessons||{})}},
       position:{...state.position,...(remote.position||{})},lastSaved:remoteSaved,version: APP_VERSION
     };
@@ -361,7 +365,7 @@
       : '<p>No Chrome, abra o menu ⋮ e escolha <b>Instalar aplicativo</b> ou <b>Adicionar à tela inicial</b>.</p>');
   }
   if (els.installBtn) els.installBtn.onclick = installApp;
-  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=626').catch(console.warn));
+  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=627').catch(console.warn));
   updateInstallUI();
 
 
@@ -590,6 +594,24 @@
         ['wonCoinRace', 'Vença a corrida pega-moedas.'],
         ['wonHouseChallenge', 'Conquiste uma casa em uma disputa.']
       ]
+    },
+    {
+      id: 'transport', title: 'Mobilidade da Cidade', chapter: 'CAPÍTULO 8 — METRÔ E TRANSPORTE', reward: { coins: 720, medal: 'Explorador Metropolitano' },
+      steps: [
+        ['usedMetro', 'Viaje de metrô para outro ponto do mapa.'],
+        ['rodeBus', 'Entre em um ônibus e faça um passeio.'],
+        ['droveFleetVehicle', 'Dirija um dos veículos espalhados pela cidade.'],
+        ['npcPassenger', 'Leve um aldeão como passageiro.']
+      ]
+    },
+    {
+      id: 'mastery', title: 'Mestre das Habilidades', chapter: 'CAPÍTULO 9 — CASTELO DAS SKILLS', reward: { coins: 900, medal: 'Guardião das Skills' },
+      steps: [
+        ['usedDash', 'Use a habilidade Impulso.'],
+        ['usedSuperJump', 'Use o Super Pulo.'],
+        ['usedShield', 'Ative o Escudo de Energia.'],
+        ['castleTrial', 'Conclua a prova do Castelo.']
+      ]
     }
   ];
 
@@ -646,7 +668,7 @@
   function playerDisplayName(){return hasValidPlayerName()?sanitizePlayerName(state.profile.name):'Jogador';}
   function playerText(value=''){return String(value).replaceAll('Casa do Otthos',`Casa de ${playerDisplayName()}`).replaceAll('do Otthos',`de ${playerDisplayName()}`).replaceAll('o Otthos',playerDisplayName()).replaceAll('Otthos',playerDisplayName());}
   function updatePlayerNameUI(){const name=hasValidPlayerName()?state.profile.name:'Escolher nome';if(els.lobbyPlayerName)els.lobbyPlayerName.textContent=name;if(els.hudPlayerName)els.hudPlayerName.textContent=hasValidPlayerName()?state.profile.name:'Jogador';const menu=$('#avatarMenuName'),quick=$('#avatarQuickName');if(menu)menu.textContent=`Meu ${playerDisplayName()}`;if(quick)quick.textContent=playerDisplayName();const homeLoc=MAP_LOCATIONS?.find?.(x=>x.id==='home');if(homeLoc)homeLoc.name=`Casa de ${playerDisplayName()}`;const homeHouse=world?.houses?.find?.(x=>x.id==='home');if(homeHouse)homeHouse.name=`Casa de ${playerDisplayName()}`;updateLocalPlayerNameLabel?.();}
-  function applyPlayerName(name){const clean=sanitizePlayerName(name);if(clean.length<3){toast('Digite um nome com pelo menos 3 caracteres.','warn',2200);return false;}state.profile.name=clean;state.profile.nameConfirmed=true;state.multiplayer.displayName=clean;updatePlayerNameUI();saveState(true);window.OTTHOS_RTDB?.setDisplayName?.(clean);if(running)window.OTTHOS_RTDB?.publish?.({name:clean,x:player.x,y:player.y,z:player.z,r:player.facing,vehicle:!!player.vehicle,boating:!!player.boating,boatId:state.boats.activeBoatId||'',boatRole:player.boating?(player.boat.passengerOf?'passenger':'driver'):'',passengerOf:player.boat.passengerOf||'',boatPassengerUid:player.boat.passengerUid||'',scaleMode:player.scaleMode,crouched:!!player.crouched,color:0x5ad8ff},true);return true;}
+  function applyPlayerName(name){const clean=sanitizePlayerName(name);if(clean.length<3){toast('Digite um nome com pelo menos 3 caracteres.','warn',2200);return false;}state.profile.name=clean;state.profile.nameConfirmed=true;state.multiplayer.displayName=clean;updatePlayerNameUI();saveState(true);window.OTTHOS_RTDB?.setDisplayName?.(clean);if(running)window.OTTHOS_RTDB?.publish?.({name:clean,x:player.x,y:player.y,z:player.z,r:player.facing,vehicle:!!player.vehicle,vehicleRole:player.vehicle?(player.car.passengerOf?'passenger':'driver'):'',passengerOfVehicle:player.car.passengerOf||'',vehiclePassengerUid:player.car.passengerUid||'',boating:!!player.boating,boatId:state.boats.activeBoatId||'',boatRole:player.boating?(player.boat.passengerOf?'passenger':'driver'):'',passengerOf:player.boat.passengerOf||'',boatPassengerUid:player.boat.passengerUid||'',scaleMode:player.scaleMode,crouched:!!player.crouched,color:0x5ad8ff},true);return true;}
   function openPlayerNameModal(required=false,onSaved=null){
     const current=hasValidPlayerName()?state.profile.name:'';
     openModal(required?'Escolha seu nome de jogador':'Nome do jogador',`<div class="player-name-modal"><div class="player-name-icon">👤</div><p>${required?'Antes de entrar, escolha o nome que aparecerá para os outros jogadores.':'Este nome aparece sobre seu personagem no multiplayer.'}</p><label class="field"><span>Nome público</span><input id="playerNameInput" maxlength="18" autocomplete="nickname" inputmode="text" value="${current.replace(/"/g,'&quot;')}" placeholder="Ex.: Thiago"></label><small>De 3 a 18 caracteres. Não use telefone, endereço ou informação pessoal sensível.</small><button class="btn primary xl" data-save-player-name>Salvar nome</button></div>`,root=>{const input=$('#playerNameInput',root),save=$('[data-save-player-name]',root);setTimeout(()=>input?.focus(),80);const submit=()=>{if(!applyPlayerName(input?.value))return;closeModal();toast(`Nome definido: ${state.profile.name}`,'good',1600);if(typeof onSaved==='function')onSaved();};save.onclick=submit;input?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submit();}});});
@@ -744,18 +766,15 @@
     { id:'edu-math', name:'Matemática Kids', icon:'🔢', x:22, z:-32, navX:18, navZ:-32, group:'Academia' },
     { id:'edu-portuguese', name:'Português Kids', icon:'📚', x:22, z:-40, navX:18, navZ:-40, group:'Academia' },
     { id:'edu-english', name:'English Kids', icon:'🌎', x:22, z:-48, navX:18, navZ:-48, group:'Academia' },
-    { id:'metro-vila',    name:'Estação Metrô — Vila', icon:'🚇', x:0,   z:-5,  navX:0,  navZ:-1,  group:'Metrô' },
-    { id:'metro-lago',    name:'Estação Metrô — Lago', icon:'🚇', x:-55, z:52,  navX:-55,navZ:56,  group:'Metrô' },
-    { id:'metro-castelo', name:'Estação Metrô — Castelo', icon:'🚇', x:88,  z:48,  navX:88, navZ:52,  group:'Metrô' },
-    { id:'metro-floresta',name:'Estação Metrô — Floresta', icon:'🚇', x:-88, z:-55, navX:-88,navZ:-51, group:'Metrô' },
-    { id:'metro-ginasio', name:'Estação Metrô — Ginásio', icon:'🚇', x:45,  z:65,  navX:45, navZ:69,  group:'Metrô' },
-    { id:'metro-centro',  name:'Estação Metrô — Centro', icon:'🚇', x:0,   z:-55, navX:0,  navZ:-51, group:'Metrô' },
-    { id:'stop-vila',    name:'Parada Ônibus — Vila', icon:'🚌', x:8,   z:0,   navX:8,  navZ:4,   group:'Ônibus' },
-    { id:'stop-mercado', name:'Parada Ônibus — Mercado', icon:'🚌', x:-22, z:-28, navX:-22,navZ:-24, group:'Ônibus' },
-    { id:'stop-lago',    name:'Parada Ônibus — Lago', icon:'🚌', x:-28, z:48,  navX:-28,navZ:52,  group:'Ônibus' },
-    { id:'stop-ginasio', name:'Parada Ônibus — Ginásio', icon:'🚌', x:45,  z:70,  navX:45, navZ:74,  group:'Ônibus' },
-    { id:'stop-castelo', name:'Parada Ônibus — Castelo', icon:'🚌', x:75,  z:55,  navX:75, navZ:59,  group:'Ônibus' },
-    { id:'stop-floresta',name:'Parada Ônibus — Floresta', icon:'🚌', x:-72, z:-42, navX:-72,navZ:-38, group:'Ônibus' }
+    { id:'metro-village', name:'Metrô Praça Central', icon:'🚇', x:8, z:-3, navX:8, navZ:-3, group:'Metrô' },
+    { id:'metro-lake', name:'Metrô Lago e Píer', icon:'🚇', x:-22, z:39, navX:-22, navZ:39, group:'Metrô' },
+    { id:'metro-forest', name:'Metrô Floresta', icon:'🚇', x:-55, z:-34, navX:-55, navZ:-34, group:'Metrô' },
+    { id:'metro-castle', name:'Metrô Castelo', icon:'🚇', x:72, z:47, navX:72, navZ:47, group:'Metrô' },
+    { id:'metro-gym', name:'Metrô Ginásio', icon:'🚇', x:55, z:90, navX:55, navZ:90, group:'Metrô' },
+    { id:'bus-central', name:'Ponto Praça Central', icon:'🚌', x:-8, z:5, navX:-8, navZ:5, group:'Transporte' },
+    { id:'bus-garage', name:'Ponto Garagem', icon:'🚌', x:55, z:5, navX:55, navZ:5, group:'Transporte' },
+    { id:'bus-gym', name:'Ponto Ginásio', icon:'🚌', x:55, z:82, navX:55, navZ:82, group:'Transporte' },
+    { id:'bus-forest', name:'Ponto Floresta', icon:'🚌', x:-55, z:-48, navX:-55, navZ:-48, group:'Transporte' }
   ];
   function worldToMap(x,z){ return { left:clamp((x+116)/232*100,2.5,97.5), top:clamp((116-z)/232*100,2.5,97.5) }; }
   function mapDistance(point){ return Math.round(Math.hypot(player.x-(point.navX??point.x),player.z-(point.navZ??point.z))); }
@@ -899,12 +918,9 @@
   els.dailyBtn.onclick = () => openEducationHub('math');
   els.onlineBtn.onclick = openSocialHub;
   els.gameSettingsBtn.onclick = () => openSettings(true);
-  function syncMobilePanels(){document.body.classList.toggle('skills-open',!!state.ui.skillsOpen);document.body.classList.toggle('quick-open',!!state.ui.quickOpen);els.skillsToggleBtn?.classList.toggle('active',!!state.ui.skillsOpen);els.quickToggleBtn?.classList.toggle('active',!!state.ui.quickOpen);els.quickBar.hidden=!state.ui.quickOpen;}
+  function syncMobilePanels(){document.body.classList.toggle('skills-open',!!state.ui.skillsOpen);document.body.classList.toggle('quick-open',!!state.ui.quickOpen);els.skillsToggleBtn?.classList.toggle('active',!!state.ui.skillsOpen);els.quickToggleBtn?.classList.toggle('active',!!state.ui.quickOpen);els.quickBar.hidden=!state.ui.quickOpen;syncAdvancedSkillsPanel();}
   els.quickToggleBtn.onclick = () => { state.ui.quickOpen = !state.ui.quickOpen;if(state.ui.quickOpen)state.ui.skillsOpen=false;syncMobilePanels();saveState(); };
-  els.skillsToggleBtn.onclick=()=>{
-    if(running&&!paused&&els.modal.hidden){openSkillsPanel();return;}
-    state.ui.skillsOpen=!state.ui.skillsOpen;if(state.ui.skillsOpen)state.ui.quickOpen=false;syncMobilePanels();saveState();
-  };
+  els.skillsToggleBtn.onclick=()=>{state.ui.skillsOpen=!state.ui.skillsOpen;if(state.ui.skillsOpen)state.ui.quickOpen=false;syncMobilePanels();saveState();};
   els.needsToggleBtn.onclick = () => { state.ui.needsOpen = !state.ui.needsOpen; els.game.classList.toggle('needs-expanded', state.ui.needsOpen); saveState(); };
   const toggleMission = () => { state.ui.missionOpen = !state.ui.missionOpen; els.missionCard.classList.toggle('expanded', state.ui.missionOpen); saveState(); };
   els.missionCard.onclick = toggleMission;
@@ -955,7 +971,7 @@
   let scene, camera, renderer, clock, worldGroup, playerGroup, playerModel, playerMixer, avatarLayer, contactShadow, vehicleVisual, sunLight;
   let running = false, paused = false, pauseMenuOpen = false, raf = 0, cameraYaw = 0, cameraPitch = .38, cameraZoom = Number(state.settings?.cameraZoom || 0), cameraMode = 'openworld';
   let currentHouse = null, buildMode = null, currentContext = null, lastContextId = '', lastActionSource = 'none', actionLockedUntil = 0, activeRace = null, lastContextScanAt = 0, lastContextScanX = Infinity, lastContextScanZ = Infinity;
-  const player = { x: 0, y: 0, z: 8, vx: 0, vy: 0, vz: 0, facing: Math.PI, grounded: true, vehicle: false, sitUntil: 0, lastGrounded: 0, jumpBuffer: 0, attackUntil: 0, damageUntil: 0, scaleMode: state.abilities?.scaleMode || 'normal', crouched: !!state.abilities?.crouched, spinUntil: 0, preVehicleAbilities: null, hornUntil: 0, emoteUntil:0, emoteType:'', emoteSeq:0, boating:false, boat:{heading:0,speed:0,steerVisual:0,passengerOf:'',passengerUid:'',hostMissingAt:0}, car: { heading: Math.PI, speed: 0, steerVisual: 0, drift: 0, _prevSpeed: 0 } };
+  const player = { x: 0, y: 0, z: 8, vx: 0, vy: 0, vz: 0, facing: Math.PI, grounded: true, vehicle: false, sitUntil: 0, lastGrounded: 0, jumpBuffer: 0, attackUntil: 0, damageUntil: 0, scaleMode: state.abilities?.scaleMode || 'normal', crouched: !!state.abilities?.crouched, spinUntil: 0, preVehicleAbilities: null, hornUntil: 0, emoteUntil:0, emoteType:'', emoteSeq:0, publicRide:{type:'',id:''}, boating:false, boat:{heading:0,speed:0,steerVisual:0,passengerOf:'',passengerUid:'',botPassengerId:'',hostMissingAt:0}, car: { heading: Math.PI, speed: 0, steerVisual: 0, drift: 0, _prevSpeed: 0, activeVehicleId:'', passengerOf:'', passengerUid:'', botPassengerId:'', hostMissingAt:0 } };
   const input = {
     x:0,z:0,targetX:0,targetZ:0,
     joyId:null,joyX:0,joyZ:0,
@@ -965,9 +981,8 @@
     keys:new Set(),cameraDrag:null,cameraPointers:new Map(),pinchDistance:0
   };
   const world = {
-    houses: [], npcs: [], interactables: [], enemies: [], fireballs: [], resources: [], crystals: [], platforms: [], colliders: [], hazards: [], builds: [], ghosts: new Map(),
-    bridgeParts: [], secretChest: null, vehicle: null, deliveryPoint: null, raceCoins: [], waypointMarker: null, gym: null, routeGuide: null, routeArrows: [], routeLastBuild: 0, routeLastX: Infinity, routeLastZ: Infinity, routePath: [], navCache: new Map(), landmarks: [], outlines: [], glows: [], criticalSurfaces: [], boat:null, campfires:[], animals:[], houseExtensions:[], remoteCampfires:new Map(), remoteExtensions:new Map(), activityAcc:0,
-    metroStations: [], buses: [], extraVehicles: [], npcVehicles: []
+    houses: [], npcs: [], interactables: [], enemies: [], fireballs: [], resources: [], crystals: [], platforms: [], colliders: [], hazards: [], builds: [], ghosts: new Map(), vehicles:[], metroStations:[], buses:[], transportStops:[],
+    bridgeParts: [], secretChest: null, vehicle: null, deliveryPoint: null, raceCoins: [], waypointMarker: null, gym: null, routeGuide: null, routeArrows: [], routeLastBuild: 0, routeLastX: Infinity, routeLastZ: Infinity, routePath: [], navCache: new Map(), landmarks: [], outlines: [], glows: [], criticalSurfaces: [], boat:null, campfires:[], animals:[], houseExtensions:[], remoteCampfires:new Map(), remoteExtensions:new Map(), activityAcc:0
   };
   const textures = {};
   const materials = {};
@@ -1076,6 +1091,23 @@
     els.giantBtn?.classList.toggle('active',player.scaleMode==='giant');
   }
 
+  let advancedSkillsPanel=null;
+  function ensureAdvancedSkillsPanel(){
+    if(advancedSkillsPanel)return advancedSkillsPanel;
+    advancedSkillsPanel=document.createElement('div');advancedSkillsPanel.id='advancedSkillsPanel';advancedSkillsPanel.className='advanced-skills-panel';advancedSkillsPanel.hidden=true;
+    advancedSkillsPanel.innerHTML='<button type="button" data-skill="dash"><b>⚡</b><span>Impulso</span></button><button type="button" data-skill="jump"><b>🚀</b><span>Super Pulo</span></button><button type="button" data-skill="shield"><b>🛡️</b><span>Escudo</span></button>';
+    document.body.appendChild(advancedSkillsPanel);
+    advancedSkillsPanel.querySelector('[data-skill="dash"]').onclick=useDashSkill;
+    advancedSkillsPanel.querySelector('[data-skill="jump"]').onclick=useSuperJumpSkill;
+    advancedSkillsPanel.querySelector('[data-skill="shield"]').onclick=useShieldSkill;
+    return advancedSkillsPanel;
+  }
+  function syncAdvancedSkillsPanel(){const panel=ensureAdvancedSkillsPanel();panel.hidden=!state.ui.skillsOpen||!running||paused||player.vehicle||player.boating||!!player.publicRide?.type;panel.classList.toggle('shield-active',Date.now()<Number(state.skillMastery.shieldUntil||0));}
+  function gainSkillMastery(key,amount=1){state.skillMastery[key]=(state.skillMastery[key]||0)+amount;state.skillMastery.total=(state.skillMastery.total||0)+amount;addXP(4*amount);saveState();}
+  function useDashSkill(){if(paused||!els.modal.hidden||player.vehicle||player.boating||player.publicRide?.type)return;const now=performance.now(),last=Number(useDashSkill.last||0);if(now-last<4500){toast(`Impulso recarrega em ${Math.ceil((4500-(now-last))/1000)} s.`,'warn');return;}useDashSkill.last=now;let ox=player.x,oz=player.z;for(let i=1;i<=12;i++){const nx=ox+Math.sin(player.facing)*.62*i,nz=oz+Math.cos(player.facing)*.62*i;if(waterAt(nx,nz)||world.colliders.some(c=>Math.abs(nx-c.x)<c.w/2+.45&&Math.abs(nz-c.z)<c.d/2+.45))break;player.x=nx;player.z=nz;}player.vx=player.vz=0;setFlag('usedDash');gainSkillMastery('dash');beep(760,90,'sawtooth');vibrate([20,25,20]);toast('Impulso executado!','good',1200);}
+  function useSuperJumpSkill(){if(paused||!els.modal.hidden||player.vehicle||player.boating||player.publicRide?.type)return;const now=performance.now(),last=Number(useSuperJumpSkill.last||0);if(now-last<6000){toast(`Super Pulo recarrega em ${Math.ceil((6000-(now-last))/1000)} s.`,'warn');return;}if(!player.grounded){toast('Encoste no chão para usar o Super Pulo.','warn');return;}useSuperJumpSkill.last=now;player.vy=15.2;player.grounded=false;setFlag('usedSuperJump');gainSkillMastery('superJump');beep(920,110,'sine');vibrate(24);}
+  function useShieldSkill(){if(paused||!els.modal.hidden||player.vehicle||player.boating||player.publicRide?.type)return;const now=performance.now(),last=Number(useShieldSkill.last||0);if(now-last<12000){toast(`Escudo recarrega em ${Math.ceil((12000-(now-last))/1000)} s.`,'warn');return;}useShieldSkill.last=now;state.skillMastery.shieldUntil=Date.now()+8000;player.damageUntil=Math.max(player.damageUntil,now+8000);setFlag('usedShield');gainSkillMastery('shield');syncAdvancedSkillsPanel();addGlow(player.x,1.5,player.z,0x66e7ff,5);toast('Escudo ativo por 8 segundos.','good',1600);beep(620,130,'sine');}
+
   function canvasTexture(kind, colors) {
     const c = document.createElement('canvas'); c.width = c.height = 128;
     const ctx = c.getContext('2d');
@@ -1183,6 +1215,14 @@
   function makePlanter(parent,x,y,z,color=0xe24f72){
     premiumBox(1.35,.34,.48,0x8a522d,x,y,z,parent);for(const ox of [-.42,0,.42]){premiumBox(.08,.4,.08,0x2f9d46,x+ox,y+.32,z,parent);premiumBox(.28,.16,.28,color,x+ox,y+.55,z,parent);}return parent;
   }
+  function createPassengerProxy(parent,{x=0,y=0,z=0,color=0x5ad8ff,scale=.72}={}){
+    const passenger=new THREE.Group();passenger.position.set(x,y,z);passenger.scale.setScalar(scale);passenger.visible=false;parent.add(passenger);
+    const skin=renderMat(0xffc98f,{roughness:.72}),shirt=renderMat(color,{roughness:.62}),dark=renderMat(0x27364a,{roughness:.76}),hair=renderMat(0x282019,{roughness:.82});
+    premiumBox(.72,.86,.55,shirt,0,.78,0,passenger);premiumBox(.62,.62,.62,skin,0,1.52,0,passenger);premiumBox(.66,.16,.64,hair,0,1.88,-.01,passenger);
+    premiumBox(.19,.72,.2,shirt,-.47,.78,0,passenger);premiumBox(.19,.72,.2,shirt,.47,.78,0,passenger);premiumBox(.22,.64,.24,dark,-.2,.18,0,passenger);premiumBox(.22,.64,.24,dark,.2,.18,0,passenger);
+    premiumBox(.08,.07,.04,0x18202b,-.13,1.55,.33,passenger);premiumBox(.08,.07,.04,0x18202b,.13,1.55,.33,passenger);
+    passenger.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});return passenger;
+  }
 
   function createPlayerModel() {
     playerGroup = new THREE.Group();playerGroup.name='OTTHOS_PLAYER';scene.add(playerGroup);
@@ -1231,6 +1271,7 @@
     box(.3,.17,.08,headlight,-.58,.5,1.27,vehicleVisual);box(.3,.17,.08,headlight,.58,.5,1.27,vehicleVisual);
     box(.28,.16,.07,taillight,-.59,.45,-1.3,vehicleVisual);box(.28,.16,.07,taillight,.59,.45,-1.3,vehicleVisual);
     vehicleVisual.userData.wheels=[];vehicleVisual.userData.frontWheels=[];
+    vehicleVisual.userData.passengerVisual=createPassengerProxy(vehicleVisual,{x:.46,y:.66,z:-.14,color:0x8f69df,scale:.56});
     const wheelMat=renderMat(0x10151d,{roughness:.9}),hubMat=renderMat(0xf5a623,{roughness:.35,metalness:.46});
     [[-.84,.24,-.79,false],[.84,.24,-.79,false],[-.84,.24,.79,true],[.84,.24,.79,true]].forEach(([x,y,z,front])=>{
       const holder=new THREE.Group();holder.position.set(x,y,z);vehicleVisual.add(holder);
@@ -1564,592 +1605,74 @@
     const group=new THREE.Group();group.position.set(x,0,z);worldGroup.add(group);box(1.2,.72,.9,materials.wood,0,.36,0,group);const lid=box(1.25,.22,.95,secret?0xa855f7:0xffd84d,0,.84,0,group);const chest={id,x,z,group,lid,opened:!!state.flags[`chest_${id}`],secret};if(chest.opened)lid.rotation.x=-.6;registerInteractable({id:`chest-${id}`,type:'chest',icon:'🎁',label:secret?'Pegar presente secreto':'Abrir presente/baú',x,z,radius:2,priority:200,action:()=>openChest(chest)});return chest;
   }
   function createPlatform(x,y,z,w=3,d=3,color=0x8b5a2b){box(w,y,d,color,x,y/2,z);registerPlatform(x,z,w,d,y);}
-  function createToyCar(x,z){
-    const group=new THREE.Group();group.position.set(x,0,z);worldGroup.add(group);
-    const chassis=renderMat(0x26384e,{roughness:.5,metalness:.16}),orange=renderMat(0xf28a22,{roughness:.4,metalness:.18}),teal=renderMat(0x0aa7b8,{roughness:.38,metalness:.22}),glass=renderMat(0x102338,{roughness:.12,metalness:.38,transparent:true,opacity:.84});
-    box(1.84,.36,2.56,chassis,0,.28,0,group);box(1.72,.48,1.35,orange,0,.55,.55,group);box(1.48,.46,.92,teal,0,.78,-.48,group);box(1.32,.31,.72,glass,0,.93,-.42,group);
-    box(1.94,.18,.28,0xf3f5f7,0,.32,1.34,group);box(.18,.34,2.2,teal,-.92,.42,0,group);box(.18,.34,2.2,teal,.92,.42,0,group);
-    box(.72,.42,.58,0x151a23,0,.72,-.12,group);
+  function createParkedCar(id,x,z,color=0xf28a22,heading=0,label='Entrar no carro'){
+    const group=new THREE.Group();group.position.set(x,0,z);group.rotation.y=heading;worldGroup.add(group);
+    const chassis=renderMat(0x26384e,{roughness:.5,metalness:.16}),body=renderMat(color,{roughness:.4,metalness:.18}),trim=renderMat(shadeColor(color,-28),{roughness:.48}),glass=renderMat(0x102338,{roughness:.12,metalness:.38,transparent:true,opacity:.84});
+    box(1.84,.36,2.56,chassis,0,.28,0,group);box(1.72,.48,1.35,body,0,.55,.55,group);box(1.48,.46,.92,trim,0,.78,-.48,group);box(1.32,.31,.72,glass,0,.93,-.42,group);
+    box(1.94,.18,.28,0xf3f5f7,0,.32,1.34,group);box(.18,.34,2.2,trim,-.92,.42,0,group);box(.18,.34,2.2,trim,.92,.42,0,group);box(.72,.42,.58,0x151a23,0,.72,-.12,group);
     const headlight=renderMat(0xfff1a8,{emissive:0xffd75b,emissiveIntensity:.9,roughness:.2});box(.3,.17,.08,headlight,-.58,.5,1.27,group);box(.3,.17,.08,headlight,.58,.5,1.27,group);
     for(const p of [[-.84,.24,-.79],[.84,.24,-.79],[-.84,.24,.79],[.84,.24,.79]]){const wheel=cylinder(.34,.28,0x10151d,p[0],p[1],p[2],group,14);wheel.rotation.z=Math.PI/2;const hub=cylinder(.12,.3,0xf5a623,p[0],p[1],p[2],group,10);hub.rotation.z=Math.PI/2;}
     group.traverse(o=>{if(o.isMesh)addVoxelOutline(o,0x14243a,.28);});
-    world.vehicle={x,z,group};registerInteractable({id:'toy-car',type:'vehicle',icon:'🚗',label:'Entrar no carro',x,z,radius:2.4,action:()=>enterVehicle()});
+    const record={id,x,z,heading,color,group,occupied:false};world.vehicles.push(record);if(!world.vehicle)world.vehicle=record;
+    registerInteractable({id:`vehicle-${id}`,type:'vehicle',icon:'🚗',label,radius:2.6,priority:150,getPos:()=>({x:record.group.position.x,z:record.group.position.z}),action:()=>enterVehicle(record)});return record;
+  }
+  function createToyCar(x,z){return createParkedCar('garage-car',x,z,0xf28a22,0,'Entrar no carro da garagem');}
+  function createCityVehicleFleet(){
+    createParkedCar('blue-city',-34,-7,0x3588d8,Math.PI/2,'Entrar no carro azul');
+    createParkedCar('pink-city',34,-7,0xe8588e,-Math.PI/2,'Entrar no carro rosa');
+    createParkedCar('green-city',-74,5,0x42ae66,Math.PI/2,'Entrar no carro verde');
+    createParkedCar('yellow-city',76,5,0xf0bf36,-Math.PI/2,'Entrar no carro amarelo');
+    createParkedCar('castle-car',72,39,0x7f5bd5,0,'Entrar no carro do Castelo');
   }
 
-  // ============================================================
-  // V627 — SISTEMA DE METRÔ, ÔNIBUS, VEÍCULOS EXTRAS E BOTS
-  // ============================================================
 
-  // --- DEFINIÇÃO DAS ESTAÇÕES DE METRÔ ---
-  const METRO_STATIONS = [
-    { id:'metro-vila',    name:'Estação Vila do Sol',   x:0,    z:-5,   color:0xf59e0b, lineColor:0xfbbf24 },
-    { id:'metro-lago',    name:'Estação Lago',          x:-55,  z:52,   color:0x3b82f6, lineColor:0x60a5fa },
-    { id:'metro-castelo', name:'Estação Castelo',       x:88,   z:48,   color:0x8b5cf6, lineColor:0xa78bfa },
-    { id:'metro-floresta',name:'Estação Floresta',      x:-88,  z:-55,  color:0x22c55e, lineColor:0x4ade80 },
-    { id:'metro-ginasio', name:'Estação Ginásio',       x:45,   z:65,   color:0xef4444, lineColor:0xf87171 },
-    { id:'metro-centro',  name:'Estação Centro',        x:0,    z:-55,  color:0x06b6d4, lineColor:0x22d3ee }
-  ];
 
-  function createMetroStation(stationDef) {
-    const { id, name, x, z, color, lineColor } = stationDef;
-    const g = new THREE.Group(); g.position.set(x, 0, z); worldGroup.add(g);
-    // Plataforma
-    const platform = box(8, .35, 5, renderMat(0x374151,{roughness:.82}), 0, .175, 0, g);
-    // Paredes laterais
-    box(8, 2.8, .22, renderMat(color,{roughness:.68}), 0, 1.4, -2.5, g);
-    box(8, 2.8, .22, renderMat(color,{roughness:.68}), 0, 1.4, 2.5, g);
-    // Teto
-    box(8.4, .22, 5.4, renderMat(0x1e293b,{roughness:.75}), 0, 2.9, 0, g);
-    // Pilares
-    for(const px of [-3.5, 3.5]) {
-      box(.3, 2.8, .3, renderMat(0x94a3b8,{roughness:.7}), px, 1.4, -2.5, g);
-      box(.3, 2.8, .3, renderMat(0x94a3b8,{roughness:.7}), px, 1.4, 2.5, g);
-    }
-    // Faixa colorida da linha
-    box(8, .18, 5, renderMat(lineColor,{emissive:lineColor,emissiveIntensity:.35,roughness:.3}), 0, .36, 0, g);
-    // Placa com nome
-    const signMat = renderMat(color,{emissive:color,emissiveIntensity:.55,roughness:.3});
-    box(4.5, .9, .12, signMat, 0, 2.2, -2.45, g);
-    // Luz de plataforma
-    addGlow(x, 2.5, z, lineColor, 8);
-    // Escada de acesso (visual)
-    for(let s=0;s<4;s++) box(2.2, .18, .6, renderMat(0x475569,{roughness:.85}), 0, .18+s*.22, 2.8+s*.6, g);
-    // Trilhos (visuais)
-    box(8, .08, .12, renderMat(0x9ca3af,{metalness:.55,roughness:.4}), 0, .06, -1.2, g);
-    box(8, .08, .12, renderMat(0x9ca3af,{metalness:.55,roughness:.4}), 0, .06, 1.2, g);
-    // Dormentes
-    for(let dx=-3.5;dx<=3.5;dx+=1.4) box(.18,.1,2.8,renderMat(0x5c3d2e,{roughness:.9}),dx,.04,0,g);
-    // Trem visual (decorativo, estático na estação)
-    const trainG = new THREE.Group(); trainG.position.set(-1.5, .35, 0); g.add(trainG);
-    box(5.5, 1.85, 2.1, renderMat(color,{roughness:.52,metalness:.18}), 0, .95, 0, trainG);
-    box(5.5, .28, 2.2, renderMat(0x1e293b,{roughness:.65}), 0, 1.98, 0, trainG);
-    for(const wx of [-2,-.5,1,2.5]) { box(.08,1.0,1.8,renderMat(0x93c5fd,{roughness:.12,metalness:.35,transparent:true,opacity:.78}),wx,1.0,0,trainG); }
-    box(.22,.9,.22,renderMat(0xf59e0b,{emissive:0xf59e0b,emissiveIntensity:.8}),2.78,.65,0,trainG);
-    box(.22,.9,.22,renderMat(0xf59e0b,{emissive:0xf59e0b,emissiveIntensity:.8}),-2.78,.65,0,trainG);
-    g.traverse(o=>{if(o.isMesh)addVoxelOutline(o,0x0f172a,.28);});
-    const station = { id, name, x, z, group:g, color, lineColor };
-    world.metroStations.push(station);
-    registerInteractable({
-      id: `metro-${id}`, type:'metro', icon:'🚇', label:`Embarcar no metrô — ${name}`,
-      x, z, radius:4.5, priority:220,
-      action: () => openMetroMenu(station)
-    });
-    return station;
+  function createMetroStation(id,name,x,z,color=0x1878d2){
+    const g=new THREE.Group();g.position.set(x,0,z);worldGroup.add(g);const steel=renderMat(0x26364b,{roughness:.55,metalness:.18}),blue=renderMat(color,{roughness:.42,metalness:.12}),glass=renderMat(0x7fdcff,{transparent:true,opacity:.68,roughness:.12});
+    premiumBox(5.4,.22,4.4,0xd8dde5,0,.11,0,g);premiumBox(.35,3.4,.35,steel,-2.25,1.7,-1.65,g);premiumBox(.35,3.4,.35,steel,2.25,1.7,-1.65,g);premiumBox(5.05,.36,.55,blue,0,3.18,-1.65,g);premiumBox(4.4,2.35,.12,glass,0,1.65,-1.58,g);premiumBox(2.7,.18,2.8,0x1c2634,0,.22,.65,g);for(let i=0;i<5;i++)premiumBox(2.5,.12,.34,0x748294,0,.32+i*.18,.55+i*.42,g);
+    const sign=new THREE.Sprite(new THREE.SpriteMaterial({map:iconTexture('M','#1366b1','#ffffff'),transparent:true,depthWrite:false}));sign.position.set(0,4.15,-1.6);sign.scale.set(1.15,1.15,1);g.add(sign);addGlow(x,3.3,z,0x53c9ff,5);
+    const station={id,name,x,z,group:g};world.metroStations.push(station);registerInteractable({id:`metro-${id}`,type:'metro',icon:'🚇',label:`Entrar no ${name}`,x,z,radius:3.6,priority:175,action:()=>openMetroStation(station)});return station;
   }
-
-  function openMetroMenu(fromStation) {
-    const others = METRO_STATIONS.filter(s => s.id !== fromStation.id);
-    const opts = others.map(s => `<button class="choice" data-metro-dest="${s.id}"><b>🚇 ${s.name}</b><span>Linha direta — 5 moedas</span></button>`).join('');
-    openModal(`🚇 ${fromStation.name}`, `<p>Escolha o destino. O metrô conecta todos os bairros da Vila do Sol.</p><div class="choice-grid">${opts}</div>`, root => {
-      $$('[data-metro-dest]', root).forEach(btn => btn.onclick = () => {
-        const destId = btn.dataset.metroDest;
-        const dest = METRO_STATIONS.find(s => s.id === destId);
-        if (!dest) return;
-        if (state.profile.coins < 5) { toast('Você precisa de 5 moedas para o metrô.', 'warn'); return; }
-        addCoins(-5);
-        state.metro.ridesTotal = (state.metro.ridesTotal || 0) + 1;
-        state.metro.lastStation = destId;
-        player.x = dest.x; player.z = dest.z + 4.5; player.y = 0;
-        player.vx = player.vz = player.vy = 0;
-        closeModal();
-        toast(`🚇 Chegou em ${dest.name}!`, 'good', 2400);
-        beep(660, 90, 'sine'); beep(880, 70, 'sine');
-        addXP(8); saveState(true);
-        setFlag('usedMetro');
-      });
-    });
+  function metroDestinationButtons(current){return MAP_LOCATIONS.filter(loc=>!loc.id.startsWith('metro-')&&loc.id!==current.id).map(loc=>`<button class="choice" data-metro-destination="${loc.id}"><b>${loc.icon} ${loc.name}</b><span>Descer próximo deste ponto</span></button>`).join('');}
+  function openMetroStation(station){
+    if(player.publicRide?.type)exitPublicRide(true);if(player.vehicle)exitVehicle(true);if(player.boating){player.x=-24.7;player.z=52;exitBoat(true);}if(currentHouse)exitHouse();
+    if(!state.transport.discoveredStations.includes(station.id))state.transport.discoveredStations.push(station.id);state.transport.lastStation=station.id;saveState();
+    openModal(station.name,`<div class="metro-card"><div class="metro-line">🚇 LINHA VILA DO SOL</div><p>Escolha qualquer ponto do mapa. O metrô deixa você na saída mais próxima.</p><div class="choice-grid metro-destinations">${metroDestinationButtons(station)}</div></div>`,root=>{$$('[data-metro-destination]',root).forEach(btn=>btn.onclick=()=>{const loc=MAP_LOCATIONS.find(x=>x.id===btn.dataset.metroDestination);if(!loc)return;closeModal();toast('Portas fechando… próximo destino: '+loc.name,'good',1500);beep(440,100,'sine');setTimeout(()=>{player.x=loc.navX??loc.x;player.z=loc.navZ??loc.z;player.y=groundHeightAt(player.x,player.z);player.vx=player.vz=player.vy=0;state.transport.metroTrips=(state.transport.metroTrips||0)+1;state.transport.lastRideAt=Date.now();setFlag('usedMetro');state.waypoint=null;updateWaypointMarker();updateNavigation(0,true);saveState(true);toast(`Você chegou: ${loc.name}`,'good',2200);beep(880,110,'sine');},850);});});
   }
-
-  function buildMetroSystem() {
-    for (const stDef of METRO_STATIONS) createMetroStation(stDef);
-    // Linha visual no chão (trilho externo)
-    const linePoints = [
-      {x:0,z:-5},{x:0,z:-55},{x:-55,z:-55},{x:-88,z:-55},
-      {x:-55,z:52},{x:0,z:-5},{x:45,z:65},{x:88,z:48}
-    ];
-    for(let i=1;i<linePoints.length;i++){
-      const a=linePoints[i-1],b=linePoints[i];
-      const mx=(a.x+b.x)/2,mz=(a.z+b.z)/2;
-      const len=Math.hypot(b.x-a.x,b.z-a.z);
-      const ang=Math.atan2(b.x-a.x,b.z-a.z);
-      const rail=box(len,.06,.14,renderMat(0x6b7280,{metalness:.5,roughness:.45}),mx,.04,mz);
-      rail.rotation.y=ang;
-    }
+  function createBusModel(id,color,route,routeIndex=0,direction=1){
+    const g=new THREE.Group();worldGroup.add(g);const body=renderMat(color,{roughness:.46,metalness:.12}),dark=renderMat(shadeColor(color,-30),{roughness:.55}),glass=renderMat(0x18334d,{roughness:.14,metalness:.26,transparent:true,opacity:.84});
+    premiumBox(2.55,.5,5.6,dark,0,.42,0,g);premiumBox(2.45,1.75,5.25,body,0,1.38,0,g);premiumBox(2.16,.72,4.15,glass,0,1.72,-.1,g);for(const z of [-1.55,-.45,.65,1.75]){premiumBox(.08,.75,.1,0xe8edf2,-1.12,1.72,z,g);premiumBox(.08,.75,.1,0xe8edf2,1.12,1.72,z,g);}premiumBox(2.5,.25,5.35,0xf2f4f7,0,2.42,0,g);
+    const wheels=[];for(const p of [[-1.2,.38,-1.75],[1.2,.38,-1.75],[-1.2,.38,1.75],[1.2,.38,1.75]]){const w=premiumCylinder(.42,.26,0x111827,p[0],p[1],p[2],g,14);w.rotation.z=Math.PI/2;wheels.push(w);}const bus={id,group:g,route,routeIndex,direction,speed:6.2,pauseUntil:0,wheels,heading:0};const first=route[routeIndex]||route[0];g.position.set(first.x,0,first.z);world.buses.push(bus);registerInteractable({id:`bus-${id}`,type:'bus',icon:'🚌',label:'Entrar no ônibus',radius:3.4,priority:170,getPos:()=>({x:g.position.x,z:g.position.z}),action:()=>enterBus(bus)});return bus;
   }
-
-  // --- SISTEMA DE ÔNIBUS ---
-  const BUS_STOPS = [
-    { id:'stop-vila',    name:'Parada Vila do Sol',    x:8,    z:0,    route:'A' },
-    { id:'stop-mercado', name:'Parada Mercado',        x:-22,  z:-28,  route:'A' },
-    { id:'stop-lago',    name:'Parada Lago',           x:-28,  z:48,   route:'B' },
-    { id:'stop-ginasio', name:'Parada Ginásio',        x:45,   z:70,   route:'B' },
-    { id:'stop-castelo', name:'Parada Castelo',        x:75,   z:55,   route:'C' },
-    { id:'stop-floresta',name:'Parada Floresta',       x:-72,  z:-42,  route:'C' }
-  ];
-
-  function createBusStop(stopDef) {
-    const { id, name, x, z, route } = stopDef;
-    const g = new THREE.Group(); g.position.set(x, 0, z); worldGroup.add(g);
-    // Poste
-    box(.14, 3.2, .14, renderMat(0x475569,{roughness:.7}), 0, 1.6, 0, g);
-    // Placa
-    const routeColor = route==='A'?0x22c55e:route==='B'?0x3b82f6:0xf59e0b;
-    box(1.6, .7, .1, renderMat(routeColor,{emissive:routeColor,emissiveIntensity:.4,roughness:.4}), 0, 3.0, 0, g);
-    // Banco
-    box(1.4, .25, .5, renderMat(0x7c3aed,{roughness:.72}), 0, .45, .4, g);
-    box(.1, .8, .5, renderMat(0x5b21b6,{roughness:.72}), -.65, .65, .4, g);
-    box(.1, .8, .5, renderMat(0x5b21b6,{roughness:.72}), .65, .65, .4, g);
-    g.traverse(o=>{if(o.isMesh)addVoxelOutline(o,0x0f172a,.25);});
-    registerInteractable({
-      id: `bus-stop-${id}`, type:'bus', icon:'🚌', label:`Embarcar no ônibus — ${name} (Linha ${route})`,
-      x, z, radius:3.5, priority:200,
-      action: () => openBusMenu({ id, name, x, z, route })
-    });
-    return { id, name, x, z, route, group:g };
+  function createBusStop(name,x,z,rotation=0){const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=rotation;worldGroup.add(g);premiumBox(.18,2.6,.18,0x354a5f,0,1.3,0,g);premiumBox(1.6,.85,.18,0x2d82d6,0,2.2,0,g);premiumBox(1.35,.55,.2,0xffffff,0,2.2,.02,g);const icon=new THREE.Sprite(new THREE.SpriteMaterial({map:iconTexture('B','#2076c9','#ffffff'),transparent:true,depthWrite:false}));icon.position.set(0,2.2,.15);icon.scale.set(.5,.5,1);g.add(icon);premiumBox(2.2,.22,.55,0x66788b,0,.35,.45,g);createSignpost(x+1.5,z,name,rotation);world.transportStops.push({name,x,z,group:g});}
+  function createPublicTransport(){
+    createMetroStation('village','Metrô Praça Central',8,-3);createMetroStation('lake','Metrô Lago e Píer',-22,39,0x22a36a);createMetroStation('forest','Metrô Floresta',-55,-34,0x2f8757);createMetroStation('castle','Metrô Castelo',72,47,0x7455c7);createMetroStation('gym','Metrô Ginásio',55,90,0xd04c55);
+    createBusStop('Ponto Central',-8,5,Math.PI/2);createBusStop('Ponto Garagem',55,5,Math.PI/2);createBusStop('Ponto Ginásio',55,82,0);createBusStop('Ponto Floresta',-55,-48,0);
+    const route=[{x:-100,z:0},{x:0,z:0},{x:55,z:0},{x:55,z:90},{x:55,z:0},{x:-55,z:0},{x:-55,z:-100},{x:-55,z:0}];createBusModel('sol-1',0xf2b632,route,0,1);createBusModel('sol-2',0x36a0d9,[...route].reverse(),2,1);
   }
-
-  function openBusMenu(fromStop) {
-    const sameRoute = BUS_STOPS.filter(s => s.route === fromStop.route && s.id !== fromStop.id);
-    const otherRoutes = BUS_STOPS.filter(s => s.route !== fromStop.route);
-    const makeOpt = (s, price) => `<button class="choice" data-bus-dest="${s.id}" data-bus-price="${price}"><b>🚌 ${s.name}</b><span>Linha ${s.route} — ${price} moedas</span></button>`;
-    const opts = sameRoute.map(s=>makeOpt(s,3)).join('') + otherRoutes.map(s=>makeOpt(s,6)).join('');
-    openModal(`🚌 ${fromStop.name} — Linha ${fromStop.route}`, `<p>Escolha o destino. Mesma linha: 3 moedas. Outra linha: 6 moedas.</p><div class="choice-grid">${opts}</div>`, root => {
-      $$('[data-bus-dest]', root).forEach(btn => btn.onclick = () => {
-        const destId = btn.dataset.busDest;
-        const price = Number(btn.dataset.busPrice);
-        const dest = BUS_STOPS.find(s => s.id === destId);
-        if (!dest) return;
-        if (state.profile.coins < price) { toast(`Você precisa de ${price} moedas.`, 'warn'); return; }
-        addCoins(-price);
-        state.bus.ridesTotal = (state.bus.ridesTotal || 0) + 1;
-        state.bus.lastStop = destId;
-        player.x = dest.x + 1.5; player.z = dest.z + 2; player.y = 0;
-        player.vx = player.vz = player.vy = 0;
-        closeModal();
-        toast(`🚌 Chegou em ${dest.name}!`, 'good', 2200);
-        beep(440, 80, 'square'); addXP(5); saveState(true);
-        setFlag('usedBus');
-      });
-    });
+  function updateTransportWorld(dt){
+    for(const bus of world.buses){if(performance.now()<bus.pauseUntil)continue;const current=bus.route[bus.routeIndex],nextIndex=(bus.routeIndex+bus.direction+bus.route.length)%bus.route.length,next=bus.route[nextIndex],dx=next.x-bus.group.position.x,dz=next.z-bus.group.position.z,dist=Math.hypot(dx,dz);if(dist<.55){bus.routeIndex=nextIndex;bus.pauseUntil=performance.now()+1700;continue;}const step=Math.min(dist,bus.speed*dt);bus.group.position.x+=dx/dist*step;bus.group.position.z+=dz/dist*step;bus.heading=Math.atan2(dx,dz);bus.group.rotation.y=bus.heading;bus.wheels.forEach(w=>w.rotation.x-=step*2.4);}
   }
-
-  function createBusModel(x, z, color=0xf59e0b) {
-    const g = new THREE.Group(); g.position.set(x, 0, z); worldGroup.add(g);
-    const body = renderMat(color,{roughness:.52,metalness:.12});
-    const dark = renderMat(0x1e293b,{roughness:.65});
-    const glass = renderMat(0x93c5fd,{roughness:.12,metalness:.3,transparent:true,opacity:.8});
-    box(2.2, 2.2, 5.8, body, 0, 1.1, 0, g);
-    box(2.3, .3, 6.0, dark, 0, 2.25, 0, g);
-    for(const wx of [-1.1,1.1]) {
-      box(.08, 1.1, 1.4, glass, wx, 1.4, -.8, g);
-      box(.08, 1.1, 1.4, glass, wx, 1.4, .8, g);
-      box(.08, 1.1, 1.0, glass, wx, 1.4, 2.2, g);
-    }
-    box(1.8, 1.2, .1, glass, 0, 1.4, 2.95, g);
-    const headlight = renderMat(0xfff9c4,{emissive:0xffd700,emissiveIntensity:.9,roughness:.2});
-    box(.45, .28, .1, headlight, -.65, 1.1, 2.96, g);
-    box(.45, .28, .1, headlight, .65, 1.1, 2.96, g);
-    const tail = renderMat(0xff3333,{emissive:0xff0000,emissiveIntensity:.6,roughness:.3});
-    box(.5, .28, .1, tail, -.65, 1.1, -2.96, g);
-    box(.5, .28, .1, tail, .65, 1.1, -2.96, g);
-    for(const p of [[-1.0,.28,2.0],[1.0,.28,2.0],[-1.0,.28,-2.0],[1.0,.28,-2.0]]) {
-      const w=cylinder(.38,.3,0x1a1a2e,p[0],p[1],p[2],g,14); w.rotation.z=Math.PI/2;
-      cylinder(.14,.32,0xd4a017,p[0],p[1],p[2],g,10).rotation.z=Math.PI/2;
-    }
-    g.traverse(o=>{if(o.isMesh)addVoxelOutline(o,0x0f172a,.26);});
-    return g;
+  function enterBus(bus){if(!bus||player.publicRide?.type)return;if(player.vehicle)exitVehicle(true);if(player.boating){player.x=-24.7;player.z=52;exitBoat(true);}player.publicRide={type:'bus',id:bus.id};clearMovementInputs();if(playerModel)playerModel.visible=false;if(avatarLayer)avatarLayer.visible=false;state.transport.busTrips=(state.transport.busTrips||0)+1;state.transport.lastRideAt=Date.now();setFlag('rodeBus');saveState(true);toast('Você entrou no ônibus. Use AÇÃO para descer.','good',2200);syncAdvancedSkillsPanel();}
+  function updatePublicRide(){const bus=world.buses.find(b=>b.id===player.publicRide?.id);if(!bus){exitPublicRide(true);return;}const sideX=Math.cos(bus.heading)*.35,sideZ=-Math.sin(bus.heading)*.35;player.x=bus.group.position.x+sideX;player.z=bus.group.position.z+sideZ;player.y=.55;player.facing=bus.heading;player.vx=player.vz=0;player.grounded=true;}
+  function exitPublicRide(silent=false){if(!player.publicRide?.type)return false;const bus=world.buses.find(b=>b.id===player.publicRide.id);player.publicRide={type:'',id:''};if(bus){player.x=bus.group.position.x+Math.cos(bus.heading)*3.1;player.z=bus.group.position.z-Math.sin(bus.heading)*3.1;}player.y=groundHeightAt(player.x,player.z);if(playerModel)playerModel.visible=true;if(avatarLayer)avatarLayer.visible=true;clearMovementInputs();syncAdvancedSkillsPanel();if(!silent)toast('Você desceu do ônibus.','good');saveState(true);return true;}
+  function attachNpcTransport(npc,kind,color=0x3c8ed7){if(!npc||kind==='walk')return;const g=new THREE.Group();g.name=`NPC_${kind}`;npc.group.add(g);npc.transportKind=kind;npc.transportVisual=g;if(kind==='car'){premiumBox(1.7,.34,2.5,shadeColor(color,-25),0,.34,0,g);premiumBox(1.55,.72,1.65,color,0,.65,0,g);premiumBox(1.3,.35,.75,0x153047,0,.88,-.25,g);for(const p of [[-.78,.25,-.72],[.78,.25,-.72],[-.78,.25,.72],[.78,.25,.72]]){const w=premiumCylinder(.3,.22,0x111827,p[0],p[1],p[2],g,12);w.rotation.z=Math.PI/2;}}else if(kind==='motorcycle'){premiumBox(.42,.42,1.75,color,0,.45,0,g);for(const z of [-.72,.72]){const w=new THREE.Mesh(new THREE.TorusGeometry(.34,.08,7,12),renderMat(0x111827));w.position.set(0,.34,z);w.rotation.y=Math.PI/2;g.add(w);}premiumBox(.75,.12,.12,0x26384e,0,1.02,.35,g);}else if(kind==='bike'){for(const z of [-.62,.62]){const w=new THREE.Mesh(new THREE.TorusGeometry(.34,.055,7,14),renderMat(0x18212d));w.position.set(0,.34,z);w.rotation.y=Math.PI/2;g.add(w);}premiumBox(.08,.65,1.05,color,0,.55,0,g);premiumBox(.7,.08,.08,color,0,.88,.28,g);}else if(kind==='skate'){premiumBox(.75,.1,1.55,color,0,.18,0,g);for(const p of [[-.28,.08,-.52],[.28,.08,-.52],[-.28,.08,.52],[.28,.08,.52]])premiumCylinder(.08,.12,0x111827,p[0],p[1],p[2],g,8);} }
+  function syncPassengerVisuals(){
+    const carPassenger=!!player.vehicle&&!player.car.passengerOf&&!!(player.car.passengerUid||player.car.botPassengerId);
+    if(vehicleVisual?.userData?.passengerVisual)vehicleVisual.userData.passengerVisual.visible=carPassenger;
+    const boatPassenger=!!player.boating&&!player.boat.passengerOf&&!!(player.boat.passengerUid||player.boat.botPassengerId);
+    if(world.boat?.passengerVisual)world.boat.passengerVisual.visible=boatPassenger;
   }
-
-  function buildBusSystem() {
-    // Paradas
-    for (const stopDef of BUS_STOPS) createBusStop(stopDef);
-    // Ônibus visuais estáticos nas paradas (decorativos)
-    createBusModel(-22, -32, 0x22c55e);
-    createBusModel(45, 74, 0x3b82f6);
-    createBusModel(75, 59, 0xf59e0b);
+  function boardNpcWithPlayer(npc){if(!player.vehicle&&!player.boating){toast('Entre primeiro em um carro ou barco.','warn');return;}const type=player.boating?'boat':'car',slot=type==='boat'?player.boat:player.car;if(slot.passengerUid||slot.botPassengerId){toast('Este veículo já possui passageiro.','warn');return;}slot.botPassengerId=npc.id;npc.ridingWithPlayer=type;npc.following=false;npc.group.visible=false;syncPassengerVisuals();setFlag('npcPassenger');changeFriendship(npc,2,`${npc.name} entrou como passageiro.`);closeModal();saveState(true);}
+  function releaseBotPassenger(type){const slot=type==='boat'?player.boat:player.car,id=slot.botPassengerId;if(!id){syncPassengerVisuals();return;}const npc=world.npcs.find(n=>n.id===id);if(npc){npc.ridingWithPlayer='';npc.group.visible=true;npc.group.position.set(player.x+1.8,0,player.z+1.2);npc.baseX=npc.group.position.x;npc.baseZ=npc.group.position.z;}slot.botPassengerId='';syncPassengerVisuals();}
+  function createPremiumCastle(x=88,z=62){
+    const g=new THREE.Group();g.position.set(x,0,z);worldGroup.add(g);const stone=renderMat(0x7d8996,{roughness:.82}),dark=renderMat(0x596675,{roughness:.86}),roof=renderMat(0x4c5a92,{roughness:.58}),gold=renderMat(0xf0c54a,{metalness:.24,roughness:.36}),glass=renderMat(0x66d7ff,{emissive:0x1f7fa5,emissiveIntensity:.35,roughness:.18});
+    premiumBox(32,.35,26,0x697783,0,.18,0,g);premiumBox(32,5,2.2,stone,0,2.5,12,g);premiumBox(12,5,2.2,stone,-10,2.5,-12,g);premiumBox(12,5,2.2,stone,10,2.5,-12,g);premiumBox(2.2,5,24,stone,-15,2.5,0,g);premiumBox(2.2,5,24,stone,15,2.5,0,g);
+    for(const [tx,tz] of [[-14,-11],[14,-11],[-14,11],[14,11]]){premiumCylinder(3.2,8,dark,tx,4,tz,g,12);premiumCylinder(3.65,.7,stone,tx,8.1,tz,g,12);const cone=new THREE.Mesh(new THREE.ConeGeometry(3.7,3.4,8),roof);cone.position.set(tx,10.1,tz);cone.rotation.y=Math.PI/8;g.add(cone);const flag=premiumBox(.12,3,.12,gold,tx,13,tz,g);premiumBox(1.7,.8,.08,0xe14f5f,tx+.85,13.65,tz,g);}
+    for(let i=-13;i<=13;i+=2.6){premiumBox(1.25,1.1,1.2,stone,i,5.55,11.7,g);if(Math.abs(i)>4)premiumBox(1.25,1.1,1.2,stone,i,5.55,-11.7,g);}for(let i=-9;i<=9;i+=4.5){premiumBox(.7,1.55,.16,glass,i,3.1,10.86,g);premiumBox(.7,1.55,.16,glass,i,3.1,-10.86,g);}premiumBox(7.2,6,1.1,dark,0,3,-11.4,g);premiumBox(5.1,4.7,.7,0x3b2b25,0,2.35,-12.02,g);for(const sx of [-2.2,2.2])premiumBox(.25,4.3,.25,gold,sx,2.3,-12.5,g);premiumBox(6.5,.5,1.4,gold,0,5.6,-12.2,g);premiumBox(9,1.1,5,0x475463,0,5.5,0,g);premiumBox(7.2,4.8,4.3,stone,0,7.8,0,g);const keepRoof=new THREE.Mesh(new THREE.ConeGeometry(5.4,3.2,4),roof);keepRoof.position.set(0,11.7,0);keepRoof.rotation.y=Math.PI/4;g.add(keepRoof);addGlow(x,8,z,0x6fdcff,10);
+    createSignpost(x-16,z-16,'Castelo das Skills',Math.PI*.25);registerInteractable({id:'castle-skills',type:'castle',icon:'🏰',label:'Entrar no desafio do Castelo',x:x,z:z-15,radius:4.4,priority:180,action:openCastleChallenge});world.landmarks.push(g);return g;
   }
-
-  // --- VEÍCULOS EXTRAS ESPALHADOS PELA CIDADE ---
-  function createBicycle(x, z, color=0x3b82f6) {
-    const g = new THREE.Group(); g.position.set(x, 0, z); worldGroup.add(g);
-    const frame = renderMat(color,{roughness:.55,metalness:.2});
-    const silver = renderMat(0xd1d5db,{roughness:.45,metalness:.35});
-    // Quadro
-    box(.08,.8,1.4,frame,0,.55,0,g);
-    box(.08,.55,.9,frame,0,.75,-.2,g);
-    // Guidão
-    box(.7,.08,.08,silver,0,1.0,.6,g);
-    box(.08,.35,.08,silver,0,.82,.6,g);
-    // Selim
-    box(.45,.08,.22,renderMat(0x1f2937,{roughness:.8}),0,1.05,-.5,g);
-    // Rodas
-    for(const wz of [-.6,.6]) {
-      const w=cylinder(.32,.06,0x1a1a2e,0,.32,wz,g,16); w.rotation.z=Math.PI/2;
-      cylinder(.08,.08,silver,0,.32,wz,g,8).rotation.z=Math.PI/2;
-    }
-    // Pedais
-    box(.06,.06,.5,silver,0,.45,0,g);
-    box(.35,.06,.06,silver,0,.45,.02,g);
-    g.traverse(o=>{if(o.isMesh)addVoxelOutline(o,0x0f172a,.22);});
-    return { group:g, x, z, type:'bicycle', color };
-  }
-
-  function createMotorcycle(x, z, color=0xef4444) {
-    const g = new THREE.Group(); g.position.set(x, 0, z); worldGroup.add(g);
-    const body = renderMat(color,{roughness:.45,metalness:.22});
-    const dark = renderMat(0x111827,{roughness:.6});
-    const chrome = renderMat(0xe5e7eb,{roughness:.28,metalness:.55});
-    // Corpo
-    box(1.0,.65,1.9,body,0,.65,0,g);
-    box(.8,.5,.9,body,0,1.05,.45,g);
-    box(.55,.35,.65,renderMat(0x1e293b,{roughness:.12,metalness:.35,transparent:true,opacity:.82}),0,1.12,.48,g);
-    // Guidão
-    box(.8,.08,.08,chrome,0,1.15,.9,g);
-    box(.08,.4,.08,chrome,0,.95,.9,g);
-    // Rodas
-    for(const wz of [-.75,.75]) {
-      const w=cylinder(.36,.18,dark,0,.36,wz,g,16); w.rotation.z=Math.PI/2;
-      cylinder(.1,.2,chrome,0,.36,wz,g,10).rotation.z=Math.PI/2;
-    }
-    // Escape
-    box(.08,.08,1.1,chrome,-.52,.45,-.1,g);
-    const headlight = renderMat(0xfff9c4,{emissive:0xffd700,emissiveIntensity:.85,roughness:.2});
-    box(.28,.2,.08,headlight,0,.95,.96,g);
-    g.traverse(o=>{if(o.isMesh)addVoxelOutline(o,0x0f172a,.24);});
-    return { group:g, x, z, type:'motorcycle', color };
-  }
-
-  function createSkateboard(x, z) {
-    const g = new THREE.Group(); g.position.set(x, 0, z); worldGroup.add(g);
-    box(.55,.07,1.6,renderMat(0x7c3aed,{roughness:.72}),0,.14,0,g);
-    box(.58,.04,1.65,renderMat(0x5b21b6,{roughness:.8}),0,.09,0,g);
-    for(const p of [[-.18,.08,.55],[.18,.08,.55],[-.18,.08,-.55],[.18,.08,-.55]]) {
-      cylinder(.1,.07,renderMat(0x374151,{roughness:.7}),p[0],p[1],p[2],g,8).rotation.z=Math.PI/2;
-    }
-    g.traverse(o=>{if(o.isMesh)addVoxelOutline(o,0x0f172a,.2);});
-    return { group:g, x, z, type:'skateboard' };
-  }
-
-  function buildExtraVehicles() {
-    // Bicicletas espalhadas
-    world.extraVehicles.push(createBicycle(12, 8, 0x3b82f6));
-    world.extraVehicles.push(createBicycle(-18, -22, 0xf97316));
-    world.extraVehicles.push(createBicycle(35, 20, 0x22c55e));
-    world.extraVehicles.push(createBicycle(-62, -38, 0xa855f7));
-    world.extraVehicles.push(createBicycle(55, 70, 0xec4899));
-    // Motos
-    world.extraVehicles.push(createMotorcycle(18, -8, 0xef4444));
-    world.extraVehicles.push(createMotorcycle(-30, 12, 0xf59e0b));
-    world.extraVehicles.push(createMotorcycle(65, 42, 0x06b6d4));
-    world.extraVehicles.push(createMotorcycle(-48, -28, 0x8b5cf6));
-    // Skates
-    world.extraVehicles.push(createSkateboard(5, 12));
-    world.extraVehicles.push(createSkateboard(-12, -5));
-    world.extraVehicles.push(createSkateboard(28, -15));
-    world.extraVehicles.push(createSkateboard(-35, 35));
-    // Registrar interações para cada veículo extra
-    world.extraVehicles.forEach((v, i) => {
-      const icon = v.type==='bicycle'?'🚲':v.type==='motorcycle'?'🏍':'🛹';
-      const label = v.type==='bicycle'?'Andar de bicicleta':v.type==='motorcycle'?'Andar de moto':'Andar de skate';
-      registerInteractable({
-        id:`extra-vehicle-${i}`, type:'extra-vehicle', icon, label,
-        x:v.x, z:v.z, radius:2.2, priority:175,
-        action:()=>rideExtraVehicle(v, i)
-      });
-    });
-  }
-
-  let activeExtraVehicle = null;
-  function rideExtraVehicle(v, idx) {
-    if (activeExtraVehicle) {
-      // Sair do veículo extra
-      const icon = activeExtraVehicle.type==='bicycle'?'🚲':activeExtraVehicle.type==='motorcycle'?'🏍':'🛹';
-      toast(`Você saiu da ${activeExtraVehicle.type==='bicycle'?'bicicleta':activeExtraVehicle.type==='motorcycle'?'moto':'skate'}.`, 'good');
-      activeExtraVehicle = null;
-      if(els.vehicleBadge) { els.vehicleBadge.hidden = true; }
-      return;
-    }
-    activeExtraVehicle = v;
-    player.x = v.x; player.z = v.z; player.y = 0;
-    const icon = v.type==='bicycle'?'🚲':v.type==='motorcycle'?'🏍':'🛹';
-    const label = v.type==='bicycle'?'bicicleta':v.type==='motorcycle'?'moto':'skate';
-    toast(`${icon} Você está andando de ${label}! Toque em AÇÃO para sair.`, 'good', 2600);
-    if(els.vehicleBadge) {
-      els.vehicleBadge.hidden = false;
-      els.vehicleBadge.textContent = `${icon} ${label.charAt(0).toUpperCase()+label.slice(1)} — AÇÃO para sair`;
-    }
-    addXP(5); setFlag('usedExtraVehicle');
-    // Registrar interação de saída
-    registerInteractable({
-      id:`exit-extra-vehicle-${idx}`, type:'extra-vehicle-exit', icon, label:`Sair da ${label}`,
-      x:v.x, z:v.z, radius:999, priority:999,
-      action:()=>rideExtraVehicle(v, idx)
-    });
-  }
-
-  // --- BOTS (NPCs) EM VEÍCULOS ---
-  function createNpcVehicle(npcId, type, x, z, color, routePoints) {
-    const g = new THREE.Group(); g.position.set(x, 0, z); worldGroup.add(g);
-    let vehicleGroup;
-    if (type === 'car') {
-      vehicleGroup = new THREE.Group(); g.add(vehicleGroup);
-      const chassis = renderMat(color,{roughness:.5,metalness:.16});
-      box(1.84,.36,2.56,chassis,0,.28,0,vehicleGroup);
-      box(1.72,.48,1.35,renderMat(shadeColor(color,20),{roughness:.4,metalness:.18}),0,.55,.55,vehicleGroup);
-      box(1.48,.46,.92,renderMat(0x0aa7b8,{roughness:.38,metalness:.22}),0,.78,-.48,vehicleGroup);
-      for(const p of [[-.84,.24,-.79],[.84,.24,-.79],[-.84,.24,.79],[.84,.24,.79]]){
-        cylinder(.34,.28,0x10151d,p[0],p[1],p[2],vehicleGroup,14).rotation.z=Math.PI/2;
-      }
-    } else if (type === 'bicycle') {
-      vehicleGroup = createBicycle(0, 0, color).group; g.add(vehicleGroup);
-      vehicleGroup.position.set(0,0,0);
-    } else if (type === 'motorcycle') {
-      vehicleGroup = createMotorcycle(0, 0, color).group; g.add(vehicleGroup);
-      vehicleGroup.position.set(0,0,0);
-    } else if (type === 'skateboard') {
-      vehicleGroup = createSkateboard(0, 0).group; g.add(vehicleGroup);
-      vehicleGroup.position.set(0,0,0);
-    }
-    // NPC driver (mini)
-    const npcColor = [0xffd84d,0xff72b6,0x54c7ff,0x8ee15c,0xa66bff][Math.floor(Math.random()*5)];
-    const npcG = new THREE.Group(); npcG.position.set(0,.9,0); g.add(npcG);
-    box(.6,.8,.45,renderMat(npcColor,{roughness:.68}),0,.4,0,npcG);
-    box(.52,.52,.52,renderMat(0xffd3a0,{roughness:.72}),0,1.0,0,npcG);
-    box(.54,.14,.5,renderMat(0x3b2415,{roughness:.8}),0,1.26,0,npcG);
-    const npcVehicle = { id:`npc-vehicle-${world.npcVehicles.length}`, npcId, type, group:g, x, z, heading:0, speed:type==='car'?4.5:type==='motorcycle'?3.5:type==='bicycle'?2.2:1.8, routePoints, routeIdx:0, phase:Math.random()*6.28 };
-    g.traverse(o=>{if(o.isMesh)addVoxelOutline(o,0x0f172a,.22);});
-    world.npcVehicles.push(npcVehicle);
-    return npcVehicle;
-  }
-
-  function buildNpcVehicles() {
-    // Carros de NPCs com rotas
-    createNpcVehicle('nino','car',8,8,0xffd84d,[{x:8,z:8},{x:8,z:-18},{x:-22,z:-18},{x:-22,z:8},{x:8,z:8}]);
-    createNpcVehicle('luna','car',-22,8,0xff72b6,[{x:-22,z:8},{x:0,z:8},{x:0,z:-18},{x:-22,z:-18},{x:-22,z:8}]);
-    createNpcVehicle('teo','motorcycle',22,8,0x54c7ff,[{x:22,z:8},{x:22,z:-18},{x:0,z:-18},{x:0,z:8},{x:22,z:8}]);
-    createNpcVehicle('bia','bicycle',-10,-10,0x8ee15c,[{x:-10,z:-10},{x:-10,z:8},{x:0,z:8},{x:0,z:-10},{x:-10,z:-10}]);
-    createNpcVehicle('maya','motorcycle',65,54,0xa66bff,[{x:65,z:54},{x:55,z:48},{x:45,z:54},{x:55,z:60},{x:65,z:54}]);
-    createNpcVehicle('extra1','bicycle',35,-15,0x22c55e,[{x:35,z:-15},{x:55,z:-15},{x:55,z:0},{x:35,z:0},{x:35,z:-15}]);
-    createNpcVehicle('extra2','skateboard',5,12,0xf97316,[{x:5,z:12},{x:15,z:12},{x:15,z:0},{x:5,z:0},{x:5,z:12}]);
-    createNpcVehicle('extra3','car',-55,52,0x06b6d4,[{x:-55,z:52},{x:-28,z:52},{x:-28,z:48},{x:-55,z:48},{x:-55,z:52}]);
-  }
-
-  function updateNpcVehicles(dt) {
-    for (const nv of world.npcVehicles) {
-      const route = nv.routePoints;
-      if (!route || route.length < 2) continue;
-      const target = route[nv.routeIdx % route.length];
-      const dx = target.x - nv.group.position.x;
-      const dz = target.z - nv.group.position.z;
-      const dist = Math.hypot(dx, dz);
-      if (dist < 1.2) {
-        nv.routeIdx = (nv.routeIdx + 1) % route.length;
-      } else {
-        const spd = nv.speed * dt;
-        nv.group.position.x += (dx / dist) * spd;
-        nv.group.position.z += (dz / dist) * spd;
-        nv.heading = Math.atan2(dx, dz);
-        nv.group.rotation.y = lerpAngle(nv.group.rotation.y, nv.heading, Math.min(1, dt * 5));
-      }
-      nv.group.position.y = groundHeightAt(nv.group.position.x, nv.group.position.z);
-    }
-  }
-
-  // ============================================================
-  // V627 — CASTELO MELHORADO
-  // ============================================================
-  function buildImprovedCastle() {
-    const cx = 88, cz = 62;
-    // Muralha principal
-    box(36, 5, 30, renderMat(0x64748b,{roughness:.88,flatShading:true}), cx, 2.5, cz);
-    // Pátio interno (vazio)
-    box(28, .3, 22, renderMat(0x4b5563,{roughness:.92}), cx, .15, cz);
-    // Torres nos cantos — mais detalhadas
-    const towerPositions = [[cx-18,cz-15],[cx+18,cz-15],[cx-18,cz+15],[cx+18,cz+15]];
-    for (const [tx, tz] of towerPositions) {
-      // Corpo da torre
-      box(6, 12, 6, renderMat(0x6b7280,{roughness:.85,flatShading:true}), tx, 6, tz);
-      // Ameias
-      for(let i=0;i<3;i++) {
-        box(1.4,1.8,1.4,renderMat(0x9ca3af,{roughness:.82}),tx-2.2+i*2.2,12.9,tz-3.1);
-        box(1.4,1.8,1.4,renderMat(0x9ca3af,{roughness:.82}),tx-2.2+i*2.2,12.9,tz+3.1);
-        box(1.4,1.8,1.4,renderMat(0x9ca3af,{roughness:.82}),tx-3.1,12.9,tz-2.2+i*2.2);
-        box(1.4,1.8,1.4,renderMat(0x9ca3af,{roughness:.82}),tx+3.1,12.9,tz-2.2+i*2.2);
-      }
-      // Janelas da torre
-      makeWindow(null, tx, 8, tz+3.1, 1.2, 1.4, 0xd1d5db, 0x93c5fd);
-      // Teto cônico
-      const cone = new THREE.Mesh(new THREE.ConeGeometry(3.8,4.5,8), renderMat(0x7f1d1d,{roughness:.75,flatShading:true}));
-      cone.position.set(tx, 14.5, tz); cone.frustumCulled=false; worldGroup.add(cone);
-      addVoxelOutline(cone, 0x0f172a, .28);
-      addGlow(tx, 13.5, tz, 0xff6b35, 5);
-    }
-    // Torre central — mais alta
-    box(8, 16, 8, renderMat(0x4b5563,{roughness:.88,flatShading:true}), cx, 8, cz);
-    // Ameias da torre central
-    for(let i=0;i<4;i++) {
-      box(1.6,2.2,1.6,renderMat(0x6b7280,{roughness:.8}),cx-3.6+i*2.4,17.1,cz-4.1);
-      box(1.6,2.2,1.6,renderMat(0x6b7280,{roughness:.8}),cx-3.6+i*2.4,17.1,cz+4.1);
-      box(1.6,2.2,1.6,renderMat(0x6b7280,{roughness:.8}),cx-4.1,17.1,cz-3.6+i*2.4);
-      box(1.6,2.2,1.6,renderMat(0x6b7280,{roughness:.8}),cx+4.1,17.1,cz-3.6+i*2.4);
-    }
-    // Teto da torre central
-    const mainCone = new THREE.Mesh(new THREE.ConeGeometry(5.2,6.5,8), renderMat(0x991b1b,{roughness:.72,flatShading:true}));
-    mainCone.position.set(cx, 22, cz); mainCone.frustumCulled=false; worldGroup.add(mainCone);
-    addVoxelOutline(mainCone, 0x0f172a, .3);
-    // Bandeira no topo
-    box(.14,4.5,.14,renderMat(0xd4a017,{roughness:.6,metalness:.3}),cx,25.5,cz);
-    box(2.2,.08,1.2,renderMat(0xdc2626,{emissive:0xb91c1c,emissiveIntensity:.45}),cx+1.1,27.5,cz);
-    // Portão de entrada
-    box(5,.3,1.2,renderMat(0x374151,{roughness:.85}),cx,0.15,cz-15.5);
-    const gateArch = new THREE.Mesh(new THREE.TorusGeometry(2.2,0.45,8,16,Math.PI), renderMat(0x4b5563,{roughness:.82}));
-    gateArch.position.set(cx,2.2,cz-15.5); gateArch.rotation.x=Math.PI/2; gateArch.frustumCulled=false; worldGroup.add(gateArch);
-    box(4.8,4.5,.5,renderMat(0x374151,{roughness:.88}),cx,2.25,cz-15.5);
-    // Portão (madeira)
-    box(2.1,3.8,.22,renderMat(0x7c3f00,{roughness:.82}),-1.05,1.9,cz-15.3);
-    box(2.1,3.8,.22,renderMat(0x7c3f00,{roughness:.82}),cx+1.05,1.9,cz-15.3);
-    // Fosso (visual)
-    box(44,.25,4,renderMat(0x1e40af,{roughness:.2,metalness:.1,transparent:true,opacity:.72}),cx,.12,cz-17.5);
-    // Ponte levadiça
-    box(5,.2,4,renderMat(0x92400e,{roughness:.82}),cx,.1,cz-16.5);
-    // Muros laterais com ameias
-    for(let i=0;i<6;i++) {
-      box(1.8,2,1.8,renderMat(0x9ca3af,{roughness:.82}),cx-18+i*7.2,5.5,cz-15.5);
-      box(1.8,2,1.8,renderMat(0x9ca3af,{roughness:.82}),cx-18+i*7.2,5.5,cz+15.5);
-    }
-    // Iluminação do castelo
-    addGlow(cx, 8, cz, 0xfbbf24, 18);
-    addGlow(cx, 18, cz, 0xff6b35, 12);
-    // Tocha nas torres
-    for(const [tx,tz] of towerPositions) addGlow(tx, 11, tz, 0xff7c2a, 6);
-    // Inimigos do castelo (reposicionados)
-    createEnemy('golem', cx-8, cz-10);
-    createEnemy('golem', cx+8, cz-10);
-    createEnemy('bat', cx, cz+8);
-    // Interação com o castelo
-    registerInteractable({
-      id:'castle-gate', type:'challenge', icon:'🏰', label:'Entrar no Castelo',
-      x:cx, z:cz-14, radius:4, priority:150,
-      action:()=>{
-        if(player.scaleMode!=='giant'&&state.defeated<3){
-          toast('Derrote 3 monstros e use GRANDE para entrar.','warn',2400);
-          return;
-        }
-        player.x=cx; player.z=cz-8; player.y=0;
-        setFlag('enteredCastle'); addXP(80); addCoins(50);
-        toast('🏰 Você entrou no Castelo! Derrote o Golem Guardião!','good',3000);
-        beep(220,120,'sawtooth');
-      }
-    });
-  }
-
-  // ============================================================
-  // V627 — SKILLS APRIMORADAS
-  // ============================================================
-  const SKILLS_V627 = [
-    { id:'dash',      icon:'💨', name:'Dash',         desc:'Impulso rápido para frente',        cost:0,   xpReq:0   },
-    { id:'shield',    icon:'🛡', name:'Escudo',       desc:'Bloqueia o próximo ataque inimigo', cost:30,  xpReq:50  },
-    { id:'double-jump',icon:'⬆⬆',name:'Duplo Salto', desc:'Salte novamente no ar',             cost:60,  xpReq:120 },
-    { id:'speed-boost',icon:'⚡', name:'Turbo',       desc:'Velocidade dobrada por 5 segundos', cost:50,  xpReq:200 },
-    { id:'magnet',    icon:'🧲', name:'Ímã',          desc:'Atrai cristais e moedas próximos',  cost:80,  xpReq:350 },
-    { id:'stealth',   icon:'👻', name:'Invisível',    desc:'Fique invisível por 4 segundos',    cost:100, xpReq:500 }
-  ];
-
-  function openSkillsPanel() {
-    const unlockedSkills = state.flags.unlockedSkills || [];
-    const opts = SKILLS_V627.map(sk => {
-      const unlocked = unlockedSkills.includes(sk.id) || sk.cost === 0;
-      const canUnlock = !unlocked && state.profile.coins >= sk.cost && state.profile.xp >= sk.xpReq;
-      const locked = !unlocked && !canUnlock;
-      return `<div class="choice ${unlocked?'active':locked?'locked':''}"><b>${sk.icon} ${sk.name}</b><span>${sk.desc}</span>${unlocked?'<small>✓ Desbloqueada</small>':canUnlock?`<button class="btn compact primary" data-unlock-skill="${sk.id}">Desbloquear — ${sk.cost} moedas</button>`:`<small>Requer ${sk.xpReq} XP e ${sk.cost} moedas</small>`}</div>`;
-    }).join('');
-    openModal('⚡ Habilidades Especiais', `<p>XP total: <b>${state.profile.xp}</b> • Moedas: <b>${state.profile.coins}</b></p><div class="choice-grid">${opts}</div>`, root => {
-      $$('[data-unlock-skill]', root).forEach(btn => btn.onclick = () => {
-        const skId = btn.dataset.unlockSkill;
-        const sk = SKILLS_V627.find(s => s.id === skId);
-        if (!sk || state.profile.coins < sk.cost || state.profile.xp < sk.xpReq) { toast('Requisitos não atendidos.', 'warn'); return; }
-        addCoins(-sk.cost);
-        if (!state.flags.unlockedSkills) state.flags.unlockedSkills = [];
-        state.flags.unlockedSkills.push(skId);
-        saveState(true); closeModal();
-        toast(`${sk.icon} Habilidade desbloqueada: ${sk.name}!`, 'good', 2400);
-        addXP(30);
-        openSkillsPanel();
-      });
-    });
-  }
-
-  function useSkill(skillId) {
-    const unlockedSkills = state.flags.unlockedSkills || [];
-    if (!unlockedSkills.includes(skillId) && skillId !== 'dash') { toast('Habilidade não desbloqueada.', 'warn'); return; }
-    const now = performance.now();
-    const cooldownKey = `skill_cd_${skillId}`;
-    if (now < (player[cooldownKey] || 0)) { toast('Habilidade em recarga.', 'warn', 900); return; }
-    if (skillId === 'dash') {
-      player[cooldownKey] = now + 1800;
-      const fx = Math.sin(player.facing), fz = Math.cos(player.facing);
-      player.vx += fx * 12; player.vz += fz * 12;
-      beep(480, 60, 'sine'); toast('💨 Dash!', 'good', 700);
-    } else if (skillId === 'shield') {
-      player[cooldownKey] = now + 8000;
-      player.shieldUntil = now + 3500;
-      beep(660, 80, 'square'); toast('🛡 Escudo ativado por 3,5s!', 'good', 1800);
-    } else if (skillId === 'double-jump') {
-      if (!player.grounded && !player.usedDoubleJump) {
-        player.usedDoubleJump = true;
-        player[cooldownKey] = now + 3000;
-        player.vy = 8.5; beep(780, 70, 'sine'); toast('⬆⬆ Duplo Salto!', 'good', 700);
-      }
-    } else if (skillId === 'speed-boost') {
-      player[cooldownKey] = now + 12000;
-      player.speedBoostUntil = now + 5000;
-      beep(880, 90, 'sine'); toast('⚡ Turbo ativado por 5s!', 'good', 1800);
-    } else if (skillId === 'magnet') {
-      player[cooldownKey] = now + 10000;
-      for(const c of world.crystals) {
-        if(!c.got && Math.hypot(player.x-c.x,player.z-c.z)<8) {
-          c.got=true; c.mesh.visible=false;
-          state.inventory.crystals++; addXP(15); addCoins(5);
-        }
-      }
-      beep(660, 80, 'square'); toast('🧲 Ímã: cristais coletados!', 'good', 2000);
-      saveState();
-    } else if (skillId === 'stealth') {
-      player[cooldownKey] = now + 15000;
-      player.stealthUntil = now + 4000;
-      if(playerModel) playerModel.traverse(o=>{if(o.isMesh)o.material.transparent=true;o.material&&(o.material.opacity=.18);});
-      setTimeout(()=>{ if(playerModel) playerModel.traverse(o=>{if(o.isMesh){o.material.transparent=false;o.material.opacity=1;}}); }, 4000);
-      beep(220, 100, 'sine'); toast('👻 Invisível por 4s!', 'good', 1800);
-    }
-  }
-
-  // ============================================================
-  // V627 — CO-OP EM VEÍCULOS (2 jogadores/bots)
-  // ============================================================
-  function enterVehicleAsPassenger(hostUid) {
-    if (player.vehicle) exitVehicle(true);
-    player.vehiclePassengerOf = hostUid;
-    player.vehicle = false; // passageiro não controla
-    toast('Você entrou como passageiro no carro!', 'good', 2600);
-    saveState(true);
-  }
-
-  function exitVehiclePassenger() {
-    if (!player.vehiclePassengerOf) return;
-    player.vehiclePassengerOf = '';
-    toast('Você saiu do carro.', 'good');
-    saveState(true);
-  }
-
-  async function inviteToVehicle(targetUid, targetName) {
-    if (!player.vehicle) { toast('Você precisa estar no carro para convidar.', 'warn'); return; }
-    const result = await sendSocialActionRequest(targetUid, targetName, 'vehiclePassenger', { x: player.x, z: player.z });
-    if (result) toast(`Convite de carona enviado para ${targetName}.`, 'good', 2200);
-  }
-
-  // Estender SOCIAL_ACTION_LABELS para veículo
-  // (será aplicado após a declaração original)
-
+  function openCastleChallenge(){const mastery=Number(state.skillMastery.total||0);openModal('Castelo das Skills',`<div class="castle-challenge-card"><div class="castle-crest">🏰</div><h3>Prova dos Três Poderes</h3><p>Ative Impulso, Super Pulo e Escudo. Depois volte ao portão para receber a insígnia.</p><div class="skill-proof"><span>${state.flags.usedDash?'✅':'⚡'} Impulso</span><span>${state.flags.usedSuperJump?'✅':'🚀'} Super Pulo</span><span>${state.flags.usedShield?'✅':'🛡️'} Escudo</span></div><small>Maestria total: ${mastery}</small><button class="btn primary xl" data-complete-castle ${state.flags.usedDash&&state.flags.usedSuperJump&&state.flags.usedShield?'':'disabled'}>Concluir prova</button></div>`,root=>$('[data-complete-castle]',root).onclick=()=>{if(state.flags.castleTrial){toast('A prova do Castelo já foi concluída.','good');return;}setFlag('castleTrial');addCoins(240);addXP(180);awardMedal('Insígnia do Castelo');closeModal();toast('Prova concluída! O Castelo reconheceu suas habilidades.','good',3000);evaluateMissions();saveState(true);});}
   function createWaypointMarker(){
     const group=new THREE.Group();
     const beam=box(.32,6,.32,0x38d8ff,0,3,0,group);beam.material.transparent=true;beam.material.opacity=.48;
@@ -2327,20 +1850,11 @@
   function cancelFishingSession(){clearFishingTimers();fishingSession=null;stopFishingVisual();}
   function ensureFishingModalStyle(){
     if(document.getElementById('otthosFishingModalStyle'))return;const style=document.createElement('style');style.id='otthosFishingModalStyle';style.textContent=`
-      /* V627: modal de pesca compacto e limpo — sem excesso de texto na tela */
-      .modal.fishing-modal{background:transparent!important;backdrop-filter:none!important;pointer-events:none!important;align-items:flex-end!important;justify-content:center!important;padding-bottom:clamp(80px,14dvh,160px)!important}
-      .modal.fishing-modal .modal-card{pointer-events:auto!important;width:min(280px,calc(100vw - 24px))!important;max-height:none!important;border-radius:16px!important;background:rgba(5,22,38,.88)!important;box-shadow:0 8px 24px rgba(0,0,0,.38)!important}
-      .modal.fishing-modal .modal-card>header{min-height:36px!important;padding:4px 8px!important}.modal.fishing-modal .modal-card>header h2{font-size:15px!important}.modal.fishing-modal .modal-card>header button{width:32px!important;height:32px!important}
-      .modal.fishing-modal .modal-body{padding:6px 8px 8px!important;max-height:none!important;overflow:visible!important}
-      .modal.fishing-modal .activity-card{padding:0!important}
-      .modal.fishing-modal .activity-card .activity-icon{display:none!important}
-      .modal.fishing-modal .activity-card h3{margin:0 0 2px!important;font-size:14px!important}
-      .modal.fishing-modal .activity-card p{margin:2px 0!important;font-size:11px!important;opacity:.82!important;display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important;overflow:hidden!important}
-      .modal.fishing-modal .activity-meter{margin:5px 0!important;height:7px!important}
-      .modal.fishing-modal .btn.xl{min-height:38px!important;padding:6px 10px!important;font-size:12px!important}
-      /* Ocultar blocos de texto verbosos durante a pesca */
-      .modal.fishing-modal .fishing-species-list,.modal.fishing-modal .fishing-log,.modal.fishing-modal .fishing-stats-block{display:none!important}
-      @media (orientation:landscape) and (max-height:560px){.modal.fishing-modal{align-items:flex-end!important;justify-content:flex-start!important;padding:0 0 12px max(12px,env(safe-area-inset-left))!important}.modal.fishing-modal .modal-card{width:min(260px,42vw)!important}}
+      .modal.fishing-modal{background:transparent!important;backdrop-filter:none!important;pointer-events:none!important;align-items:flex-start!important;justify-content:center!important;padding-top:clamp(155px,31dvh,285px)!important}
+      .modal.fishing-modal .modal-card{pointer-events:auto!important;width:min(360px,calc(100vw - 18px))!important;max-height:none!important;border-radius:18px!important;background:rgba(5,22,38,.92)!important;box-shadow:0 12px 32px rgba(0,0,0,.42)!important}
+      .modal.fishing-modal .modal-card>header{min-height:44px!important;padding:6px 10px!important}.modal.fishing-modal .modal-card>header h2{font-size:18px!important}.modal.fishing-modal .modal-card>header button{width:36px!important;height:36px!important}
+      .modal.fishing-modal .modal-body{padding:8px 10px 10px!important;max-height:none!important;overflow:visible!important}.modal.fishing-modal .activity-card{padding:0!important}.modal.fishing-modal .activity-card .activity-icon{display:none!important}.modal.fishing-modal .activity-card h3{margin:2px 0 4px!important;font-size:16px!important}.modal.fishing-modal .activity-card p{margin:4px 0!important;font-size:12px!important}.modal.fishing-modal .activity-meter{margin:7px 0!important;height:8px!important}.modal.fishing-modal .btn.xl{min-height:42px!important;padding:8px 12px!important;font-size:13px!important}
+      @media (orientation:landscape) and (max-height:560px){.modal.fishing-modal{align-items:flex-start!important;justify-content:flex-start!important;padding:72px 0 0 max(12px,env(safe-area-inset-left))!important}.modal.fishing-modal .modal-card{width:min(330px,45vw)!important}}
     `;document.head.appendChild(style);
   }
   function updateFishingVisual(){
@@ -2356,7 +1870,9 @@
   }
   function createBoatModel(){
     const g=new THREE.Group();const hull=renderMat(0x7b3f20,{roughness:.72}),edge=renderMat(0xe3ad55,{roughness:.62}),seat=renderMat(0x374151,{roughness:.72});
-    premiumBox(2.4,.42,4.4,hull,0,.38,0,g);premiumBox(2.75,.25,3.85,edge,0,.67,0,g);premiumBox(1.85,.23,3.15,renderMat(0x2d6f8d,{roughness:.48}),0,.83,0,g);premiumBox(1.75,.25,.55,seat,0,1.02,-.65,g);premiumBox(1.75,.25,.55,seat,0,1.02,.72,g);premiumBox(.12,1.8,.12,0xd8c28d,.95,1.35,.1,g);premiumBox(1.45,.05,.72,0xf5f1df,.25,2.05,.1,g);g.position.set(-38,.1,52);worldGroup.add(g);world.boat={id:'lake-boat',group:g,x:-38,z:52,heading:0,driverUid:'',passengerUid:''};
+    premiumBox(2.4,.42,4.4,hull,0,.38,0,g);premiumBox(2.75,.25,3.85,edge,0,.67,0,g);premiumBox(1.85,.23,3.15,renderMat(0x2d6f8d,{roughness:.48}),0,.83,0,g);premiumBox(1.75,.25,.55,seat,0,1.02,-.65,g);premiumBox(1.75,.25,.55,seat,0,1.02,.72,g);premiumBox(.12,1.8,.12,0xd8c28d,.95,1.35,.1,g);premiumBox(1.45,.05,.72,0xf5f1df,.25,2.05,.1,g);
+    const passengerVisual=createPassengerProxy(g,{x:-.48,y:1.02,z:.66,color:0x8f69df,scale:.62});
+    g.position.set(-38,.1,52);worldGroup.add(g);world.boat={id:'lake-boat',group:g,x:-38,z:52,heading:0,driverUid:'',passengerUid:'',passengerVisual};
     registerInteractable({id:'lake-boat-entry',type:'boat',icon:'🛶',label:'Entrar no barco',radius:3.1,priority:180,getPos:()=>({x:world.boat?.group.position.x||-38,z:world.boat?.group.position.z||52}),action:enterBoat});
   }
   function ensureBoatPanel(){
@@ -2364,13 +1880,13 @@
   }
   function updateBoatPanel(){const panel=ensureBoatPanel();panel.hidden=!player.boating;if(player.boating){const passenger=!!player.boat.passengerOf;panel.querySelector('[data-boat-fish]').disabled=passenger;panel.querySelector('[data-boat-fish] span').textContent=passenger?'Passageiro':'Pescar';}}
   async function enterBoat(){
-    if(player.boating)return;if(player.vehicle)exitVehicle(true);if(!world.boat)return;const p=world.boat.group.position;if(Math.hypot(player.x-p.x,player.z-p.z)>3.6){toast('Chegue perto do barco pelo píer.','warn');return;}const lock=await window.OTTHOS_RTDB?.claimBoat?.(world.boat.id);if(lock&&lock.ok===false){toast(lock.error||'O barco já está sendo usado por outro jogador.','warn',2800);return;}player.boating=true;player.boat.passengerOf='';player.boat.passengerUid='';player.boat.heading=world.boat.heading||0;player.boat.speed=0;player.boat.steerVisual=0;player.x=p.x;player.z=p.z;player.y=.18;player.vx=player.vz=0;state.boats.activeBoatId=world.boat.id;state.boats.passengerOf='';updateBoatPanel();toast('Barco pronto. Use o manche para navegar.','good',2300);saveState(true);
+    if(player.boating)return;if(player.publicRide?.type)exitPublicRide(true);if(player.vehicle)exitVehicle(true);if(!world.boat)return;const p=world.boat.group.position;if(Math.hypot(player.x-p.x,player.z-p.z)>3.6){toast('Chegue perto do barco pelo píer.','warn');return;}const lock=await window.OTTHOS_RTDB?.claimBoat?.(world.boat.id);if(lock&&lock.ok===false){toast(lock.error||'O barco já está sendo usado por outro jogador.','warn',2800);return;}player.boating=true;player.boat.passengerOf='';player.boat.passengerUid='';player.boat.heading=world.boat.heading||0;player.boat.speed=0;player.boat.steerVisual=0;player.x=p.x;player.z=p.z;player.y=.18;player.vx=player.vz=0;state.boats.activeBoatId=world.boat.id;state.boats.passengerOf='';updateBoatPanel();toast('Barco pronto. Use o manche para navegar.','good',2300);saveState(true);
   }
   function enterBoatAsPassenger(hostUid){
-    const ghost=world.ghosts.get(hostUid);if(!ghost){toast('O barco do jogador não está mais disponível.','warn');return false;}if(player.vehicle)exitVehicle(true);player.boating=true;player.boat.passengerOf=hostUid;player.boat.speed=0;player.x=ghost.position.x;player.z=ghost.position.z;state.boats.activeBoatId='lake-boat';state.boats.passengerOf=hostUid;updateBoatPanel();toast('Você entrou como passageiro. O motorista controla o barco.','good',2600);saveState(true);return true;
+    const ghost=world.ghosts.get(hostUid);if(!ghost){toast('O barco do jogador não está mais disponível.','warn');return false;}if(player.publicRide?.type)exitPublicRide(true);if(player.vehicle)exitVehicle(true);player.boating=true;player.boat.passengerOf=hostUid;player.boat.speed=0;player.x=ghost.position.x;player.z=ghost.position.z;state.boats.activeBoatId='lake-boat';state.boats.passengerOf=hostUid;updateBoatPanel();toast('Você entrou como passageiro. O motorista controla o barco.','good',2600);saveState(true);return true;
   }
   function exitBoat(silent=false){
-    if(!player.boating)return false;if(!silent&&!validBoatExit()){toast('Encoste a lateral do barco no píer para sair com segurança.','warn',2500);return false;}const passengerHost=player.boat.passengerOf,hostedPassenger=player.boat.passengerUid,wasPassenger=!!passengerHost;if(passengerHost)window.OTTHOS_RTDB?.sendInteraction?.(passengerHost,{type:'boatPassengerLeft'});else if(hostedPassenger)window.OTTHOS_RTDB?.sendInteraction?.(hostedPassenger,{type:'boatEnded'});player.boating=false;player.boat.passengerOf='';player.boat.passengerUid='';player.boat.speed=0;player.boat.steerVisual=0;state.boats.passengerOf='';state.boats.activeBoatId='';if(!wasPassenger&&world.boat)window.OTTHOS_RTDB?.releaseBoat?.(world.boat.id);if(world.boat&&!wasPassenger){world.boat.group.position.set(player.x,.1,player.z);world.boat.heading=player.boat.heading;world.boat.group.rotation.y=player.boat.heading;}const safe=safeBoatExitPoint();player.x=safe.x;player.z=safe.z;player.y=groundHeightAt(safe.x,safe.z);player.vx=player.vz=0;updateBoatPanel();if(!silent)toast('Você desembarcou no píer.','good');saveState(true);return true;
+    if(!player.boating)return false;if(!silent&&!validBoatExit()){toast('Encoste a lateral do barco no píer para sair com segurança.','warn',2500);return false;}const passengerHost=player.boat.passengerOf,hostedPassenger=player.boat.passengerUid,wasPassenger=!!passengerHost;releaseBotPassenger('boat');if(passengerHost)window.OTTHOS_RTDB?.sendInteraction?.(passengerHost,{type:'boatPassengerLeft'});else if(hostedPassenger)window.OTTHOS_RTDB?.sendInteraction?.(hostedPassenger,{type:'boatEnded'});player.boating=false;player.boat.passengerOf='';player.boat.passengerUid='';player.boat.speed=0;player.boat.steerVisual=0;state.boats.passengerOf='';state.boats.activeBoatId='';if(!wasPassenger&&world.boat)window.OTTHOS_RTDB?.releaseBoat?.(world.boat.id);if(world.boat&&!wasPassenger){world.boat.group.position.set(player.x,.1,player.z);world.boat.heading=player.boat.heading;world.boat.group.rotation.y=player.boat.heading;}const safe=safeBoatExitPoint();player.x=safe.x;player.z=safe.z;player.y=groundHeightAt(safe.x,safe.z);player.vx=player.vz=0;updateBoatPanel();if(!silent)toast('Você desembarcou no píer.','good');saveState(true);return true;
   }
   function updateBoatPhysics(dt,ix,iz){
     const boat=player.boat;if(boat.passengerOf){const ghost=world.ghosts.get(boat.passengerOf),target=ghost?.userData?.target;if(!ghost||!target){boat.hostMissingAt=boat.hostMissingAt||performance.now();if(performance.now()-boat.hostMissingAt>3500){toast('O motorista saiu. Você voltou ao píer.','warn');player.x=-24.7;player.z=52;exitBoat(true);}player.vx=player.vz=0;return;}boat.hostMissingAt=0;const tx=Number(target.x||ghost.position.x),tz=Number(target.z||ghost.position.z);player.vx=clamp((tx-player.x)*8,-18,18);player.vz=clamp((tz-player.z)*8,-18,18);boat.heading=Number(target.r||boat.heading);player.facing=boat.heading;return;}
@@ -2380,11 +1896,11 @@
   function weightedFish(){let r=Math.random()*100;for(const fish of FISH_SPECIES){r-=fish.weight;if(r<=0)return fish;}return FISH_SPECIES[0];}
   function startFishing(source='shore',options={}){
     if(fishingSession){toast('Finalize a pesca atual primeiro.','warn');return;}if((state.inventory.fishingRod||0)<1){toast('Você precisa de uma vara de pesca.','warn');return;}if((state.inventory.bait||0)<1){toast('Você ficou sem isca.','warn');return;}if(source==='boat'&&!player.boating){toast('Entre no barco primeiro.','warn');return;}if(source!=='boat'&&!isNearFishingArea()){toast('Pesque somente nos pontos marcados da margem.','warn');return;}const wait=Math.max(0,6500-(Date.now()-Number(state.fishing.lastAttempt||0)));if(wait>0){toast(`Aguarde ${Math.ceil(wait/1000)} s para tentar novamente.`,'warn');return;}
-    const token=uid();fishingSession={token,source,options,hookTimer:0,escapeTimer:0,finishTimer:0};beginFishingVisual(source);ensureFishingModalStyle();openModal(options.cooperative?'Pesca com amigo':'Pesca',`<div class="activity-card fishing-card"><div class="activity-icon">🎣</div><h3>${source==='boat'?'Pesca no barco':'Pesca na margem'}</h3><p data-fishing-status>O personagem está segurando a vara. Toque para lançar.</p><div class="activity-meter"><i data-fishing-meter></i></div><button class="btn primary xl" data-cast>Lançar a vara</button><button class="btn good xl" data-pull hidden>Fisgou! Puxar agora</button></div>`,root=>{
+    const token=uid();fishingSession={token,source,options,hookTimer:0,escapeTimer:0,finishTimer:0};beginFishingVisual(source);ensureFishingModalStyle();openModal(options.cooperative?'Pesca com amigo':'Pesca',`<div class="activity-card fishing-card fishing-card-compact"><div class="fishing-compact-status"><b>🎣</b><span data-fishing-status>Pronto para lançar</span></div><div class="activity-meter"><i data-fishing-meter></i></div><button class="btn primary" data-cast>Lançar</button><button class="btn good" data-pull hidden>Puxar!</button></div>`,root=>{
       els.modal.classList.add('fishing-modal');
       const status=$('[data-fishing-status]',root),cast=$('[data-cast]',root),pull=$('[data-pull]',root),meter=$('[data-fishing-meter]',root);
-      cast.onclick=()=>{if(!fishingSession||fishingSession.token!==token)return;cast.disabled=true;state.inventory.bait--;state.fishing.lastAttempt=Date.now();saveState(true);status.textContent='A vara foi lançada. Observe a boia e espere a fisgada.';meter.style.animation='fishingWait 2.4s linear forwards';castFishingVisual();const hookDelay=1400+Math.random()*1700;fishingSession.hookTimer=setTimeout(()=>{if(!fishingSession||fishingSession.token!==token||els.modal.hidden){cancelFishingSession();return;}status.textContent='O peixe puxou a linha! Fisgue antes que ele escape.';pull.hidden=false;hookFishingVisual();beep(880,100,'sine');vibrate([35,35,55]);fishingSession.hookedAt=performance.now();fishingSession.escapeTimer=setTimeout(()=>{if(!fishingSession||fishingSession.token!==token)return;status.textContent='O peixe soltou a isca e escapou.';pull.hidden=true;pullFishingVisual(false);fishingSession.finishTimer=setTimeout(()=>{if(fishingSession?.token===token)fishingSession=null;stopFishingVisual();},800);},2700);},hookDelay);};
-      pull.onclick=()=>{if(!fishingSession||fishingSession.token!==token)return;clearTimeout(fishingSession.escapeTimer);const reaction=performance.now()-Number(fishingSession.hookedAt||performance.now()),success=reaction<2400&&Math.random()<.88;pull.hidden=true;if(!success){status.textContent='Você puxou fora do tempo e o peixe escapou.';pullFishingVisual(false);saveState();fishingSession.finishTimer=setTimeout(()=>{if(fishingSession?.token===token)fishingSession=null;stopFishingVisual();},800);return;}const fish=weightedFish(),size=+(fish.min+Math.random()*(fish.max-fish.min)).toFixed(2),catchId=uid();state.inventory.rawFish=(state.inventory.rawFish||0)+1;state.fishing.catches.push({id:catchId,species:fish.name,size,rarity:fish.rarity,caughtAt:Date.now(),source,cooperative:!!options.cooperative});state.fishing.catches=state.fishing.catches.slice(-200);state.fishing.species[fish.name]=(state.fishing.species[fish.name]||0)+1;let xp=fish.xp,coins=fish.coins;if(options.cooperative&&options.requestId&&!state.fishing.cooperativeRewards.includes(options.requestId)){state.fishing.cooperativeRewards.push(options.requestId);state.fishing.cooperativeRewards=state.fishing.cooperativeRewards.slice(-80);xp+=6;coins+=3;}addXP(xp);addCoins(coins);status.innerHTML=`<b>Você fisgou ${fish.name}!</b><br>${size} kg • ${fish.rarity} • o peixe apareceu na linha e foi para o inventário.`;pullFishingVisual(true,{...fish,size});beep(1040,130,'sine');vibrate([40,35,70]);clearFishingTimers(fishingSession);fishingSession=null;stopFishingVisual(1800);saveState(true);};
+      cast.onclick=()=>{if(!fishingSession||fishingSession.token!==token)return;cast.disabled=true;state.inventory.bait--;state.fishing.lastAttempt=Date.now();saveState(true);status.textContent='Aguardando fisgada…';meter.style.animation='fishingWait 2.4s linear forwards';castFishingVisual();const hookDelay=1400+Math.random()*1700;fishingSession.hookTimer=setTimeout(()=>{if(!fishingSession||fishingSession.token!==token||els.modal.hidden){cancelFishingSession();return;}status.textContent='Fisgou! Puxe agora!';pull.hidden=false;hookFishingVisual();beep(880,100,'sine');vibrate([35,35,55]);fishingSession.hookedAt=performance.now();fishingSession.escapeTimer=setTimeout(()=>{if(!fishingSession||fishingSession.token!==token)return;status.textContent='Escapou.';pull.hidden=true;pullFishingVisual(false);fishingSession.finishTimer=setTimeout(()=>{if(fishingSession?.token===token)fishingSession=null;stopFishingVisual();},800);},2700);},hookDelay);};
+      pull.onclick=()=>{if(!fishingSession||fishingSession.token!==token)return;clearTimeout(fishingSession.escapeTimer);const reaction=performance.now()-Number(fishingSession.hookedAt||performance.now()),success=reaction<2400&&Math.random()<.88;pull.hidden=true;if(!success){status.textContent='Puxou fora do tempo.';pullFishingVisual(false);saveState();fishingSession.finishTimer=setTimeout(()=>{if(fishingSession?.token===token)fishingSession=null;stopFishingVisual();},800);return;}const fish=weightedFish(),size=+(fish.min+Math.random()*(fish.max-fish.min)).toFixed(2),catchId=uid();state.inventory.rawFish=(state.inventory.rawFish||0)+1;state.fishing.catches.push({id:catchId,species:fish.name,size,rarity:fish.rarity,caughtAt:Date.now(),source,cooperative:!!options.cooperative});state.fishing.catches=state.fishing.catches.slice(-200);state.fishing.species[fish.name]=(state.fishing.species[fish.name]||0)+1;let xp=fish.xp,coins=fish.coins;if(options.cooperative&&options.requestId&&!state.fishing.cooperativeRewards.includes(options.requestId)){state.fishing.cooperativeRewards.push(options.requestId);state.fishing.cooperativeRewards=state.fishing.cooperativeRewards.slice(-80);xp+=6;coins+=3;}addXP(xp);addCoins(coins);status.innerHTML=`<b>${fish.name}</b> • ${size} kg • ${fish.rarity}`;pullFishingVisual(true,{...fish,size});beep(1040,130,'sine');vibrate([40,35,70]);clearFishingTimers(fishingSession);fishingSession=null;stopFishingVisual(1800);saveState(true);};
     });
   }
   function campfireAllowed(x,z){if(Math.hypot(x+70,z+62)>14)return false;if(waterAt(x,z))return false;if(WORLD_MAP_ROADS.some(r=>rectOverlap({x,z,w:3,d:3},r,.5)))return false;if(world.houses.some(h=>Math.hypot(x-h.x,z-h.z)<10))return false;return true;}
@@ -2447,10 +1963,10 @@
     // yards/fences/lamps
     createFenceLine(-36,26,-14,26,9);createFenceLine(14,26,36,26,9);createFenceLine(-10,29,10,29,8);for(const p of [[-9,9],[9,9],[-33,8],[33,8],[-10,-7],[10,-7]])createLamp(p[0],p[1]);
     // NPCs
-    createNPC('nino','Nino',4,3,0xffd84d,4);createNPC('luna','Luna',-22,8,0xff72b6,4);createNPC('teo','Teo',22,7,0x54c7ff,4);createNPC('bia','Bia',-10,-10,0x8ee15c,3);createNPC('maya','Maya',65,54,0xa66bff,3);
+    const nino=createNPC('nino','Nino',4,3,0xffd84d,4),luna=createNPC('luna','Luna',-22,8,0xff72b6,4),teo=createNPC('teo','Teo',22,7,0x54c7ff,4),bia=createNPC('bia','Bia',-10,-10,0x8ee15c,3),maya=createNPC('maya','Maya',65,54,0xa66bff,3);attachNpcTransport(nino,'bike',0x45a9df);attachNpcTransport(luna,'skate',0xf05f9b);attachNpcTransport(teo,'motorcycle',0x4d78e6);attachNpcTransport(maya,'car',0xa66bff);
     // farm and garage
     createFenceLine(38,22,65,22,10);createFenceLine(65,22,65,43,8);for(let x=42;x<62;x+=4)for(let z=27;z<40;z+=4){box(2.8,.12,2.8,0x75451f,x,.06,z);box(.18,.55,.18,0x54c93e,x,.33,z);}
-    createToyCar(52,48);registerInteractable({id:'job-board',type:'job',icon:'📦',label:'Central de trabalhos',x:49,z:45,radius:2.3,action:openJobCenter});world.deliveryPoint={x:65,z:54};
+    createToyCar(52,48);createCityVehicleFleet();createPublicTransport();registerInteractable({id:'job-board',type:'job',icon:'📦',label:'Central de trabalhos',x:49,z:45,radius:2.3,action:openJobCenter});world.deliveryPoint={x:65,z:54};
     createLifeExpansionWorld();
     createAthleticsGym();createSizeChallenges();createWaypointMarker();
     // placas de bairro/orientação (somente decorativas, não alteram colisão nem interação)
@@ -2459,9 +1975,9 @@
     createSignpost(70,40,'Castelo',Math.PI*.7); createSignpost(-58,50,'Lago',Math.PI*.4);
     // platform challenge
     const coords=[[48,0,-48],[53,1.2,-55],[59,2.3,-61],[66,3.5,-67],[74,4.6,-72],[82,5.8,-76]];coords.forEach(([x,y,z],i)=>{createPlatform(x,y+.5,z,3.2,3.2,i%2?0x7a4ed0:0x3e9fd8);createCrystal(x,y+1.7,z,i===coords.length-1);});world.secretChest=createChest('secret',86,-78,true);
-    // castle and enemies — V627: castelo melhorado
-    buildImprovedCastle();
-    createEnemy('slime',48,-25);createEnemy('slime',58,-32);createEnemy('bat',72,-43);createEnemy('slime',96,56);
+    // castle and enemies
+    createPremiumCastle(88,62);
+    createEnemy('slime',48,-25);createEnemy('slime',58,-32);createEnemy('bat',72,-43);createEnemy('golem',82,48);createEnemy('slime',96,56);
     // crystals spread
     for(const p of [[12,1,-2],[-14,1,-8],[36,1,-15],[-45,1,18],[-63,1,-35],[78,1,15],[95,1,-20]])createCrystal(...p);
     // public interactables
@@ -2472,11 +1988,6 @@
     updateBridgeVisual();
     // boundaries mountains
     for(let i=0;i<34;i++){const a=i/34*Math.PI*2,r=118+Math.random()*10,x=Math.cos(a)*r,z=Math.sin(a)*r;box(12,12+Math.random()*16,12,0x6d7d8a,x,6,z);}
-    // V627: sistemas novos
-    buildMetroSystem();
-    buildBusSystem();
-    buildExtraVehicles();
-    buildNpcVehicles();
   }
 
   function collectResource(id){
@@ -2606,6 +2117,7 @@
       <button class="choice" data-social="play"><b>🎈 Brincar</b><span>Diversão e amizade</span></button>
       <button class="choice" data-social="selfie"><b>📸 Tirar selfie</b><span>Guarde uma lembrança</span></button>
       <button class="choice" data-social="follow"><b>👣 Seguir junto</b><span>O vizinho acompanha você</span></button>
+      ${(player.vehicle||player.boating)?'<button class="choice" data-social="ride"><b>🧑‍🤝‍🧑 Viajar comigo</b><span>Entrar como passageiro</span></button>':''}
     </div>`,root=>{
       $$('[data-social]',root).forEach(btn=>btn.onclick=()=>{
         const action=btn.dataset.social;
@@ -2629,6 +2141,7 @@
         else if(action==='play'){triggerEmote('play',npc);state.needs.fun=clamp(state.needs.fun+14,0,100);changeFriendship(npc,3,`${npc.name} adorou brincar!`);closeModal();}
         else if(action==='selfie'){triggerEmote('selfie',npc);state.flags.selfies=(state.flags.selfies||0)+1;changeFriendship(npc,2);closeModal();}
         else if(action==='follow'){npc.following=!npc.following;toast(npc.following?`${npc.name} vai acompanhar você.`:`${npc.name} parou de seguir.`,'good');closeModal();}
+        else if(action==='ride'){boardNpcWithPlayer(npc);}
       });
     });
   }
@@ -2778,7 +2291,7 @@
     engineAudio=null;
   }
   function updateVehicleFX(dt){
-    if(!player.vehicle){if(engineAudio)stopEngineSound();return;}
+    if(!player.vehicle||player.car.passengerOf){if(engineAudio)stopEngineSound();return;}
     const car=player.car,wheels=vehicleVisual.userData.wheels,fronts=vehicleVisual.userData.frontWheels;
     const spin=car.speed*dt*3.4;
     wheels.forEach(w=>w.rotation.x-=spin);
@@ -2816,30 +2329,31 @@
     beep(410,95,'square');setTimeout(()=>{if(player.vehicle)beep(520,70,'square');},105);vibrate(18);
     vehicleVisual.scale.set(1.015,.99,1.015);setTimeout(()=>vehicleVisual?.scale?.set(1,1,1),120);
   }
-  function enterVehicle(){
-    if(player.vehicle)return;
+  function enterVehicle(record=world.vehicle){
+    if(player.vehicle||player.publicRide?.type)return;if(!record)return;
     player.preVehicleAbilities={scaleMode:player.scaleMode,crouched:player.crouched};
     // Estados de ações domésticas/personagem não podem congelar a física do carro.
     player.sitUntil=0;player.attackUntil=0;player.spinUntil=0;player.jumpBuffer=0;player.vy=0;player.grounded=true;
     clearMovementInputs();
-    player.vehicle=true;player.car.heading=player.facing;player.car.speed=0;player.car.steerVisual=0;player.car.drift=0;player.car._prevSpeed=0;
+    player.vehicle=true;player.car.activeVehicleId=record.id||'';player.car.passengerOf='';player.car.passengerUid='';player.car.botPassengerId='';player.car.heading=Number(record.group?.rotation?.y??player.facing);player.car.speed=0;player.car.steerVisual=0;player.car.drift=0;player.car._prevSpeed=0;world.vehicle=record;record.occupied=true;
     player.scaleMode='normal';player.crouched=false; // carro nunca herda escala/agachamento do personagem
     syncPlayerRootScale(); // imediato: não espera o próximo frame para corrigir a raiz
     updateAbilityUI();
     if(playerModel)playerModel.visible=false; if(avatarLayer)avatarLayer.visible=false;
     vehicleVisual.visible=true;vehicleVisual.scale.set(1,1,1);vehicleVisual.rotation.set(0,0,0);
-    if(world.vehicle)world.vehicle.group.visible=false;els.vehicleBadge.hidden=false;updateVehicleControlsUI();updateRunUI();setFlag('gotVehicle');toast('Carro ligado! Use o manche para dirigir.','good');startEngineSound();saveState();
+    if(record.group)record.group.visible=false;els.vehicleBadge.hidden=false;updateVehicleControlsUI();updateRunUI();setFlag('gotVehicle');if(record.id!=='garage-car')setFlag('droveFleetVehicle');toast('Carro ligado! Use o manche para dirigir.','good');startEngineSound();saveState();
+  }
+  function enterVehicleAsPassenger(hostUid){
+    const ghost=world.ghosts.get(hostUid);if(!ghost){toast('O carro do jogador não está mais disponível.','warn');return false;}if(player.publicRide?.type)exitPublicRide(true);if(player.boating){player.x=-24.7;player.z=52;exitBoat(true);}if(player.vehicle)exitVehicle(true);player.preVehicleAbilities={scaleMode:player.scaleMode,crouched:player.crouched};player.scaleMode='normal';player.crouched=false;syncPlayerRootScale();updateAbilityUI();player.vehicle=true;player.car.passengerOf=hostUid;player.car.passengerUid='';player.car.speed=0;player.car.activeVehicleId='remote';clearMovementInputs();if(playerModel)playerModel.visible=false;if(avatarLayer)avatarLayer.visible=false;vehicleVisual.visible=false;els.vehicleBadge.hidden=false;els.vehicleBadge.textContent='🚗 Passageiro — AÇÃO para sair';updateVehicleControlsUI();toast('Você entrou como passageiro. O motorista controla o carro.','good',2500);saveState(true);return true;
   }
   function exitVehicle(silent=false){
-    if(!player.vehicle)return;
-    player.vehicle=false;player.vx=0;player.vz=0;player.car.speed=0;player.car._prevSpeed=0;clearMovementInputs();
-    const prior=player.preVehicleAbilities||state.abilities||{scaleMode:'normal',crouched:false};
-    player.scaleMode=['mini','normal','giant'].includes(prior.scaleMode)?prior.scaleMode:'normal';player.crouched=!!prior.crouched;player.preVehicleAbilities=null;
-    syncPlayerRootScale(); // restaura imediatamente Mini/Normal/Grande e Abaixar do Otthos
-    if(playerModel)playerModel.visible=true; if(avatarLayer)avatarLayer.visible=true;
-    vehicleVisual.visible=false;vehicleVisual.rotation.set(0,0,0);els.vehicleBadge.hidden=true;updateVehicleControlsUI();updateRunUI();updateAbilityUI();stopEngineSound();
-    if(world.vehicle){world.vehicle.group.visible=true;world.vehicle.group.position.set(player.x,groundHeightAt(player.x,player.z),player.z);world.vehicle.group.rotation.y=player.car.heading;}if(!silent)toast('Saiu do carro.','good');
+    if(!player.vehicle)return;const passengerHost=player.car.passengerOf,hostedPassenger=player.car.passengerUid,wasPassenger=!!passengerHost;if(passengerHost)window.OTTHOS_RTDB?.sendInteraction?.(passengerHost,{type:'vehiclePassengerLeft'});else if(hostedPassenger)window.OTTHOS_RTDB?.sendInteraction?.(hostedPassenger,{type:'vehicleEnded'});releaseBotPassenger('car');
+    player.vehicle=false;player.vx=0;player.vz=0;player.car.speed=0;player.car._prevSpeed=0;player.car.passengerOf='';player.car.passengerUid='';clearMovementInputs();
+    const prior=player.preVehicleAbilities||state.abilities||{scaleMode:'normal',crouched:false};player.scaleMode=['mini','normal','giant'].includes(prior.scaleMode)?prior.scaleMode:'normal';player.crouched=!!prior.crouched;player.preVehicleAbilities=null;syncPlayerRootScale();
+    if(playerModel)playerModel.visible=true;if(avatarLayer)avatarLayer.visible=true;vehicleVisual.visible=false;vehicleVisual.rotation.set(0,0,0);els.vehicleBadge.hidden=true;updateVehicleControlsUI();updateRunUI();updateAbilityUI();stopEngineSound();
+    if(!wasPassenger){const record=world.vehicles.find(v=>v.id===player.car.activeVehicleId)||world.vehicle;if(record){record.occupied=false;record.group.visible=true;record.group.position.set(player.x,groundHeightAt(player.x,player.z),player.z);record.group.rotation.y=player.car.heading;world.vehicle=record;}}player.car.activeVehicleId='';state.vehicles.activeVehicleId='';if(!silent)toast('Saiu do carro.','good');saveState(true);
   }
+
 
   function repairBridge(){
     if(state.flags.bridgeFixed){toast('A ponte já está consertada.','good');return;}
@@ -2982,7 +2496,7 @@
     if(els.joystickKnob)els.joystickKnob.style.transform='translate(-50%,-50%)';
   }
   function canJump(){return !player.vehicle&&!player.boating&&(player.grounded||performance.now()-player.lastGrounded<125);}
-  function requestJump(){if(!els.modal.hidden||paused||player.vehicle||player.boating)return;player.jumpBuffer=performance.now()+150;if(canJump()){doJump();player.usedDoubleJump=false;}else if(!player.grounded&&(state.flags.unlockedSkills||[]).includes('double-jump')&&!player.usedDoubleJump){useSkill('double-jump');}}
+  function requestJump(){if(!els.modal.hidden||paused||player.vehicle||player.boating)return;player.jumpBuffer=performance.now()+150;if(canJump())doJump();}
   function doJump(){if(!canJump())return;state.stats.jumps++;trackDaily('jump',1);player.vy=10.2;player.grounded=false;player.jumpBuffer=0;beep(540);vibrate(18);}
   function updatePlayer(dt){
     // Entrada é atualizada em todos os estados. O veículo tem prioridade absoluta:
@@ -2991,6 +2505,7 @@
     input.x=lerp(input.x,input.targetX,Math.min(1,dt*34));
     input.z=lerp(input.z,input.targetZ,Math.min(1,dt*34));
     const mag=Math.hypot(input.x,input.z);let ix=input.x,iz=input.z;if(mag>1){ix/=mag;iz/=mag;}if(fishingSession){ix=0;iz=0;input.x=input.z=input.targetX=input.targetZ=0;}
+    if(player.publicRide?.type){updatePublicRide();playerGroup.position.set(player.x,player.y,player.z);playerGroup.rotation.y=player.facing;contactShadow.position.set(player.x,.04,player.z);contactShadow.material.opacity=.12;updateContext();return;}
 
     if(player.boating){
       updateBoatPhysics(dt,ix,iz);
@@ -3002,23 +2517,22 @@
       const forwardX=Math.sin(cameraYaw),forwardZ=-Math.cos(cameraYaw),rightX=Math.cos(cameraYaw),rightZ=Math.sin(cameraYaw);
       const wantsSprint=sprintRequested()&&mag>.14&&!player.crouched&&state.needs.energy>4;input.isSprinting=wantsSprint;
       const needsPenalty=state.needs.energy<15?.72:state.needs.hunger<15?.82:1;const sizeSpeed=player.scaleMode==='mini'?1.12:player.scaleMode==='giant'?.84:1;
-      const speedBoostMult=performance.now()<(player.speedBoostUntil||0)?1.72:1;
-      const speed=(wantsSprint?11.4:7.35)*needsPenalty*sizeSpeed*(player.crouched?.54:1)*speedBoostMult;
+      const speed=(wantsSprint?11.4:7.35)*needsPenalty*sizeSpeed*(player.crouched?.54:1);
       const targetVx=(rightX*ix+forwardX*iz)*speed,targetVz=(rightZ*ix+forwardZ*iz)*speed;const accel=player.grounded?(wantsSprint?34:29):10;
       player.vx=lerp(player.vx,targetVx,Math.min(1,dt*accel));player.vz=lerp(player.vz,targetVz,Math.min(1,dt*accel));if(mag<.03){player.vx*=Math.pow(.0008,dt);player.vz*=Math.pow(.0008,dt);}
     }
     const prevX=player.x,prevZ=player.z;player.x+=player.vx*dt;player.z+=player.vz*dt;player.x=clamp(player.x,-116,116);player.z=clamp(player.z,-116,116);if(player.boating)constrainBoat(prevX,prevZ);else{resolveCollisions(prevX,prevZ);resolveWaterWalking(prevX,prevZ);}
     const movedNow=Math.hypot(player.x-prevX,player.z-prevZ);if(movedNow>.001){if(player.vehicle||player.boating){state.stats.driven+=movedNow;trackDaily('drive',movedNow);}else{state.stats.walked+=movedNow;trackDaily('walk',movedNow);}}
     const ground=player.boating?.78:groundHeightAt(player.x,player.z);if(!player.grounded)player.vy-=31*dt;player.y+=player.vy*dt;
-    if(player.y<=ground&&player.vy<=0){const landed=!player.grounded&&player.vy<-4;player.y=ground;player.vy=0;player.grounded=true;player.lastGrounded=performance.now();player.usedDoubleJump=false;if(landed){vibrate(20);beep(180,35,'sine');}}
+    if(player.y<=ground&&player.vy<=0){const landed=!player.grounded&&player.vy<-4;player.y=ground;player.vy=0;player.grounded=true;player.lastGrounded=performance.now();if(landed){vibrate(20);beep(180,35,'sine');}}
     else if(player.y>ground+.03)player.grounded=false;
     if(player.jumpBuffer&&player.jumpBuffer>performance.now()&&canJump())doJump();
     if(!player.vehicle&&!player.boating&&Math.hypot(player.vx,player.vz)>.15)player.facing=Math.atan2(player.vx,player.vz);
-    playerGroup.position.set(player.x,player.y,player.z);playerGroup.rotation.y=performance.now()<player.spinUntil?player.facing+(1-(player.spinUntil-performance.now())/720)*Math.PI*4:player.facing;syncPlayerRootScale();contactShadow.position.set(player.x,ground+.025,player.z);const air=Math.max(0,player.y-ground);const ss=clamp(1-air*.08,.48,1);contactShadow.scale.setScalar(ss);contactShadow.material.opacity=clamp(.27-air*.035,.06,.27);vehicleVisual.visible=player.vehicle;if(world.boat)world.boat.group.visible=true;updateBoatPanel();
+    playerGroup.position.set(player.x,player.y,player.z);playerGroup.rotation.y=performance.now()<player.spinUntil?player.facing+(1-(player.spinUntil-performance.now())/720)*Math.PI*4:player.facing;syncPlayerRootScale();contactShadow.position.set(player.x,ground+.025,player.z);const air=Math.max(0,player.y-ground);const ss=clamp(1-air*.08,.48,1);contactShadow.scale.setScalar(ss);contactShadow.material.opacity=clamp(.27-air*.035,.06,.27);vehicleVisual.visible=player.vehicle&&!player.car.passengerOf;if(world.boat)world.boat.group.visible=true;updateBoatPanel();syncPassengerVisuals();
     animatePlayer(dt);checkHazards();collectNearbyCrystals();updateContext();
   }
   function updateVehiclePhysics(dt,ix,iz){
-    const car=player.car,steer=Math.abs(ix)<.06?0:ix,throttle=Math.abs(iz)<.05?0:iz;
+    const car=player.car;if(car.passengerOf){const ghost=world.ghosts.get(car.passengerOf),target=ghost?.userData?.target;if(!ghost||!target){car.hostMissingAt=car.hostMissingAt||performance.now();if(performance.now()-car.hostMissingAt>3500){toast('O motorista saiu. Você voltou à rua.','warn');exitVehicle(true);}player.vx=player.vz=0;return;}car.hostMissingAt=0;const tx=Number(target.x||ghost.position.x),tz=Number(target.z||ghost.position.z);player.vx=clamp((tx-player.x)*9,-24,24);player.vz=clamp((tz-player.z)*9,-24,24);car.heading=Number(target.r||car.heading);player.facing=car.heading;return;}const steer=Math.abs(ix)<.06?0:ix,throttle=Math.abs(iz)<.05?0:iz;
     const turbo=sprintRequested();const maxSpeed=turbo?29:23.5,maxReverse=-8.5;
     const accelFactor=car.speed>=0?Math.max(.22,1-car.speed/maxSpeed):1;
     const braking=(car.speed>0.2&&throttle<0)||(car.speed<-.2&&throttle>0)?2.75:1;
@@ -3056,7 +2570,7 @@
     if(avatarLayer){avatarLayer.position.y=playerModel.position.y;avatarLayer.rotation.x=playerModel.rotation.x;avatarLayer.rotation.z=playerModel.rotation.z;}
   }
   function checkHazards(){
-    for(const h of world.hazards){if(Math.abs(player.x-h.x)<=h.w/2&&Math.abs(player.z-h.z)<=h.d/2&&player.y<.6){if(h.type==='water'){if(!player.boating){player.vx*=.9;player.vz*=.9;}}else if(performance.now()>player.damageUntil){if(performance.now()<(player.shieldUntil||0)){toast('🛡 Escudo bloqueou a lava!','good',1200);player.shieldUntil=0;return;}player.damageUntil=performance.now()+1200;state.needs.energy=clamp(state.needs.energy-18,0,100);toast('Cuidado com a lava!','bad');returnHome();}}}
+    for(const h of world.hazards){if(Math.abs(player.x-h.x)<=h.w/2&&Math.abs(player.z-h.z)<=h.d/2&&player.y<.6){if(h.type==='water'){if(!player.boating){player.vx*=.9;player.vz*=.9;}}else if(performance.now()>player.damageUntil){player.damageUntil=performance.now()+1200;state.needs.energy=clamp(state.needs.energy-18,0,100);toast('Cuidado com a lava!','bad');returnHome();}}}
   }
   function collectNearbyCrystals(){
     for(const c of world.crystals){if(c.got)continue;c.mesh.rotation.y+=.035;c.mesh.position.y=c.y+Math.sin(animTime*2+c.x)*.12;if(Math.hypot(player.x-c.x,player.z-c.z)<1.25&&Math.abs(player.y-c.mesh.position.y)<2){c.got=true;c.mesh.visible=false;state.inventory.crystals++;state.stats.collected++;trackDaily('collect',1);addXP(15);addCoins(5);toast('Cristal coletado!','good');beep(880);vibrate(20);evaluateMissions();checkActiveJob();saveState();}}
@@ -3075,7 +2589,8 @@
 
   function updateNPCs(dt){
     for(const npc of world.npcs){
-      const near=distance2D(player,npc.group.position)<3.2;
+      if(npc.ridingWithPlayer){npc.group.visible=false;continue;}
+      npc.group.visible=true;const near=distance2D(player,npc.group.position)<3.2;
       const oldX=npc.group.position.x,oldZ=npc.group.position.z;
       if(npc.following){
         const backX=player.x-Math.sin(player.facing)*2.2,backZ=player.z-Math.cos(player.facing)*2.2;
@@ -3084,19 +2599,19 @@
         const look=Math.atan2(player.x-npc.group.position.x,player.z-npc.group.position.z);
         npc.group.rotation.y=lerpAngle(npc.group.rotation.y,look,Math.min(1,dt*5.5));
       }else{
-        npc.phase+=dt*.45;
+        const transportSpeed=npc.transportKind==='car'?2.5:npc.transportKind==='motorcycle'?2.2:npc.transportKind==='bike'?1.65:npc.transportKind==='skate'?1.45:1;npc.phase+=dt*.45*transportSpeed;
         const tx=npc.baseX+Math.sin(npc.phase)*npc.pathRadius,tz=npc.baseZ+Math.cos(npc.phase*.83)*npc.pathRadius;
-        npc.group.position.x=lerp(npc.group.position.x,tx,dt*.45);npc.group.position.z=lerp(npc.group.position.z,tz,dt*.45);
+        npc.group.position.x=lerp(npc.group.position.x,tx,Math.min(1,dt*.45*transportSpeed));npc.group.position.z=lerp(npc.group.position.z,tz,Math.min(1,dt*.45*transportSpeed));
         npc.group.rotation.y=lerpAngle(npc.group.rotation.y,Math.atan2(tx-npc.group.position.x,tz-npc.group.position.z),Math.min(1,dt*5));
       }
       const moved=Math.hypot(npc.group.position.x-oldX,npc.group.position.z-oldZ);
-      const walk=moved>.001?Math.sin(animTime*8+npc.phase)*.52:0;
+      const riding=!!npc.transportKind,walk=moved>.001&&!riding?Math.sin(animTime*8+npc.phase)*.52:0;
       const gesture=near?Math.sin(animTime*2.4+npc.phase)*.12:0,emote=performance.now()<npc.emoteUntil?npc.emoteType:'';
       if(npc.limbs){
         npc.limbs.leftArm.rotation.x=lerp(npc.limbs.leftArm.rotation.x,emote==='dance'?-1.4:walk+gesture,.18);
         npc.limbs.rightArm.rotation.x=lerp(npc.limbs.rightArm.rotation.x,emote==='wave'?-2.2:emote==='dance'?-1.4:-walk-gesture,.18);
-        npc.limbs.leftLeg.rotation.x=lerp(npc.limbs.leftLeg.rotation.x,-walk*.78,.18);
-        npc.limbs.rightLeg.rotation.x=lerp(npc.limbs.rightLeg.rotation.x,walk*.78,.18);
+        const pedal=riding&&npc.transportKind!=='car'?Math.sin(animTime*10+npc.phase)*.5:walk;npc.limbs.leftLeg.rotation.x=lerp(npc.limbs.leftLeg.rotation.x,-pedal*.78,.18);
+        npc.limbs.rightLeg.rotation.x=lerp(npc.limbs.rightLeg.rotation.x,pedal*.78,.18);if(riding){npc.limbs.leftArm.rotation.x=lerp(npc.limbs.leftArm.rotation.x,-1.15,.2);npc.limbs.rightArm.rotation.x=lerp(npc.limbs.rightArm.rotation.x,-1.15,.2);}
       }
       npc.body.position.y=1.1+(moved>.001?Math.abs(Math.sin(animTime*8+npc.phase))*.035:Math.sin(animTime*2+npc.phase)*.012);
     }
@@ -3107,7 +2622,7 @@
       const d=distance2D(player,e);let tx=e.baseX+Math.sin(animTime*.55+e.phase)*4,tz=e.baseZ+Math.cos(animTime*.48+e.phase)*4;
       if(d<9&&!currentHouse){tx=player.x;tz=player.z;}
       const speed=e.type==='bat'?2.1:e.type==='golem'?1.0:1.45;e.group.position.x=lerp(e.group.position.x,tx,dt*speed);e.group.position.z=lerp(e.group.position.z,tz,dt*speed);e.group.position.y=e.type==='bat'?1.2+Math.sin(animTime*3+e.phase)*.35:0;e.group.rotation.y=Math.atan2(tx-e.group.position.x,tz-e.group.position.z);
-      if(d<1.45&&performance.now()>player.damageUntil){if(performance.now()<(player.shieldUntil||0)){toast('🛡 Escudo bloqueou!','good',1200);player.shieldUntil=0;player.damageUntil=performance.now()+800;}else{player.damageUntil=performance.now()+1100;state.needs.energy=clamp(state.needs.energy-12,0,100);state.needs.fun=clamp(state.needs.fun-4,0,100);toast('Monstro acertou!','bad');vibrate([35,40,35]);saveState();}}
+      if(d<1.45&&performance.now()>player.damageUntil){player.damageUntil=performance.now()+1100;state.needs.energy=clamp(state.needs.energy-12,0,100);state.needs.fun=clamp(state.needs.fun-4,0,100);toast('Monstro acertou!','bad');vibrate([35,40,35]);saveState();}
     }
   }
   function meleeAttack(){
@@ -3135,18 +2650,19 @@
       const h=currentHouse;const portrait=innerHeight>innerWidth;const orbit=clamp(cameraYaw,-1.18,1.18);const dist=clamp((portrait?8.2:7.2)+cameraZoom,5.2,12.5);const height=clamp((portrait?5.6:4.6)+cameraPitch*2.4+cameraZoom*.18,3.8,8.8);
       desiredPos=new THREE.Vector3(player.x+Math.sin(orbit)*dist,player.y+height,player.z+Math.cos(orbit)*dist);look=new THREE.Vector3(player.x,player.y+1.15,player.z);camera.fov=portrait?54:50;
     }else{
-      const portrait=innerHeight>innerWidth;const speed=Math.hypot(player.vx,player.vz);
-      if((player.vehicle||player.boating)&&!input.cameraDrag){const heading=player.vehicle?player.car.heading:player.boat.heading;cameraYaw=lerpAngle(cameraYaw,Math.PI-heading,Math.min(1,dt*3.2));}
-      const speedKick=clamp(Math.abs(player.vehicle?player.car.speed:speed)/9,0,1.6);
-      const dist=clamp((portrait?12.5:10.2)+(player.vehicle?3.4:player.boating?2.2:0)+speedKick*1.6+cameraZoom,6.5,24);const height=clamp((portrait?6.6:5.4)+(player.vehicle?.4:player.boating?.25:0)+cameraPitch*2.2+cameraZoom*.16,3.5,12);
+      const portrait=innerHeight>innerWidth;const speed=Math.hypot(player.vx,player.vz);const rideBus=player.publicRide?.type==='bus'?world.buses.find(b=>b.id===player.publicRide.id):null;
+      if((player.vehicle||player.boating||rideBus)&&!input.cameraDrag){const heading=player.vehicle?player.car.heading:player.boating?player.boat.heading:rideBus.heading;cameraYaw=lerpAngle(cameraYaw,Math.PI-heading,Math.min(1,dt*3.2));}
+      const transportSpeed=player.vehicle?player.car.speed:player.boating?player.boat.speed:rideBus?rideBus.speed:speed;const speedKick=clamp(Math.abs(transportSpeed)/9,0,1.6);
+      const dist=clamp((portrait?12.5:10.2)+(player.vehicle?3.4:player.boating?2.2:rideBus?2.6:0)+speedKick*1.6+cameraZoom,6.5,24);const height=clamp((portrait?6.6:5.4)+(player.vehicle?.4:player.boating?.25:rideBus?.3:0)+cameraPitch*2.2+cameraZoom*.16,3.5,12);
       desiredPos=new THREE.Vector3(player.x-Math.sin(cameraYaw)*dist,player.y+height,player.z+Math.cos(cameraYaw)*dist);const visualHeight=1.4*playerScaleValue()*(player.crouched?.72:1);look=new THREE.Vector3(player.x+Math.sin(cameraYaw)*3.5,player.y+visualHeight,player.z-Math.cos(cameraYaw)*3.5);
-      camera.fov=(portrait?57:60)+speedKick*(player.vehicle?7:player.boating?4:2);
+      camera.fov=(portrait?57:60)+speedKick*(player.vehicle?7:player.boating?4:rideBus?4:2);
     }
     const t=1-Math.exp(-dt*7.5);camera.position.lerp(desiredPos,t);camera.lookAt(look);camera.updateProjectionMatrix();
   }
 
   function nearestInteractable(){
     if(activeRace)return null;
+    if(player.publicRide?.type)return{id:'exit-public-ride',type:'bus',icon:'🚌',label:'Descer do ônibus',radius:999,priority:1000,action:exitPublicRide};
     if(player.boating)return{id:'exit-boat',type:'boat',icon:'🛶',label:'Sair do barco no píer',radius:999,priority:999,action:exitBoat};
     if(player.vehicle)return{id:'exit-vehicle',type:'vehicle',icon:'🚗',label:'Sair do carrinho',radius:999,priority:999,action:exitVehicle};
     if(buildMode)return{id:'place-build',type:'build',icon:'🧱',label:'Colocar construção',radius:999,priority:999,action:placeBuild};
@@ -3191,14 +2707,7 @@
   function closeChallengePrompt(){if(!els.challengePrompt)return;els.challengePrompt.hidden=true;els.challengePrompt.classList.remove('ready','incoming','social');promptChallengeId='';promptSessionId='';promptSocialRequestId='';els.challengePromptAccept.disabled=false;els.challengePromptDecline.disabled=false;}
   function showIncomingChallengePrompt(c){if(!c||c.status!=='pending'||!els.challengePrompt)return;promptChallengeId=c.id;promptSessionId='';els.challengePrompt.classList.add('incoming');els.challengePrompt.classList.remove('ready','social');els.challengePromptKicker.textContent='NOVO DESAFIO';els.challengePromptTitle.textContent=`${c.fromName||'Jogador'} desafiou você`;els.challengePromptText.textContent=`${multiplayerGameLabel(c.type)} • toque em Aceitar e jogar`;els.challengePromptAccept.textContent='Aceitar e jogar';els.challengePromptDecline.textContent='Recusar';els.challengePrompt.hidden=false;}
   function showReadySessionPrompt(s){if(!s||s.status!=='active'||!els.challengePrompt)return;const uid=window.OTTHOS_RTDB?.uid,mine=s.players?.[uid];if(mine?.finished)return;promptSessionId=s.id;promptChallengeId='';els.challengePrompt.classList.add('ready');els.challengePrompt.classList.remove('incoming','social');els.challengePromptKicker.textContent='PARTIDA PRONTA';els.challengePromptTitle.textContent=`Duelo de ${multiplayerGameLabel(s.type)}`;els.challengePromptText.textContent=`Contra ${sessionOpponentName(s)} • os dois jogarão as mesmas 5 atividades`;els.challengePromptAccept.textContent='Jogar agora';els.challengePromptDecline.textContent='Depois';els.challengePrompt.hidden=false;}
-  const SOCIAL_ACTION_LABELS={dance:'dançar',play:'brincar',highfive:'fazer toca aqui',hug:'dar um abraço',selfie:'tirar uma selfie',boatPassenger:'entrar no barco como passageiro',vehiclePassenger:'entrar no carro como passageiro',fishTogether:'pescar junto',campfireJoin:'participar da fogueira',huntTogether:'rastrear animais junto'};
-  // V627: botão de habilidades no painel de jogo
-  document.addEventListener('DOMContentLoaded',()=>{
-    const skillsBtn=document.getElementById('skillsToggleBtn');
-    if(skillsBtn)skillsBtn.addEventListener('click',()=>{
-      if(running&&!paused&&els.modal.hidden)openSkillsPanel();
-    });
-  });
+  const SOCIAL_ACTION_LABELS={dance:'dançar',play:'brincar',highfive:'fazer toca aqui',hug:'dar um abraço',selfie:'tirar uma selfie',vehiclePassenger:'entrar no carro como passageiro',boatPassenger:'entrar no barco como passageiro',fishTogether:'pescar junto',campfireJoin:'participar da fogueira',huntTogether:'rastrear animais junto'};
   function socialActionLabel(type){return SOCIAL_ACTION_LABELS[type]||'interagir';}
   function socialRequestPending(){return[...incomingSocialRequests.values()].filter(r=>r.status==='pending'&&Number(r.expiresAt||0)>Date.now());}
   function showIncomingSocialRequest(request){
@@ -3206,15 +2715,17 @@
     promptSocialRequestId=request.id;promptChallengeId='';promptSessionId='';els.challengePrompt.classList.add('incoming','social');els.challengePrompt.classList.remove('ready');els.challengePromptKicker.textContent='CONVITE MULTIPLAYER';els.challengePromptTitle.textContent=`${request.fromName||'Jogador'} quer ${socialActionLabel(request.actionType)}`;els.challengePromptText.textContent='Nada será executado antes da sua confirmação.';els.challengePromptAccept.textContent='Aceitar';els.challengePromptDecline.textContent='Recusar';els.challengePrompt.hidden=false;
   }
   async function sendSocialActionRequest(targetUid,targetName,actionType,extra={}){
+    if(actionType==='vehiclePassenger'&&(!player.vehicle||player.car.passengerOf)){toast('Somente o motorista do carro pode convidar um passageiro.','warn',2500);return false;}
+    if(actionType==='vehiclePassenger'&&(player.car.passengerUid||player.car.botPassengerId)){toast('Este carro já tem passageiro.','warn',2300);return false;}
     if(actionType==='boatPassenger'&&(!player.boating||player.boat.passengerOf)){toast('Somente o motorista do barco pode convidar um passageiro.','warn',2500);return false;}
-    if(actionType==='boatPassenger'&&player.boat.passengerUid){toast('Este barco já tem um passageiro.','warn',2300);return false;}
+    if(actionType==='boatPassenger'&&(player.boat.passengerUid||player.boat.botPassengerId)){toast('Este barco já tem um passageiro.','warn',2300);return false;}
     const result=await window.OTTHOS_RTDB?.sendSocialRequest?.(targetUid,actionType,targetName,extra);if(result?.ok){state.multiplayerRequests.lastSentAt=Date.now();saveState();toast(`Convite enviado para ${targetName}.`,'good',2300);return true;}toast(result?.error||'Não foi possível enviar o convite.','warn',2600);return false;
   }
   function applyAcceptedSocialAction(actionType,context={}){
     const rewardKey=String(context.requestId||'');if(rewardKey&&state.multiplayerRequests.completed.includes(rewardKey))return;
     if(['dance','play','highfive','hug','selfie'].includes(actionType)){triggerEmote(actionType);if(actionType==='play')state.needs.fun=clamp(state.needs.fun+10,0,100);}
+    else if(actionType==='vehiclePassenger'){if(context.role==='passenger'||context.incoming)enterVehicleAsPassenger(context.fromUid||context.partnerUid);else{player.car.passengerUid=context.partnerUid||'';toast(`${context.partnerName||'Seu amigo'} entrou como passageiro do carro.`,'good',2600);}}
     else if(actionType==='boatPassenger'){if(context.role==='passenger'||context.incoming)enterBoatAsPassenger(context.fromUid||context.partnerUid);else{player.boat.passengerUid=context.partnerUid||'';toast(`${context.partnerName||'Seu amigo'} entrou como passageiro.`,'good',2600);}}
-    else if(actionType==='vehiclePassenger'){if(context.role==='passenger'||context.incoming)enterVehicleAsPassenger(context.fromUid||context.partnerUid);else{player.vehiclePassengerUid=context.partnerUid||'';toast(`${context.partnerName||'Seu amigo'} entrou como passageiro no carro.`,'good',2600);}}
     else if(actionType==='fishTogether'){startFishing(player.boating?'boat':'shore',{cooperative:true,requestId:rewardKey,partnerName:context.partnerName||context.fromName||'amigo'});}
     else if(actionType==='campfireJoin'){openNearestCampfire();}
     else if(actionType==='huntTogether'){startHunting({cooperative:true,requestId:rewardKey,partnerName:context.partnerName||context.fromName||'amigo'});}
@@ -3222,7 +2733,7 @@
   }
   async function acceptIncomingSocialRequest(id){
     const request=incomingSocialRequests.get(id);if(!request)return;els.challengePromptAccept.disabled=true;els.challengePromptDecline.disabled=true;const result=await window.OTTHOS_RTDB?.respondSocialRequest?.(id,'accepted');
-    if(result?.ok){closeChallengePrompt();applyAcceptedSocialAction(request.actionType,{incoming:true,role:request.actionType==='boatPassenger'?'passenger':'participant',requestId:id,fromUid:request.fromUid,fromName:request.fromName,partnerName:request.fromName});toast(`Convite de ${request.fromName||'Jogador'} aceito.`,'good',2200);setTimeout(()=>window.OTTHOS_RTDB?.completeSocialRequest?.(id),1800);}else{closeChallengePrompt();toast(result?.reason||result?.error||'O convite não pôde ser aceito.','warn',2600);}
+    if(result?.ok){closeChallengePrompt();applyAcceptedSocialAction(request.actionType,{incoming:true,role:(request.actionType==='boatPassenger'||request.actionType==='vehiclePassenger')?'passenger':'participant',requestId:id,fromUid:request.fromUid,fromName:request.fromName,partnerName:request.fromName});toast(`Convite de ${request.fromName||'Jogador'} aceito.`,'good',2200);setTimeout(()=>window.OTTHOS_RTDB?.completeSocialRequest?.(id),1800);}else{closeChallengePrompt();toast(result?.reason||result?.error||'O convite não pôde ser aceito.','warn',2600);}
   }
   async function declineIncomingSocialRequest(id){
     const request=incomingSocialRequests.get(id);els.challengePromptAccept.disabled=true;els.challengePromptDecline.disabled=true;const result=await window.OTTHOS_RTDB?.respondSocialRequest?.(id,'declined');closeChallengePrompt();toast(request?`Convite de ${request.fromName||'Jogador'} recusado.`:(result?.error||'Convite recusado.'),'warn',1900);
@@ -3262,16 +2773,14 @@
   function chatMessageHtml(m){return`<article class="world-chat-message"><b>${escapeHtml(m.name||'Jogador')}</b><span>${escapeHtml(m.text||'')}</span></article>`;}
   function openRemotePlayerActions(uid,ghost){
     const name=ghost.userData.displayName||'Jogador',nearLake=isNearFishingArea()||player.boating,nearCamp=nearestActiveCampfire(8),nearHunt=Math.hypot(player.x+96,player.z+72)<25;
-    // V627: carona no carro
-    const carCoopBtn=player.vehicle&&!player.vehiclePassengerUid?'<button class="choice" data-player-action="vehiclePassenger"><b>\ud83d\ude97 Carona no carro</b><span>Convidar para o seu carro</span></button>':'';
-    const cooperative=`${player.boating&&!player.boat.passengerOf&&!player.boat.passengerUid?'<button class="choice" data-player-action="boatPassenger"><b>🛶 Passageiro</b><span>Convidar para o seu barco</span></button>':''}${carCoopBtn}${nearLake?'<button class="choice" data-player-action="fishTogether"><b>🎣 Pescar juntos</b><span>Cada jogador recebe o próprio peixe</span></button>':''}${nearCamp?'<button class="choice" data-player-action="campfireJoin"><b>🔥 Fogueira</b><span>Convidar para sentar e cozinhar</span></button>':''}${nearHunt?'<button class="choice" data-player-action="huntTogether"><b>🐾 Rastrear juntos</b><span>Atividade infantil sem violência</span></button>':''}`;
+    const cooperative=`${player.vehicle&&!player.car.passengerOf&&!player.car.passengerUid&&!player.car.botPassengerId?'<button class="choice" data-player-action="vehiclePassenger"><b>🚗 Passageiro</b><span>Convidar para o seu carro</span></button>':''}${player.boating&&!player.boat.passengerOf&&!player.boat.passengerUid&&!player.boat.botPassengerId?'<button class="choice" data-player-action="boatPassenger"><b>🛶 Passageiro</b><span>Convidar para o seu barco</span></button>':''}${nearLake?'<button class="choice" data-player-action="fishTogether"><b>🎣 Pescar juntos</b><span>Cada jogador recebe o próprio peixe</span></button>':''}${nearCamp?'<button class="choice" data-player-action="campfireJoin"><b>🔥 Fogueira</b><span>Convidar para sentar e cozinhar</span></button>':''}${nearHunt?'<button class="choice" data-player-action="huntTogether"><b>🐾 Rastrear juntos</b><span>Atividade infantil sem violência</span></button>':''}`;
     openModal(name,`<p>Interaja com este jogador em tempo real. Ações conjuntas só começam depois que ele aceitar.</p><div class="choice-grid remote-social-grid"><button class="choice" data-player-action="wave"><b>👋 Acenar</b><span>Saudação imediata</span></button><button class="choice" data-player-action="dance"><b>🕺 Dançar juntos</b><span>Requer aceite</span></button><button class="choice" data-player-action="play"><b>🎈 Brincar</b><span>Requer aceite</span></button><button class="choice" data-player-action="highfive"><b>🙌 Toca aqui</b><span>Requer aceite</span></button><button class="choice" data-player-action="hug"><b>🤗 Abraçar</b><span>Requer aceite</span></button><button class="choice" data-player-action="selfie"><b>📸 Selfie</b><span>Requer aceite</span></button>${cooperative}<button class="choice" data-player-action="giftCoins"><b>🪙 Dar 10 moedas</b><span>Presente online</span></button><button class="choice" data-player-action="giftCrystal"><b>💎 Dar cristal</b><span>Usa 1 cristal</span></button><button class="choice" data-player-action="challenge"><b>⚔️ Desafiar</b><span>Matemática, Português ou English</span></button><button class="choice" data-player-action="message"><b>💬 Mencionar no chat</b><span>Abrir conversa pública</span></button></div>`,root=>{$$('[data-player-action]',root).forEach(btn=>btn.onclick=async()=>{
       const action=btn.dataset.playerAction;if(action==='message'){closeModal();openSocialHub();setTimeout(()=>{const input=$('#worldChatInput');if(input){input.value=`@${name} `;input.focus();}},100);return;}
       if(action==='giftCoins'){if(state.profile.coins<10){toast('Você não tem 10 moedas.','warn');return;}const ok=await window.OTTHOS_RTDB?.sendGift?.(uid,{type:'coins',amount:10});if(ok){addCoins(-10);toast(`Você presenteou ${name}.`,'good');}}
       else if(action==='giftCrystal'){if(state.inventory.crystals<1){toast('Você não tem cristal.','warn');return;}const ok=await window.OTTHOS_RTDB?.sendGift?.(uid,{type:'crystal',amount:1});if(ok){state.inventory.crystals--;saveState(true);toast(`Cristal enviado para ${name}.`,'good');}}
       else if(action==='challenge'){openChallengePicker(uid,name);return;}
       else if(action==='wave'){const ok=await window.OTTHOS_RTDB?.sendInteraction?.(uid,{type:'wave'});if(ok){triggerEmote('wave');toast(`Você acenou para ${name}.`,'good');}}
-      else{await sendSocialActionRequest(uid,name,action,{boatId:state.boats.activeBoatId||'',campfireId:nearCamp?.data?.id||''});}
+      else{await sendSocialActionRequest(uid,name,action,{vehicleId:player.car.activeVehicleId||'',boatId:state.boats.activeBoatId||'',campfireId:nearCamp?.data?.id||''});}
       closeModal();
     });});
   }
@@ -3287,7 +2796,7 @@
   function remotePlayerEvent(data){if(!data||data.uid===window.OTTHOS_RTDB?.uid)return;remotePresence.set(data.uid,data);let ghost=world.ghosts.get(data.uid);if(scene&&!ghost){ghost=createGhost(data.color||0x5ad8ff,data.name||'Jogador');world.ghosts.set(data.uid,ghost);}if(ghost){updateGhostName(ghost,data.name);ghost.userData.target=data;}refreshOpenSocialHub();}
   window.addEventListener('otthos:mp-status',e=>{multiplayerState={...multiplayerState,...e.detail};state.multiplayer.cloudReady=!!multiplayerState.connected;if(e.detail?.uid)state.multiplayer.cloudUid=e.detail.uid;if(Array.isArray(e.detail?.players)){remotePresence.clear();e.detail.players.filter(p=>p.uid!==window.OTTHOS_RTDB?.uid).forEach(p=>remotePresence.set(p.uid,p));}updateMultiplayerBadge();refreshOpenSocialHub();});
   window.addEventListener('otthos:mp-player',e=>remotePlayerEvent(e.detail));
-  window.addEventListener('otthos:mp-leave',e=>{const id=e.detail?.uid;remotePresence.delete(id);if(player.boat.passengerUid===id)player.boat.passengerUid='';const ghost=world.ghosts.get(id);if(ghost){scene?.remove(ghost);world.ghosts.delete(id);}multiplayerState.count=Math.max(1,remotePresence.size+1);updateMultiplayerBadge();refreshOpenSocialHub();});
+  window.addEventListener('otthos:mp-leave',e=>{const id=e.detail?.uid;remotePresence.delete(id);if(player.boat.passengerUid===id)player.boat.passengerUid='';if(player.car.passengerUid===id)player.car.passengerUid='';const ghost=world.ghosts.get(id);if(ghost){scene?.remove(ghost);world.ghosts.delete(id);}multiplayerState.count=Math.max(1,remotePresence.size+1);updateMultiplayerBadge();refreshOpenSocialHub();});
   window.addEventListener('otthos:cloud-profile',e=>mergeCloudProgress(e.detail?.progress));
   window.addEventListener('otthos:campfires-cloud',e=>{pendingCloudCampfires=e.detail||{};applyCloudWorldObjects();});
   window.addEventListener('otthos:extensions-cloud',e=>{pendingCloudExtensions=e.detail||{};applyCloudWorldObjects();});
@@ -3296,7 +2805,9 @@
   window.addEventListener('otthos:chat-removed',e=>{const id=e.detail?.id,index=cloudChat.findIndex(m=>m.id===id);if(index>=0)cloudChat.splice(index,1);refreshOpenSocialHub();});
   window.addEventListener('otthos:gift',e=>{const gift=e.detail;if(!gift)return;if(gift.type==='coins'){state.profile.coins+=Number(gift.amount||0);}else if(gift.type==='crystal'){state.inventory.crystals=(state.inventory.crystals||0)+Number(gift.amount||1);}saveState(true);toast(`🎁 ${gift.senderName||'Jogador'} enviou um presente!`,'good',2600);});
   window.addEventListener('otthos:interaction',e=>{const it=e.detail;if(!it)return;const sender=it.senderName||'Jogador';
-    if(it.type==='boatPassengerLeft'){player.boat.passengerUid='';toast(`${sender} saiu do barco.`,'warn',1900);}
+    if(it.type==='vehiclePassengerLeft'){player.car.passengerUid='';toast(`${sender} saiu do carro.`,'warn',1900);}
+    else if(it.type==='vehicleEnded'){if(player.vehicle&&player.car.passengerOf===it.senderUid)exitVehicle(true);toast('O motorista encerrou o passeio de carro.','warn',2300);}
+    else if(it.type==='boatPassengerLeft'){player.boat.passengerUid='';toast(`${sender} saiu do barco.`,'warn',1900);}
     else if(it.type==='boatEnded'){if(player.boating&&player.boat.passengerOf===it.senderUid)exitBoat(true);toast('O motorista encerrou o passeio de barco.','warn',2300);}
     else if(it.type==='challengeAccepted')toast(`🎮 ${sender} aceitou seu desafio! Abra Online para jogar.`,'good',3400);
     else if(it.type==='challengeDeclined')toast(`${sender} recusou o desafio.`,'warn',2400);
@@ -3314,25 +2825,37 @@
   window.addEventListener('otthos:rtdb-ready',async()=>{if(running||hasValidPlayerName()){const ok=await window.OTTHOS_RTDB?.connect?.({name:state.profile.name||'Jogador'});if(ok){window.OTTHOS_RTDB?.syncCampfires?.(state.campfires);window.OTTHOS_RTDB?.syncHouseExtensions?.(state.houseExtensions);}}});
 
   function initLocalMultiplayer(){
-    if(typeof BroadcastChannel==='function'){localChannel=new BroadcastChannel('otthos-life-world-v626');localChannel.onmessage=e=>{const data=e.data;if(!data||data.id===state.profile.playerId)return;if(data.type==='leave'){const ghost=world.ghosts.get(data.id);if(ghost){scene.remove(ghost);world.ghosts.delete(data.id);}return;}remotePlayerEvent({...data,uid:data.id});};window.addEventListener('beforeunload',()=>localChannel?.postMessage({type:'leave',id:state.profile.playerId}));}
+    if(typeof BroadcastChannel==='function'){localChannel=new BroadcastChannel('otthos-life-world-v627');localChannel.onmessage=e=>{const data=e.data;if(!data||data.id===state.profile.playerId)return;if(data.type==='leave'){const ghost=world.ghosts.get(data.id);if(ghost){scene.remove(ghost);world.ghosts.delete(data.id);}return;}remotePlayerEvent({...data,uid:data.id});};window.addEventListener('beforeunload',()=>localChannel?.postMessage({type:'leave',id:state.profile.playerId}));}
     window.OTTHOS_MULTIPLAYER={version:5,playerId:state.profile.playerId,mode:window.OTTHOS_RTDB?.configured?'firebase-public-world':'local-preview',connect:()=>window.OTTHOS_RTDB?.connect?.({name:state.profile.name||'Jogador'})||true,publish:payload=>{localChannel?.postMessage(payload);window.OTTHOS_RTDB?.publish?.(payload);},adapter:window.OTTHOS_RTDB?.configured?'Firebase Realtime Database':'BroadcastChannel'};updateMultiplayerBadge();if(window.OTTHOS_RTDB?.configured&&hasValidPlayerName())window.OTTHOS_RTDB.connect({name:state.profile.name||'Jogador'});
   }
   function multiplayerNameTexture(name){const c=document.createElement('canvas');c.width=512;c.height=128;const ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);ctx.fillStyle='rgba(5,18,34,.88)';ctx.strokeStyle='rgba(255,255,255,.92)';ctx.lineWidth=8;const r=30;ctx.beginPath();if(ctx.roundRect)ctx.roundRect(8,8,c.width-16,c.height-16,r);else ctx.rect(8,8,c.width-16,c.height-16);ctx.fill();ctx.stroke();ctx.fillStyle='#fff';ctx.font='900 48px system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(sanitizePlayerName(name)||'Jogador',c.width/2,c.height/2+2);const tex=new THREE.CanvasTexture(c);tex.minFilter=THREE.LinearFilter;tex.magFilter=THREE.LinearFilter;tex.generateMipmaps=false;return tex;}
   function updateLocalPlayerNameLabel(){if(!playerGroup?.userData?.nameLabel)return;const clean=playerDisplayName();if(playerGroup.userData.displayName===clean)return;const label=playerGroup.userData.nameLabel,old=label.material.map;label.material.map=multiplayerNameTexture(clean);label.material.needsUpdate=true;old?.dispose?.();playerGroup.userData.displayName=clean;}
   function updateGhostName(ghost,name){const clean=sanitizePlayerName(name)||'Jogador';if(ghost.userData.displayName===clean)return;ghost.userData.displayName=clean;if(ghost.userData.nameLabel){const old=ghost.userData.nameLabel.material.map;ghost.userData.nameLabel.material.map=multiplayerNameTexture(clean);ghost.userData.nameLabel.material.needsUpdate=true;old?.dispose?.();}}
-  function createGhost(color,name='Jogador'){const g=new THREE.Group();box(.82,1.18,.58,color,0,1.25,0,g);box(.72,.72,.72,0x111217,0,2.24,0,g);const leftArm=box(.22,1,.25,0xff9a24,-.58,1.28,0,g),rightArm=box(.22,1,.25,0xff9a24,.58,1.28,0,g),leftLeg=box(.25,1,.28,0x20242b,-.22,.34,0,g),rightLeg=box(.25,1,.28,0x20242b,.22,.34,0,g);box(.12,.1,.04,0xff3344,-.14,2.27,.38,g);box(.12,.1,.04,0xff3344,.14,2.27,.38,g);const label=new THREE.Sprite(new THREE.SpriteMaterial({map:multiplayerNameTexture(name),transparent:true,depthWrite:false,depthTest:false}));label.position.set(0,3.05,0);label.scale.set(2.75,.69,1);label.renderOrder=999;g.add(label);g.userData.nameLabel=label;g.userData.displayName=sanitizePlayerName(name)||'Jogador';g.userData.limbs={leftArm,rightArm,leftLeg,rightLeg};g.userData.phase=Math.random()*6.28;scene.add(g);return g;}
+  function createGhost(color,name='Jogador'){const g=new THREE.Group();box(.82,1.18,.58,color,0,1.25,0,g);box(.72,.72,.72,0x111217,0,2.24,0,g);const leftArm=box(.22,1,.25,0xff9a24,-.58,1.28,0,g),rightArm=box(.22,1,.25,0xff9a24,.58,1.28,0,g),leftLeg=box(.25,1,.28,0x20242b,-.22,.34,0,g),rightLeg=box(.25,1,.28,0x20242b,.22,.34,0,g);box(.12,.1,.04,0xff3344,-.14,2.27,.38,g);box(.12,.1,.04,0xff3344,.14,2.27,.38,g);const label=new THREE.Sprite(new THREE.SpriteMaterial({map:multiplayerNameTexture(name),transparent:true,depthWrite:false,depthTest:false}));label.position.set(0,3.05,0);label.scale.set(2.75,.69,1);label.renderOrder=999;g.add(label);g.userData.nameLabel=label;g.userData.displayName=sanitizePlayerName(name)||'Jogador';g.userData.limbs={leftArm,rightArm,leftLeg,rightLeg};g.userData.phase=Math.random()*6.28;const ghostCar=new THREE.Group();premiumBox(2.0,.42,3.0,0x26384e,0,.35,0,ghostCar);premiumBox(1.75,.72,1.65,0xf28a22,0,.72,.25,ghostCar);for(const p of [[-.9,.3,-.85],[.9,.3,-.85],[-.9,.3,.85],[.9,.3,.85]]){const w=premiumCylinder(.34,.22,0x111827,p[0],p[1],p[2],ghostCar,12);w.rotation.z=Math.PI/2;}ghostCar.visible=false;g.add(ghostCar);g.userData.vehicleShell=ghostCar;const ghostBoat=new THREE.Group();premiumBox(2.4,.42,4.3,0x7b3f20,0,.35,0,ghostBoat);premiumBox(2.0,.3,3.4,0x2d6f8d,0,.66,0,ghostBoat);ghostBoat.visible=false;g.add(ghostBoat);g.userData.boatShell=ghostBoat;scene.add(g);return g;}
   function updateMultiplayer(dt){
-    const now=performance.now(),payload={type:'position',id:state.profile.playerId,name:state.profile.name||'Jogador',x:+player.x.toFixed(2),y:+player.y.toFixed(2),z:+player.z.toFixed(2),r:+player.facing.toFixed(3),vehicle:!!player.vehicle,boating:!!player.boating,boatId:state.boats.activeBoatId||'',boatRole:player.boating?(player.boat.passengerOf?'passenger':'driver'):'',passengerOf:player.boat.passengerOf||'',boatPassengerUid:player.boat.passengerUid||'',scaleMode:player.scaleMode,crouched:!!player.crouched,emoteType:player.emoteType||'',emoteSeq:Number(player.emoteSeq||0),color:0x5ad8ff};
-    const changed=!lastPublishSnapshot||Math.hypot(payload.x-lastPublishSnapshot.x,payload.z-lastPublishSnapshot.z)>.06||Math.abs(payload.r-lastPublishSnapshot.r)>.025||payload.vehicle!==lastPublishSnapshot.vehicle||payload.boating!==lastPublishSnapshot.boating||payload.boatRole!==lastPublishSnapshot.boatRole||payload.boatPassengerUid!==lastPublishSnapshot.boatPassengerUid||payload.scaleMode!==lastPublishSnapshot.scaleMode||payload.crouched!==lastPublishSnapshot.crouched||payload.emoteSeq!==lastPublishSnapshot.emoteSeq;
+    const now=performance.now(),payload={type:'position',id:state.profile.playerId,name:state.profile.name||'Jogador',x:+player.x.toFixed(2),y:+player.y.toFixed(2),z:+player.z.toFixed(2),r:+player.facing.toFixed(3),vehicle:!!player.vehicle,vehicleRole:player.vehicle?(player.car.passengerOf?'passenger':'driver'):'',passengerOfVehicle:player.car.passengerOf||'',vehiclePassengerUid:player.car.passengerUid||'',boating:!!player.boating,boatId:state.boats.activeBoatId||'',boatRole:player.boating?(player.boat.passengerOf?'passenger':'driver'):'',passengerOf:player.boat.passengerOf||'',boatPassengerUid:player.boat.passengerUid||'',scaleMode:player.scaleMode,crouched:!!player.crouched,emoteType:player.emoteType||'',emoteSeq:Number(player.emoteSeq||0),color:0x5ad8ff};
+    const changed=!lastPublishSnapshot||Math.hypot(payload.x-lastPublishSnapshot.x,payload.z-lastPublishSnapshot.z)>.06||Math.abs(payload.r-lastPublishSnapshot.r)>.025||payload.vehicle!==lastPublishSnapshot.vehicle||payload.vehicleRole!==lastPublishSnapshot.vehicleRole||payload.vehiclePassengerUid!==lastPublishSnapshot.vehiclePassengerUid||payload.boating!==lastPublishSnapshot.boating||payload.boatRole!==lastPublishSnapshot.boatRole||payload.boatPassengerUid!==lastPublishSnapshot.boatPassengerUid||payload.scaleMode!==lastPublishSnapshot.scaleMode||payload.crouched!==lastPublishSnapshot.crouched||payload.emoteSeq!==lastPublishSnapshot.emoteSeq;
     if((changed&&now-lastPublish>240)||now-lastPublishHeartbeat>2200){lastPublish=now;lastPublishHeartbeat=now;lastPublishSnapshot=payload;localChannel?.postMessage(payload);window.OTTHOS_RTDB?.publish?.(payload);}
-    for(const ghost of world.ghosts.values()){const t=ghost.userData.target;if(!t)continue;ghost.position.x=lerp(ghost.position.x,t.x,Math.min(1,dt*8));ghost.position.y=lerp(ghost.position.y,t.y,Math.min(1,dt*8));ghost.position.z=lerp(ghost.position.z,t.z,Math.min(1,dt*8));ghost.rotation.y=lerpAngle(ghost.rotation.y,t.r||0,Math.min(1,dt*8));if(Number(t.emoteSeq||0)!==Number(ghost.userData.lastEmoteSeq||0)){ghost.userData.lastEmoteSeq=Number(t.emoteSeq||0);ghost.userData.emoteType=t.emoteType||'';ghost.userData.emoteUntil=performance.now()+2600;}const moving=Math.hypot(ghost.position.x-t.x,ghost.position.z-t.z)>.03,walk=moving?Math.sin(animTime*9+ghost.userData.phase)*.45:0,emote=performance.now()<Number(ghost.userData.emoteUntil||0)?ghost.userData.emoteType:'';if(ghost.userData.limbs){const l=ghost.userData.limbs;l.leftArm.rotation.x=emote==='dance'?-1.35:emote==='play'?-1.9:emote==='hug'?-1.45:walk;l.rightArm.rotation.x=emote==='wave'?-2.2:emote==='highfive'?-2.5:emote==='dance'?-1.35:emote==='play'?-1.9:emote==='hug'?-1.45:-walk;l.leftArm.rotation.z=emote==='dance'?1.0:emote==='play'?.55:emote==='hug'?-.48:0;l.rightArm.rotation.z=emote==='dance'?-1.0:emote==='play'?-.55:emote==='hug'?.48:0;l.leftLeg.rotation.x=-walk*.75;l.rightLeg.rotation.x=walk*.75;}ghost.scale.setScalar(t.scaleMode==='mini'?.58:t.scaleMode==='giant'?1.42:1);}
+    for(const ghost of world.ghosts.values()){
+      const t=ghost.userData.target;if(!t)continue;
+      const heading=Number(t.r||0),carPassenger=!!t.vehicle&&t.vehicleRole==='passenger',boatPassenger=!!t.boating&&t.boatRole==='passenger';
+      const seatSide=carPassenger?.58:boatPassenger?.64:0,targetX=Number(t.x||0)+Math.cos(heading)*seatSide,targetZ=Number(t.z||0)-Math.sin(heading)*seatSide,targetY=Number(t.y||0)+(boatPassenger?.14:0);
+      const beforeX=ghost.position.x,beforeZ=ghost.position.z,follow=Math.min(1,dt*8);
+      ghost.position.x=lerp(ghost.position.x,targetX,follow);ghost.position.y=lerp(ghost.position.y,targetY,follow);ghost.position.z=lerp(ghost.position.z,targetZ,follow);ghost.rotation.y=lerpAngle(ghost.rotation.y,heading,follow);
+      if(Number(t.emoteSeq||0)!==Number(ghost.userData.lastEmoteSeq||0)){ghost.userData.lastEmoteSeq=Number(t.emoteSeq||0);ghost.userData.emoteType=t.emoteType||'';ghost.userData.emoteUntil=performance.now()+2600;}
+      const moving=Math.hypot(ghost.position.x-beforeX,ghost.position.z-beforeZ)>.002,walk=moving?Math.sin(animTime*9+ghost.userData.phase)*.45:0,emote=performance.now()<Number(ghost.userData.emoteUntil||0)?ghost.userData.emoteType:'';
+      if(ghost.userData.limbs){const l=ghost.userData.limbs;l.leftArm.rotation.x=emote==='dance'?-1.35:emote==='play'?-1.9:emote==='hug'?-1.45:walk;l.rightArm.rotation.x=emote==='wave'?-2.2:emote==='highfive'?-2.5:emote==='dance'?-1.35:emote==='play'?-1.9:emote==='hug'?-1.45:-walk;l.leftArm.rotation.z=emote==='dance'?1.0:emote==='play'?.55:emote==='hug'?-.48:0;l.rightArm.rotation.z=emote==='dance'?-1.0:emote==='play'?-.55:emote==='hug'?.48:0;l.leftLeg.rotation.x=-walk*.75;l.rightLeg.rotation.x=walk*.75;}
+      if(ghost.userData.vehicleShell)ghost.userData.vehicleShell.visible=!!t.vehicle&&t.vehicleRole!=='passenger';
+      if(ghost.userData.boatShell)ghost.userData.boatShell.visible=!!t.boating&&t.boatRole!=='passenger';
+      ghost.scale.setScalar(t.scaleMode==='mini'?.58:t.scaleMode==='giant'?1.42:1);
+    }
   }
 
   function gameLoop(){
     if(!running)return;raf=requestAnimationFrame(gameLoop);const dt=Math.min(.033,clock.getDelta());samplePerformance(dt);
     if(!paused){
-      pollGamepad();updatePlayer(dt);updateFishingVisual(dt);updateVehicleFX(dt);updateFX(dt);updateFireballs(dt);updateRace(dt);updateNeeds(dt);updateCamera(dt);updateNavigation(dt);updateVisualLOD(dt);
-      perf.aiAcc+=dt;if(perf.aiAcc>=1/30){const step=perf.aiAcc;perf.aiAcc=0;updateNPCs(step);updateNpcSociety(step);updateEnemies(step);updateMultiplayer(step);updateLifeActivities(step);updateNpcVehicles(step);}
+      pollGamepad();updateTransportWorld(dt);updatePlayer(dt);updateFishingVisual(dt);updateVehicleFX(dt);updateFX(dt);updateFireballs(dt);updateRace(dt);updateNeeds(dt);updateCamera(dt);updateNavigation(dt);updateVisualLOD(dt);
+      perf.aiAcc+=dt;if(perf.aiAcc>=1/30){const step=perf.aiAcc;perf.aiAcc=0;updateNPCs(step);updateNpcSociety(step);updateEnemies(step);updateMultiplayer(step);updateLifeActivities(step);}
       perf.cloudAcc+=dt;if(perf.cloudAcc>=1/15){const step=perf.cloudAcc;perf.cloudAcc=0;updateClouds(step);}
     }
     renderer.setScissorTest(false);renderer.setViewport(0,0,renderer.domElement.width,renderer.domElement.height);renderer.autoClear=true;renderer.render(scene,camera);
@@ -3353,7 +2876,7 @@
     press(els.cameraNearBtn,()=>adjustCamera(-1.6));press(els.cameraFarBtn,()=>adjustCamera(1.6));press(els.cameraResetBtn,()=>{cameraZoom=0;cameraPitch=.38;cameraYaw=currentHouse?0:player.facing;state.settings.cameraZoom=0;saveState();toast('Câmera centralizada.','good',900);});
     els.miniNav?.addEventListener('click',openMap);press(els.specialBtn,firePower);press(els.crouchBtn,()=>toggleCrouch());press(els.miniBtn,()=>setScaleMode('mini'));press(els.normalBtn,()=>setScaleMode('normal'));press(els.giantBtn,()=>setScaleMode('giant'));press(els.spinBtn,spinPlayer);
     [els.quickBar,els.inventoryBtn,els.buildBtn,els.mapBtn,els.gameSettingsBtn].forEach(el=>el?.addEventListener('pointerdown',e=>e.stopPropagation()));
-    window.addEventListener('keydown',e=>{input.keys.add(e.code);if(['Space','KeyE','KeyF','KeyC','Digit1','Digit2','Digit3','KeyR','ShiftLeft','ShiftRight','KeyQ','KeyX'].includes(e.code))e.preventDefault();updateRunUI();if(e.code==='Space')requestJump();if(e.code==='KeyE')doAction();if(e.code==='KeyF')firePower();if(e.code==='KeyC')toggleCrouch();if(e.code==='Digit1')setScaleMode('mini');if(e.code==='Digit2')setScaleMode('normal');if(e.code==='Digit3')setScaleMode('giant');if(e.code==='KeyR')spinPlayer();if(e.code==='KeyQ'&&running&&!paused&&els.modal.hidden)openSkillsPanel();if(e.code==='KeyX'&&running&&!paused)useSkill('dash');if(e.code==='Escape'){e.preventDefault();if(!running)return;if(pauseMenuOpen)closeModal();else if(!els.modal.hidden)closeModal();else openPauseMenu();}});window.addEventListener('keyup',e=>{input.keys.delete(e.code);updateRunUI();});
+    window.addEventListener('keydown',e=>{input.keys.add(e.code);if(['Space','KeyE','KeyF','KeyC','Digit1','Digit2','Digit3','KeyR','ShiftLeft','ShiftRight'].includes(e.code))e.preventDefault();updateRunUI();if(e.code==='Space')requestJump();if(e.code==='KeyE')doAction();if(e.code==='KeyF')firePower();if(e.code==='KeyC')toggleCrouch();if(e.code==='Digit1')setScaleMode('mini');if(e.code==='Digit2')setScaleMode('normal');if(e.code==='Digit3')setScaleMode('giant');if(e.code==='KeyR')spinPlayer();if(e.code==='Escape'){e.preventDefault();if(!running)return;if(pauseMenuOpen)closeModal();else if(!els.modal.hidden)closeModal();else openPauseMenu();}});window.addEventListener('keyup',e=>{input.keys.delete(e.code);updateRunUI();});
     els.stage.addEventListener('pointerdown',e=>{if(e.target!==renderer?.domElement)return;input.cameraDrag={id:e.pointerId,x:e.clientX,y:e.clientY};els.stage.setPointerCapture?.(e.pointerId);});
     els.stage.addEventListener('pointermove',e=>{const d=input.cameraDrag;if(!d||d.id!==e.pointerId)return;const dx=e.clientX-d.x,dy=e.clientY-d.y;cameraYaw-=dx*.006;cameraPitch=clamp(cameraPitch+dy*.003,.05,.9);d.x=e.clientX;d.y=e.clientY;});
     const endDrag=e=>{if(input.cameraDrag?.id===e.pointerId)input.cameraDrag=null;};els.stage.addEventListener('pointerup',endDrag);els.stage.addEventListener('pointercancel',endDrag);
@@ -3377,7 +2900,7 @@
     if(resetPosition){player.x=0;player.z=8;player.y=0;}else restorePosition();player.scaleMode=state.abilities?.scaleMode||'normal';player.crouched=!!state.abilities?.crouched;updateAbilityUI();running=true;paused=false;clock.start();evaluateMissions();updateHUD();updateContext(true);updateNavigation(0,true);resize(true);cancelAnimationFrame(raf);gameLoop();toast('Bem-vindo à Vila do Sol!','good',2200);
   }
   function stopGame(){
-    if(player.boating){player.x=-24.7;player.z=52;exitBoat(true);}if(player.vehicle)exitVehicle(true);running=false;paused=false;pauseMenuOpen=false;cancelAnimationFrame(raf);stopEngineSound();savePlayerPosition(true);showScreen('lobby');updateLobbyStats();
+    if(player.publicRide?.type)exitPublicRide(true);if(player.boating){player.x=-24.7;player.z=52;exitBoat(true);}if(player.vehicle)exitVehicle(true);running=false;paused=false;pauseMenuOpen=false;cancelAnimationFrame(raf);stopEngineSound();savePlayerPosition(true);showScreen('lobby');updateLobbyStats();
   }
   els.playBtn.onclick=()=>startGame(true);els.continueBtn.onclick=()=>startGame(false);
 
@@ -3429,10 +2952,10 @@
 
   // Public test/audit API
   window.OTTHOS_TEST_API={
-    version:'V627_METRO_BUS_VEHICLES_BOTS_CASTLE_SKILLS_COOP',
+    version:'V627_TRANSPORT_CASTLE_SKILLS_MULTISEAT',
     performance:()=>({fps:+perf.fps.toFixed(1),tier:qualityTier(),requested:requestedQuality(),dpr:renderer?.getPixelRatio?.()||0,drawCalls:renderer?.info?.render?.calls||0,triangles:renderer?.info?.render?.triangles||0}),
     getState:()=>JSON.parse(JSON.stringify(state)),
-    getGame:()=>({running,paused,currentHouse:currentHouse?.id||null,cameraMode,player:{...player},objects:{houses:world.houses.length,npcs:world.npcs.length,enemies:world.enemies.length,interactables:world.interactables.length,builds:world.builds.length}}),
+    getGame:()=>({running,paused,currentHouse:currentHouse?.id||null,cameraMode,player:{...player},objects:{houses:world.houses.length,npcs:world.npcs.length,enemies:world.enemies.length,interactables:world.interactables.length,builds:world.builds.length,vehicles:world.vehicles.length,metroStations:world.metroStations.length,buses:world.buses.length}}),
     getVisual:()=>{const parts=playerModel?.userData?.parts||{};const modelY=playerModel?.position?.y||0;const minFootY=playerModel?.userData?.minFootY??0;const scaleY=playerGroup?.scale?.y||1;const rootY=playerGroup?.position?.y||0;return {procedural:!!playerModel?.userData?.proceduralOtthos,rootY,modelY,minFootY,scaleY,visualBottom:rootY+(modelY+minFootY)*scaleY,limbs:{leftArm:parts.leftArm?.rotation?.x||0,rightArm:parts.rightArm?.rotation?.x||0,leftLeg:parts.leftLeg?.rotation?.x||0,rightLeg:parts.rightLeg?.rotation?.x||0}};},
     teleport:(x,z)=>{player.x=x;player.z=z;player.y=groundHeightAt(x,z);player.vx=player.vy=player.vz=0;player.grounded=true;updateContext(true);},
     getContext:()=>currentContext?{id:currentContext.id,label:currentContext.label,type:currentContext.type,activity:currentContext.activity||null}:null,
@@ -3456,6 +2979,8 @@
     race:()=>activeRace?{type:activeRace.type,npc:activeRace.npcName,playerScore:activeRace.playerScore,opponentScore:activeRace.opponentScore,timeLeft:activeRace.timeLeft}:null,
     startRace:(type='sprint')=>startRace(type,world.npcs[0]),
     map:()=>({player:{x:player.x,z:player.z},waypoint:state.waypoint,route:state.waypoint?buildRoutePoints(player,state.waypoint):[],locations:MAP_LOCATIONS.map(x=>({...x}))}),
+    transport:()=>({ride:{...player.publicRide},vehicles:world.vehicles.map(v=>({id:v.id,x:v.group.position.x,z:v.group.position.z,occupied:!!v.occupied})),metroStations:world.metroStations.map(v=>({id:v.id,name:v.name,x:v.x,z:v.z})),buses:world.buses.map(v=>({id:v.id,x:v.group.position.x,z:v.group.position.z,heading:v.heading})),npcTransports:world.npcs.filter(n=>n.transportKind).map(n=>({id:n.id,name:n.name,kind:n.transportKind}))}),
+    skills:()=>({mastery:{...state.skillMastery},flags:{usedDash:!!state.flags.usedDash,usedSuperJump:!!state.flags.usedSuperJump,usedShield:!!state.flags.usedShield,castleTrial:!!state.flags.castleTrial}}),
     setWaypoint:id=>{setWaypoint(id);return state.waypoint;},
     clearWaypoint:()=>{state.waypoint=null;updateWaypointMarker();updateNavigation(0,true);return true;},
     camera:()=>({yaw:cameraYaw,pitch:cameraPitch,zoom:cameraZoom,mode:cameraMode}),
